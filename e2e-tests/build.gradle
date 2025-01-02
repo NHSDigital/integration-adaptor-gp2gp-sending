@@ -20,7 +20,7 @@ dependencies {
     testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2'
     testImplementation 'commons-io:commons-io:2.17.0'
     testImplementation 'org.awaitility:awaitility:4.2.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
     testImplementation "org.assertj:assertj-core:3.26.3"
     testImplementation 'ch.qos.logback:logback-classic:1.5.15'
     testImplementation 'org.xmlunit:xmlunit-assertj3:2.10.0'
