@@ -8,6 +8,7 @@
   },
   "response": {
     "status": 200,
+    "fixedDelayMilliseconds": 300000,
     "bodyFileName": "correctPatientStructuredRecordLargePayload.json",
     "headers": {
       "Server": "nginx",
