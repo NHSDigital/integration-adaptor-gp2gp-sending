@@ -13,9 +13,9 @@ public class S3StorageConnector implements StorageConnector {
     private final S3Client s3client;
     private final String bucketName;
 
-    protected S3StorageConnector(StorageConnectorConfiguration configuration) {
+    protected S3StorageConnector(S3Client s3client, StorageConnectorConfiguration configuration) {
         this.bucketName = configuration.getContainerName();
-        this.s3client = S3Client.builder().build();
+        this.s3client = s3client;
     }
 
     @Override
