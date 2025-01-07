@@ -1,61 +1,51 @@
 package uk.nhs.adaptors.gp2gp.ehr.mapper;
 
-import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.ResourceType;
-import org.hl7.fhir.dstu3.model.Condition;
-import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.IdType;
-
-import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
-import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
-import uk.nhs.adaptors.gp2gp.utils.CodeableConceptMapperMockUtil;
-import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
-import uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility;
-import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
-import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
-import uk.nhs.adaptors.gp2gp.utils.FileParsingUtility;
-import uk.nhs.adaptors.gp2gp.utils.XmlParsingUtility;
-
-import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.Arguments;
+import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.ResourceType;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 import org.xml.sax.SAXException;
-
-import java.io.IOException;
-
+import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
+import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
+import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
+import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
+import uk.nhs.adaptors.gp2gp.utils.CodeableConceptMapperMockUtil;
+import uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility;
+import uk.nhs.adaptors.gp2gp.utils.FileParsingUtility;
+import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 import wiremock.org.custommonkey.xmlunit.XMLAssert;
 
-import java.util.stream.Stream;
+import java.io.IOException;
 import java.util.Optional;
+import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assumptions.assumeThatThrownBy;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertAll;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
-
-import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOPAT_HL7_CONFIDENTIALITY_CODE;
-import static uk.nhs.adaptors.gp2gp.utils.XmlParsingUtility.wrapXmlInRootElement;
-import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOSCRUB;
 import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOPAT;
+import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOPAT_HL7_CONFIDENTIALITY_CODE;
+import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOSCRUB;
 import static uk.nhs.adaptors.gp2gp.utils.IdUtil.buildIdType;
+import static uk.nhs.adaptors.gp2gp.utils.XmlAssertion.assertThatXml;
+import static uk.nhs.adaptors.gp2gp.utils.XmlParsingUtility.wrapXmlInRootElement;
 
 @ExtendWith(MockitoExtension.class)
 class ConditionLinkSetMapperTest {
@@ -118,6 +108,7 @@ class ConditionLinkSetMapperTest {
     private static final String OUTPUT_XML_WITH_NULL_FLAVOR_OBSERVATION_STATEMENT_AVAILABILITY_TIME = EXPECTED_OUTPUT_LINKSET + "18.xml";
     private static final String OUTPUT_XML_WITH_STATEMENT_REF_LINK_ALLERGY_OBSERVATION = EXPECTED_OUTPUT_LINKSET + "19.xml";
     private static final String OUTPUT_XML_MEDICATION_REQUEST_ACTUAL_PROBLEM = EXPECTED_OUTPUT_LINKSET + "20.xml";
+    private static final String OUTPUT_XML_NO_PARTICIPANT = EXPECTED_OUTPUT_LINKSET + "21.xml";
 
     @Mock
     private IdMapper idMapper;
@@ -181,15 +172,6 @@ class ConditionLinkSetMapperTest {
 
         assertThatThrownBy(() -> conditionLinkSetMapper.mapConditionToLinkSet(condition, false))
             .isSameAs(propagatedException);
-    }
-
-    @Test
-    void When_MappingParsedConditionWithoutAsserter_Expect_EhrMapperException() {
-        final Condition condition = getConditionResourceFromJson(INPUT_JSON_ASSERTER_NOT_PRESENT);
-
-        assertThatThrownBy(() -> conditionLinkSetMapper.mapConditionToLinkSet(condition, false))
-            .isExactlyInstanceOf(EhrMapperException.class)
-            .hasMessage("Condition.asserter is required");
     }
 
     @Test
@@ -282,8 +264,8 @@ class ConditionLinkSetMapperTest {
             .getSecurityCodeFromResource(conditionArgumentCaptor.getValue());
 
         assertAll(
-            () -> assertTrue(XmlParsingUtility.xpathMatchFound(actualXml, observationStatementXpath)),
-            () -> assertTrue(XmlParsingUtility.xpathMatchFound(actualXml, linkSetXpath)),
+            () -> assertThatXml(actualXml).containsXPath(observationStatementXpath),
+            () -> assertThatXml(actualXml).containsXPath(linkSetXpath),
             () -> assertThat(conditionSecurityCode).isEqualTo(NOPAT)
         );
     }
@@ -317,6 +299,7 @@ class ConditionLinkSetMapperTest {
             Arguments.of(INPUT_JSON_STATUS_INACTIVE, OUTPUT_XML_WITH_STATUS_INACTIVE, false),
             Arguments.of(INPUT_JSON_DATES_PRESENT, OUTPUT_XML_WITH_DATES_PRESENT, false),
             Arguments.of(INPUT_JSON_DATES_NOT_PRESENT, OUTPUT_XML_WITH_DATES_NOT_PRESENT, false),
+            Arguments.of(INPUT_JSON_ASSERTER_NOT_PRESENT, OUTPUT_XML_NO_PARTICIPANT, false),
             Arguments.of(INPUT_JSON_RELATED_CLINICAL_CONTENT_LIST_REFERENCE, OUTPUT_XML_WITH_NO_RELATED_CLINICAL_CONTENT, false),
             Arguments.of(INPUT_JSON_WITH_ACTUAL_PROBLEM_ALLERGY_INTOLERANCE, OUTPUT_XML_ALLERGY_INTOLERANCE_ACTUAL_PROBLEM, false),
             Arguments.of(INPUT_JSON_WITH_ACTUAL_PROBLEM_IMMUNIZATION, OUTPUT_XML_IMMUNIZATION_ACTUAL_PROBLEM, false),

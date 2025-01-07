@@ -13,7 +13,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -114,13 +116,41 @@ public class EhrExtractStatusService {
     private static final String CONTENT_TYPE_PLACEHOLDER = "CONTENT_TYPE_PLACEHOLDER_ID=";
     private static final String FILENAME_TYPE_PLACEHOLDER = "FILENAME_PLACEHOLDER_ID=";
     private static final String ACKS_SET = ACK_HISTORY + DOT + ACKS;
-    public static final int EHR_EXTRACT_SENT_DAYS_LIMIT = 8;
-    private static final String REASON_ERROR_CODE = "04";
-    public static final String REASON_ERROR_MESSAGE = "The acknowledgement has been received after 8 days";
+
+    @Value("${gp2gp.ehr-extract-sent-days-limit}")
+    private int ehrExtractSentDaysLimit;
 
     private final MongoTemplate mongoTemplate;
     private final EhrExtractStatusRepository ehrExtractStatusRepository;
     private final TimestampService timestampService;
+
+    boolean hasEhrStatusReceivedAckWithErrors(String conversationId) {
+
+        var ehrExtractStatus = fetchEhrExtractStatus(conversationId, "NACK");
+
+        var ehrReceivedAcknowledgement = ehrExtractStatus.getEhrReceivedAcknowledgement();
+        if (ehrReceivedAcknowledgement == null) {
+            return false;
+        }
+
+        var errors = ehrReceivedAcknowledgement.getErrors();
+        if (errors == null || errors.isEmpty()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean hasLastUpdateExceededAckTimeoutLimit(EhrExtractStatus ehrExtractStatus, Instant time) {
+
+        if (ehrExtractStatus.getEhrExtractCorePending() == null) {
+            return false;
+        }
+
+        long daysSinceLastUpdate = Duration.between(ehrExtractStatus.getEhrExtractCorePending().getSentAt(), time).toDays();
+
+        return daysSinceLastUpdate > ehrExtractSentDaysLimit;
+    }
 
     public void saveEhrExtractMessageId(String conversationId, String messageId) {
         Optional<EhrExtractStatus> ehrExtractStatusOptional = ehrExtractStatusRepository.findByConversationId(conversationId);
@@ -171,8 +201,8 @@ public class EhrExtractStatusService {
         return Collections.emptyMap();
     }
 
-    public EhrExtractStatus updateEhrExtractStatusAccessStructured(
-        GetGpcStructuredTaskDefinition structuredTaskDefinition, String structuredRecordJsonFilename) {
+    public EhrExtractStatus updateEhrExtractStatusAccessStructured(GetGpcStructuredTaskDefinition structuredTaskDefinition,
+                                                                   String structuredRecordJsonFilename) {
 
         Query query = createQueryForConversationId(structuredTaskDefinition.getConversationId());
         Instant now = Instant.now();
@@ -194,12 +224,11 @@ public class EhrExtractStatusService {
         return ehrExtractStatus;
     }
 
-    public EhrExtractStatus updateEhrExtractStatusAccessDocument(
-            DocumentTaskDefinition documentTaskDefinition,
-            String storagePath,
-            int base64ContentLength,
-            String errorMessage,
-            String filename) {
+    public EhrExtractStatus updateEhrExtractStatusAccessDocument(DocumentTaskDefinition documentTaskDefinition,
+                                                                 String storagePath,
+                                                                 int base64ContentLength,
+                                                                 String errorMessage,
+                                                                 String filename) {
 
         Query query = new Query();
         query.addCriteria(Criteria
@@ -229,9 +258,8 @@ public class EhrExtractStatusService {
         return ehrExtractStatus;
     }
 
-    public EhrExtractStatus updateEhrExtractStatusCore(
-        SendEhrExtractCoreTaskDefinition sendEhrExtractCoreTaskDefinition,
-        Instant requestSentAt) {
+    public EhrExtractStatus updateEhrExtractStatusCore(SendEhrExtractCoreTaskDefinition sendEhrExtractCoreTaskDefinition,
+                                                       Instant requestSentAt) {
 
         Query query = createQueryForConversationId(sendEhrExtractCoreTaskDefinition.getConversationId());
 
@@ -297,23 +325,51 @@ public class EhrExtractStatusService {
         }
     }
 
+    public void updateEhrExtractStatusWithEhrReceivedAckError(String conversationId,
+                                                              String errorCode,
+                                                              String errorMessage) {
+
+        Update update = createUpdateWithUpdatedAt();
+
+        update.set(RECEIVED_ACK, EhrExtractStatus.EhrReceivedAcknowledgement.builder().errors(
+                                                    List.of(ErrorDetails.builder().code(errorCode).display(errorMessage).build())).build());
+
+        EhrExtractStatus ehrExtractStatus = mongoTemplate.findAndModify(
+            createQueryForConversationId(conversationId),
+            update,
+            getReturningUpdatedRecordOption(),
+            EhrExtractStatus.class);
+
+        if (ehrExtractStatus == null) {
+            throw new EhrExtractException(format(
+                "Couldn't update EHR received acknowledgement with error information because EHR status doesn't exist, conversation_id: %s",
+                conversationId));
+        }
+
+        logger().info("EHR status (EHR received acknowledgement) record successfully "
+                      + "updated in the database with error information conversation_id: {}", conversationId);
+
+    }
+
     public void updateEhrExtractStatusAck(String conversationId, EhrReceivedAcknowledgement ack) {
 
         if (ack.getErrors() == null && !isEhrStatusWaitingForFinalAck(conversationId)) {
-            LOGGER.warn("Received unexpected acknowledgement of EHR Extract with conversation id=" + conversationId);
+            logger().warn("Received unexpected acknowledgement of EHR Extract with conversation id=" + conversationId);
+            return;
+        }
+
+        if (hasAcknowledgementExceededAckTimeoutLimit(conversationId, ack.getReceived())
+            && hasEhrStatusReceivedAckWithErrors(conversationId)) {
+
+            logger().warn("Received an ACK message with conversation_id: {}, "
+                          + "but it is being ignored because the EhrExtract has already been marked as failed "
+                          + "from not receiving an acknowledgement from the requester in time.",
+                          conversationId);
             return;
         }
 
         if (hasFinalAckBeenReceived(conversationId)) {
-            LOGGER.warn("Received an ACK message with a conversation_id=" + conversationId + " that is a duplicate");
-            return;
-        }
-
-        if (hasAcknowledgementExceededEightDays(conversationId, ack.getReceived())) {
-            updateEhrExtractStatusError(conversationId,
-                                        REASON_ERROR_CODE,
-                                        REASON_ERROR_MESSAGE,
-                                        this.getClass().getSimpleName());
+            logger().warn("Received an ACK message with a conversation_id: {} that is a duplicate", conversationId);
             return;
         }
 
@@ -344,7 +400,7 @@ public class EhrExtractStatusService {
                 + "' that is not recognised");
         }
 
-        LOGGER.info("Database successfully updated with EHRAcknowledgement, conversation_id: " + conversationId);
+        logger().info("Database successfully updated with EHRAcknowledgement, conversation_id: {}", conversationId);
     }
 
     public void saveAckForConversation(String conversationId, EhrReceivedAcknowledgement ack) {
@@ -395,10 +451,8 @@ public class EhrExtractStatusService {
         }
     }
 
-    public void updateEhrExtractStatusAcknowledgement(
-        SendAcknowledgementTaskDefinition taskDefinition,
-        String ackMessageId
-    ) {
+    public void updateEhrExtractStatusAcknowledgement(SendAcknowledgementTaskDefinition taskDefinition, String ackMessageId) {
+
         Update update = createUpdateWithUpdatedAt();
         update.set(ACK_TASK_ID_PATH, taskDefinition.getTaskId());
         update.set(ACK_MESSAGE_ID_PATH, ackMessageId);
@@ -409,10 +463,9 @@ public class EhrExtractStatusService {
         updateEhrStatus(update, taskDefinition.getConversationId());
     }
 
-    public void updateEhrExtractStatusAcknowledgement(
-        SendAcknowledgementTaskDefinition taskDefinition,
-        String ackMessageId,
-        String updatedAt) {
+    public void updateEhrExtractStatusAcknowledgement(SendAcknowledgementTaskDefinition taskDefinition,
+                                                      String ackMessageId,
+                                                      String updatedAt) {
 
         Update update = createUpdateWithUpdatedAt();
         update.set(ACK_PENDING_TASK_ID_PATH, taskDefinition.getTaskId());
@@ -444,15 +497,10 @@ public class EhrExtractStatusService {
 
         if (ehrExtractStatus == null) {
             throw new EhrExtractException(format(
-                "Couldn't update EHR status with error information because it doesn't exist conversation_id: %s",
-                conversationId
-            ));
+                "Couldn't update EHR status with error information because it doesn't exist conversation_id: %s", conversationId));
         }
 
-        LOGGER.info(
-            "EHR status record successfully updated in the database with error information conversation_id: {}",
-            conversationId
-        );
+        logger().info("EHR status record successfully updated in the database with error information conversation_id: {}", conversationId);
 
         return ehrExtractStatus;
     }
@@ -465,7 +513,7 @@ public class EhrExtractStatusService {
         if (updateResult.getModifiedCount() != 1) {
             throw new EhrExtractException("EHR Extract Status was not updated with Acknowledgement Message.");
         }
-        LOGGER.info("Database updated for sending application acknowledgement");
+        logger().info("Database updated for sending application acknowledgement");
     }
 
     public EhrExtractStatus updateEhrExtractStatusCommonForDocuments(SendDocumentTaskDefinition taskDefinition, List<String> messageIds) {
@@ -475,35 +523,6 @@ public class EhrExtractStatusService {
     public EhrExtractStatus updateEhrExtractStatusCommonForExternalEhrExtract(SendDocumentTaskDefinition taskDefinition,
         List<String> messageIds) {
         return updateEhrExtractStatusAttachmentSentToMhs(taskDefinition, messageIds);
-    }
-
-    public List<EhrExtractStatus> findInProgressTransfers() {
-
-        var failedNme = new Criteria();
-        failedNme.andOperator(
-            Criteria.where("ackPending.typeCode").is("AE"),
-            Criteria.where("error").exists(true));
-
-        var complete = new Criteria();
-        complete.andOperator(
-            Criteria.where("ackPending.typeCode").is("AA"),
-            Criteria.where("ackToRequester.typeCode").is("AA"),
-            Criteria.where("error").exists(false),
-            Criteria.where("ehrReceivedAcknowledgement.conversationClosed").exists(true),
-            Criteria.where("ehrReceivedAcknowledgement.errors").exists(false)
-        );
-
-        var failedIncumbent = new Criteria();
-        failedIncumbent.andOperator(
-            Criteria.where("ehrReceivedAcknowledgement.errors").exists(true)
-        );
-
-        var queryCriteria = new Criteria();
-        queryCriteria.norOperator(failedNme, complete, failedIncumbent);
-
-        var query = Query.query(queryCriteria);
-
-        return mongoTemplate.find(query, EhrExtractStatus.class);
     }
 
     private EhrExtractStatus updateEhrExtractStatusDocumentSentToMHS(SendDocumentTaskDefinition taskDefinition, List<String> messageIds) {
@@ -558,21 +577,21 @@ public class EhrExtractStatusService {
         return ehrExtractStatus;
     }
 
-    private FindAndModifyOptions getReturningUpdatedRecordOption() {
+    public FindAndModifyOptions getReturningUpdatedRecordOption() {
         FindAndModifyOptions findAndModifyOptions = new FindAndModifyOptions();
         findAndModifyOptions.returnNew(true);
 
         return findAndModifyOptions;
     }
 
-    private Query createQueryForConversationId(String conversationId) {
+    public Query createQueryForConversationId(String conversationId) {
         Query query = new Query();
         query.addCriteria(Criteria.where(CONVERSATION_ID).is(conversationId));
 
         return query;
     }
 
-    private Update createUpdateWithUpdatedAt() {
+    public Update createUpdateWithUpdatedAt() {
         Instant now = Instant.now();
         Update update = new Update();
 
@@ -593,13 +612,10 @@ public class EhrExtractStatusService {
         return ehrExtractStatus.getEhrReceivedAcknowledgement() != null;
     }
 
-    private boolean hasAcknowledgementExceededEightDays(String conversationId, Instant ackReceivedTimestamp) {
+    private boolean hasAcknowledgementExceededAckTimeoutLimit(String conversationId, Instant ackReceivedTimestamp) {
         var ehrExtractStatus = fetchEhrExtractStatus(conversationId, "ACK");
 
-        Duration duration = Duration.between(ehrExtractStatus.getUpdatedAt(), ackReceivedTimestamp);
-        long daysSinceLastUpdate = duration.toDays();
-
-        return daysSinceLastUpdate > EHR_EXTRACT_SENT_DAYS_LIMIT;
+        return hasLastUpdateExceededAckTimeoutLimit(ehrExtractStatus, ackReceivedTimestamp);
     }
 
     private boolean checkForContinueOutOfOrderAndDuplicate(String conversationId) {
@@ -621,5 +637,9 @@ public class EhrExtractStatusService {
     private EhrExtractStatus fetchEhrExtractStatus(String conversationId, String messageType) {
         return ehrExtractStatusRepository.findByConversationId(conversationId)
             .orElseThrow(() -> new UnrecognisedInteractionIdException(messageType, conversationId));
+    }
+
+    protected Logger logger() {
+        return LOGGER;
     }
 }

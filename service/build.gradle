@@ -1,15 +1,16 @@
 plugins {
-	id 'org.springframework.boot' version '3.3.2'
+	id 'org.springframework.boot' version '3.3.5'
 	id 'io.spring.dependency-management' version '1.1.6'
 	id 'java'
 	id "checkstyle"
-	id "com.github.spotbugs" version "6.0.20"
-	id "io.freefair.lombok" version "8.6"
+	id "com.github.spotbugs" version "6.0.26"
+	id "io.freefair.lombok" version "8.11"
 	id 'jacoco'
+	id 'org.sonarqube' version '5.1.0.4882'
 
 	// Mutation testing
 	id 'info.solidsoft.pitest' version '1.15.0'
-	id 'com.arcmutate.github' version '1.2.1'
+	id 'com.arcmutate.github' version '2.0.0'
 }
 
 apply plugin: 'java'
@@ -24,7 +25,7 @@ group = 'uk.nhs.adaptors'
 sourceCompatibility = '21'
 
 checkstyle {
-	toolVersion '8.38'
+	toolVersion '10.18.2'
 	configDirectory = 'checkstyle' as File
 }
 
@@ -50,30 +51,30 @@ dependencies {
 
 	// Infrastructure
 	implementation 'software.amazon.awssdk:s3:2.27.17'
-	implementation ('com.azure:azure-storage-blob:12.27.1')
-	implementation 'org.apache.qpid:qpid-jms-client:2.5.0'
+	implementation ('com.azure:azure-storage-blob:12.29.0')
+	implementation 'org.apache.qpid:qpid-jms-client:2.6.1'
 
 	// Utils
-	implementation 'org.apache.commons:commons-lang3:3.15.0'
+	implementation 'org.apache.commons:commons-lang3:3.17.0'
 	implementation 'javax.xml.soap:javax.xml.soap-api:1.4.0'
 	implementation 'com.github.spullara.mustache.java:compiler:0.9.14'
-	implementation 'org.apache.tika:tika-core:2.9.2'
+	implementation 'org.apache.tika:tika-core:3.0.0'
 
 	// Fhir
-	implementation 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:7.2.2'
+	implementation 'ca.uhn.hapi.fhir:hapi-fhir-structures-dstu3:7.6.0'
 
 	// Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation "org.assertj:assertj-core:3.26.3"
-	testImplementation 'org.testcontainers:testcontainers:1.20.1'
+	testImplementation "org.assertj:assertj-core:3.27.2"
+	testImplementation 'org.testcontainers:testcontainers:1.20.4'
 	testImplementation 'org.awaitility:awaitility:4.2.2'
 	testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.3'
-	testImplementation 'org.wiremock:wiremock-standalone:3.9.1'
+	testImplementation 'org.wiremock:wiremock-standalone:3.9.2'
 	testImplementation 'com.squareup.okhttp3:okhttp:4.12.0'
 	testImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
 
 	pitest 'com.arcmutate:base:1.3.1'
-	pitest 'com.arcmutate:pitest-git-plugin:1.3.2'
+	pitest 'com.arcmutate:pitest-git-plugin:2.0.0'
 }
 
 test {
@@ -81,6 +82,9 @@ test {
 }
 
 jacocoTestReport {
+	reports {
+		xml.required = true
+	}
 	dependsOn test // tests are required to run before generating the report
 }
 
@@ -158,6 +162,18 @@ pitest {
 	mutators = ['STRONGER', 'EXTENDED_ALL']
 
 	threads = project.getGradle().getStartParameter().getMaxWorkerCount()
+}
+
+pitestGithub {
+	deleteOldSummaries = true
+}
+
+sonar {
+	properties {
+		property("sonar.host.url", "https://sonarcloud.io")
+		property("sonar.projectKey", "NHSDigital_integration-adaptor-gp2gp")
+		property("sonar.organization", "nhsdigital")
+	}
 }
 
 bootJar {

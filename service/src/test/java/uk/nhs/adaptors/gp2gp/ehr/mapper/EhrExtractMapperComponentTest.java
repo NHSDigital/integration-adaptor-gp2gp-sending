@@ -19,7 +19,6 @@ import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport.DiagnosticReportMapper;
-import uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport.MultiStatementObservationHolderFactory;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport.ObservationMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport.SpecimenMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.EhrExtractTemplateParameters;
@@ -148,16 +147,14 @@ public class EhrExtractMapperComponentTest {
 
         ParticipantMapper participantMapper = new ParticipantMapper();
         StructuredObservationValueMapper structuredObservationValueMapper = new StructuredObservationValueMapper();
-        MultiStatementObservationHolderFactory multiStatementObservationHolderFactory =
-            new MultiStatementObservationHolderFactory(messageContext, randomIdGeneratorService);
         ObservationMapper specimenObservationMapper = new ObservationMapper(
             messageContext, structuredObservationValueMapper, codeableConceptCdMapper,
-            participantMapper, multiStatementObservationHolderFactory, confidentialityService);
+            participantMapper, randomIdGeneratorService, confidentialityService);
         SpecimenMapper specimenMapper = new SpecimenMapper(messageContext, specimenObservationMapper,
             randomIdGeneratorService, confidentialityService);
         DocumentReferenceToNarrativeStatementMapper documentReferenceToNarrativeStatementMapper
             = new DocumentReferenceToNarrativeStatementMapper(
-                messageContext, new SupportedContentTypes(), timestampService, participantMapper);
+                messageContext, new SupportedContentTypes(), participantMapper, confidentialityService);
 
         EncounterComponentsMapper encounterComponentsMapper = new EncounterComponentsMapper(
             messageContext,
@@ -169,8 +166,19 @@ public class EhrExtractMapperComponentTest {
                 messageContext, randomIdGeneratorService, codeableConceptCdMapper, participantMapper, confidentialityService),
             new DiaryPlanStatementMapper(messageContext, codeableConceptCdMapper, participantMapper),
             documentReferenceToNarrativeStatementMapper,
-            new ImmunizationObservationStatementMapper(messageContext, codeableConceptCdMapper, participantMapper),
-            new MedicationStatementMapper(messageContext, codeableConceptCdMapper, participantMapper, randomIdGeneratorService),
+            new ImmunizationObservationStatementMapper(
+                messageContext,
+                codeableConceptCdMapper,
+                participantMapper,
+                confidentialityService
+            ),
+            new MedicationStatementMapper(
+                messageContext,
+                codeableConceptCdMapper,
+                participantMapper,
+                randomIdGeneratorService,
+                confidentialityService
+            ),
             new ObservationToNarrativeStatementMapper(messageContext, participantMapper),
             new ObservationStatementMapper(
                 messageContext,

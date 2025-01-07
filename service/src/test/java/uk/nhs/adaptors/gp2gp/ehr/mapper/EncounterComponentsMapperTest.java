@@ -1,22 +1,11 @@
 package uk.nhs.adaptors.gp2gp.ehr.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.when;
-
-import static uk.nhs.adaptors.gp2gp.utils.IdUtil.buildIdType;
-
-import java.util.List;
-import java.util.stream.Stream;
-
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.IdType;
+import org.hl7.fhir.dstu3.model.QuestionnaireResponse;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.ResourceType;
 import org.jetbrains.annotations.NotNull;
@@ -29,20 +18,32 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-
 import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport.DiagnosticReportMapper;
-import uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport.MultiStatementObservationHolderFactory;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport.ObservationMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport.SpecimenMapper;
 import uk.nhs.adaptors.gp2gp.ehr.utils.BloodPressureValidator;
 import uk.nhs.adaptors.gp2gp.ehr.utils.CodeableConceptMappingUtils;
 import uk.nhs.adaptors.gp2gp.utils.CodeableConceptMapperMockUtil;
+import uk.nhs.adaptors.gp2gp.utils.IdUtil;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
+import static uk.nhs.adaptors.gp2gp.utils.IdUtil.buildIdType;
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class EncounterComponentsMapperTest {
@@ -123,6 +124,9 @@ public class EncounterComponentsMapperTest {
                 "bloodPressureCode1", "bloodPressureCode2", "bloodPressureCode3"
             ))
         ))).thenReturn(true);
+        lenient()
+            .when(codeableConceptCdMapper.getCdForCategory())
+            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
         messageContext = new MessageContext(randomIdGeneratorService);
 
         ParticipantMapper participantMapper = new ParticipantMapper();
@@ -151,9 +155,14 @@ public class EncounterComponentsMapperTest {
             = new DiaryPlanStatementMapper(messageContext, codeableConceptCdMapper, participantMapper);
         DocumentReferenceToNarrativeStatementMapper documentReferenceToNarrativeStatementMapper
             = new DocumentReferenceToNarrativeStatementMapper(
-                messageContext, new SupportedContentTypes(), timestampService, participantMapper);
-        MedicationStatementMapper medicationStatementMapper
-            = new MedicationStatementMapper(messageContext, codeableConceptCdMapper, participantMapper, randomIdGeneratorService);
+                messageContext, new SupportedContentTypes(), participantMapper, confidentialityService);
+        MedicationStatementMapper medicationStatementMapper = new MedicationStatementMapper(
+            messageContext,
+            codeableConceptCdMapper,
+            participantMapper,
+            randomIdGeneratorService,
+            confidentialityService
+        );
         ObservationToNarrativeStatementMapper observationToNarrativeStatementMapper =
             new ObservationToNarrativeStatementMapper(messageContext, participantMapper);
         SpecimenMapper specimenMapper = getSpecimenMapper(structuredObservationValueMapper, participantMapper);
@@ -165,7 +174,12 @@ public class EncounterComponentsMapperTest {
             participantMapper
         );
         ImmunizationObservationStatementMapper immunizationObservationStatementMapper =
-            new ImmunizationObservationStatementMapper(messageContext, codeableConceptCdMapper, participantMapper);
+            new ImmunizationObservationStatementMapper(
+                messageContext,
+                codeableConceptCdMapper,
+                participantMapper,
+                confidentialityService
+            );
         RequestStatementMapper requestStatementMapper
             = new RequestStatementMapper(messageContext, codeableConceptCdMapper, participantMapper);
         DiagnosticReportMapper diagnosticReportMapper = new DiagnosticReportMapper(
@@ -192,11 +206,9 @@ public class EncounterComponentsMapperTest {
 
     private @NotNull SpecimenMapper getSpecimenMapper(StructuredObservationValueMapper structuredObservationValueMapper,
                                                       ParticipantMapper participantMapper) {
-        MultiStatementObservationHolderFactory multiStatementObservationHolderFactory =
-            new MultiStatementObservationHolderFactory(messageContext, randomIdGeneratorService);
         ObservationMapper specimenObservationMapper = new ObservationMapper(
             messageContext, structuredObservationValueMapper, codeableConceptCdMapper, participantMapper,
-            multiStatementObservationHolderFactory, confidentialityService);
+            randomIdGeneratorService, confidentialityService);
         return new SpecimenMapper(messageContext, specimenObservationMapper, randomIdGeneratorService, confidentialityService);
     }
 
@@ -216,7 +228,8 @@ public class EncounterComponentsMapperTest {
 
         System.out.println(mappedXml);
 
-        assertThat(removeLineEndingsAndWhiteSpace(mappedXml)).isEqualTo(removeLineEndingsAndWhiteSpace(expectedXml));
+        assertThat(mappedXml)
+            .isEqualToIgnoringWhitespace(expectedXml);
     }
 
     @Test
@@ -227,7 +240,8 @@ public class EncounterComponentsMapperTest {
         var encounter = extractEncounter(bundle);
 
         String mappedXml = encounterComponentsMapper.mapComponents(encounter);
-        assertThat(removeLineEndingsAndWhiteSpace(mappedXml)).isEqualTo(removeLineEndingsAndWhiteSpace(expectedXml));
+        assertThat(mappedXml)
+            .isEqualToIgnoringWhitespace(expectedXml);
     }
 
     @ParameterizedTest
@@ -296,7 +310,8 @@ public class EncounterComponentsMapperTest {
 
         String mappedXml = encounterComponentsMapper.mapComponents(encounter);
 
-        assertThat(removeLineEndingsAndWhiteSpace(mappedXml)).isEqualTo(removeLineEndingsAndWhiteSpace(expectedXml));
+        assertThat(mappedXml)
+            .isEqualToIgnoringWhitespace(expectedXml);
     }
 
     @Test
@@ -310,7 +325,8 @@ public class EncounterComponentsMapperTest {
 
         String mappedXml = encounterComponentsMapper.mapComponents(encounter);
 
-        assertThat(removeLineEndingsAndWhiteSpace(mappedXml)).isEqualTo(removeLineEndingsAndWhiteSpace(expectedXml));
+        assertThat(mappedXml)
+            .isEqualToIgnoringWhitespace(expectedXml);
     }
 
     @Test
@@ -321,7 +337,8 @@ public class EncounterComponentsMapperTest {
 
         String mappedXml = encounterComponentsMapper.mapComponents(encounter);
 
-        assertThat(removeLineEndingsAndWhiteSpace(mappedXml)).isEqualTo(removeLineEndingsAndWhiteSpace(expectedXml));
+        assertThat(mappedXml)
+            .isEqualToIgnoringWhitespace(expectedXml);
     }
 
     @Test
@@ -335,7 +352,8 @@ public class EncounterComponentsMapperTest {
 
         String mappedXml = encounterComponentsMapper.mapComponents(encounter);
 
-        assertThat(removeLineEndingsAndWhiteSpace(mappedXml)).isEqualTo(removeLineEndingsAndWhiteSpace(expectedXml));
+        assertThat(mappedXml)
+            .isEqualToIgnoringWhitespace(expectedXml);
     }
 
     @Test
@@ -350,7 +368,8 @@ public class EncounterComponentsMapperTest {
 
         String mappedXml = encounterComponentsMapper.mapComponents(encounter);
 
-        assertThat(removeLineEndingsAndWhiteSpace(mappedXml)).isEqualTo(removeLineEndingsAndWhiteSpace(expectedXml));
+        assertThat(mappedXml)
+            .isEqualToIgnoringWhitespace(expectedXml);
     }
 
     @Test
@@ -361,7 +380,8 @@ public class EncounterComponentsMapperTest {
 
         String mappedXml = encounterComponentsMapper.mapComponents(encounter);
 
-        assertThat(removeLineEndingsAndWhiteSpace(mappedXml)).isEqualTo(removeLineEndingsAndWhiteSpace(expectedXml));
+        assertThat(mappedXml)
+            .isEqualToIgnoringWhitespace(expectedXml);
     }
 
     @ParameterizedTest
@@ -375,7 +395,79 @@ public class EncounterComponentsMapperTest {
 
         System.out.println(mappedXml);
 
-        assertThat(removeLineEndingsAndWhiteSpace(mappedXml)).isEqualTo(removeLineEndingsAndWhiteSpace(expectedXml));
+        assertThat(mappedXml)
+            .isEqualToIgnoringWhitespace(expectedXml);
+    }
+
+    @Test
+    void When_MappingWithRelatedProblemWithIncorrectProblemExtensionUrl_Expect_UnspecifiedProblemWithOriginalText() {
+        when(codeableConceptCdMapper.mapToCdForTopic(anyString()))
+            .thenCallRealMethod();
+
+        var expectedXml = ResourceTestFileUtils.getFileContent(
+            TEST_DIRECTORY + "expected-components-18-related-problem-invalid-extension.xml"
+        );
+        var bundle = initializeMessageContext(
+            TEST_DIRECTORY + "input-bundle-18-related-problem-invalid-problem-extension.json"
+        );
+        var encounter = extractEncounter(bundle);
+
+        String mappedXml = encounterComponentsMapper.mapComponents(encounter);
+
+        assertThat(mappedXml)
+            .isEqualToIgnoringWhitespace(expectedXml);
+    }
+
+    @Test
+    void When_MappingWithRelatedProblemWithIncorrectProblemExtensionExtensionUrl_Expect_UnspecifiedProblemWithOriginalText() {
+        when(codeableConceptCdMapper.mapToCdForTopic(anyString()))
+            .thenCallRealMethod();
+
+        var expectedXml = ResourceTestFileUtils.getFileContent(
+            TEST_DIRECTORY + "expected-components-18-related-problem-invalid-extension.xml"
+        );
+        var bundle = initializeMessageContext(
+            TEST_DIRECTORY + "input-bundle-19-related-problem-invalid-problem-extension-extension-url.json"
+        );
+        var encounter = extractEncounter(bundle);
+
+        String mappedXml = encounterComponentsMapper.mapComponents(encounter);
+
+        assertThat(mappedXml)
+            .isEqualToIgnoringWhitespace(expectedXml);
+    }
+
+    @Test
+    void When_MapResourceToComponent_With_UnsupportedResource_Expect_PlaceholderCommentProduced() {
+        var resource = new QuestionnaireResponse()
+            .setIdElement(
+                IdUtil.buildIdType(ResourceType.QuestionnaireResponse, "questionnaire-response-id")
+            );
+
+        var expectedComponent = "<!-- QuestionnaireResponse/questionnaire-response-id -->";
+
+        var actualComponent = encounterComponentsMapper.mapResourceToComponent(resource);
+
+        assertThat(actualComponent)
+            .isEqualTo(Optional.of(expectedComponent));
+    }
+
+    @Test
+    void When_MappingTopic_With_StoppedMedicationRequest_Expect_MedicationStatementNotIncludedInOutput() {
+        // GP2GP Currently has no mechanism to transfer the concept that a Medication has been "stopped"
+        // Until there is some way to convey this, it makes more sense to not send the misleading medication.
+        var expectedXml = ResourceTestFileUtils.getFileContent(
+            TEST_DIRECTORY + "expected-components-20-medication-statement-not-included.xml"
+        );
+        var bundle = initializeMessageContext(
+            TEST_DIRECTORY + "input-bundle-20-medication-request-stopped-order.json"
+        );
+        var encounter = extractEncounter(bundle);
+
+        String mappedXml = encounterComponentsMapper.mapComponents(encounter);
+
+        assertThat(mappedXml)
+            .isEqualToIgnoringWhitespace(expectedXml);
     }
 
     private static Stream<Arguments> containedResourceMappingArguments() {
@@ -387,17 +479,6 @@ public class EncounterComponentsMapperTest {
             Arguments.of("input-two-resources-category.json", "output-two-resources-category.xml"),
             Arguments.of("input-referenced-observation.json", "output-referenced-observation.xml")
         );
-    }
-
-    private String removeLineEndingsAndWhiteSpace(String input) {
-        return input
-            .replace("\n", " ")
-            .replace("\r", " ")
-            .replaceAll("\\s+", " ")
-            .replaceAll("\"\\s>", "\">")
-            .replaceAll("\"\\s/>", "\"/>")
-            .replaceAll("\\s+<", "<");
-
     }
 
     private Encounter extractEncounter(Bundle bundle) {

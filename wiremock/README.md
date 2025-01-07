@@ -81,6 +81,12 @@ To change the patient record returned to be [No Documents](stubs/__files/correct
 curl --request PUT --data '{"state": "No Documents"}' http://localhost:8110/__admin/scenarios/migrateStructuredRecord/state
 ```
 
+To change the patient record returned to be [PWTP3, which has many Prescriptions](stubs/__files/EMISPatientStructurede2eResponsePWTP3.json):
+
+```shell
+curl --request PUT --data '{"state": "Medications"}' http://localhost:8110/__admin/scenarios/migrateStructuredRecord/state
+```
+
 To change the patient record returned to be [Large Patient Record](stubs/__files/correctPatientStructuredRecordLargePayload.json):
 
 ```shell
@@ -99,10 +105,10 @@ To change the patient record returned to have 100 3.5MB = 350MB total attachment
 curl --request PUT --data '{"state": "350MB Attachments"}' http://localhost:8110/__admin/scenarios/migrateStructuredRecord/state
 ```
 
-To change the patient record returned to have a 10MB attachment (useful for testing fragments) [10MBDocument](stubs/__files/correctPatientStructuredRecordResponse10MBAttachment.json):
+To change the patient record returned to have a 30MB attachment (useful for testing fragments) [30MBDocument](stubs/__files/correctPatientStructuredRecordResponse30MBAttachment.json):
 
 ```shell
-curl --request PUT --data '{"state": "10MB Attachment"}' http://localhost:8110/__admin/scenarios/migrateStructuredRecord/state
+curl --request PUT --data '{"state": "30MB Attachment"}' http://localhost:8110/__admin/scenarios/migrateStructuredRecord/state
 ```
 
 To change the patient record returned to be NOT FOUND:

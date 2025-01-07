@@ -43,11 +43,6 @@ import static java.lang.String.valueOf;
 @Slf4j
 public class GpcRequestBuilder {
 
-    @Value("${gp2gp.gpc.overrideFromAsid}")
-    private String overrideFromAsid;
-    @Value("${gp2gp.gpc.overrideToAsid}")
-    private String overrideToAsid;
-
     private static final String NHS_NUMBER_SYSTEM = "https://fhir.nhs.uk/Id/nhs-number";
     private static final String FHIR_CONTENT_TYPE = "application/fhir+json";
     private static final String SSP_INTERACTION_ID = "Ssp-InteractionID";

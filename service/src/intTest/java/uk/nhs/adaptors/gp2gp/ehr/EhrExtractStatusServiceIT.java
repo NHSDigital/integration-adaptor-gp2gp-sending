@@ -4,35 +4,32 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.nhs.adaptors.gp2gp.ehr.EhrStatusConstants.ACK_TYPE;
 import static uk.nhs.adaptors.gp2gp.ehr.EhrStatusConstants.DOCUMENT_ID;
 import static uk.nhs.adaptors.gp2gp.ehr.EhrStatusConstants.FROM_ASID;
 import static uk.nhs.adaptors.gp2gp.ehr.EhrStatusConstants.FROM_ODS_CODE;
 import static uk.nhs.adaptors.gp2gp.ehr.EhrStatusConstants.FROM_PARTY_ID;
-import static uk.nhs.adaptors.gp2gp.ehr.EhrStatusConstants.INCUMBENT_NACK_CODE;
-import static uk.nhs.adaptors.gp2gp.ehr.EhrStatusConstants.INCUMBENT_NACK_DISPLAY;
 import static uk.nhs.adaptors.gp2gp.ehr.EhrStatusConstants.NHS_NUMBER;
-import static uk.nhs.adaptors.gp2gp.ehr.EhrStatusConstants.NME_NACK_CODE;
-import static uk.nhs.adaptors.gp2gp.ehr.EhrStatusConstants.NME_NACK_DISPLAY;
-import static uk.nhs.adaptors.gp2gp.ehr.EhrStatusConstants.NME_NACK_TYPE;
 import static uk.nhs.adaptors.gp2gp.ehr.EhrStatusConstants.TO_ASID;
 import static uk.nhs.adaptors.gp2gp.ehr.EhrStatusConstants.TO_ODS_CODE;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -41,6 +38,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrExtractException;
 import uk.nhs.adaptors.gp2gp.ehr.model.EhrExtractStatus;
+import uk.nhs.adaptors.gp2gp.ehr.scheduling.EhrExtractTimeoutScheduler;
+import uk.nhs.adaptors.gp2gp.ehr.utils.ErrorDetail;
 import uk.nhs.adaptors.gp2gp.gpc.GetGpcDocumentTaskDefinition;
 import uk.nhs.adaptors.gp2gp.testcontainers.MongoDBExtension;
 
@@ -48,10 +47,14 @@ import uk.nhs.adaptors.gp2gp.testcontainers.MongoDBExtension;
 @DirtiesContext
 @SpringBootTest
 public class EhrExtractStatusServiceIT {
+
     private static final Instant NOW = Instant.now();
     private static final Instant FIVE_DAYS_AGO = NOW.minus(Duration.ofDays(5));
+    private static final Instant TEN_DAYS_AGO = NOW.minus(Duration.ofDays(10));
     private static final int DEFAULT_CONTENT_LENGTH = 244;
     private static final String CONTENT_TYPE_MSWORD = "application/msword";
+    public static final String JSON_SUFFIX = ".json";
+    private static final ErrorDetail ACK_TIMEOUT_ERROR = ErrorDetail.ACK_TIMEOUT;
 
     @Autowired
     private EhrExtractStatusService ehrExtractStatusService;
@@ -59,8 +62,14 @@ public class EhrExtractStatusServiceIT {
     @Autowired
     private EhrExtractStatusRepository ehrExtractStatusRepository;
 
+    @Autowired
+    private EhrExtractTimeoutScheduler ehrExtractTimeoutScheduler;
+
     @MockBean
     private TimestampService timestampService;
+
+    @MockBean
+    private Logger logger;
 
     @BeforeEach
     public void emptyDatabase() {
@@ -68,7 +77,31 @@ public class EhrExtractStatusServiceIT {
     }
 
     @Test
-    public void When_FetchDocumentObjectNameAndSize_With_OneMissingAttachment_Expect_Returned() {
+    void When_EhrStatusWithExceededTimeout_Expect_EhrStatusShouldNotBeUpdated() {
+        var inProgressConversationId = generateRandomUppercaseUUID();
+
+        var ehrExtractStatusServiceSpy = spy(ehrExtractStatusService);
+
+        addInProgressTransferWithExceededAckTimeout(inProgressConversationId, List.of());
+
+        ehrExtractTimeoutScheduler.processEhrExtractAckTimeouts();
+        when(ehrExtractStatusServiceSpy.logger()).thenReturn(logger);
+
+        var ehrReceivedAcknowledgement = getEhrReceivedAcknowledgement(inProgressConversationId);
+        ehrReceivedAcknowledgement.setReceived(NOW);
+        ehrReceivedAcknowledgement.setConversationClosed(NOW);
+
+        ehrExtractStatusServiceSpy.updateEhrExtractStatusAck(inProgressConversationId, ehrReceivedAcknowledgement);
+
+        verify(logger, times(1))
+            .warn("Received an ACK message with conversation_id: {}, "
+                  + "but it is being ignored because the EhrExtract has already been marked as failed "
+                  + "from not receiving an acknowledgement from the requester in time.",
+                  inProgressConversationId);
+    }
+
+    @Test
+    void When_FetchDocumentObjectNameAndSize_With_OneMissingAttachment_Expect_Returned() {
         var inProgressConversationId = generateRandomUppercaseUUID();
 
         addInProgressTransfer(
@@ -94,7 +127,7 @@ public class EhrExtractStatusServiceIT {
     }
 
     @Test
-    public void When_FetchDocumentObjectNameAndSize_With_OnePresentAttachment_Expect_Returned() {
+    void When_FetchDocumentObjectNameAndSize_With_OnePresentAttachment_Expect_Returned() {
         var inProgressConversationId = generateRandomUppercaseUUID();
 
         addInProgressTransfer(
@@ -120,80 +153,14 @@ public class EhrExtractStatusServiceIT {
     }
 
     @Test
-    public void When_FetchDocumentObjectNameAndSize_With_InvalidConversation_Expect_EmptyMap() {
+    void When_FetchDocumentObjectNameAndSize_With_InvalidConversation_Expect_EmptyMap() {
         final var fakeConversationId = generateRandomUppercaseUUID();
 
         assertThat(ehrExtractStatusService.fetchDocumentObjectNameAndSize(fakeConversationId)).isEqualTo(Collections.EMPTY_MAP);
     }
 
     @Test
-    public void When_FindInProgressTransfers_With_OneInProgress_Expect_Returned() {
-        var inProgressConversationId = generateRandomUppercaseUUID();
-
-        addInProgressTransfer(inProgressConversationId);
-
-        List<EhrExtractStatus> results = ehrExtractStatusService.findInProgressTransfers();
-
-        assertThat(results.size()).isOne();
-        assertThat(results.get(0).getConversationId()).isEqualTo(inProgressConversationId);
-    }
-
-    @Test
-    public void When_FindInProgressTransfers_With_MixedTransfers_Expect_InProgressFound() {
-        var inProgressConversationId = generateRandomUppercaseUUID();
-
-        addInProgressTransfer(inProgressConversationId);
-        addCompleteTransfer();
-        addFailedIncumbentTransfer();
-        addFailedNmeTransfer();
-
-        List<EhrExtractStatus> results = ehrExtractStatusService.findInProgressTransfers();
-
-        assertThat(results.size()).isOne();
-
-        assertThat(results.get(0).getConversationId()).isEqualTo(inProgressConversationId);
-    }
-
-    @Test
-    public void When_FindInProgressTransfers_With_AllFailedOrComplete_Expect_EmptyList() {
-        addCompleteTransfer();
-        addCompleteTransfer();
-        addFailedIncumbentTransfer();
-        addFailedNmeTransfer();
-        addFailedIncumbentTransfer();
-
-        List<EhrExtractStatus> results = ehrExtractStatusService.findInProgressTransfers();
-
-        assertThat(results.isEmpty()).isTrue();
-    }
-
-    @Test
-    public void When_FindInProgressTransfers_With_MultipleInProgress_Expect_AllReturned() {
-        var inProgressConversationIds = List.of(
-            generateRandomUppercaseUUID(),
-            generateRandomUppercaseUUID(),
-            generateRandomUppercaseUUID()
-        );
-
-        addFailedIncumbentTransfer();
-
-        for (String inProgressConversationId : inProgressConversationIds) {
-            addInProgressTransfer(inProgressConversationId);
-        }
-
-        List<EhrExtractStatus> results = ehrExtractStatusService.findInProgressTransfers();
-
-        assertThat(results.size()).isEqualTo(inProgressConversationIds.size());
-
-        var returnedConversationIds = results.stream()
-            .map(EhrExtractStatus::getConversationId)
-            .collect(Collectors.toList());
-
-        assertThat(returnedConversationIds).isEqualTo(inProgressConversationIds);
-    }
-
-    @Test
-    public void When_UpdateEhrExtractStatusAccessDocument_Expect_DocumentRecordUpdated() {
+    void When_UpdateEhrExtractStatusAccessDocument_Expect_DocumentRecordUpdated() {
         when(timestampService.now()).thenReturn(NOW);
         var ehrStatus = addCompleteTransferWithDocument();
 
@@ -212,23 +179,8 @@ public class EhrExtractStatusServiceIT {
         );
     }
 
-    private EhrExtractStatus updateEhrExtractStatusAccessDocument(String conversationId, String documentId) {
-        return ehrExtractStatusService.updateEhrExtractStatusAccessDocument(
-            GetGpcDocumentTaskDefinition.builder()
-                .conversationId(conversationId)
-                .documentId(documentId)
-                .taskId("80010")
-                .messageId("988290")
-                .build(),
-            "this is a storage path.path",
-            1,
-            "This is a fantastic error message",
-            "NewUpdatedFileName.txt"
-        );
-    }
-
     @Test
-    public void When_UpdateEhrExtractStatusAccessDocument_With_InvalidConversationId_Expect_ThrowsException() {
+    void When_UpdateEhrExtractStatusAccessDocument_With_InvalidConversationId_Expect_ThrowsException() {
         addCompleteTransferWithDocument();
 
         assertThrows(
@@ -238,7 +190,7 @@ public class EhrExtractStatusServiceIT {
     }
 
     @Test
-    public void When_UpdateEhrExtractStatusAccessDocument_With_InvalidDocumentId_Expect_ThrowsException() {
+    void When_UpdateEhrExtractStatusAccessDocument_With_InvalidDocumentId_Expect_ThrowsException() {
         final var ehrStatus = addCompleteTransferWithDocument();
 
         assertThrows(
@@ -249,7 +201,7 @@ public class EhrExtractStatusServiceIT {
 
 
     @Test
-    public void When_UpdateEhrExtractStatusAccessDocument_Expect_ReturnsUpdatedEhrStatusRecord() {
+    void When_UpdateEhrExtractStatusAccessDocument_Expect_ReturnsUpdatedEhrStatusRecord() {
         when(timestampService.now()).thenReturn(NOW);
         var ehrStatus = addCompleteTransferWithDocument();
 
@@ -261,7 +213,7 @@ public class EhrExtractStatusServiceIT {
     }
 
     @Test
-    public void When_UpdateEhrExtractStatusAccessDocumentDocumentReferences_Expect_DocumentAddedToMongoDb() {
+    void When_UpdateEhrExtractStatusAccessDocumentDocumentReferences_Expect_DocumentAddedToMongoDb() {
         var ehrStatus = addCompleteTransfer();
 
         ehrExtractStatusService.updateEhrExtractStatusAccessDocumentDocumentReferences(
@@ -281,8 +233,19 @@ public class EhrExtractStatusServiceIT {
             .isEqualTo(2);
     }
 
-    private void addInProgressTransfer(String conversationId) {
-        addInProgressTransfer(conversationId, List.of());
+    EhrExtractStatus updateEhrExtractStatusAccessDocument(String conversationId, String documentId) {
+        return ehrExtractStatusService.updateEhrExtractStatusAccessDocument(
+            GetGpcDocumentTaskDefinition.builder()
+                .conversationId(conversationId)
+                .documentId(documentId)
+                .taskId("80010")
+                .messageId("988290")
+                .build(),
+            "this is a storage path.path",
+            1,
+            "This is a fantastic error message",
+            "NewUpdatedFileName.txt"
+                                                                           );
     }
 
     private void addInProgressTransfer(String conversationId, List<EhrExtractStatus.GpcDocument> documents) {
@@ -305,7 +268,7 @@ public class EhrExtractStatusServiceIT {
                 .build())
             .gpcAccessStructured(EhrExtractStatus.GpcAccessStructured.builder()
                 .accessedAt(FIVE_DAYS_AGO)
-                .objectName(generateRandomUppercaseUUID() + ".json")
+                .objectName(generateRandomUppercaseUUIDWithJsonSuffix())
                 .taskId(generateRandomUppercaseUUID())
                 .build())
             .messageTimestamp(FIVE_DAYS_AGO)
@@ -315,87 +278,29 @@ public class EhrExtractStatusServiceIT {
         ehrExtractStatusRepository.save(extractStatus);
     }
 
-    private void addFailedNmeTransfer() {
+    private void addInProgressTransferWithExceededAckTimeout(String conversationId, List<EhrExtractStatus.GpcDocument> documents) {
         EhrExtractStatus extractStatus = EhrExtractStatus.builder()
-            .ackPending(EhrExtractStatus.AckPending.builder()
-                .messageId(generateRandomUppercaseUUID())
-                .taskId(generateRandomUppercaseUUID())
-                .typeCode(NME_NACK_TYPE)
-                .updatedAt(FIVE_DAYS_AGO.toString())
-                .build())
-            .ackToRequester(EhrExtractStatus.AckToRequester.builder()
-                .detail(NME_NACK_DISPLAY)
-                .messageId(generateRandomUppercaseUUID())
-                .reasonCode(NME_NACK_CODE)
-                .taskId(generateRandomUppercaseUUID())
-                .typeCode(NME_NACK_TYPE)
-                .build())
-            .conversationId(generateRandomUppercaseUUID())
-            .created(FIVE_DAYS_AGO)
-            .ehrRequest(buildEhrRequest())
-            .error(EhrExtractStatus.Error.builder()
-                .code(NME_NACK_CODE)
-                .message(NME_NACK_DISPLAY)
-                .occurredAt(FIVE_DAYS_AGO)
-                .taskType("GET_GPC_STRUCTURED")
-                .build())
-            .updatedAt(FIVE_DAYS_AGO)
-            .build();
-
-        ehrExtractStatusRepository.save(extractStatus);
-    }
-
-    private void addFailedIncumbentTransfer() {
-        String ehrMessageRef = generateRandomUppercaseUUID();
-
-        EhrExtractStatus extractStatus = EhrExtractStatus.builder()
-            .ackHistory(EhrExtractStatus.AckHistory.builder()
-                .acks(List.of(
-                    EhrExtractStatus.EhrReceivedAcknowledgement.builder()
-                        .rootId(generateRandomUppercaseUUID())
-                        .received(FIVE_DAYS_AGO)
-                        .conversationClosed(FIVE_DAYS_AGO)
-                        .errors(List.of(
-                            EhrExtractStatus.EhrReceivedAcknowledgement.ErrorDetails.builder()
-                                .code(INCUMBENT_NACK_CODE)
-                                .display(INCUMBENT_NACK_DISPLAY)
-                                .build()))
-                        .messageRef(ehrMessageRef)
-                        .build()))
-                .build())
             .ackPending(buildPositiveAckPending())
             .ackToRequester(buildPositiveAckToRequester())
-            .conversationId(generateRandomUppercaseUUID())
+            .conversationId(conversationId)
             .created(FIVE_DAYS_AGO)
             .ehrExtractCore(EhrExtractStatus.EhrExtractCore.builder()
-                .sentAt(FIVE_DAYS_AGO)
-                .taskId(generateRandomUppercaseUUID())
-                .build())
+                                .sentAt(FIVE_DAYS_AGO)
+                                .build())
             .ehrExtractCorePending(EhrExtractStatus.EhrExtractCorePending.builder()
-                .sentAt(FIVE_DAYS_AGO)
-                .taskId(generateRandomUppercaseUUID())
-                .build())
+                                       .sentAt(TEN_DAYS_AGO)
+                                       .taskId(generateRandomUppercaseUUID())
+                                       .build())
             .ehrExtractMessageId(generateRandomUppercaseUUID())
-            .ehrReceivedAcknowledgement(EhrExtractStatus.EhrReceivedAcknowledgement.builder()
-                .conversationClosed(FIVE_DAYS_AGO)
-                .errors(List.of(
-                    EhrExtractStatus.EhrReceivedAcknowledgement.ErrorDetails.builder()
-                        .code(INCUMBENT_NACK_CODE)
-                        .display(INCUMBENT_NACK_DISPLAY)
-                        .build()))
-                .messageRef(ehrMessageRef)
-                .received(FIVE_DAYS_AGO)
-                .rootId(generateRandomUppercaseUUID())
-                .build())
             .ehrRequest(buildEhrRequest())
             .gpcAccessDocument(EhrExtractStatus.GpcAccessDocument.builder()
-                .documents(new ArrayList<>())
-                .build())
+                                   .documents(documents)
+                                   .build())
             .gpcAccessStructured(EhrExtractStatus.GpcAccessStructured.builder()
-                .accessedAt(FIVE_DAYS_AGO)
-                .objectName(generateRandomUppercaseUUID() + ".json")
-                .taskId(generateRandomUppercaseUUID())
-                .build())
+                                     .accessedAt(FIVE_DAYS_AGO)
+                                     .objectName(generateRandomUppercaseUUIDWithJsonSuffix())
+                                     .taskId(generateRandomUppercaseUUID())
+                                     .build())
             .messageTimestamp(FIVE_DAYS_AGO)
             .updatedAt(FIVE_DAYS_AGO)
             .build();
@@ -405,6 +310,10 @@ public class EhrExtractStatusServiceIT {
 
     private EhrExtractStatus addCompleteTransfer() {
         return addCompleteTransferWithDocuments(List.of());
+    }
+
+    private @NotNull String generateRandomUppercaseUUIDWithJsonSuffix() {
+        return generateRandomUppercaseUUID() + JSON_SUFFIX;
     }
 
     private EhrExtractStatus addCompleteTransferWithDocument() {
@@ -418,13 +327,7 @@ public class EhrExtractStatusServiceIT {
 
         EhrExtractStatus extractStatus = EhrExtractStatus.builder()
                 .ackHistory(EhrExtractStatus.AckHistory.builder()
-                        .acks(List.of(
-                                EhrExtractStatus.EhrReceivedAcknowledgement.builder()
-                                        .rootId(generateRandomUppercaseUUID())
-                                        .received(FIVE_DAYS_AGO)
-                                        .conversationClosed(FIVE_DAYS_AGO)
-                                        .messageRef(ehrMessageRef)
-                                        .build()))
+                        .acks(Collections.singletonList(getEhrReceivedAcknowledgement(ehrMessageRef)))
                         .build())
                 .ackPending(EhrExtractStatus.AckPending.builder()
                         .messageId(generateRandomUppercaseUUID())
@@ -442,19 +345,14 @@ public class EhrExtractStatusServiceIT {
                         .sentAt(FIVE_DAYS_AGO)
                         .taskId(generateRandomUppercaseUUID())
                         .build())
-                .ehrReceivedAcknowledgement(EhrExtractStatus.EhrReceivedAcknowledgement.builder()
-                        .conversationClosed(FIVE_DAYS_AGO)
-                        .messageRef(ehrMessageRef)
-                        .received(FIVE_DAYS_AGO)
-                        .rootId(generateRandomUppercaseUUID())
-                        .build())
+                .ehrReceivedAcknowledgement(getEhrReceivedAcknowledgement(ehrMessageRef))
                 .ehrRequest(buildEhrRequest())
                 .gpcAccessDocument(EhrExtractStatus.GpcAccessDocument.builder()
                         .documents(documents)
                         .build())
                 .gpcAccessStructured(EhrExtractStatus.GpcAccessStructured.builder()
                         .accessedAt(FIVE_DAYS_AGO)
-                        .objectName(generateRandomUppercaseUUID() + ".json")
+                        .objectName(generateRandomUppercaseUUIDWithJsonSuffix())
                         .taskId(generateRandomUppercaseUUID())
                         .build())
                 .messageTimestamp(FIVE_DAYS_AGO)
@@ -462,6 +360,15 @@ public class EhrExtractStatusServiceIT {
                 .build();
 
         return ehrExtractStatusRepository.save(extractStatus);
+    }
+
+    private EhrExtractStatus.EhrReceivedAcknowledgement getEhrReceivedAcknowledgement(String ehrMessageRef) {
+        return EhrExtractStatus.EhrReceivedAcknowledgement.builder()
+            .rootId(generateRandomUppercaseUUID())
+            .received(FIVE_DAYS_AGO)
+            .conversationClosed(FIVE_DAYS_AGO)
+            .messageRef(ehrMessageRef)
+            .build();
     }
 
     private String generateRandomUppercaseUUID() {

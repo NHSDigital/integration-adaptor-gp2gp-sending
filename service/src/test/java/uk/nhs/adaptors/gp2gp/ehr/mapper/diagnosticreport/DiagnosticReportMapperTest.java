@@ -6,6 +6,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -13,6 +16,7 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.IdType;
+import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.ResourceType;
 import org.hl7.fhir.dstu3.model.Specimen;
@@ -29,22 +33,25 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 
-import uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility;
-import uk.nhs.adaptors.gp2gp.utils.FileParsingUtility;
-import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
-import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
-import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.AgentDirectory;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.CodeableConceptCdMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.IdMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.InputBundle;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.MessageContext;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.ParticipantMapper;
+import uk.nhs.adaptors.gp2gp.ehr.mapper.StructuredObservationValueMapper;
+import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
+import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.utils.CodeableConceptMapperMockUtil;
+import uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility;
+import uk.nhs.adaptors.gp2gp.utils.FileParsingUtility;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 
 import static org.mockito.ArgumentMatchers.anyList;
 import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOPAT_HL7_CONFIDENTIALITY_CODE;
+import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.getNopatConfidentialityCodeXpathSegment;
+import static uk.nhs.adaptors.gp2gp.utils.XmlAssertion.assertThatXml;
+import static uk.nhs.adaptors.gp2gp.utils.XmlParsingUtility.getXmlStringFromFile;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -52,6 +59,7 @@ class DiagnosticReportMapperTest {
     private static final String TEST_FILE_DIRECTORY = "/ehr/mapper/diagnosticreport/";
 
     private static final String INPUT_JSON_BUNDLE = "fhir_bundle.json";
+    private static final String INPUT_JSON_BUNDLE_WITH_FILING_COMMENTS = "fhir_bundle_with_filing_comments.json";
 
     private static final String TEST_ID = "5E496953-065B-41F2-9577-BE8F2FBD0757";
 
@@ -100,22 +108,18 @@ class DiagnosticReportMapperTest {
 
     @BeforeEach
     public void setUp() throws IOException {
-        final Bundle bundle = new FhirParseService()
-            .parseResource(ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + INPUT_JSON_BUNDLE), Bundle.class);
+        final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
 
         when(messageContext.getIdMapper()).thenReturn(idMapper);
         when(messageContext.getInputBundleHolder()).thenReturn(new InputBundle(bundle));
         when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
         when(idMapper.getOrNew(any(ResourceType.class), any(IdType.class))).thenAnswer(mockIdForResourceAndId());
         when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(mockIdForReference());
-
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         when(specimenMapper.mapSpecimenToCompoundStatement(any(Specimen.class), anyList(), any(DiagnosticReport.class)))
             .thenAnswer(mockSpecimenMapping());
-
         when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
             .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-
-        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
 
         mapper = new DiagnosticReportMapper(
             messageContext, specimenMapper, new ParticipantMapper(), randomIdGeneratorService, confidentialityService);
@@ -134,7 +138,24 @@ class DiagnosticReportMapperTest {
 
         final String outputMessage = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
 
-        assertThat(removeLineEndings(outputMessage)).isEqualTo(removeLineEndings(expectedOutputMessage.toString()));
+        assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutputMessage.toString());
+    }
+
+    @Test
+    void When_DiagnosticReport_With_BlankFilingComment_Expect_NoNarrativeStatementPresent() {
+        final String diagnosticReportFileName = "diagnostic-report-with-blank-filing-comment.json";
+        final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(diagnosticReportFileName);
+        final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE_WITH_FILING_COMMENTS);
+        final InputBundle inputBundle = new InputBundle(bundle);
+
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
+        diagnosticReport.setStatus(null);
+
+        final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
+
+        assertThat(actualXml)
+            .doesNotContainPattern("<NarrativeStatement\\s+classCode=\"[^\"]+\"\\s+moodCode=\"[^\"]+\">\n");
     }
 
     @Test
@@ -158,8 +179,7 @@ class DiagnosticReportMapperTest {
         final String testFile = "diagnostic-report-with-multi-specimens-noscrub.json";
         final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(testFile);
 
-        when(confidentialityService.generateConfidentialityCode(diagnosticReport))
-            .thenReturn(Optional.empty());
+        when(confidentialityService.generateConfidentialityCode(diagnosticReport)).thenReturn(Optional.empty());
 
         final String result = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
 
@@ -169,13 +189,155 @@ class DiagnosticReportMapperTest {
         );
     }
 
+    @Test
+    void When_DiagnosticReport_With_RedactedFilingComment_Expect_ConfidentialityCodePresentWithinUserCommentNarrativeStatement() {
+        final String diagnosticReportFileName = "diagnostic-report-with-one-result.json";
+        final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE_WITH_FILING_COMMENTS);
+        final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(diagnosticReportFileName);
+        final InputBundle inputBundle = new InputBundle(bundle);
+
+        when(confidentialityService.generateConfidentialityCode(bundle.getEntry().getFirst().getResource()))
+            .thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
+        diagnosticReport.setStatus(null);
+
+        final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
+
+        assertThat(actualXml).containsIgnoringWhitespaces(NOPAT_HL7_CONFIDENTIALITY_CODE);
+    }
+
+    @Test
+    void When_DiagnosticReport_With_ObservationEffectiveDateTimeTypeAndCommentNote_Expect_NarrativeStatementConfidentialityCodePresent() {
+        final String diagnosticReportFileName = "diagnostic-report-with-effective-datetime-filing-comment.json";
+        final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(diagnosticReportFileName);
+        final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE_WITH_FILING_COMMENTS);
+        final int observationBundleEntryIndex = 2;
+        final Observation observation = (Observation) bundle.getEntry().get(observationBundleEntryIndex).getResource();
+        final InputBundle inputBundle = new InputBundle(bundle);
+        final List<String> expectedXPaths = Collections.singletonList(
+            "/component/CompoundStatement/component[1]/NarrativeStatement/" + getNopatConfidentialityCodeXpathSegment()
+        );
+
+        when(confidentialityService.generateConfidentialityCode(observation)).thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
+        diagnosticReport.setStatus(null);
+
+        final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
+
+        assertThatXml(actualXml).containsAllXPaths(expectedXPaths);
+    }
+
+    @Test
+    void When_DiagnosticReport_With_ObservationEffectivePeriodAndCommentNote_Expect_NarrativeStatementConfidentialityCodePresent() {
+        final String diagnosticReportFileName = "diagnostic-report-with-effective-period-filing-comment.json";
+        final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(diagnosticReportFileName);
+        final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE_WITH_FILING_COMMENTS);
+        final int observationBundleEntryIndex = 3;
+        final Observation observation = (Observation) bundle.getEntry().get(observationBundleEntryIndex).getResource();
+        final InputBundle inputBundle = new InputBundle(bundle);
+        final List<String> expectedXPaths = Collections.singletonList(
+            "/component/CompoundStatement/component[1]/NarrativeStatement/" + getNopatConfidentialityCodeXpathSegment()
+        );
+
+        when(confidentialityService.generateConfidentialityCode(observation)).thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
+        diagnosticReport.setStatus(null);
+
+        final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
+
+        assertThatXml(actualXml).containsAllXPaths(expectedXPaths);
+    }
+
+    @Test
+    void When_DiagnosticReport_With_NoReferencedSpecimenAndFilingCommentWithNoComment_Expect_MatchesSnapshotXml() {
+        final String diagnosticReportFileName = "diagnostic-report-with-no-specimen.json";
+        final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(diagnosticReportFileName);
+        final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
+        final InputBundle inputBundle = new InputBundle(bundle);
+        final String expectedXml = getXmlStringFromFile(TEST_FILE_DIRECTORY, "diagnostic-report-with-no-specimen.xml");
+
+        when(specimenMapper.mapSpecimenToCompoundStatement(
+            any(Specimen.class),
+            anyList(),
+            any(DiagnosticReport.class)
+        )).thenCallRealMethod();
+
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
+        mapper = new DiagnosticReportMapper(
+            messageContext,
+            new SpecimenMapper(
+                messageContext,
+                new ObservationMapper(
+                    messageContext,
+                    new StructuredObservationValueMapper(),
+                    codeableConceptCdMapper,
+                    new ParticipantMapper(),
+                    randomIdGeneratorService,
+                    confidentialityService
+                ),
+                randomIdGeneratorService,
+                confidentialityService
+            ),
+            new ParticipantMapper(),
+            randomIdGeneratorService,
+            confidentialityService
+        );
+
+        final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
+
+        assertThat(actualXml).isEqualToIgnoringWhitespace(expectedXml);
+    }
+
+    /**
+     * A Diagnosis Report may have an Observation (Test Result) and Specimen. If the result and specimen are not
+     * linked then we need to create a dummy specimen linked to the result.
+     */
+    @Test
+    void When_DiagnosticReport_Has_SpecimenAndUnlinkedTestResult_Expect_ADummySpecimenLinkedToTestResult() {
+        final String diagnosticReportFileName = "diagnostic-report-with-one-specimen-and-one-unrelated-observation.json";
+        final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(diagnosticReportFileName);
+        final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
+        final InputBundle inputBundle = new InputBundle(bundle);
+
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
+        final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
+
+        // This checks that the unlinked test result is given a dummy specimen.
+        assertThat(actualXml).containsIgnoringWhitespaces(
+                "<!-- Mapped Specimen with id: DUMMY-SPECIMEN-5E496953-065B-41F2-9577-BE8F2FBD0757 "
+                        + "with linked Observations: Observation/TestResult-WithoutSpecimenReference-->");
+    }
+
+    @Test
+    void When_DiagnosticReport_Has_SpecimenALinkedTestResultAndAnUnlinkedTestResult_Expect_ASpecimenOnAllTestResults() {
+        final String diagnosticReportFileName =
+                "diagnostic-report-with-one-specimen-one-linked-observation-and-one-unlinked-observation.json";
+        final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(diagnosticReportFileName);
+        final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
+        final InputBundle inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
+        final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
+        // This checks that the unlinked test result is given a dummy specimen.
+        assertThat(actualXml).containsIgnoringWhitespaces(
+                "<!-- Mapped Specimen with id: DUMMY-SPECIMEN-5E496953-065B-41F2-9577-BE8F2FBD0757 "
+                        + "with linked Observations: Observation/TestResult-WithoutSpecimenReference-->");
+
+    }
+
+    private Bundle getBundleResourceFromJson(String filename) {
+        final String filePath = TEST_FILE_DIRECTORY + filename;
+        return FileParsingUtility.parseResourceFromJsonFile(filePath, Bundle.class);
+    }
+
     private DiagnosticReport getDiagnosticReportResourceFromJson(String filename) {
         final String filePath = TEST_FILE_DIRECTORY + filename;
         return FileParsingUtility.parseResourceFromJsonFile(filePath, DiagnosticReport.class);
-    }
-
-    private String removeLineEndings(String input) {
-        return input.replace("\n", "").replace("\r", "");
     }
 
     private static Stream<Arguments> resourceFileParams() {
@@ -215,7 +377,23 @@ class DiagnosticReportMapperTest {
     private Answer<String> mockSpecimenMapping() {
         return invocation -> {
             Specimen specimen = invocation.getArgument(0);
-            return String.format("<!-- Mapped Specimen with id: %s -->", specimen.getId());
+            List<Observation> observations = invocation.getArgument(1);
+
+            List<String> linkedObservations = new ArrayList<>();
+
+            for (Observation observation : observations) {
+                if (observation.getSpecimen().getReference() != null
+                        && observation.getSpecimen().getReference().equals(specimen.getId())) {
+                    linkedObservations.add(observation.getId());
+                }
+            }
+
+            if (linkedObservations.isEmpty()) {
+                return String.format("<!-- Mapped Specimen with id: %s -->", specimen.getId());
+            }
+            return String.format("<!-- Mapped Specimen with id: %s with linked Observations: %s-->",
+                    specimen.getId(),
+                    String.join(",", linkedObservations));
         };
     }
 }

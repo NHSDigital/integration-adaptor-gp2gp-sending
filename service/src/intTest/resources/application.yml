@@ -14,6 +14,7 @@ management:
         include: info, health, metrics
 
 gp2gp:
+  ehr-extract-sent-days-limit: 8
   redactions-enabled: ${GP2GP_REDACTIONS_ENABLED:false}
   largeAttachmentThreshold: ${GP2GP_LARGE_ATTACHMENT_THRESHOLD:4500000} # value in bytes. Default value for Spine is ~4.5MB
   largeEhrExtractThreshold: ${GP2GP_LARGE_ATTACHMENT_THRESHOLD:4500000}
@@ -42,7 +43,7 @@ gp2gp:
     password: ${GP2GP_MONGO_PASSWORD:}
     options: ${GP2GP_MONGO_OPTIONS:}
     autoIndexCreation: ${GP2GP_MONGO_AUTO_INDEX_CREATION:true}
-    ttl: ${GP2GP_MONGO_TTL:P7D}
+    ttl: ${GP2GP_MONGO_TTL:P84D}
     cosmosDbEnabled: ${GP2GP_COSMOS_DB_ENABLED:false}
   gpc:
     url: ${GP2GP_GPC_GET_URL:http://localhost:8090/@ODS_CODE@/STU3/1/gpconnect}
@@ -51,8 +52,6 @@ gp2gp:
     patientEndpoint: ${GP2GP_GPC_DOCUMENTS_FHIR_BASE:/documents/fhir}/Patient
     patientDocumentReferenceEndpoint: ${GP2GP_GPC_DOCUMENTS_FHIR_BASE:/documents/fhir}/Patient
     overrideNhsNumber: ${GP2GP_GPC_OVERRIDE_NHS_NUMBER:}
-    overrideFromAsid: ${GP2GP_GPC_OVERRIDE_FROM_ASID:}
-    overrideToAsid: ${GP2GP_GPC_OVERRIDE_TO_ASID:}
     maxRequestSize: ${GP2GP_GPC_MAX_REQUEST_SIZE:150000000} # default 150MB
     requestingPractitionerSDSUserId: ${GP2GP_REQUESTING_PRACTITIONER_SDS_USER_ID:UNK}
     requestingPractitionerSDSRoleProfileId: ${GP2GP_REQUESTING_PRACTITIONER_SDS_ROLE_PROFILE_ID:UNK}
@@ -68,3 +67,6 @@ gp2gp:
       max-backoff-attempts: 3
       min-back-off: 2
       timeout: 3
+
+timeout:
+  cronTime: ${TIMEOUT_CRON_TIME:0 0 */12 * * *}

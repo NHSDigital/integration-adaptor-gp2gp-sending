@@ -6,18 +6,101 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-* Added a scheduled delay checker to update EhrExtract to "Integration Failure" state if sentAt exceeds 192 hours and no acknowledgment is received. 
+## [2.2.1] - 2024-12-10
 
 ### Added
-
+* When a transfer fails, the transfer should remain available in the db for at least 12 weeks (84 days), as per spec.
+* When mapping a `DocumentReference` which contains a `NOPAT` `meta.security` or `NOPAT` `securityLabel` tag the resultant XML for that resource
+  will contain a `NOPAT` `confidentialityCode` element.
 * When mapping `AllergyIntolerances` which contain a `NOPAT` `meta.security` tag the resultant XML for that resource
-will contain a `NOPAT` `confidentialityCode` element.
+  will contain a `NOPAT` `confidentialityCode` element.
 * When mapping a `DiagnosticReport` or `Specimen` which contains a `NOPAT` `meta.security` tag the resultant XML for that resource
   will contain a `NOPAT` `confidentialityCode` element.
-* When mapping a `TestResult`, `TestGroupHeader` or `FilingComment` which contains a `NOPAT` `meta.security` tag the resultant XML 
+* When mapping a `TestResult`, `TestGroupHeader` or `FilingComment` which contains a `NOPAT` `meta.security` tag the resultant XML
   for that resource will contain a `NOPAT` `confidentialityCode` element.
 * When mapping a `Condition` which contains a `NOPAT` `meta.security` tag the resultant XML for that resource
   will contain a `NOPAT` `confidentialityCode` element.
+* When mapping a `MedicationRequest (PLAN)` which contains a `NOPAT` `meta.security` tag the resultant XML for that
+  resource will contain a `NOPAT` `confidentialityCode` element.
+* When mapping a `MedicationRequest (ORDER)` which contains a `NOPAT` `meta.security` tag the resultant XML for that
+  resource will contain a `NOPAT` `confidentialityCode` element.
+* When mapping `Immunizations` which contain a `NOPAT` `meta.security` tag, the resultant XML for that resource
+  will contain a `NOPAT` `confidentialityCode` element.
+
+## [2.2.0] - 2024-12-02
+
+### Added
+* New endpoint added `POST /ehr-resend/<conversationId>` which will re-request the GP Connect structured record, and
+  resend a newly generated EHRExtract to the requesting GP2GP system.
+  This endpoint can be used when the requesting system asks that the sending system resends the medical record
+  because of a temporary technical fault.
+  The endpoint will only perform resends if the status of the transfer is `FAILED_INCUMBENT` or `FAILED_NME` including
+  when a transfer hasn't been acknowledged by the requesting system for 8 days or more.
+
+### Fixed
+* When mapping a `DiagnosticReport` which contains at least one test result with a `Specimen` attached,
+  any test result's which didn't have a Specimen were previously not sent to the requesting system.
+  Now, a fake `Specimen` is created in which any `Specimen`-less `TestResult`s are placed.
+
+## [2.1.4] - 2024-11-07
+
+### Fixed
+
+* When mapping an `Observation` related to a diagnostic report which does not contain a `code` element, the adaptor will
+  now throw an error reporting that an observation requires a code element and provide the affected resource ID.
+  Previously the adaptor was generating an invalid GP2GP payload which was being rejected by the requesting system with
+  a vague error code.
+* When mapping a `valueQuantity` contained in an `Observation`, the generated XML element now correctly escapes any
+  contained XML characters.
+* Removed a 20 MB data processing limit which was causing large document transfers to fail.
+
+## [2.1.3] - 2024-10-25
+
+### Fixed
+
+* Fix a malformed XML GP2GP message created when mapping a `MedicationRequest` with `intent` of `plan` and is stopped,
+  but no free text reason for the discontinuation was provided.  
+
+## [2.1.2] - 2024-10-21
+
+### Fixed
+
+* When mapping a `DiagnosticReport` which didn't contain any `Specimen` references, the adaptor would
+  previously throw an error "EhrMapperException: Observation/ref was not mapped to a statement in the EHR" when mapping
+  a filing comment and abort the GP2GP transfer.
+  The adaptor is now able to handle this situation correctly.
+
+## [2.1.1] - 2024-10-15
+
+### Fixed
+
+* When mapping a `Condition` without an `asserter`, omit the `Participant` element within the XML.
+  Previously this would raise the error "EhrMapperException: Condition.asserter is required" and send a
+  failure to the requesting system.
+* When mapping a `MedicationRequest` without a `recorder` or `requester`, omit the `Participant` element within the XML.
+  Previously this would raise the error "MedicationRequest ... missing recorder of type Practitioner, PractitionerRole
+  or Organization" and send a failure to the requesting system.
+
+## [2.1.0] - 2024-10-14
+
+### Added
+
+* Added functionality to automatically update the migration status to `FAILED_INCUMBENT` for any transfer where the 
+  adaptor hasn't received an acknowledgement from the requesting GP surgery and the health record was sent to them more
+  than 8 days ago.
+
+### Fixed
+
+* When mapping consultations which are "flat" (i.e., they contain a `TOPIC` without a `CATEGORY`) we now wrap the
+  resource into a virtual `CATEGORY`.
+  This provides compatability with a GP2GP system which would reject the transfer otherwise.
+* When mapping an `Encounter` without a Recorder `participant`, now send the author as `nulFlavor=UNK`.
+  Previously this would raise the error "EhrMapperException: Encounter.participant recorder is required" and send a
+  failure to the requesting system.
+* When mapping `ProcedureRequests` with an `occurrencePeriod` which contains only a start date, then the `text` element
+  in the resultant XML will no longer contain the superfluous 'Earliest Recall Date: <startDate>' value.
+* When mapping `ProcedureRequests` with a `requestor` referencing a `device` without a `manufacturer` a spurious 
+  `"null"` is no longer output in the generated `"Recall Device:"` text.
 
 ## [2.0.6] - 2024-07-29
 

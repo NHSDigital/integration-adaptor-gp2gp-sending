@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id "io.freefair.lombok" version "8.7.1"
+    id "io.freefair.lombok" version "8.11"
 }
 
 apply plugin: 'java'
@@ -16,17 +16,17 @@ dependencies {
     implementation 'org.apache.qpid:qpid-jms-client:0.57.0'
     implementation "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.1.1"
     implementation 'org.mongodb:mongo-java-driver:3.12.14'
-    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.17.2'
-    testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2'
-    testImplementation 'commons-io:commons-io:2.16.1'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+    testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2'
+    testImplementation 'commons-io:commons-io:2.18.0'
     testImplementation 'org.awaitility:awaitility:4.2.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.0'
-    testImplementation "org.assertj:assertj-core:3.26.3"
-    testImplementation 'ch.qos.logback:logback-classic:1.5.6'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
+    testImplementation "org.assertj:assertj-core:3.27.2"
+    testImplementation 'ch.qos.logback:logback-classic:1.5.15'
     testImplementation 'org.xmlunit:xmlunit-assertj3:2.10.0'
     testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
 
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.3'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
 }
 
 tasks.withType(Test) {

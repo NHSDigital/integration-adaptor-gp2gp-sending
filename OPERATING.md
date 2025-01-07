@@ -13,7 +13,7 @@ Variables without a default value and not marked optional, *MUST* be defined for
 
 | Environment Variable     | Default                   | Description                                                                               |
 |--------------------------|---------------------------|-------------------------------------------------------------------------------------------|
-| GP2GP_SERVER_PORT        | 8080                      | The port on which the GP2GP Adapter will run.                                             |
+| GP2GP_SERVER_PORT        | 8080                      | The port on which the GP2GP Adapter API will run.                                         |
 | GP2GP_ROOT_LOGGING_LEVEL | WARN                      | The logging level applied to the entire application (including third-party dependencies). |
 | GP2GP_LOGGING_LEVEL      | INFO                      | The logging level applied to GP2GP adaptor components.                                    |
 | GP2GP_LOGGING_FORMAT     | (*)                       | Defines how to format log events on stdout                                                |
@@ -40,7 +40,7 @@ The adaptor requires a Mongodb-compatible database to manage its internal state.
 | GP2GP_MONGO_PASSWORD            |                           | Mongo database password. Leave undefined if GP2GP_MONGO_URI is used.                                                                                           |
 | GP2GP_MONGO_OPTIONS             |                           | Mongodb URL encoded parameters for the connection string without a leading "?". Leave undefined if GP2GP_MONGO_URI is used.                                    |
 | GP2GP_MONGO_AUTO_INDEX_CREATION | true                      | (Optional) Should auto index for Mongo database be created.                                                                                                    |
-| GP2GP_MONGO_TTL                 | P7D                       | (Optional) Time-to-live value for inbound and outbound state collection documents as an [ISO 8601 Duration](https://en.wikipedia.org/wiki/ISO_8601#Durations). |
+| GP2GP_MONGO_TTL                 | P84D                      | (Optional) Time-to-live value for inbound and outbound state collection documents as an [ISO 8601 Duration](https://en.wikipedia.org/wiki/ISO_8601#Durations). |
 | GP2GP_COSMOS_DB_ENABLED         | false                     | (Optional) If true the adaptor will enable features and workarounds to support Azure Cosmos DB.                                                                |
 
 **Trust Store Configuration Options**
@@ -119,9 +119,18 @@ The GP2GP uses the [MHS Adaptor](https://github.com/nhsconnect/integration-adapt
 ### MHS Adaptor and GP Connect Consumer Adaptor Client Options
 Options for configuring the web client making requests to the MHS Adaptor and the GP Connect Consumer Adaptor.
 
-Backoff options are used when the client experiences a timeout or 5xx response. Timeout is measured as total time for the HTTP request and response to complete.
+Backoff options are used to perform retries of a HTTP request when the client experiences a timeout or 5xx response.
+The client will perform retries up to the number provided by `MAX_BACKOFF_ATTEMPTS`.
+Time to wait before making the next request attempt is calculated using the equation below, with `retryNumber` starting
+at 0 for the first failure, and `jitter` being a random number in the range 0.5 - 1.5
 
-#### MHS Adaptor client
+```math
+\text{timeToWait} = \text{minBackoffSeconds} \times 2.0^\text{retryNumber} \times jitter
+```
+
+Timeout is measured as total time for the HTTP request and response to complete.
+
+#### GP Connect Consumer Adaptor client
 
 | Environment Variable                  | Default | Description                 |
 |---------------------------------------|---------|-----------------------------|
@@ -129,7 +138,7 @@ Backoff options are used when the client experiences a timeout or 5xx response. 
 | GP2GP_GPC_CLIENT_MIN_BACKOFF_SECONDS  | 5       | Min Backoff time (seconds)  |
 | GP2GP_GPC_CLIENT_TIMEOUT_SECONDS      | 1200    | Request timeout (seconds)   |
 
-#### GP Connect Consumer Adaptor client
+#### MHS Adaptor client
 
 | Environment Variable                  | Default | Description                 |
 |---------------------------------------|---------|-----------------------------|
@@ -257,7 +266,7 @@ The adaptor's database records:
 * metadata about the transfer process
 
 The supplier MUST configure the `GP2GP_MONGO_TTL` variable to remove the database records
-after a reasonable time period.
+after a reasonable time period. The specs say 12 weeks (84 days), so this is our suggestion.
 
 The adaptor's queued messages contain:
 * the patient's NHS number

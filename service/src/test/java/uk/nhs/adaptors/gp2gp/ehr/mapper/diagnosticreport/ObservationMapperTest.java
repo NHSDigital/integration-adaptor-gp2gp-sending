@@ -18,10 +18,10 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
-import org.xml.sax.SAXException;
 import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
+import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.AgentDirectory;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.CodeableConceptCdMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.IdMapper;
@@ -32,23 +32,27 @@ import uk.nhs.adaptors.gp2gp.ehr.mapper.StructuredObservationValueMapper;
 import uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility;
 import uk.nhs.adaptors.gp2gp.utils.FileParsingUtility;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
-import uk.nhs.adaptors.gp2gp.utils.XmlParsingUtility;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-import java.io.IOException;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOPAT_HL7_CONFIDENTIALITY_CODE;
+import static uk.nhs.adaptors.gp2gp.utils.XmlAssertion.assertThatXml;
 
 @ExtendWith(MockitoExtension.class)
 class ObservationMapperTest {
+    public static final String COMPOUND_STATEMENT_CONFIDENTIALITY_CODE_XPATH =
+        "/component/CompoundStatement/" + ConfidentialityCodeUtility.getNopatConfidentialityCodeXpathSegment();
+    public static final String OBSERVATION_STATEMENT_CONFIDENTIALITY_CODE_XPATH =
+        "/component/ObservationStatement/" + ConfidentialityCodeUtility.getNopatConfidentialityCodeXpathSegment();
+    public static final String NARRATIVE_STATEMENT_CONFIDENTIALITY_CODE_XPATH =
+        "/component/NarrativeStatement/" + ConfidentialityCodeUtility.getNopatConfidentialityCodeXpathSegment();
     private static final String DIAGNOSTIC_REPORT_TEST_FILE_DIRECTORY = "/ehr/mapper/diagnosticreport/";
     private static final String OBSERVATION_TEST_FILE_DIRECTORY = "/ehr/mapper/diagnosticreport/observation/";
 
@@ -88,6 +92,8 @@ class ObservationMapperTest {
         "observation_test_result.json";
     private static final String OBSERVATION_FILING_COMMENT_JSON =
         "observation_filing_comment.json";
+    private static final String OBSERVATION_ASSOCIATED_WITH_IGNORED_MEMBER_JSON =
+        "observation_associated_with_specimen_1_with_ignored_member.json";
 
     private static final String OBSERVATION_COMPOUND_STATEMENT_1_XML =
         "observation_compound_statement_1.xml";
@@ -119,6 +125,8 @@ class ObservationMapperTest {
         "observation_compound_statement_clustered_by_diagnosticreport_reference.xml";
     private static final String OBSERVATION_COMPOUND_STATEMENT_1_WITH_RELATED_COMMENT_XML =
         "observation_compound_statement_1_with_related_comment.xml";
+    private static final String OBSERVATION_COMPOUND_STATEMENT_WITH_BATTERY_TEST_RESULT_XML =
+        "observation_compound_statement_with_battery_test_result.xml";
     private static final String DIAGNOSTIC_REPORT_REFERENCE_ID = "Observation/TEST_REFERENCE_ID";
 
     @Mock
@@ -157,15 +165,12 @@ class ObservationMapperTest {
         when(idMapper.getOrNew(any(ResourceType.class), any(IdType.class)))
             .thenAnswer(params -> "Mapped-From-" + ((IdType) params.getArgument(1)).getValue());
 
-        MultiStatementObservationHolderFactory multiStatementObservationHolderFactory =
-            new MultiStatementObservationHolderFactory(messageContext, randomIdGeneratorService);
-
         observationMapper = new ObservationMapper(
             messageContext,
             new StructuredObservationValueMapper(),
             new CodeableConceptCdMapper(),
             new ParticipantMapper(),
-            multiStatementObservationHolderFactory,
+            randomIdGeneratorService,
             confidentialityService
         );
     }
@@ -181,7 +186,7 @@ class ObservationMapperTest {
         final Observation observationAssociatedWithSpecimen = getObservationResourceFromJson(inputJson);
         final String expectedXml = getXmlStringFromFile(outputXml);
 
-        when(randomIdGeneratorService.createNewId())
+        lenient().when(randomIdGeneratorService.createNewId())
             .thenReturn("random-unmapped-id");
 
         final String actualXml = observationMapper.mapObservationToCompoundStatement(
@@ -203,11 +208,8 @@ class ObservationMapperTest {
     }
 
     @Test
-    void When_MappingTestGroupHeader_With_NopatMetaSecurity_Expect_ConfidentialityCodeWithinCompoundStatement()
-        throws XPathExpressionException, IOException, ParserConfigurationException, SAXException {
+    void When_MappingTestGroupHeader_With_NopatMetaSecurity_Expect_ConfidentialityCodeWithinCompoundStatement() {
         final Observation observation = getObservationResourceFromJson(OBSERVATION_TEST_GROUP_HEADER_JSON);
-        final String xPath = "/component/CompoundStatement/" + ConfidentialityCodeUtility
-            .getNopatConfidentialityCodeXpathSegment();
 
         ConfidentialityCodeUtility.appendNopatSecurityToMetaForResource(observation);
         when(confidentialityService.generateConfidentialityCode(observationArgumentCaptor.capture()))
@@ -220,8 +222,21 @@ class ObservationMapperTest {
             .filter(ConfidentialityCodeUtility::doesMetaContainNopat)
             .toList();
 
-        assertTrue(XmlParsingUtility.xpathMatchFound(actualXml, xPath));
-        assertThat(metaWithNopat).hasSize(1);
+        assertAll(
+            () -> assertThatXml(actualXml).containsXPath(COMPOUND_STATEMENT_CONFIDENTIALITY_CODE_XPATH),
+            () -> assertThat(metaWithNopat).hasSize(2)
+        );
+    }
+
+    @Test
+    void When_MappingTestGroupHeader_WithoutCode_Expect_ExceptionThrownContainingId() {
+        final Observation observation = getObservationResourceFromJson(OBSERVATION_TEST_GROUP_HEADER_JSON);
+        observation.setCode(null);
+
+        assertThatExceptionOfType(EhrMapperException.class)
+            .isThrownBy(() -> observationMapper.mapObservationToCompoundStatement(observation))
+            .withMessageContaining(observation.getId());
+
     }
 
     @Test
@@ -239,16 +254,15 @@ class ObservationMapperTest {
             .filter(ConfidentialityCodeUtility::doesMetaContainNopat)
             .toList();
 
-        assertThat(actualXml).doesNotContainIgnoringCase(NOPAT_HL7_CONFIDENTIALITY_CODE);
-        assertThat(metaWithNopat).hasSize(0);
+        assertAll(
+            () -> assertThat(actualXml).doesNotContainIgnoringCase(NOPAT_HL7_CONFIDENTIALITY_CODE),
+            () -> assertThat(metaWithNopat).hasSize(0)
+        );
     }
 
     @Test
-    void When_MappingTestResult_With_NopatMetaSecurity_Expect_ConfidentialityCodeWithinObservationStatement()
-        throws XPathExpressionException, IOException, ParserConfigurationException, SAXException {
+    void When_MappingTestResult_With_NopatMetaSecurity_Expect_ConfidentialityCodeWithinObservationStatement() {
         final Observation observation = getObservationResourceFromJson(OBSERVATION_TEST_RESULT_JSON);
-        final String xPath = "/component/ObservationStatement/" + ConfidentialityCodeUtility
-            .getNopatConfidentialityCodeXpathSegment();
 
         ConfidentialityCodeUtility.appendNopatSecurityToMetaForResource(observation);
         when(confidentialityService.generateConfidentialityCode(observation))
@@ -256,7 +270,7 @@ class ObservationMapperTest {
 
         final String actualXml = observationMapper.mapObservationToCompoundStatement(observation);
 
-        assertTrue(XmlParsingUtility.xpathMatchFound(actualXml, xPath));
+        assertThatXml(actualXml).containsXPath(OBSERVATION_STATEMENT_CONFIDENTIALITY_CODE_XPATH);
     }
 
     @Test
@@ -273,11 +287,8 @@ class ObservationMapperTest {
     }
 
     @Test
-    void When_MappingFilingComment_With_NopatMetaSecurity_Expect_ConfidentialityCodeWithinNarrativeStatement()
-        throws XPathExpressionException, IOException, ParserConfigurationException, SAXException {
+    void When_MappingFilingComment_With_NopatMetaSecurity_Expect_ConfidentialityCodeWithinNarrativeStatement() {
         final Observation observation = getObservationResourceFromJson(OBSERVATION_FILING_COMMENT_JSON);
-        final String xPath = "/component/NarrativeStatement/" + ConfidentialityCodeUtility
-            .getNopatConfidentialityCodeXpathSegment();
 
         ConfidentialityCodeUtility.appendNopatSecurityToMetaForResource(observation);
         when(confidentialityService.generateConfidentialityCode(observation))
@@ -285,7 +296,7 @@ class ObservationMapperTest {
 
         final String actualXml = observationMapper.mapObservationToCompoundStatement(observation);
 
-        assertTrue(XmlParsingUtility.xpathMatchFound(actualXml, xPath));
+        assertThatXml(actualXml).containsXPath(NARRATIVE_STATEMENT_CONFIDENTIALITY_CODE_XPATH);
     }
 
     @Test
@@ -312,7 +323,6 @@ class ObservationMapperTest {
         return FileParsingUtility.parseResourceFromJsonFile(filePath, Observation.class);
     }
 
-    @SuppressWarnings("unused")
     private static Stream<Arguments> resourceFileParams() {
         return Stream.of(
             Arguments.of(OBSERVATION_ASSOCIATED_WITH_SPECIMEN_1_JSON, OBSERVATION_COMPOUND_STATEMENT_1_XML),
@@ -359,6 +369,10 @@ class ObservationMapperTest {
             Arguments.of(
                 OBSERVATION_ASSOCIATED_WITH_SPECIMEN_1_WITH_RELATED_COMMENT_JSON,
                 OBSERVATION_COMPOUND_STATEMENT_1_WITH_RELATED_COMMENT_XML
+            ),
+            Arguments.of(
+                OBSERVATION_ASSOCIATED_WITH_IGNORED_MEMBER_JSON,
+                OBSERVATION_COMPOUND_STATEMENT_WITH_BATTERY_TEST_RESULT_XML
             )
         );
     }

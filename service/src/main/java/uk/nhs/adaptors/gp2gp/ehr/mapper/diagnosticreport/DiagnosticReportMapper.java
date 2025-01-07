@@ -8,9 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import static uk.nhs.adaptors.gp2gp.ehr.mapper.CommentType.LABORATORY_RESULT_COMMENT;
 import static uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport.ObservationMapper.NARRATIVE_STATEMENT_TEMPLATE;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -73,13 +75,21 @@ public class DiagnosticReportMapper {
     private final ConfidentialityService confidentialityService;
 
     public String mapDiagnosticReportToCompoundStatement(DiagnosticReport diagnosticReport) {
-        List<Specimen> specimens = fetchSpecimens(diagnosticReport);
         List<Observation> observations = fetchObservations(diagnosticReport);
+        List<Specimen> specimens = fetchSpecimens(diagnosticReport, observations);
         final IdMapper idMapper = messageContext.getIdMapper();
         markObservationsAsProcessed(idMapper, observations);
 
+        List<Observation> observationsExcludingFilingComments = assignDummySpecimensToObservationsWithNoSpecimen(
+                observations.stream()
+                    .filter(Predicate.not(DiagnosticReportMapper::isFilingComment))
+                    .toList(),
+                specimens);
+
         String mappedSpecimens = specimens.stream()
-            .map(specimen -> specimenMapper.mapSpecimenToCompoundStatement(specimen, observations, diagnosticReport))
+            .map(specimen -> specimenMapper.mapSpecimenToCompoundStatement(specimen,
+                    observationsForSpecimen(specimen, observationsExcludingFilingComments),
+                    diagnosticReport))
             .collect(Collectors.joining());
 
         String reportLevelNarrativeStatements = prepareReportLevelNarrativeStatements(diagnosticReport, observations);
@@ -105,6 +115,13 @@ public class DiagnosticReportMapper {
         );
     }
 
+    private List<Observation> observationsForSpecimen(Specimen specimen, List<Observation> observations) {
+        return observations.stream()
+                .filter(Observation::hasSpecimen)
+                .filter(observation -> observation.getSpecimen().getReference().equals(specimen.getId()))
+                .collect(Collectors.toList());
+    }
+
     private String fetchExtensionId(List<Identifier> identifiers) {
         return identifiers.stream()
             .filter(DiagnosticReportMapper::isPMIPCodeSystem)
@@ -113,21 +130,60 @@ public class DiagnosticReportMapper {
             .orElse(StringUtils.EMPTY);
     }
 
-    private List<Specimen> fetchSpecimens(DiagnosticReport diagnosticReport) {
-        if (!diagnosticReport.hasSpecimen()) {
-            return Collections.singletonList(generateDefaultSpecimen(diagnosticReport));
+    private List<Specimen> fetchSpecimens(DiagnosticReport diagnosticReport, List<Observation> observations) {
+
+        List<Specimen> specimens = new ArrayList<>();
+
+        // At least one specimen is required to exist for any DiagnosticReport, according to the mim
+        if (!diagnosticReport.hasSpecimen() || hasObservationsWithoutSpecimen(observations)) {
+            specimens.add(generateDummySpecimen(diagnosticReport));
         }
 
         var inputBundleHolder = messageContext.getInputBundleHolder();
-        return diagnosticReport.getSpecimen()
+        List<Specimen> nonDummySpecimens = diagnosticReport.getSpecimen()
             .stream()
             .map(specimenReference -> inputBundleHolder.getResource(specimenReference.getReferenceElement()))
             .flatMap(Optional::stream)
             .map(Specimen.class::cast)
             .collect(Collectors.toList());
+
+        specimens.addAll(nonDummySpecimens);
+
+        return specimens;
+
     }
 
-    private Specimen generateDefaultSpecimen(DiagnosticReport diagnosticReport) {
+    private boolean hasObservationsWithoutSpecimen(List<Observation> observations) {
+        return observations
+                .stream()
+                .filter(observation -> !isFilingComment(observation))
+                .anyMatch(observation -> !observation.hasSpecimen());
+    }
+
+    private List<Observation> assignDummySpecimensToObservationsWithNoSpecimen(
+            List<Observation> observations, List<Specimen> specimens) {
+
+        if (!hasObservationsWithoutSpecimen(observations)) {
+            return observations;
+        }
+
+        // The assumption was made that all test results without a specimen will have the same dummy specimen referenced
+        Specimen dummySpecimen = specimens.stream()
+                .filter(specimen -> specimen.getId().contains(DUMMY_SPECIMEN_ID_PREFIX))
+                .toList().getFirst();
+
+        Reference dummySpecimenReference = new Reference(dummySpecimen.getId());
+
+        for (Observation observation : observations) {
+            if (!observation.hasSpecimen() && !isFilingComment(observation)) {
+                observation.setSpecimen(dummySpecimenReference);
+            }
+        }
+
+        return observations;
+    }
+
+    private Specimen generateDummySpecimen(DiagnosticReport diagnosticReport) {
         Specimen specimen = new Specimen();
 
         specimen.setId(DUMMY_SPECIMEN_ID_PREFIX + randomIdGeneratorService.createNewId());
@@ -169,7 +225,7 @@ public class DiagnosticReportMapper {
             String comment = PREPENDED_TEXT_FOR_CONCLUSION_COMMENT + diagnosticReport.getConclusion();
 
             String narrativeStatementFromConclusion = buildNarrativeStatementForDiagnosticReport(
-                diagnosticReport.getIssuedElement(), LABORATORY_RESULT_COMMENT.getCode(), comment
+                diagnosticReport.getIssuedElement(), LABORATORY_RESULT_COMMENT.getCode(), comment, null
             );
 
             reportLevelNarrativeStatements.append(narrativeStatementFromConclusion);
@@ -184,7 +240,7 @@ public class DiagnosticReportMapper {
             String comment = PREPENDED_TEXT_FOR_CODED_DIAGNOSIS + codedDiagnosisText;
 
             String narrativeStatementFromCodedDiagnosis = buildNarrativeStatementForDiagnosticReport(
-                diagnosticReport.getIssuedElement(), LABORATORY_RESULT_COMMENT.getCode(), comment
+                diagnosticReport.getIssuedElement(), LABORATORY_RESULT_COMMENT.getCode(), comment, null
             );
 
             reportLevelNarrativeStatements.append(narrativeStatementFromCodedDiagnosis);
@@ -193,7 +249,7 @@ public class DiagnosticReportMapper {
         if (diagnosticReport.hasStatus()) {
             String status = PREPENDED_TEXT_FOR_STATUS + diagnosticReport.getStatus().toCode();
             String statusNarrativeStatement = buildNarrativeStatementForDiagnosticReport(
-                diagnosticReport.getIssuedElement(), LABORATORY_RESULT_COMMENT.getCode(), status);
+                diagnosticReport.getIssuedElement(), LABORATORY_RESULT_COMMENT.getCode(), status, null);
 
             reportLevelNarrativeStatements.append(statusNarrativeStatement);
         }
@@ -207,16 +263,19 @@ public class DiagnosticReportMapper {
     }
 
     private void buildNarrativeStatementForObservationTimes(
-            List<Observation> observations,
-            StringBuilder reportLevelNarrativeStatements,
-            InstantType diagnosticReportIssued) {
+        List<Observation> observations,
+        StringBuilder reportLevelNarrativeStatements,
+        InstantType diagnosticReportIssued) {
         observations.stream()
             .filter(observation -> observation.hasEffectiveDateTimeType() || observation.hasEffectivePeriod())
-            .filter(this::hasCommentNote)
+            .filter(DiagnosticReportMapper::isFilingComment)
             .findFirst()
-            .map(this::extractDateFromObservation)
-            .map(dateString -> buildNarrativeStatementForDiagnosticReport(
-                diagnosticReportIssued, CommentType.AGGREGATE_COMMENT_SET.getCode(), dateString))
+            .map(observation -> buildNarrativeStatementForDiagnosticReport(
+                diagnosticReportIssued,
+                CommentType.AGGREGATE_COMMENT_SET.getCode(),
+                extractDateFromObservation(observation),
+                confidentialityService.generateConfidentialityCode(observation).orElse(null)
+            ))
             .ifPresent(reportLevelNarrativeStatements::append);
     }
 
@@ -239,18 +298,30 @@ public class DiagnosticReportMapper {
 
         var narrativeStatementObservationComments = observations.stream()
             .filter(Observation::hasCode)
-            .filter(this::hasCommentNote)
-            .map(Observation::getComment)
-            .filter(StringUtils::isNotBlank)
-            .map(observationComment -> buildNarrativeStatementForDiagnosticReport(
-                issuedElement, CommentType.USER_COMMENT.getCode(), observationComment
-            ))
+            .filter(DiagnosticReportMapper::isFilingComment)
+            .filter(Observation::hasComment)
+            .map(observation -> buildNarrativeStatementForDiagnosticReport(
+                    issuedElement,
+                    CommentType.USER_COMMENT.getCode(),
+                    observation.getComment(),
+                    confidentialityService.generateConfidentialityCode(observation).orElse(null)
+                )
+            )
             .collect(Collectors.joining(System.lineSeparator()));
 
         reportLevelNarrativeStatements.append(narrativeStatementObservationComments);
     }
 
-    private boolean hasCommentNote(Observation observation) {
+    /**
+     * See the
+     * <a href="https://simplifier.net/guide/gpconnect-data-model/Home/FHIR-Assets/All-assets/Profiles/Profile--CareConnect-GPC-Observation-1?version=current">
+     *  GP Connect 1.6.2
+     * </a>
+     * specification for more details on filing comments.
+     * @param observation The Observation to check.
+     * @return True if the Observation is a filing comment, otherwise false.
+     */
+    static boolean isFilingComment(Observation observation) {
         return observation.getCode().hasCoding()
             && observation.getCode().getCoding().stream()
             .filter(Coding::hasCode)
@@ -260,7 +331,7 @@ public class DiagnosticReportMapper {
     private void buildNarrativeStatementForMissingResults(DiagnosticReport diagnosticReport, StringBuilder reportLevelNarrativeStatements) {
         if (reportLevelNarrativeStatements.isEmpty() && !diagnosticReport.hasResult()) {
             String narrativeStatementFromCodedDiagnosis = buildNarrativeStatementForDiagnosticReport(
-                diagnosticReport.getIssuedElement(), CommentType.AGGREGATE_COMMENT_SET.getCode(), "EMPTY REPORT"
+                diagnosticReport.getIssuedElement(), CommentType.AGGREGATE_COMMENT_SET.getCode(), "EMPTY REPORT", null
             );
             reportLevelNarrativeStatements.append(narrativeStatementFromCodedDiagnosis);
         }
@@ -271,19 +342,23 @@ public class DiagnosticReportMapper {
             var humanNames = buildListOfHumanReadableNames(diagnosticReport.getPerformer());
             String performerNarrativeStatement = buildNarrativeStatementForDiagnosticReport(
                 diagnosticReport.getIssuedElement(), CommentType.AGGREGATE_COMMENT_SET.getCode(),
-                PREPENDED_TEXT_FOR_PARTICIPANTS + humanNames
+                PREPENDED_TEXT_FOR_PARTICIPANTS + humanNames, null
             );
             reportLevelNarrativeStatements.append(performerNarrativeStatement);
         }
     }
 
-    private String buildNarrativeStatementForDiagnosticReport(InstantType issuedElement, String commentType, String comment) {
+    private String buildNarrativeStatementForDiagnosticReport(InstantType issuedElement,
+                                                              String commentType,
+                                                              String comment,
+                                                              String confidentialityCode) {
         var narrativeStatementTemplateParameters = NarrativeStatementTemplateParameters.builder()
             .narrativeStatementId(randomIdGeneratorService.createNewId())
             .commentType(commentType)
             .commentDate(DateFormatUtil.toHl7Format(issuedElement))
             .comment(comment)
-            .availabilityTimeElement(StatementTimeMappingUtils.prepareAvailabilityTime(issuedElement));
+            .availabilityTimeElement(StatementTimeMappingUtils.prepareAvailabilityTime(issuedElement))
+            .confidentialityCode(confidentialityCode);
 
         return TemplateUtils.fillTemplate(
             NARRATIVE_STATEMENT_TEMPLATE,
