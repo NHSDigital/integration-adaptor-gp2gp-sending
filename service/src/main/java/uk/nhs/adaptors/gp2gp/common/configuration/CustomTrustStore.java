@@ -31,6 +31,10 @@ public class CustomTrustStore {
     @Autowired(required = false)
     private S3Client s3Client;
 
+    public void setS3Client(S3Client s3Client) {
+        this.s3Client = s3Client;
+    }
+
     @SneakyThrows
     public void addToDefault(String trustStorePath, String trustStorePassword) {
         final X509TrustManager defaultTrustManager = getDefaultTrustManager();
@@ -59,7 +63,7 @@ public class CustomTrustStore {
 
     @SneakyThrows
     @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
-    private X509TrustManager getCustomDbTrustManager(S3Uri s3Uri, String trustStorePassword) {
+    protected X509TrustManager getCustomDbTrustManager(S3Uri s3Uri, String trustStorePassword) {
         TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         trustManagerFactory.init((KeyStore) null);
 
