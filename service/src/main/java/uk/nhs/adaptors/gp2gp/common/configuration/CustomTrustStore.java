@@ -31,10 +31,6 @@ public class CustomTrustStore {
     @Autowired(required = false)
     private S3Client s3Client;
 
-    public void setS3Client(S3Client s3Client) {
-        this.s3Client = s3Client;
-    }
-
     @SneakyThrows
     public void addToDefault(String trustStorePath, String trustStorePassword) {
         final X509TrustManager defaultTrustManager = getDefaultTrustManager();
