@@ -6,6 +6,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
@@ -49,8 +50,8 @@ class S3StorageConnectorTest {
 
 
     @Test
-    void expectExceptionWhenS3ClientCantDeliverResponse() {
-        S3StorageConnector storageConnector = new S3StorageConnector(S3Client.builder().build(), config);
+    void expectExceptionWhenS3ClientCannotDeliverResponse() {
+        S3StorageConnector storageConnector = new S3StorageConnector(S3Client.builder().region(Region.EU_WEST_2).build(), config);
         Exception exception = assertThrows(StorageConnectorException.class,
                                            () -> storageConnector.downloadFromStorage("s3File"));
 
