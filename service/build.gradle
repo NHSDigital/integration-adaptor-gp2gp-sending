@@ -181,4 +181,3 @@ bootJar {
 	exclude("**/TransformJsonToXml*")
 }
 
-integrationTest.mustRunAfter test
