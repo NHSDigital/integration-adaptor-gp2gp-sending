@@ -1,5 +1,7 @@
 {
   "priority": 1,
+  "scenarioName": "migrateStructuredRecord",
+  "requiredScenarioState": "Ampersand Attachment",
   "request": {
     "method": "GET",
     "urlPattern": "\/.*\/STU3\/1\/gpconnect\/documents\/fhir\/Binary\/D759A61F-5F00-4FA3-8055-FE7F9CB2F306"

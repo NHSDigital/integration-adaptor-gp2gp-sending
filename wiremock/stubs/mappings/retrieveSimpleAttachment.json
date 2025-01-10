@@ -1,5 +1,7 @@
 {
   "priority": 1,
+  "scenarioName": "migrateStructuredRecord",
+  "requiredScenarioState": "Simple Attachment",
   "request": {
     "method": "GET",
     "urlPattern": "\/.*\/STU3\/1\/gpconnect\/documents\/fhir\/Binary\/07a6483f-732b-461e-86b6-edb665c45511-1"
