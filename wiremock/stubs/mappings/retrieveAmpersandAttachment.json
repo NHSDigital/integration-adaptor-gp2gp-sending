@@ -3,21 +3,21 @@
   "scenarioName": "migrateStructuredRecord",
   "requiredScenarioState": "Ampersand Attachment",
   "request": {
-    "method": "GET",
+    "method": "POST",
     "urlPattern": "/.*/STU3/1/gpconnect/fhir/Patient/[$]gpc[.]migratestructuredrecord"
   },
   "response": {
     "status": 200,
     "bodyFileName": "ampersandFileAttachment.json",
     "headers": {
-      "Server":"nginx",
-      "Date":"Thu, 09 Jan 2025 16:39:00 GMT",
-      "Content-Type":"application/fhir+json;charset=UTF-8",
-      "Connection":"keep-alive",
-      "expires":"0",
+      "Server": "nginx",
+      "Date": "{{now format='E, d MMM y HH:mm:ss z'}}",
+      "Content-Type": "application/fhir+json;charset=UTF-8",
+      "Transfer-Encoding": "chunked",
+      "Connection": "keep-alive",
       "Cache-Control": "no-store",
-      "Pragma": "no-cache",
-      "Strict-Transport-Security": "max-age:31536000"
+      "X-Powered-By": "HAPI FHIR 3.0.0 REST Server (FHIR Server; FHIR 3.0.1/DSTU3)",
+      "Strict-Transport-Security":"max-age=31536000"
     }
   }
 }
