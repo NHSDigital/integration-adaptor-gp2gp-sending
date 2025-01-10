@@ -5,8 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import software.amazon.awssdk.services.s3.S3Client;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +15,7 @@ import lombok.Setter;
 @Configuration
 @ConfigurationProperties(prefix = "gp2gp.storage")
 public class StorageConnectorConfiguration {
+
     private static final String S3_PREFIX = "s3";
 
     private String type;
@@ -25,11 +25,9 @@ public class StorageConnectorConfiguration {
     private String trustStorePassword;
 
     @Bean
-    @SuppressWarnings("unused")
-    public AmazonS3 getS3Client() {
+    public S3Client getS3Client() {
         if (StringUtils.isNotBlank(trustStoreUrl) && trustStoreUrl.startsWith(S3_PREFIX)) {
-            return AmazonS3ClientBuilder.standard()
-                .build();
+            return S3Client.builder().build();
         }
 
         return null;
