@@ -133,7 +133,6 @@ tasks.withType(Test) {
 }
 
 check.dependsOn integrationTest
-jacocoTestReport.dependsOn integrationTest
 
 spotbugsTest.enabled = false
 spotbugsIntegrationTest.enabled = false
