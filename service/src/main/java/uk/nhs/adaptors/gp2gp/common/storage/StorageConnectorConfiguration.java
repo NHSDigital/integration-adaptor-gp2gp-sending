@@ -16,6 +16,8 @@ import lombok.Setter;
 @Configuration
 @ConfigurationProperties(prefix = "gp2gp.storage")
 public class StorageConnectorConfiguration {
+
+    private static final Region REGION = Region.EU_WEST_2;
     private static final String S3_PREFIX = "s3";
 
     private String type;
@@ -27,7 +29,7 @@ public class StorageConnectorConfiguration {
     @Bean
     public S3Client getS3Client() {
         if (StringUtils.isNotBlank(trustStoreUrl) && trustStoreUrl.startsWith(S3_PREFIX)) {
-            return S3Client.builder().region(Region.EU_WEST_2).build();
+            return S3Client.builder().region(REGION).build();
         }
 
         return null;
