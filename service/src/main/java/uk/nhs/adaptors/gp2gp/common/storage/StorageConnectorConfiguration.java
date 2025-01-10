@@ -5,7 +5,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
 import lombok.Getter;
@@ -17,7 +16,6 @@ import lombok.Setter;
 @ConfigurationProperties(prefix = "gp2gp.storage")
 public class StorageConnectorConfiguration {
 
-    private static final Region REGION = Region.EU_WEST_2;
     private static final String S3_PREFIX = "s3";
 
     private String type;
@@ -29,7 +27,7 @@ public class StorageConnectorConfiguration {
     @Bean
     public S3Client getS3Client() {
         if (StringUtils.isNotBlank(trustStoreUrl) && trustStoreUrl.startsWith(S3_PREFIX)) {
-            return S3Client.builder().region(REGION).build();
+            return S3Client.builder().build();
         }
 
         return null;

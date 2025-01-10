@@ -37,8 +37,8 @@ class CustomTrustStoreTest {
             .endpointOverride(URI.create("http://localhost:" + PORT))
             .credentialsProvider(StaticCredentialsProvider.create(
                 AwsBasicCredentials.create("accessKey", "secretKey")))
-            .region(Region.EU_WEST_2)
             .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
+            .region(Region.EU_WEST_2)
             .build();
 
         s3Client.createBucket(CreateBucketRequest.builder().bucket(BUCKET_NAME).build());
