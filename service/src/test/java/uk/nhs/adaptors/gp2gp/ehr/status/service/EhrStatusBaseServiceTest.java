@@ -175,7 +175,7 @@ public class EhrStatusBaseServiceTest {
     }
 
     private EhrExtractStatus inProgressTransfers(String conversationId) {
-        EhrExtractStatus extractStatus = EhrExtractStatus.builder()
+        return EhrExtractStatus.builder()
             .ackPending(buildPositiveAckPending())
             .ackToRequester(buildPositiveAckToRequester())
             .conversationId(conversationId)
@@ -207,12 +207,10 @@ public class EhrStatusBaseServiceTest {
                         .display(DISPLAY_ERROR_MESSAGE)
                         .build())).build())
             .build();
-
-        return extractStatus;
     }
 
     private EhrExtractStatus completeTransfers(String conversationId) {
-        EhrExtractStatus extractStatus = EhrExtractStatus.builder()
+        return EhrExtractStatus.builder()
             .ackPending(buildPositiveAckPending())
             .ackToRequester(buildPositiveAckToRequester())
             .conversationId(conversationId)
@@ -241,8 +239,6 @@ public class EhrStatusBaseServiceTest {
                     .conversationClosed(FIVE_DAYS_AGO)
                     .build())
             .build();
-
-        return extractStatus;
     }
 
     private EhrExtractStatus.AckPending buildPositiveAckPending() {

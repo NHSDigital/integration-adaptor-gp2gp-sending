@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import static uk.nhs.adaptors.gp2gp.utils.IdUtil.buildIdType;
 import static uk.nhs.adaptors.gp2gp.utils.IdUtil.buildReference;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -180,7 +179,7 @@ public class AllergyStructureMapperTest {
     }
 
     @BeforeEach
-    public void setUp() throws IOException {
+    public void setUp() {
         when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(TEST_ID);
 

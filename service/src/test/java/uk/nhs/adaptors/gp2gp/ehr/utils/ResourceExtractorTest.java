@@ -14,8 +14,6 @@ import org.mockito.quality.Strictness;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.MessageContext;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
-
-import java.io.IOException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,7 +29,7 @@ class ResourceExtractorTest {
     private MessageContext messageContext;
 
     @Test
-    void extractListWithContainedAllergiesResourceByReference() throws IOException {
+    void extractListWithContainedAllergiesResourceByReference() {
 
         String bundleJsonInput = ResourceTestFileUtils.getFileContent(LIST_RESOURCE_TEST_FILE_DIRECTORY + "fhir_bundle.json");
         Bundle allBundle = new FhirParseService().parseResource(bundleJsonInput, Bundle.class);
@@ -45,7 +43,7 @@ class ResourceExtractorTest {
     }
 
     @Test
-    void extractEmptyResourceWithValidContainedIdButNotValidResourceTypeReference() throws IOException {
+    void extractEmptyResourceWithValidContainedIdButNotValidResourceTypeReference() {
 
         final String LIST_REFERENCE_ID_WITH_WRONG_RESOURCE_TYPE = "Organization/ended-allergies#eb306f14-31e9-11ee-b912-0a58a9feac02";
         String bundleJsonInput = ResourceTestFileUtils.getFileContent(LIST_RESOURCE_TEST_FILE_DIRECTORY + "fhir_bundle.json");
@@ -58,7 +56,7 @@ class ResourceExtractorTest {
     }
 
     @Test
-    void extractEmptyResourceByNonExistedReference() throws IOException {
+    void extractEmptyResourceByNonExistedReference() {
 
         final String NON_EXISTED_LIST_REFERENCE_ID = "List/ended-allergies#eb306f14-31e9-11ee-b912-0a58a9feac04";
         String bundleJsonInput = ResourceTestFileUtils.getFileContent(LIST_RESOURCE_TEST_FILE_DIRECTORY + "fhir_bundle.json");
@@ -74,8 +72,7 @@ class ResourceExtractorTest {
         AllergyIntolerance allergyIntolerance = new AllergyIntolerance();
         allergyIntolerance.getAsserter().setReference(refId);
 
-        IIdType reference = allergyIntolerance.getAsserter().getReferenceElement();
-        return reference;
+        return allergyIntolerance.getAsserter().getReferenceElement();
     }
 
 

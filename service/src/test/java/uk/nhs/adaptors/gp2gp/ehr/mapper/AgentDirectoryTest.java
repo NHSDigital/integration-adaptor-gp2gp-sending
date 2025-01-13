@@ -5,7 +5,6 @@ import static org.mockito.Mockito.lenient;
 
 import static uk.nhs.adaptors.gp2gp.utils.IdUtil.buildReference;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
@@ -40,7 +39,7 @@ public class AgentDirectoryTest {
     private Bundle inputBundle;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    public void setUp() {
         lenient().when(randomIdGeneratorService.createNewId()).thenReturn(GENERATED_ID_1, GENERATED_ID_2);
 
         String jsonInput = ResourceTestFileUtils.getFileContent(INPUT_BUNDLE);
