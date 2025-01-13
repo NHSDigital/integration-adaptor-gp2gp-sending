@@ -7,7 +7,6 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -125,8 +124,6 @@ public class EncounterMapperTest {
         + "expected-output-encounter-13.xml";
     private static final String INPUT_JSON_ENCOUNTER_NO_ASSOCIATED_CONSULTATION = TEST_FILES_DIRECTORY
         + "example-encounter-resource-18.json";
-    private static final String OUTPUT_XML_WITH_NO_EHR_COMPOSITION_COMPONENTS = TEST_FILES_DIRECTORY
-        + "expected-output-encounter-14.xml";
     public static final String OUTPUT_XML_WITH_NUL_AUTHOR_PARTICIPANT2 = TEST_FILES_DIRECTORY + "expected-output-encounter-15.xml";
 
     @Mock
@@ -159,7 +156,7 @@ public class EncounterMapperTest {
 
     @ParameterizedTest
     @MethodSource("testFilePaths")
-    public void When_MappingParsedEncounterJson_Expect_EhrCompositionXmlOutput(String input, String output) throws IOException {
+    public void When_MappingParsedEncounterJson_Expect_EhrCompositionXmlOutput(String input, String output) {
         lenient().when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         var sampleComponent = ResourceTestFileUtils.getFileContent(SAMPLE_EHR_COMPOSITION_COMPONENT);
 
@@ -196,7 +193,7 @@ public class EncounterMapperTest {
     }
 
     @Test
-    public void When_MappingEncounterWithNoType_Expect_Exception() throws IOException {
+    public void When_MappingEncounterWithNoType_Expect_Exception() {
         var sampleComponent = ResourceTestFileUtils.getFileContent(SAMPLE_EHR_COMPOSITION_COMPONENT);
 
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_NO_TYPE);
@@ -211,7 +208,7 @@ public class EncounterMapperTest {
     }
 
     @Test
-    public void When_MappingEncounterWithInvalidParticipantReferenceResourceType_Expect_Exception() throws IOException {
+    public void When_MappingEncounterWithInvalidParticipantReferenceResourceType_Expect_Exception() {
         var sampleComponent = ResourceTestFileUtils.getFileContent(SAMPLE_EHR_COMPOSITION_COMPONENT);
 
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_PERFORMER_INVALID_REFERENCE_RESOURCE_TYPE);
@@ -226,7 +223,7 @@ public class EncounterMapperTest {
     }
 
     @Test
-    public void When_MappingEmptyConsultation_Expect_NoEhrCompositionGenerated() throws IOException {
+    public void When_MappingEmptyConsultation_Expect_NoEhrCompositionGenerated() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_ENCOUNTER_NO_ASSOCIATED_CONSULTATION);
         Encounter parsedEncounter = new FhirParseService().parseResource(jsonInput, Encounter.class);
 

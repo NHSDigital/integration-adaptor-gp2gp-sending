@@ -286,7 +286,7 @@ class EhrExtractTimeoutSchedulerTest {
         doReturn(List.of(ehrExtractStatus)).when(ehrExtractTimeoutSchedulerSpy).findInProgressTransfers();
         when(ehrExtractTimeoutSchedulerSpy.logger()).thenReturn(logger);
 
-        var exception = assertThrows(EhrExtractException.class, () -> ehrExtractTimeoutSchedulerSpy.processEhrExtractAckTimeouts());
+        var exception = assertThrows(EhrExtractException.class, ehrExtractTimeoutSchedulerSpy::processEhrExtractAckTimeouts);
 
         assertAll(
             () -> verify(logger, times(1)).info("Scheduler has started processing EhrExtract list with Ack timeouts"),
@@ -318,7 +318,7 @@ class EhrExtractTimeoutSchedulerTest {
         doThrow(exception).when(logger).info("Scheduler has started processing EhrExtract list with Ack timeouts");
         when(ehrExtractTimeoutSchedulerSpy.logger()).thenReturn(logger);
 
-        assertThrows(Exception.class, () -> ehrExtractTimeoutSchedulerSpy.processEhrExtractAckTimeouts());
+        assertThrows(Exception.class, ehrExtractTimeoutSchedulerSpy::processEhrExtractAckTimeouts);
 
         verify(logger, times(1)).info("Scheduler has started processing EhrExtract list with Ack timeouts");
         verify(logger, times(1)).error("An unexpected error occurred for conversation_id: {}",
@@ -339,7 +339,7 @@ class EhrExtractTimeoutSchedulerTest {
                                                          any(FindAndModifyOptions.class), any());
         when(ehrExtractTimeoutSchedulerSpy.logger()).thenReturn(logger);
 
-        var exception = assertThrows(EhrExtractException.class, () -> ehrExtractTimeoutSchedulerSpy.processEhrExtractAckTimeouts());
+        var exception = assertThrows(EhrExtractException.class, ehrExtractTimeoutSchedulerSpy::processEhrExtractAckTimeouts);
 
         assertEquals("Couldn't update EHR received acknowledgement with error information because EHR status doesn't exist, "
                      + "conversation_id: " + inProgressConversationId, exception.getMessage());

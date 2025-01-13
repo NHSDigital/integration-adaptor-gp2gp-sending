@@ -1,16 +1,13 @@
 package uk.nhs.adaptors.gp2gp.ehr.utils;
 
-import com.google.common.collect.ImmutableList;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
-
 import java.io.IOException;
 import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class EncounterExtractorTest {
@@ -22,7 +19,7 @@ public class EncounterExtractorTest {
     private static final String INPUT_PATH = TEST_FILE_DIRECTORY + INPUT_DIRECTORY;
     private static final String ENCOUNTER_ID_PREFIX = "Encounter/";
     private static final int EXPECTED_ENCOUNTER_NUMBER = 6;
-    private static final List<String> EXPECTED_ENCOUNTER_IDS = ImmutableList.of("DBF5776F-8A86-477C-AB98-57182A9B40FD",
+    private static final List<String> EXPECTED_ENCOUNTER_IDS = List.of("DBF5776F-8A86-477C-AB98-57182A9B40FD",
         "F550CC56-EF65-4934-A7B1-3DC2E02243C3",
         "9B69F6AE-F991-49EE-9FFD-028E39B38BFE",
         "D81C5E8F-CB3A-4A78-92EA-51EC3665648E",

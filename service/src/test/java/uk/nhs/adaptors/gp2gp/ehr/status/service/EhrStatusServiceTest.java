@@ -72,39 +72,6 @@ public class EhrStatusServiceTest {
         .ehrRequest(EhrExtractStatus.EhrRequest.builder().toAsid(TO_ASID_CODE).fromAsid(FROM_ASID_CODE).build())
         .build();
 
-    private static final EhrExtractStatus.GpcDocument SKELETON_DOCUMENT = EhrExtractStatus.GpcDocument.builder()
-        .isSkeleton(true)
-        .build();
-
-    private static final EhrExtractStatus.GpcDocument PLACEHOLDER_DOCUMENT_1 = EhrExtractStatus.GpcDocument.builder()
-        .fileName("AbsentAttachmentTest.txt")
-        .isSkeleton(false)
-        .build();
-
-    private static final EhrExtractStatus.GpcDocument PLACEHOLDER_DOCUMENT_2 = EhrExtractStatus.GpcDocument.builder()
-        .objectName("AbsentAttachmentTest.txt")
-        .isSkeleton(false)
-        .build();
-
-    private static final EhrExtractStatus.GpcDocument ORIGINAL_FILE_DOCUMENT = EhrExtractStatus.GpcDocument.builder()
-        .fileName("test.txt")
-        .objectName("test.txt")
-        .isSkeleton(false)
-        .sentToMhs(EhrExtractStatus.GpcAccessDocument.SentToMhs.builder()
-            .messageId(List.of("123456"))
-            .build())
-        .build();
-
-    private static final List<EhrExtractStatus.EhrReceivedAcknowledgement> ONE_FAILED_ACK_LIST = List.of(
-        EhrExtractStatus.EhrReceivedAcknowledgement.builder()
-            .messageRef("123456")
-            .errors(List.of(EhrExtractStatus.EhrReceivedAcknowledgement.ErrorDetails.builder()
-                .code("99")
-                .display("Test Error")
-                .build()))
-            .build()
-    );
-
     @Mock
     private EhrExtractStatusRepository extractStatusRepository;
     @InjectMocks

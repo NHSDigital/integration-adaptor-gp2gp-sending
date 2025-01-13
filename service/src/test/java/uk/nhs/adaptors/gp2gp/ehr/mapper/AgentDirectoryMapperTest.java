@@ -8,8 +8,6 @@ import static org.mockito.Mockito.when;
 
 import static uk.nhs.adaptors.gp2gp.utils.IdUtil.buildReference;
 
-import java.io.IOException;
-
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.ResourceType;
 import org.junit.jupiter.api.AfterEach;
@@ -69,7 +67,7 @@ public class AgentDirectoryMapperTest {
     }
 
     @Test
-    public void When_MappingAgentDirectory_Expect_CorrectOutputFromMapper() throws IOException {
+    public void When_MappingAgentDirectory_Expect_CorrectOutputFromMapper() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_AGENT_DIRECTORY);
         Bundle bundle = fhirParseService.parseResource(jsonInput, Bundle.class);
         initializeMessageContextWithAgentKeys(bundle);
@@ -81,7 +79,7 @@ public class AgentDirectoryMapperTest {
     }
 
     @Test
-    public void When_MappingAgentDirectoryWithoutPatientManagingOrganizationReference_Expect_Exception() throws IOException {
+    public void When_MappingAgentDirectoryWithoutPatientManagingOrganizationReference_Expect_Exception() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_AGENT_DIRECTORY_WITHOUT_MANAGING_ORGANIZATION_REFERENCE);
         Bundle bundle = fhirParseService.parseResource(jsonInput, Bundle.class);
         initializeMessageContextWithAgentKeys(bundle);
@@ -92,7 +90,7 @@ public class AgentDirectoryMapperTest {
     }
 
     @Test
-    public void When_MappingAgentDirectoryWithoutPatientManagingOrganizationResource_Expect_Exception() throws IOException {
+    public void When_MappingAgentDirectoryWithoutPatientManagingOrganizationResource_Expect_Exception() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_AGENT_DIRECTORY_WITHOUT_MANAGING_ORGANIZATION_RESOURCE);
         Bundle bundle = fhirParseService.parseResource(jsonInput, Bundle.class);
         initializeMessageContextWithAgentKeys(bundle);
@@ -103,7 +101,7 @@ public class AgentDirectoryMapperTest {
     }
 
     @Test
-    public void When_MappingAgentDirectoryWithPatientManagingOrganizationInAgentKeys_Expect_AgentPersonNotDuplicated() throws IOException {
+    public void When_MappingAgentDirectoryWithPatientManagingOrganizationInAgentKeys_Expect_AgentPersonNotDuplicated() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_AGENT_DIRECTORY);
         Bundle bundle = fhirParseService.parseResource(jsonInput, Bundle.class);
         initializeMessageContextWithAgentKeys(bundle);
@@ -117,7 +115,7 @@ public class AgentDirectoryMapperTest {
     }
 
     @Test
-    public void When_MappingAgentKeysWithoutAgentKeys_Expect_CorrectOutputFromMapper() throws IOException {
+    public void When_MappingAgentKeysWithoutAgentKeys_Expect_CorrectOutputFromMapper() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_AGENT_DIRECTORY);
         Bundle bundle = fhirParseService.parseResource(jsonInput, Bundle.class);
         messageContext.initialize(bundle);
