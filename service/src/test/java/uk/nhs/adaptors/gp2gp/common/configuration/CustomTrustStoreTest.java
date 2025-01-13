@@ -3,6 +3,7 @@ package uk.nhs.adaptors.gp2gp.common.configuration;
 import io.findify.s3mock.S3Mock;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -24,8 +25,7 @@ class CustomTrustStoreTest {
     private static final String BUCKET_NAME = "test-bucket";
     private static final String TRUSTSTORE_PATH = "test.jks";
     private static final String TRUSTSTORE_PASSWORD = "password";
-
-    private final CustomTrustStore customTrustStore = new CustomTrustStore();
+    private CustomTrustStore customTrustStore;
 
     @BeforeAll
     static void setUp() {
@@ -46,6 +46,11 @@ class CustomTrustStoreTest {
         File trustStoreFile = new File("src/test/resources/test.jks");
         s3Client.putObject(PutObjectRequest.builder().bucket(BUCKET_NAME).key(TRUSTSTORE_PATH).build(),
                            software.amazon.awssdk.core.sync.RequestBody.fromFile(trustStoreFile));
+    }
+
+    @BeforeEach
+    void prepare() {
+        customTrustStore = new CustomTrustStore(s3Client);
     }
 
     @AfterAll

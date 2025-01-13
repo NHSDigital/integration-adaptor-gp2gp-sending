@@ -26,10 +26,14 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-@NoArgsConstructor
 public class CustomTrustStore {
-    @Autowired(required = false)
+
     private S3Client s3Client;
+
+    @Autowired
+    public CustomTrustStore(S3Client s3Client) {
+        this.s3Client = s3Client;
+    }
 
     @SneakyThrows
     public void addToDefault(String trustStorePath, String trustStorePassword) {
