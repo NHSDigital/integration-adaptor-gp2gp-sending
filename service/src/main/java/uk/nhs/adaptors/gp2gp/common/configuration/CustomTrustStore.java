@@ -25,9 +25,10 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
+@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "S3Client is immutable and thread-safe.")
 public class CustomTrustStore {
 
-    private S3Client s3Client;
+    private final S3Client s3Client;
 
     @Autowired
     public CustomTrustStore(S3Client s3Client) {

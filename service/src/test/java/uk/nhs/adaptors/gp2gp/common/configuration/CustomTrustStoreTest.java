@@ -13,7 +13,6 @@ import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import java.io.File;
-import java.lang.reflect.Field;
 import java.net.URI;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -60,10 +59,6 @@ class CustomTrustStoreTest {
 
     @Test
     void trustManagerLoadsSuccessfullyTest() throws NoSuchFieldException, IllegalAccessException {
-
-        Field s3ClientField = CustomTrustStore.class.getDeclaredField("s3Client");
-        s3ClientField.setAccessible(true);
-        s3ClientField.set(customTrustStore, s3Client);
 
         String s3Uri = "s3://" + BUCKET_NAME + "/" + TRUSTSTORE_PATH;
 
