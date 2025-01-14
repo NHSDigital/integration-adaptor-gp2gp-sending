@@ -9,6 +9,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
@@ -83,15 +84,17 @@ class S3StorageConnectorTest {
 
     @Test
     void uploadToStorageTest() throws IOException {
-        InputStream inputStream = new ByteArrayInputStream("upload-content".getBytes(StandardCharsets.UTF_8));
+        String uploadContent = "upload-content";
+        InputStream inputStream = new ByteArrayInputStream(uploadContent.getBytes(StandardCharsets.UTF_8));
         long streamLength = inputStream.available();
 
         s3StorageConnector.uploadToStorage(inputStream, streamLength, FILE_NAME);
 
-        HeadObjectResponse response = s3Client.headObject(HeadObjectRequest.builder().bucket(BUCKET_NAME).key(FILE_NAME).build());
+        final var request = GetObjectRequest.builder().bucket(BUCKET_NAME).key(FILE_NAME).build();
+        ResponseInputStream<GetObjectResponse> uploadedObjectInS3 = s3Client.getObject(request);
+        String uploadedS3Content = new String(uploadedObjectInS3.readAllBytes(), StandardCharsets.UTF_8);
 
-        assertNotNull(response);
-        assertEquals(Optional.of(streamLength).get(), response.contentLength());
+        assertEquals(uploadContent, uploadedS3Content);
     }
 
 }
