@@ -1,12 +1,15 @@
 package uk.nhs.adaptors.gp2gp.common.storage;
 
-import com.adobe.testing.s3mock.junit5.S3MockExtension;
+import io.findify.s3mock.S3Mock;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
@@ -16,6 +19,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
@@ -30,9 +34,7 @@ class S3StorageConnectorTest {
     private static final String BUCKET_NAME = "s3bucket";
     private static final String FILE_NAME = "test-file.txt";
 
-    @RegisterExtension
-    static final S3MockExtension S3_MOCK = S3MockExtension.builder().withSecureConnection(false).build();
-
+    private static S3Mock s3Mock;
     private static S3StorageConnector s3StorageConnector;
     private static StorageConnectorConfiguration config;
 
@@ -41,12 +43,21 @@ class S3StorageConnectorTest {
     @BeforeAll
     static void setUp() {
 
-        s3Client = S3_MOCK.createS3ClientV2();
+        s3Mock = new S3Mock.Builder().withPort(PORT).withInMemoryBackend().build();
+        s3Mock.start();
+        System.out.println("S3Mock started at http://localhost:" + PORT);
+
+        s3Client = S3Client.builder()
+            .endpointOverride(URI.create("http://localhost:" + PORT))
+            .credentialsProvider(StaticCredentialsProvider.create(
+                AwsBasicCredentials.create("accessKey", "secretKey")))
+            .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
+            .region(Region.EU_WEST_2)
+            .build();
+        s3Client.createBucket(CreateBucketRequest.builder().bucket(BUCKET_NAME).build());
 
         config = new StorageConnectorConfiguration();
         config.setContainerName(BUCKET_NAME);
-
-        s3Client.createBucket(CreateBucketRequest.builder().bucket(BUCKET_NAME).build());
 
         s3StorageConnector = new S3StorageConnector(s3Client, config);
     }
