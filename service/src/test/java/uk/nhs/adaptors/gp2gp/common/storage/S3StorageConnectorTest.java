@@ -49,8 +49,6 @@ class S3StorageConnectorTest {
 
         s3Client = S3Client.builder()
             .endpointOverride(URI.create("http://localhost:" + PORT))
-            .credentialsProvider(StaticCredentialsProvider.create(
-                AwsBasicCredentials.create("accessKey", "secretKey")))
             .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
             .region(Region.EU_WEST_2)
             .build();
