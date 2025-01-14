@@ -48,10 +48,11 @@ class S3StorageConnectorTest {
             .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
             .region(Region.EU_WEST_2)
             .build();
-        s3Client.createBucket(CreateBucketRequest.builder().bucket(BUCKET_NAME).build());
 
         config = new StorageConnectorConfiguration();
         config.setContainerName(BUCKET_NAME);
+
+        s3Client.createBucket(CreateBucketRequest.builder().bucket(BUCKET_NAME).build());
 
         s3StorageConnector = new S3StorageConnector(s3Client, config);
     }
