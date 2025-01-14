@@ -3,6 +3,8 @@ package uk.nhs.adaptors.gp2gp.common.storage;
 import io.findify.s3mock.S3Mock;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
@@ -45,6 +47,8 @@ class S3StorageConnectorTest {
 
         s3Client = S3Client.builder()
             .endpointOverride(URI.create("http://localhost:" + PORT))
+            .credentialsProvider(StaticCredentialsProvider.create(
+                AwsBasicCredentials.create("accessKey", "secretKey")))
             .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
             .region(Region.EU_WEST_2)
             .build();
