@@ -133,6 +133,7 @@ tasks.withType(Test) {
 }
 
 check.dependsOn integrationTest
+integrationTest.mustRunAfter test
 
 spotbugsTest.enabled = false
 spotbugsIntegrationTest.enabled = false

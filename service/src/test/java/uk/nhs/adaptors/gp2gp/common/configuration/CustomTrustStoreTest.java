@@ -3,6 +3,7 @@ package uk.nhs.adaptors.gp2gp.common.configuration;
 import io.findify.s3mock.S3Mock;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -12,7 +13,6 @@ import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import java.io.File;
-import java.lang.reflect.Field;
 import java.net.URI;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -24,8 +24,7 @@ class CustomTrustStoreTest {
     private static final String BUCKET_NAME = "test-bucket";
     private static final String TRUSTSTORE_PATH = "test.jks";
     private static final String TRUSTSTORE_PASSWORD = "password";
-
-    private final CustomTrustStore customTrustStore = new CustomTrustStore();
+    private CustomTrustStore customTrustStore;
 
     @BeforeAll
     static void setUp() {
@@ -48,6 +47,11 @@ class CustomTrustStoreTest {
                            software.amazon.awssdk.core.sync.RequestBody.fromFile(trustStoreFile));
     }
 
+    @BeforeEach
+    void prepare() {
+        customTrustStore = new CustomTrustStore(s3Client);
+    }
+
     @AfterAll
     static void tearDown() {
         s3Mock.shutdown();
@@ -55,10 +59,6 @@ class CustomTrustStoreTest {
 
     @Test
     void trustManagerLoadsSuccessfullyTest() throws NoSuchFieldException, IllegalAccessException {
-
-        Field s3ClientField = CustomTrustStore.class.getDeclaredField("s3Client");
-        s3ClientField.setAccessible(true);
-        s3ClientField.set(customTrustStore, s3Client);
 
         String s3Uri = "s3://" + BUCKET_NAME + "/" + TRUSTSTORE_PATH;
 
