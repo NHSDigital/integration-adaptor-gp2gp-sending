@@ -29,7 +29,7 @@ You can provide an external `logback.xml` file using the `-Dlogback.configuratio
 ### Database Configuration Options
 
 The adaptor requires a Mongodb-compatible database of at least version 4.0 to manage its internal state.
-MongoDB provide [a table of compatible versions of their product against the java driver version][mongodb-compatible-versions].
+MongoDB provides [a table of compatible versions of their product against the java driver version][mongodb-compatible-versions].
 
 [mongodb-compatible-versions]: https://www.mongodb.com/docs/drivers/java/sync/current/compatibility/#compatibility-table-legend
 
