@@ -208,6 +208,46 @@ public class DiagnosticReportMapper {
             .collect(Collectors.toList());
     }
 
+    private List<Observation> addDummyObservations(List<Observation> observations, List<Specimen> specimens, DiagnosticReport diagnosticReport) {
+
+        //if specimens exist without an observation, create a dummy observation and assign the specimen to it
+
+        if (hasSpecimenWithoutObservation(specimens, observations)) {
+            generateDefaultObservation(diagnosticReport);
+        }
+
+        return null;
+    }
+
+    private boolean hasSpecimenWithoutObservation(List<Specimen> specimens, List<Observation> observations) {
+        //Specimens are in observation
+        //go through observations
+
+        List<String> specimenIDList = new ArrayList<>();
+        List<String> nonOrphanSpecimenIDList = new ArrayList<>();
+        for (Specimen specimen : specimens) {
+            specimenIDList.add(specimen.getId());
+        }
+
+        for (Observation observation : observations) {
+            nonOrphanSpecimenIDList.add(observation.getSpecimen().getReference());
+        }
+
+        List<String> toBeAssignedDummyObservation = new ArrayList<>();
+
+        for(String specimenID : specimenIDList) {
+            if(!nonOrphanSpecimenIDList.contains(specimenID)) {
+                toBeAssignedDummyObservation.add(specimenID);
+            }
+        }
+
+        if(toBeAssignedDummyObservation.isEmpty()) {
+            return false;
+        }
+
+        return true;
+    }
+
     private Observation generateDefaultObservation(DiagnosticReport diagnosticReport) {
         Observation observation = new Observation();
 
