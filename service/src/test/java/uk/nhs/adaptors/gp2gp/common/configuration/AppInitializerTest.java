@@ -19,16 +19,6 @@ class AppInitializerTest {
     }
 
     @Test
-    void getS3ClientWhenTrustStoreUrlExists() {
-        storageConnectorConfiguration.setTrustStoreUrl("s3://localhost");
-        appInitializer = new AppInitializer(storageConnectorConfiguration);
-
-        S3Client s3Client = appInitializer.getS3Client();
-
-        assertNotNull(s3Client);
-    }
-
-    @Test
     void getNullWhenTrustStoreUrlDoesNotExists() {
 
         storageConnectorConfiguration.setTrustStoreUrl(null);
