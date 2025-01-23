@@ -34,7 +34,6 @@ public class AppInitializer implements InitializingBean {
         }
     }
 
-    @Bean
     public S3Client getS3Client() throws ConfigurationException {
         if (StringUtils.isNotBlank(storageConnectorConfiguration.getTrustStoreUrl())
             && storageConnectorConfiguration.getTrustStoreUrl().startsWith(S3_PREFIX)) {
