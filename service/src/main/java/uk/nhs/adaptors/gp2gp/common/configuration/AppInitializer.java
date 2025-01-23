@@ -39,6 +39,7 @@ public class AppInitializer implements InitializingBean {
             return S3Client.builder().build();
         }
 
-        throw new ConfigurationException("S3Client cannot be instantiated due to trust store URL misconfiguration");
+        throw new ConfigurationException("S3Client cannot be instantiated: "
+                                         + "Trust store URL is either not set or does not start with the 's3://' prefix.");
     }
 }

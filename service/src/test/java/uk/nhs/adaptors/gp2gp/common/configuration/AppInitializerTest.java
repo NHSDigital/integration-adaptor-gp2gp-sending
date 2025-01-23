@@ -9,7 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AppInitializerTest {
 
-    public static final String EXPECTED_ERROR_MESSAGE = "S3Client cannot be instantiated due to trust store URL misconfiguration";
+    public static final String EXPECTED_ERROR_MESSAGE = "S3Client cannot be instantiated: "
+                                                        + "Trust store URL is either not set or does not start with the 's3://' prefix.";
     private AppInitializer appInitializer;
     private StorageConnectorConfiguration storageConnectorConfiguration;
 
