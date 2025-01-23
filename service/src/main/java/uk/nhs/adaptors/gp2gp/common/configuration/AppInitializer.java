@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.s3.S3Client;
 import uk.nhs.adaptors.gp2gp.common.storage.StorageConnectorConfiguration;
 
+import javax.naming.ConfigurationException;
+
 @Component(value = "appInitializer")
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -20,7 +22,7 @@ public class AppInitializer implements InitializingBean {
     private final StorageConnectorConfiguration storageConnectorConfiguration;
 
     @Override
-    public void afterPropertiesSet() {
+    public void afterPropertiesSet() throws ConfigurationException {
         LOGGER.info("Running app initializer");
         if (StringUtils.isNotBlank(storageConnectorConfiguration.getTrustStoreUrl())) {
             LOGGER.info("Adding custom TrustStore to default one");
@@ -33,12 +35,12 @@ public class AppInitializer implements InitializingBean {
     }
 
     @Bean
-    public S3Client getS3Client() {
+    public S3Client getS3Client() throws ConfigurationException {
         if (StringUtils.isNotBlank(storageConnectorConfiguration.getTrustStoreUrl())
             && storageConnectorConfiguration.getTrustStoreUrl().startsWith(S3_PREFIX)) {
             return S3Client.builder().build();
         }
 
-        return null;
+        throw new ConfigurationException("S3Client cannot be instantiated due to trust store URL misconfiguration");
     }
 }

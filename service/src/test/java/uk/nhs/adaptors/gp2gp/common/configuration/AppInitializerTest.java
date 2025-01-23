@@ -2,12 +2,14 @@ package uk.nhs.adaptors.gp2gp.common.configuration;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import software.amazon.awssdk.services.s3.S3Client;
 import uk.nhs.adaptors.gp2gp.common.storage.StorageConnectorConfiguration;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import javax.naming.ConfigurationException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AppInitializerTest {
 
+    public static final String EXPECTED_ERROR_MESSAGE = "S3Client cannot be instantiated due to trust store URL misconfiguration";
     private AppInitializer appInitializer;
     private StorageConnectorConfiguration storageConnectorConfiguration;
 
@@ -22,9 +24,9 @@ class AppInitializerTest {
         storageConnectorConfiguration.setTrustStoreUrl(null);
         appInitializer = new AppInitializer(storageConnectorConfiguration);
 
-        S3Client s3Client = appInitializer.getS3Client();
+        Exception exception = assertThrows(ConfigurationException.class, () -> appInitializer.getS3Client());
 
-        assertNull(s3Client);
+        assertEquals(EXPECTED_ERROR_MESSAGE, exception.getMessage());
     }
 
     @Test
@@ -33,8 +35,8 @@ class AppInitializerTest {
         storageConnectorConfiguration.setTrustStoreUrl("http://localhost");
         appInitializer = new AppInitializer(storageConnectorConfiguration);
 
-        S3Client s3Client = appInitializer.getS3Client();
+        Exception exception = assertThrows(ConfigurationException.class, () -> appInitializer.getS3Client());
 
-        assertNull(s3Client);
+        assertEquals(EXPECTED_ERROR_MESSAGE, exception.getMessage());
     }
 }
