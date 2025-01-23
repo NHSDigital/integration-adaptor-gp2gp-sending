@@ -9,9 +9,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Uri;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
@@ -19,17 +16,19 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-@Component
 @Slf4j
-@NoArgsConstructor
+@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "S3Client is immutable and thread-safe.")
 public class CustomTrustStore {
-    @Autowired(required = false)
-    private S3Client s3Client;
+
+    private final S3Client s3Client;
+
+    public CustomTrustStore(S3Client s3Client) {
+        this.s3Client = s3Client;
+    }
 
     @SneakyThrows
     public void addToDefault(String trustStorePath, String trustStorePassword) {
