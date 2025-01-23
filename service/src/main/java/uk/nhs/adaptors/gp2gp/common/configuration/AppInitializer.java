@@ -3,7 +3,6 @@ package uk.nhs.adaptors.gp2gp.common.configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
