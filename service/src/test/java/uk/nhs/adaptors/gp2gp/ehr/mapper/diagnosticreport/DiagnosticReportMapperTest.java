@@ -330,8 +330,13 @@ class DiagnosticReportMapperTest {
 
         // This checks that the unlinked test result is given a dummy specimen.
         assertThat(actualXml).containsIgnoringWhitespaces(
-                "<!-- Mapped Specimen with id: DUMMY-SPECIMEN-5E496953-065B-41F2-9577-BE8F2FBD0757 "
-                        + "with linked Observations: Observation/TestResult-WithoutSpecimenReference-->");
+                "<!-- Mapped Specimen with id: Specimen/96B93E28-293D-46E7-B4C2-D477EEBF7098-SPEC-0 "
+                        + "with linked Observations: Observation/B7F05EA7-A1A4-48C0-9C4C-CDB5768796B2-->");
+
+        assertThat(actualXml).containsIgnoringWhitespaces(
+                "<!-- Mapped Specimen with id: Specimen/96B93E28-293D-46E7-B4C2-D477EEBF7098-SPEC-1 "
+                        + "with linked Observations: DUMMY-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
+
     }
 
     @Test
