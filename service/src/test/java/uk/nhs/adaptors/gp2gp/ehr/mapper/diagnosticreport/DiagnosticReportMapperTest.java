@@ -314,11 +314,11 @@ class DiagnosticReportMapperTest {
     }
 
     /**
-     * A Diagnosis Report may have an Observation (Test Result) and Specimen. If the result and specimen are not
-     * linked then we need to create a dummy specimen linked to the result.
+     * A Diagnostic Report may have an Observation (Test Result) and Specimen. If the observation and specimen are not
+     * linked then we need to create a dummy observation linked to the specimen.
      */
     @Test
-    void When_DiagnosticReport_Has_MultipleSpecimensAndOneTestResult_Expect_ADummyTestResultLinkedToSpecimen() {
+    void When_DiagnosticReport_Has_MultipleSpecimensAndOneObservation_Expect_ADummyObservationLinkedToSpecimen() {
         final String diagnosticReportFileName = "diagnostic-report-with-multiple-specimens-and-one-observation.json";
         final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(diagnosticReportFileName);
         final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
@@ -349,7 +349,7 @@ class DiagnosticReportMapperTest {
         when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
 
         final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
-        // This checks that the unlinked test result is given a dummy specimen.
+        // This checks that the unlinked observation is given a dummy specimen.
         assertThat(actualXml).containsIgnoringWhitespaces(
                 "<!-- Mapped Specimen with id: DUMMY-SPECIMEN-5E496953-065B-41F2-9577-BE8F2FBD0757 "
                         + "with linked Observations: Observation/TestResult-WithoutSpecimenReference-->");

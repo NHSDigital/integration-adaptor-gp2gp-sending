@@ -161,6 +161,9 @@ public class DiagnosticReportMapper {
                 .anyMatch(observation -> !observation.hasSpecimen());
     }
 
+    /**
+     * For correct display in EMIS, any observation without a specimen must be assigned a dummy specimen.
+     */
     private List<Observation> assignDummySpecimensToObservationsWithNoSpecimen(
             List<Observation> observations, List<Specimen> specimens) {
 
@@ -209,29 +212,25 @@ public class DiagnosticReportMapper {
             .collect(Collectors.toList());
     }
 
+    /**
+     * For correct display in EMIS, any specimen without an observation must be assigned a dummy observation.
+     */
     private List<Observation> addDummyObservationsToObservationList(List<Observation> observations, List<Specimen> specimens, DiagnosticReport diagnosticReport) {
-
-        //if specimens exist without an observation, create a dummy observation and assign the specimen to it
-
         List<Observation> dummyObservations = new ArrayList<>();
 
         if (hasSpecimenWithoutObservation(specimens, observations)) {
             List<String> specimensWithoutObservations = getSpecimenIdsWithoutObservation(specimens, observations);
 
-            //generate a dummmy observation for each specimen without one
+            // Generate a dummmy observation for each specimen without an observation
             for (String specimenWithoutObservations : specimensWithoutObservations) {
                 Observation dummyObservation = generateDefaultObservation(diagnosticReport);
                 Reference specimenReference = new Reference(specimenWithoutObservations);
-                //assign specimen to dummy observation
                 dummyObservation.setSpecimen(specimenReference);
                 dummyObservations.add(dummyObservation);
             }
-
         }
 
-        //add observations to the list of all observations
         observations.addAll(dummyObservations);
-
         return observations;
     }
 
