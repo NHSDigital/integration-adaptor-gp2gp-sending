@@ -215,7 +215,10 @@ public class DiagnosticReportMapper {
     /**
      * For correct display in EMIS, any specimen without an observation must be assigned a dummy observation.
      */
-    private List<Observation> addDummyObservationsToObservationList(List<Observation> observations, List<Specimen> specimens, DiagnosticReport diagnosticReport) {
+    private List<Observation> addDummyObservationsToObservationList(
+            List<Observation> observations,
+            List<Specimen> specimens,
+            DiagnosticReport diagnosticReport) {
         List<Observation> dummyObservations = new ArrayList<>();
 
         if (hasSpecimenWithoutObservation(specimens, observations)) {
