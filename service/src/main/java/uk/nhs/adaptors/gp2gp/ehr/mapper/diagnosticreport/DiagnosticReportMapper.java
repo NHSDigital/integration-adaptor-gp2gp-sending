@@ -151,7 +151,7 @@ public class DiagnosticReportMapper {
             .map(specimenReference -> inputBundleHolder.getResource(specimenReference.getReferenceElement()))
             .flatMap(Optional::stream)
             .map(Specimen.class::cast)
-            .collect(Collectors.toList());
+            .toList();
 
         specimens.addAll(nonDummySpecimens);
 
@@ -191,10 +191,6 @@ public class DiagnosticReportMapper {
             if (!observation.hasSpecimen() && !isFilingComment(observation)) {
                 observation.setSpecimen(dummySpecimenReference);
             }
-        }
-
-        if (observations.isEmpty()) {
-            return filingComments;
         }
 
         observations.addAll(filingComments);
@@ -239,7 +235,7 @@ public class DiagnosticReportMapper {
         if (hasSpecimenWithoutObservation(specimens, observations)) {
             List<String> specimensWithoutObservations = getSpecimenIdsWithoutObservation(specimens, observations);
 
-            // Generate a dummmy observation for each specimen without an observation
+            // Generate a dummy Observation for each Specimen without an Observation
             for (String specimenWithoutObservations : specimensWithoutObservations) {
                 Observation dummyObservation = generateDefaultObservation(diagnosticReport);
                 Reference specimenReference = new Reference(specimenWithoutObservations);
@@ -255,7 +251,7 @@ public class DiagnosticReportMapper {
         List<String> specimenIDList = new ArrayList<>();
         List<String> nonOrphanSpecimenIDList = new ArrayList<>();
         for (Specimen specimen : specimens) {
-            //ignore dummy specimens
+            //Dummy Specimens should not have a dummy Observation attached.
             if (!specimen.getId().contains(DUMMY_SPECIMEN_ID_PREFIX)) {
                 specimenIDList.add(specimen.getId());
             }
@@ -277,16 +273,9 @@ public class DiagnosticReportMapper {
     }
 
     private boolean hasSpecimenWithoutObservation(List<Specimen> specimens, List<Observation> observations) {
-        //Specimens are in observation
-        //go through observations
-
         List<String> specimensWithoutObservations = getSpecimenIdsWithoutObservation(specimens, observations);
 
-        if (specimensWithoutObservations.isEmpty()) {
-            return false;
-        }
-
-        return true;
+        return !specimensWithoutObservations.isEmpty();
     }
 
     private Observation generateDefaultObservation(DiagnosticReport diagnosticReport) {
