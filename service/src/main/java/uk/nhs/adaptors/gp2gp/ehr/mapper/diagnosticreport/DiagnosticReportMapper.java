@@ -80,6 +80,7 @@ public class DiagnosticReportMapper {
         final IdMapper idMapper = messageContext.getIdMapper();
         markObservationsAsProcessed(idMapper, observations);
 
+        List<Observation> filingComments = getFilingComments(observations);
         List<Observation> observationsExcludingFilingComments = assignDummySpecimensToObservationsWithNoSpecimen(
                 observations.stream()
                     .filter(Predicate.not(DiagnosticReportMapper::isFilingComment))
@@ -87,7 +88,7 @@ public class DiagnosticReportMapper {
                 specimens);
 
         observations = addDummyObservationsToObservationList(observationsExcludingFilingComments, specimens, diagnosticReport);
-
+        observations.addAll(filingComments);
         List<Observation> finalObservations = observations;
 
         String mappedSpecimens = specimens.stream()
@@ -96,7 +97,7 @@ public class DiagnosticReportMapper {
                     diagnosticReport))
             .collect(Collectors.joining());
 
-        String reportLevelNarrativeStatements = prepareReportLevelNarrativeStatements(diagnosticReport, observations);
+        String reportLevelNarrativeStatements = prepareReportLevelNarrativeStatements(diagnosticReport, finalObservations);
 
         var diagnosticReportCompoundStatementTemplateParameters = DiagnosticReportCompoundStatementTemplateParameters.builder()
             .compoundStatementId(idMapper.getOrNew(ResourceType.DiagnosticReport, diagnosticReport.getIdElement()))
@@ -244,7 +245,10 @@ public class DiagnosticReportMapper {
         List<String> specimenIDList = new ArrayList<>();
         List<String> nonOrphanSpecimenIDList = new ArrayList<>();
         for (Specimen specimen : specimens) {
-            specimenIDList.add(specimen.getId());
+            //ignore dummy specimens
+            if (!specimen.getId().contains(DUMMY_SPECIMEN_ID_PREFIX)) {
+                specimenIDList.add(specimen.getId());
+            }
         }
 
         for (Observation observation : observations) {
@@ -393,6 +397,12 @@ public class DiagnosticReportMapper {
             && observation.getCode().getCoding().stream()
             .filter(Coding::hasCode)
             .anyMatch(coding -> COMMENT_NOTE.equals(coding.getCode()));
+    }
+
+    private List<Observation> getFilingComments(List<Observation> observations) {
+        return observations.stream()
+                .filter(DiagnosticReportMapper::isFilingComment)
+                .collect(Collectors.toList());
     }
 
     private void buildNarrativeStatementForMissingResults(DiagnosticReport diagnosticReport, StringBuilder reportLevelNarrativeStatements) {

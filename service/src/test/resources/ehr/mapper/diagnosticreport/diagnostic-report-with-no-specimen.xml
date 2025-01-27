@@ -92,18 +92,6 @@
                         <availabilityTime value="20100223"/>
                     </NarrativeStatement>
                 </component>
-                <component typeCode="COMP" contextConductionInd="true">
-                    <NarrativeStatement classCode="OBS" moodCode="EVN">
-                        <id
-                                root="II-for-Observation-DUMMY-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757" />
-                        <text mediaType="text/x-h7uk-pmip">CommentType:AGGREGATE COMMENT SET
-                            CommentDate:UNK
-
-                            EMPTY REPORT</text>
-                        <statusCode code="COMPLETE" />
-                        <availabilityTime nullFlavor="UNK" />
-                    </NarrativeStatement>
-                </component>
             </CompoundStatement>
         </component>
         <Participant typeCode="AUT" contextControlCode="OP">
