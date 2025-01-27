@@ -200,7 +200,7 @@ public class DiagnosticReportMapper {
 
     private List<Observation> fetchObservations(DiagnosticReport diagnosticReport) {
         if (!diagnosticReport.hasResult()) {
-            return Collections.singletonList(generateDefaultObservation(diagnosticReport));
+            return Collections.emptyList();
         }
 
         var inputBundleHolder = messageContext.getInputBundleHolder();
@@ -219,7 +219,8 @@ public class DiagnosticReportMapper {
             List<Observation> observations,
             List<Specimen> specimens,
             DiagnosticReport diagnosticReport) {
-        List<Observation> dummyObservations = new ArrayList<>();
+        List<Observation> completeObservations = new ArrayList<>();
+        completeObservations.addAll(observations);
 
         if (hasSpecimenWithoutObservation(specimens, observations)) {
             List<String> specimensWithoutObservations = getSpecimenIdsWithoutObservation(specimens, observations);
@@ -229,12 +230,11 @@ public class DiagnosticReportMapper {
                 Observation dummyObservation = generateDefaultObservation(diagnosticReport);
                 Reference specimenReference = new Reference(specimenWithoutObservations);
                 dummyObservation.setSpecimen(specimenReference);
-                dummyObservations.add(dummyObservation);
+                completeObservations.add(dummyObservation);
             }
         }
 
-        observations.addAll(dummyObservations);
-        return observations;
+        return completeObservations;
     }
 
     private List<String> getSpecimenIdsWithoutObservation(List<Specimen> specimens, List<Observation> observations) {
