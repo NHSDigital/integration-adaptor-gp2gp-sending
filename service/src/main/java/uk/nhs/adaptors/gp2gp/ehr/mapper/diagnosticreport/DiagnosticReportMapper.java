@@ -77,7 +77,6 @@ public class DiagnosticReportMapper {
     public String mapDiagnosticReportToCompoundStatement(DiagnosticReport diagnosticReport) {
         List<Observation> observations = fetchObservations(diagnosticReport);
         List<Specimen> specimens = fetchSpecimens(diagnosticReport, observations);
-        observations = addDummyObservationsToObservationList(observations, specimens, diagnosticReport);
         final IdMapper idMapper = messageContext.getIdMapper();
         markObservationsAsProcessed(idMapper, observations);
 
@@ -87,9 +86,13 @@ public class DiagnosticReportMapper {
                     .toList(),
                 specimens);
 
+        observations = addDummyObservationsToObservationList(observationsExcludingFilingComments, specimens, diagnosticReport);
+
+        List<Observation> finalObservations = observations;
+
         String mappedSpecimens = specimens.stream()
             .map(specimen -> specimenMapper.mapSpecimenToCompoundStatement(specimen,
-                    observationsForSpecimen(specimen, observationsExcludingFilingComments),
+                    observationsForSpecimen(specimen, finalObservations),
                     diagnosticReport))
             .collect(Collectors.joining());
 
