@@ -80,24 +80,25 @@ public class DiagnosticReportMapper {
         final IdMapper idMapper = messageContext.getIdMapper();
         markObservationsAsProcessed(idMapper, observations);
 
-        List<Observation> filingComments = getFilingComments(observations);
-        List<Observation> observationsExcludingFilingComments = assignDummySpecimensToObservationsWithNoSpecimen(
-                observations.stream()
-                    .filter(Predicate.not(DiagnosticReportMapper::isFilingComment))
-                    .toList(),
-                specimens);
+        List<Observation> observationsWithAttachedDummySpecimens =
+                new ArrayList<>(assignDummySpecimensToObservationsWithNoSpecimen(observations, specimens));
 
-        observations = addDummyObservationsToObservationList(observationsExcludingFilingComments, specimens, diagnosticReport);
-        observations.addAll(filingComments);
-        List<Observation> finalObservations = observations;
+        observations = addDummyObservationsToObservationList(
+                observationsWithAttachedDummySpecimens,
+                specimens,
+                diagnosticReport);
+
+        List<Observation> observationsWithDummySpecimensAndObservations = observations;
 
         String mappedSpecimens = specimens.stream()
             .map(specimen -> specimenMapper.mapSpecimenToCompoundStatement(specimen,
-                    observationsForSpecimen(specimen, finalObservations),
+                    observationsForSpecimen(specimen, observationsWithDummySpecimensAndObservations),
                     diagnosticReport))
             .collect(Collectors.joining());
 
-        String reportLevelNarrativeStatements = prepareReportLevelNarrativeStatements(diagnosticReport, finalObservations);
+        String reportLevelNarrativeStatements = prepareReportLevelNarrativeStatements(
+                diagnosticReport,
+                observationsWithDummySpecimensAndObservations);
 
         var diagnosticReportCompoundStatementTemplateParameters = DiagnosticReportCompoundStatementTemplateParameters.builder()
             .compoundStatementId(idMapper.getOrNew(ResourceType.DiagnosticReport, diagnosticReport.getIdElement()))
@@ -171,7 +172,11 @@ public class DiagnosticReportMapper {
     private List<Observation> assignDummySpecimensToObservationsWithNoSpecimen(
             List<Observation> observations, List<Specimen> specimens) {
 
+        List<Observation> filingComments = getFilingComments(observations);
+        observations = new ArrayList<>(stripFilingComments(observations));
+
         if (!hasObservationsWithoutSpecimen(observations)) {
+            observations.addAll(filingComments);
             return observations;
         }
 
@@ -188,6 +193,11 @@ public class DiagnosticReportMapper {
             }
         }
 
+        if (observations.isEmpty()) {
+            return filingComments;
+        }
+
+        observations.addAll(filingComments);
         return observations;
     }
 
@@ -397,6 +407,12 @@ public class DiagnosticReportMapper {
             && observation.getCode().getCoding().stream()
             .filter(Coding::hasCode)
             .anyMatch(coding -> COMMENT_NOTE.equals(coding.getCode()));
+    }
+
+    private List<Observation> stripFilingComments(List<Observation> observations) {
+        return observations.stream()
+                .filter(Predicate.not(DiagnosticReportMapper::isFilingComment))
+                .toList();
     }
 
     private List<Observation> getFilingComments(List<Observation> observations) {
