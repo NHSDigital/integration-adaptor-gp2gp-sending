@@ -29,7 +29,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.SneakyThrows;
 import uk.nhs.adaptors.gp2gp.common.service.ProcessFailureHandlingService;
 import uk.nhs.adaptors.gp2gp.ehr.InboundMessageHandlingTest;
