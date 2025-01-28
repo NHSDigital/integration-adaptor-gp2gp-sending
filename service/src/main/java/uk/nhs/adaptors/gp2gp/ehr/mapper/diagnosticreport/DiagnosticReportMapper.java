@@ -88,17 +88,17 @@ public class DiagnosticReportMapper {
                 specimens,
                 diagnosticReport);
 
-        List<Observation> observationsWithDummySpecimensAndObservations = observations;
+        List<Observation> observationsWithDummySpecimensAndDummyObservations = observations;
 
         String mappedSpecimens = specimens.stream()
             .map(specimen -> specimenMapper.mapSpecimenToCompoundStatement(specimen,
-                    observationsForSpecimen(specimen, observationsWithDummySpecimensAndObservations),
+                    observationsForSpecimen(specimen, observationsWithDummySpecimensAndDummyObservations),
                     diagnosticReport))
             .collect(Collectors.joining());
 
         String reportLevelNarrativeStatements = prepareReportLevelNarrativeStatements(
                 diagnosticReport,
-                observationsWithDummySpecimensAndObservations);
+                observationsWithDummySpecimensAndDummyObservations);
 
         var diagnosticReportCompoundStatementTemplateParameters = DiagnosticReportCompoundStatementTemplateParameters.builder()
             .compoundStatementId(idMapper.getOrNew(ResourceType.DiagnosticReport, diagnosticReport.getIdElement()))
