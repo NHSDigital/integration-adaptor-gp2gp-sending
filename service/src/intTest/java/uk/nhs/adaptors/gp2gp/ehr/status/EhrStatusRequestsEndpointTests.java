@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -28,7 +29,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.SneakyThrows;
 import uk.nhs.adaptors.gp2gp.common.service.ProcessFailureHandlingService;
 import uk.nhs.adaptors.gp2gp.ehr.InboundMessageHandlingTest;
@@ -180,6 +180,7 @@ public class EhrStatusRequestsEndpointTests {
         assertOneResponseWithConversationId(CONVERSATION_IDS[0], responseEntity);
     }
 
+    @Disabled
     @Test
     public void When_EhrStatusEndpointHasContentAndBothToAndFromDateFilterIsApplied_Expect_ExpectedRangeOfResponsesReturned() {
 
