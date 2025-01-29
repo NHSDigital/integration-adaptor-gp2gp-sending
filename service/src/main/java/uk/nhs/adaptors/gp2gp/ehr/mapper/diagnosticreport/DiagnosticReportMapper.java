@@ -231,16 +231,12 @@ public class DiagnosticReportMapper {
         List<Observation> completeObservations = new ArrayList<>();
         completeObservations.addAll(observations);
 
-        if (hasSpecimenWithoutObservation(specimens, observations)) {
-            List<String> specimensWithoutObservations = getSpecimenIdsWithoutObservation(specimens, observations);
-
-            // Generate a dummy Observation for each Specimen without an Observation
-            for (String specimenWithoutObservations : specimensWithoutObservations) {
-                Observation dummyObservation = generateDummyObservation(diagnosticReport);
-                Reference specimenReference = new Reference(specimenWithoutObservations);
-                dummyObservation.setSpecimen(specimenReference);
-                completeObservations.add(dummyObservation);
-            }
+        // Generate a dummy Observation for each Specimen without an Observation
+        for (String specimenWithoutObservations : getSpecimenIdsWithoutObservation(specimens, observations)) {
+            Observation dummyObservation = generateDummyObservation(diagnosticReport);
+            Reference specimenReference = new Reference(specimenWithoutObservations);
+            dummyObservation.setSpecimen(specimenReference);
+            completeObservations.add(dummyObservation);
         }
 
         return completeObservations;
@@ -269,12 +265,6 @@ public class DiagnosticReportMapper {
         }
 
         return specimensWithoutObservations;
-    }
-
-    private boolean hasSpecimenWithoutObservation(List<Specimen> specimens, List<Observation> observations) {
-        List<String> specimensWithoutObservations = getSpecimenIdsWithoutObservation(specimens, observations);
-
-        return !specimensWithoutObservations.isEmpty();
     }
 
     private Observation generateDummyObservation(DiagnosticReport diagnosticReport) {
