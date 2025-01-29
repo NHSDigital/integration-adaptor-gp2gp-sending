@@ -313,6 +313,91 @@ class DiagnosticReportMapperTest {
                         + "with linked Observations: Observation/TestResult-WithoutSpecimenReference-->");
     }
 
+    /**
+     * A Diagnostic Report may have an Observation (Test Result) and Specimen. If the observation and specimen are not
+     * linked then we need to create a dummy observation linked to the specimen.
+     */
+    @Test
+    void When_DiagnosticReport_Has_MultipleSpecimensAndOneObservation_Expect_ADummyObservationLinkedToSpecimen() {
+        final String diagnosticReportFileName = "diagnostic-report-with-multiple-specimens-and-one-observation.json";
+        final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(diagnosticReportFileName);
+        final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
+        final InputBundle inputBundle = new InputBundle(bundle);
+
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
+        final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
+
+        // This checks that the unlinked test result is given a dummy specimen.
+        assertThat(actualXml).containsIgnoringWhitespaces(
+                "<!-- Mapped Specimen with id: Specimen/96B93E28-293D-46E7-B4C2-D477EEBF7098-SPEC-0 "
+                        + "with linked Observations: Observation/B7F05EA7-A1A4-48C0-9C4C-CDB5768796B2-->");
+
+        assertThat(actualXml).containsIgnoringWhitespaces(
+                "<!-- Mapped Specimen with id: Specimen/96B93E28-293D-46E7-B4C2-D477EEBF7098-SPEC-1 "
+                        + "with linked Observations: DUMMY-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
+
+    }
+
+    /**
+     * A Diagnostic Report may have an Observation (Test Result) and Specimen. If the observation and specimen are not
+     * linked then we need to create a dummy observation linked to the specimen.
+     */
+    @Test
+    void When_DiagnosticReport_Has_ThreeSpecimensAndOneObservation_Expect_DummyObservationsLinkedToSpecimen() {
+        final String diagnosticReportFileName = "diagnostic-report-with-three-specimens-and-one-observation.json";
+        final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(diagnosticReportFileName);
+        final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
+        final InputBundle inputBundle = new InputBundle(bundle);
+
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
+        final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
+
+        // This checks that the unlinked test result is given a dummy specimen.
+        assertThat(actualXml).containsIgnoringWhitespaces(
+                "<!-- Mapped Specimen with id: Specimen/96B93E28-293D-46E7-B4C2-D477EEBF7098-SPEC-0 "
+                        + "with linked Observations: Observation/B7F05EA7-A1A4-48C0-9C4C-CDB5768796B2-->");
+
+        assertThat(actualXml).containsIgnoringWhitespaces(
+                "<!-- Mapped Specimen with id: Specimen/96B93E28-293D-46E7-B4C2-D477EEBF7098-SPEC-1 "
+                        + "with linked Observations: DUMMY-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
+
+        assertThat(actualXml).containsIgnoringWhitespaces(
+                "<!-- Mapped Specimen with id: Specimen/96B93E28-293D-46E7-B4C2-D477EEBF7098-SPEC-2 "
+                        + "with linked Observations: DUMMY-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
+    }
+
+    /**
+     * A Diagnostic Report may have an Observation (Test Result) and Specimen. If the observation and specimen are not
+     * linked then we need to create a dummy observation linked to the specimen.
+     */
+    @Test
+    void When_DiagnosticReport_Has_TwoLinkedSpecimensOneUnlinkedSpecimenAndOneObservation_Expect_DummyObservationsLinkedToSpecimen() {
+        final String diagnosticReportFileName =
+                "diagnostic-report-with-three-specimens-one-unlinked-specimen-and-one-observation.json";
+        final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(diagnosticReportFileName);
+        final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
+        final InputBundle inputBundle = new InputBundle(bundle);
+
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
+        final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
+
+        // This checks that the unlinked test result is given a dummy specimen.
+        assertThat(actualXml).containsIgnoringWhitespaces(
+                "<!-- Mapped Specimen with id: Specimen/96B93E28-293D-46E7-B4C2-D477EEBF7098-SPEC-0 "
+                        + "with linked Observations: Observation/B7F05EA7-A1A4-48C0-9C4C-CDB5768796B2-->");
+
+        assertThat(actualXml).containsIgnoringWhitespaces(
+                "<!-- Mapped Specimen with id: Specimen/96B93E28-293D-46E7-B4C2-D477EEBF7098-SPEC-1 "
+                        + "with linked Observations: Observation/6E30A9E3-FF9A-4868-8FCD-7DAC26A16E78-->");
+
+        assertThat(actualXml).containsIgnoringWhitespaces(
+                "<!-- Mapped Specimen with id: Specimen/96B93E28-293D-46E7-B4C2-D477EEBF7098-SPEC-2 "
+                        + "with linked Observations: DUMMY-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
+    }
+
     @Test
     void When_DiagnosticReport_Has_SpecimenALinkedTestResultAndAnUnlinkedTestResult_Expect_ASpecimenOnAllTestResults() {
         final String diagnosticReportFileName =
@@ -323,7 +408,7 @@ class DiagnosticReportMapperTest {
         when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
 
         final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
-        // This checks that the unlinked test result is given a dummy specimen.
+        // This checks that the unlinked observation is given a dummy specimen.
         assertThat(actualXml).containsIgnoringWhitespaces(
                 "<!-- Mapped Specimen with id: DUMMY-SPECIMEN-5E496953-065B-41F2-9577-BE8F2FBD0757 "
                         + "with linked Observations: Observation/TestResult-WithoutSpecimenReference-->");

@@ -80,19 +80,25 @@ public class DiagnosticReportMapper {
         final IdMapper idMapper = messageContext.getIdMapper();
         markObservationsAsProcessed(idMapper, observations);
 
-        List<Observation> observationsExcludingFilingComments = assignDummySpecimensToObservationsWithNoSpecimen(
-                observations.stream()
-                    .filter(Predicate.not(DiagnosticReportMapper::isFilingComment))
-                    .toList(),
-                specimens);
+        List<Observation> observationsWithAttachedDummySpecimens =
+                new ArrayList<>(assignDummySpecimensToObservationsWithNoSpecimen(observations, specimens));
+
+        observations = addDummyObservationsToObservationList(
+                observationsWithAttachedDummySpecimens,
+                specimens,
+                diagnosticReport);
+
+        List<Observation> observationsWithDummySpecimensAndDummyObservations = observations;
 
         String mappedSpecimens = specimens.stream()
             .map(specimen -> specimenMapper.mapSpecimenToCompoundStatement(specimen,
-                    observationsForSpecimen(specimen, observationsExcludingFilingComments),
+                    observationsForSpecimen(specimen, observationsWithDummySpecimensAndDummyObservations),
                     diagnosticReport))
             .collect(Collectors.joining());
 
-        String reportLevelNarrativeStatements = prepareReportLevelNarrativeStatements(diagnosticReport, observations);
+        String reportLevelNarrativeStatements = prepareReportLevelNarrativeStatements(
+                diagnosticReport,
+                observationsWithDummySpecimensAndDummyObservations);
 
         var diagnosticReportCompoundStatementTemplateParameters = DiagnosticReportCompoundStatementTemplateParameters.builder()
             .compoundStatementId(idMapper.getOrNew(ResourceType.DiagnosticReport, diagnosticReport.getIdElement()))
@@ -145,12 +151,11 @@ public class DiagnosticReportMapper {
             .map(specimenReference -> inputBundleHolder.getResource(specimenReference.getReferenceElement()))
             .flatMap(Optional::stream)
             .map(Specimen.class::cast)
-            .collect(Collectors.toList());
+            .toList();
 
         specimens.addAll(nonDummySpecimens);
 
         return specimens;
-
     }
 
     private boolean hasObservationsWithoutSpecimen(List<Observation> observations) {
@@ -160,10 +165,17 @@ public class DiagnosticReportMapper {
                 .anyMatch(observation -> !observation.hasSpecimen());
     }
 
+    /**
+     * For correct display in EMIS, any observation without a specimen must be assigned a dummy specimen.
+     */
     private List<Observation> assignDummySpecimensToObservationsWithNoSpecimen(
             List<Observation> observations, List<Specimen> specimens) {
 
+        List<Observation> filingComments = getFilingComments(observations);
+        observations = new ArrayList<>(stripFilingComments(observations));
+
         if (!hasObservationsWithoutSpecimen(observations)) {
+            observations.addAll(filingComments);
             return observations;
         }
 
@@ -180,6 +192,7 @@ public class DiagnosticReportMapper {
             }
         }
 
+        observations.addAll(filingComments);
         return observations;
     }
 
@@ -196,7 +209,7 @@ public class DiagnosticReportMapper {
 
     private List<Observation> fetchObservations(DiagnosticReport diagnosticReport) {
         if (!diagnosticReport.hasResult()) {
-            return Collections.singletonList(generateDefaultObservation(diagnosticReport));
+            return Collections.emptyList();
         }
 
         var inputBundleHolder = messageContext.getInputBundleHolder();
@@ -208,7 +221,63 @@ public class DiagnosticReportMapper {
             .collect(Collectors.toList());
     }
 
-    private Observation generateDefaultObservation(DiagnosticReport diagnosticReport) {
+    /**
+     * For correct display in EMIS, any specimen without an observation must be assigned a dummy observation.
+     */
+    private List<Observation> addDummyObservationsToObservationList(
+            List<Observation> observations,
+            List<Specimen> specimens,
+            DiagnosticReport diagnosticReport) {
+        List<Observation> completeObservations = new ArrayList<>();
+        completeObservations.addAll(observations);
+
+        if (hasSpecimenWithoutObservation(specimens, observations)) {
+            List<String> specimensWithoutObservations = getSpecimenIdsWithoutObservation(specimens, observations);
+
+            // Generate a dummy Observation for each Specimen without an Observation
+            for (String specimenWithoutObservations : specimensWithoutObservations) {
+                Observation dummyObservation = generateDummyObservation(diagnosticReport);
+                Reference specimenReference = new Reference(specimenWithoutObservations);
+                dummyObservation.setSpecimen(specimenReference);
+                completeObservations.add(dummyObservation);
+            }
+        }
+
+        return completeObservations;
+    }
+
+    private List<String> getSpecimenIdsWithoutObservation(List<Specimen> specimens, List<Observation> observations) {
+        List<String> specimenIDList = new ArrayList<>();
+        List<String> nonOrphanSpecimenIDList = new ArrayList<>();
+        for (Specimen specimen : specimens) {
+            // Dummy Specimens should not have a dummy observation attached.
+            if (!specimen.getId().contains(DUMMY_SPECIMEN_ID_PREFIX)) {
+                specimenIDList.add(specimen.getId());
+            }
+        }
+
+        for (Observation observation : observations) {
+            nonOrphanSpecimenIDList.add(observation.getSpecimen().getReference());
+        }
+
+        List<String> specimensWithoutObservations = new ArrayList<>();
+
+        for (String specimenID : specimenIDList) {
+            if (!nonOrphanSpecimenIDList.contains(specimenID)) {
+                specimensWithoutObservations.add(specimenID);
+            }
+        }
+
+        return specimensWithoutObservations;
+    }
+
+    private boolean hasSpecimenWithoutObservation(List<Specimen> specimens, List<Observation> observations) {
+        List<String> specimensWithoutObservations = getSpecimenIdsWithoutObservation(specimens, observations);
+
+        return !specimensWithoutObservations.isEmpty();
+    }
+
+    private Observation generateDummyObservation(DiagnosticReport diagnosticReport) {
         Observation observation = new Observation();
 
         observation.setId(DUMMY_OBSERVATION_ID_PREFIX + randomIdGeneratorService.createNewId());
@@ -326,6 +395,18 @@ public class DiagnosticReportMapper {
             && observation.getCode().getCoding().stream()
             .filter(Coding::hasCode)
             .anyMatch(coding -> COMMENT_NOTE.equals(coding.getCode()));
+    }
+
+    private List<Observation> stripFilingComments(List<Observation> observations) {
+        return observations.stream()
+                .filter(Predicate.not(DiagnosticReportMapper::isFilingComment))
+                .toList();
+    }
+
+    private List<Observation> getFilingComments(List<Observation> observations) {
+        return observations.stream()
+                .filter(DiagnosticReportMapper::isFilingComment)
+                .collect(Collectors.toList());
     }
 
     private void buildNarrativeStatementForMissingResults(DiagnosticReport diagnosticReport, StringBuilder reportLevelNarrativeStatements) {
