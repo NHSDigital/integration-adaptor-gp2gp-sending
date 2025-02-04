@@ -69,6 +69,7 @@ public class EhrExtractMapper {
 
     public String buildEhrCompositionForSkeletonEhrExtract(String documentIdOfCompressedEhrExtract) {
         var skeletonComponentTemplateParameters = SkeletonComponentTemplateParameters.builder()
+            .ehrCompositionId(randomIdGeneratorService.createNewId())
             .narrativeStatementId(documentIdOfCompressedEhrExtract)
             .availabilityTime(DateFormatUtil.toHl7Format(timestampService.now()))
             .build();

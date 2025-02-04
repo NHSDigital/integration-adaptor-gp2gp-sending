@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class SkeletonComponentTemplateParameters {
+    private String ehrCompositionId;
     private String narrativeStatementId;
     private String availabilityTime;
     private String effectiveTime;
