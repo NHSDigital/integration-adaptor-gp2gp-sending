@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * When mapping a `DiagnosticReport` which contains at least one `Specimen`,
   any specimens which didn't belong to a test result were previously not sent to the requesting system.
   Now, a fake `Observation` is created in which any `Observation`-less `Specimen`s are placed.
+* When mapping a `MedicationRequest` to a `MedicationStatement`, user provided text fields are now correctly escaped in 
+  the produced XML.
 
 ## [2.2.1] - 2024-12-10
 
