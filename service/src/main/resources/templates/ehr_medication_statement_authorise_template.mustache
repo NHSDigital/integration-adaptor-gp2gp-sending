@@ -61,7 +61,7 @@
                 </reversalOf>
                 <pertinentInformation typeCode="PERT">
                     <pertinentSupplyAnnotation classCode="OBS" moodCode="EVN"{{^ehrSupplyDiscontinueReasonText}} nullFlavor="UNK"{{/ehrSupplyDiscontinueReasonText}}>
-                        {{#ehrSupplyDiscontinueReasonText}}<text>{{{ehrSupplyDiscontinueReasonText}}}</text>{{/ehrSupplyDiscontinueReasonText}}{{^ehrSupplyDiscontinueReasonText}}<text>Stopped</text>{{/ehrSupplyDiscontinueReasonText}}
+                        {{#ehrSupplyDiscontinueReasonText}}<text>{{ehrSupplyDiscontinueReasonText}}</text>{{/ehrSupplyDiscontinueReasonText}}{{^ehrSupplyDiscontinueReasonText}}<text>Stopped</text>{{/ehrSupplyDiscontinueReasonText}}
                     </pertinentSupplyAnnotation>
                 </pertinentInformation>
             </ehrSupplyDiscontinue>
