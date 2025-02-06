@@ -83,12 +83,13 @@ public class EhrExtractMapperTest {
     public void When_BuildEhrCompositionForSkeletonEhrExtract_Expect_ExpectedComponentBuilt() {
         var documentId = "documentId";
 
+        when(randomIdGeneratorService.createNewId()).thenReturn("ehrCompositionId");
         when(timestampService.now()).thenReturn(Instant.parse("2024-01-01T01:01:01.000Z"));
 
         var expected = """
                 <component typeCode="COMP">
                     <ehrComposition classCode="COMPOSITION" moodCode="EVN">
-                        <id root="documentId" />
+                        <id root="ehrCompositionId" />
                         <code nullFlavor="UNK"/>
                         <statusCode code="COMPLETE" />
                         <effectiveTime nullFlavor="UNK"/>
