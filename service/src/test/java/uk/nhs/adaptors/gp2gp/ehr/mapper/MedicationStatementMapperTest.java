@@ -160,6 +160,10 @@ public class MedicationStatementMapperTest {
         + "medication-request-empty-prescribing-agency-coding-array.json";
     private static final String INPUT_JSON_WITH_PRESCRIBING_AGENCY_ERROR_MISSING_CODEABLE_CONCEPT = TEST_FILE_DIRECTORY
         + "medication-request-missing-prescribing-agency-codeable-concept.json";
+    private static final String INPUT_JSON_WITH_SPECIAL_CHARACTERS_IN_TEXT_FIELDS = TEST_FILE_DIRECTORY
+        + "medication-request-special-character-in-code.json";
+    private static final String OUTPUT_XML_WITH_ESCAPED_XML_TEXT_VALUES = TEST_FILE_DIRECTORY
+        + "medication-statement-with-xml-escaped-text-values.xml";
     private static final String CONFIDENTIALITY_CODE = """
         <confidentialityCode
             code="NOPAT"
@@ -234,7 +238,8 @@ public class MedicationStatementMapperTest {
             Arguments.of(INPUT_JSON_WITH_PLAN_NO_INFO_PRESCRIPTION_TEXT, OUTPUT_XML_WITH_AUTHORISE_REPEAT_PRESCRIPTION),
             Arguments.of(INPUT_JSON_WITH_EXTENSION_STATUS_REASON_TEXT, OUTPUT_XML_WITH_STATUS_REASON_TEXT),
             Arguments.of(INPUT_JSON_WITH_NO_RECORDER_REFERENCE, OUTPUT_XML_WITH_NO_PARTICIPANT),
-            Arguments.of(INPUT_JSON_WITH_INVALID_RECORDER_REFERENCE_TYPE, OUTPUT_XML_WITH_NO_PARTICIPANT)
+            Arguments.of(INPUT_JSON_WITH_INVALID_RECORDER_REFERENCE_TYPE, OUTPUT_XML_WITH_NO_PARTICIPANT),
+            Arguments.of(INPUT_JSON_WITH_SPECIAL_CHARACTERS_IN_TEXT_FIELDS, OUTPUT_XML_WITH_ESCAPED_XML_TEXT_VALUES)
         );
     }
 
@@ -278,7 +283,7 @@ public class MedicationStatementMapperTest {
 
     @ParameterizedTest
     @MethodSource("resourceFileExpectException")
-    public void When_MappingMedicationRequestWithInvalidResource_Expect_Exception(String inputJson) throws IOException {
+    public void When_MappingMedicationRequestWithInvalidResource_Expect_Exception(String inputJson) {
         var jsonInput = ResourceTestFileUtils.getFileContent(inputJson);
         MedicationRequest parsedMedicationRequest = new FhirParseService().parseResource(jsonInput, MedicationRequest.class);
 
@@ -302,7 +307,7 @@ public class MedicationStatementMapperTest {
     }
 
     @Test
-    public void When_MappingMedicationRequestWithRequesterWithOnBehalfOf_Expect_ParticipantMappedToAgent() throws IOException {
+    public void When_MappingMedicationRequestWithRequesterWithOnBehalfOf_Expect_ParticipantMappedToAgent() {
         when(mockRandomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         codeableConceptCdMapper = new CodeableConceptCdMapper();
         var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
@@ -350,7 +355,7 @@ public class MedicationStatementMapperTest {
     @ParameterizedTest
     @MethodSource("resourceFilesWithParticipant")
     public void When_MappingMedicationRequestWithParticipant_Expect_ParticipantMappedToAgent(
-        String inputJson, String agentId) throws IOException {
+        String inputJson, String agentId) {
         when(mockRandomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         codeableConceptCdMapper = new CodeableConceptCdMapper();
         var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
@@ -397,7 +402,7 @@ public class MedicationStatementMapperTest {
     @ParameterizedTest
     @MethodSource("resourceFilesWithMedicationStatement")
     public void When_MappingMedicationRequest_WithMedicationStatement_Expect_PrescribingAgencyMappedToSupplyType(
-        String inputJson, String outputXml) throws IOException {
+        String inputJson, String outputXml) {
 
         var expected = ResourceTestFileUtils.getFileContent(outputXml);
 
