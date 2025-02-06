@@ -16,9 +16,9 @@ EXPOSE 8080
 
 RUN mkdir /app
 
-COPY --from=package /home/gradle/service/build/libs/gp2gp.jar /app/gp2gp.jar
+COPY --from=package /home/gradle/service/build/libs/gp2gp-fhir-send-adaptor.jar /app/gp2gp-fhir-send-adaptor.jar
 
 USER 65534
 
-ENTRYPOINT ["java", "-XX:+PrintCommandLineFlags", "-cp", "/app/gp2gp.jar", "-Dloader.main=uk.nhs.adaptors.gp2gp.Gp2gpApplication", "org.springframework.boot.loader.launch.PropertiesLauncher"]
+ENTRYPOINT ["java", "-XX:+PrintCommandLineFlags", "-cp", "/app/gp2gp-fhir-send-adaptor.jar", "-Dloader.main=uk.nhs.adaptors.gp2gp.Gp2gpApplication", "org.springframework.boot.loader.launch.PropertiesLauncher"]
 
