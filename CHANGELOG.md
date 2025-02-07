@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.2] - 2025-02-07
+
 ### Fixed
 * When mapping a `DiagnosticReport` which contains at least one `Specimen`,
   any specimens which didn't belong to a test result were previously not sent to the requesting system.
