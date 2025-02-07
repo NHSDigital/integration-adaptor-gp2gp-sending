@@ -46,120 +46,12 @@ public class MedicationStatementMapperTest {
     private static final String INPUT_JSON_BUNDLE = TEST_FILE_DIRECTORY + "fhir-bundle.json";
     private static final String INPUT_JSON_BUNDLE_WITH_MEDICATION_STATEMENTS = TEST_FILE_DIRECTORY
         + "fhir-bundle-with-medication-statements.json";
-    private static final String INPUT_JSON_WITH_INVALID_INTENT = TEST_FILE_DIRECTORY + "medication-request-with-invalid-intent.json";
-    private static final String INPUT_JSON_WITH_NO_VALIDITY_PERIOD = TEST_FILE_DIRECTORY
-        + "medication-request-with-no-validity-period.json";
-    private static final String INPUT_JSON_WITH_INVALID_PRESCRIPTION_TYPE = TEST_FILE_DIRECTORY
-        + "medication-request-with-invalid-prescription-type.json";
-    private static final String INPUT_JSON_WITH_INVALID_BASED_ON_MEDICATION_REFERENCE = TEST_FILE_DIRECTORY
-        + "medication-request-with-invalid-based-on-medication-reference.json";
-    private static final String INPUT_JSON_WITH_INVALID_BASED_ON_MEDICATION_REFERENCE_TYPE = TEST_FILE_DIRECTORY
-        + "medication-request-with-invalid-based-on-medication-reference-type.json";
-    private static final String INPUT_JSON_WITH_NO_STATUS = TEST_FILE_DIRECTORY + "medication-request-with-no-status.json";
-    private static final String INPUT_JSON_WITH_NO_DOSAGE_INSTRUCTION = TEST_FILE_DIRECTORY
-        + "medication-request-with-no-dosage-instruction.json";
-    private static final String INPUT_JSON_WITH_NO_DISPENSE_REQUEST = TEST_FILE_DIRECTORY
-        + "medication-request-with-no-dispense-request.json";
-    private static final String INPUT_JSON_WITH_ORDER_NO_BASED_ON = TEST_FILE_DIRECTORY
-        + "medication-request-with-order-no-based-on.json";
-    private static final String INPUT_JSON_WITH_PLAN_STATUS_REASON_STOPPED_NO_DATE = TEST_FILE_DIRECTORY
-        + "medication-request-with-plan-status-reason-stopped-no-date.json";
-    private static final String INPUT_JSON_WITH_INVALID_RECORDER_REFERENCE_TYPE = TEST_FILE_DIRECTORY
-        + "medication-request-with-invalid-recorder-resource-type.json";
-    private static final String INPUT_JSON_WITH_ORDER_NO_OPTIONAL_FIELDS = TEST_FILE_DIRECTORY
-        + "medication-request-with-order-no-optional-fields.json";
-    private static final String OUTPUT_XML_WITH_PRESCRIBE_NO_OPTIONAL_FIELDS = TEST_FILE_DIRECTORY
-        + "medication-statement-with-prescribe-no-optional-fields.xml";
-    private static final String INPUT_JSON_WITH_ORDER_OPTIONAL_FIELDS = TEST_FILE_DIRECTORY
-        + "medication-request-with-order-optional-fields.json";
-    private static final String OUTPUT_XML_WITH_PRESCRIBE_OPTIONAL_FIELDS = TEST_FILE_DIRECTORY
-        + "medication-statement-with-prescribe-optional-fields.xml";
-    private static final String INPUT_JSON_WITH_COMPLETE_STATUS = TEST_FILE_DIRECTORY + "medication-request-with-complete-status.json";
-    private static final String OUTPUT_XML_WITH_COMPLETE_STATUS = TEST_FILE_DIRECTORY + "medication-statement-with-complete-status.xml";
-    private static final String INPUT_JSON_WITH_ACTIVE_STATUS = TEST_FILE_DIRECTORY + "medication-request-with-active-status.json";
-    private static final String OUTPUT_XML_WITH_ACTIVE_STATUS = TEST_FILE_DIRECTORY + "medication-statement-with-active-status.xml";
-    private static final String INPUT_JSON_WITH_PLAN_OPTIONAL_FIELDS = TEST_FILE_DIRECTORY
-        + "medication-request-with-plan-optional-fields.json";
-    private static final String OUTPUT_XML_WITH_AUTHORISE_OPTIONAL_FIELDS = TEST_FILE_DIRECTORY
-        + "medication-statement-with-authorise-optional-fields.xml";
-    private static final String INPUT_JSON_WITH_DISPENSE_QUANTITY_TEXT = TEST_FILE_DIRECTORY
-        + "medication-request-with-plan-dispense-quantity-text.json";
-    private static final String INPUT_JSON_WITH_QUANTITY_QUANTITY_TEXT = TEST_FILE_DIRECTORY
-        + "medication-request-with-plan-quantity-quantity-text.json";
-    private static final String OUTPUT_XML_WITH_DISPENSE_QUANTITY_TEXT = TEST_FILE_DIRECTORY
-        + "medication-statement-with-dispense-quantity-text.xml";
-    private static final String OUTPUT_XML_WITH_QUANTITY_QUANTITY_TEXT = TEST_FILE_DIRECTORY
-        + "medication-statement-with-quantity-quantity-text.xml";
-    private static final String INPUT_JSON_WITH_NO_DISPENSE_QUANTITY_TEXT = TEST_FILE_DIRECTORY
-        + "medication-request-with-plan-no-dispense-quantity-text.json";
-    private static final String OUTPUT_XML_WITH_NO_DISPENSE_QUANTITY_TEXT = TEST_FILE_DIRECTORY
-        + "medication-statement-with-no-dispense-quantity-text.xml";
-    private static final String INPUT_JSON_WITH_NO_DISPENSE_QUANTITY_VALUE = TEST_FILE_DIRECTORY
-        + "medication-request-with-plan-no-dispense-quantity-value.json";
-    private static final String OUTPUT_XML_WITH_NO_DISPENSE_QUANTITY_VALUE = TEST_FILE_DIRECTORY
-        + "medication-statement-with-no-dispense-quantity-value.xml";
-    private static final String INPUT_JSON_WITH_PLAN_ACUTE_PRESCRIPTION = TEST_FILE_DIRECTORY
-        + "medication-request-with-plan-acute-prescription.json";
-    private static final String OUTPUT_XML_WITH_AUTHORISE_ACUTE_PRESCRIPTION = TEST_FILE_DIRECTORY
-        + "medication-statement-with-authorise-acute-prescription.xml";
-    private static final String INPUT_JSON_WITH_PLAN_REPEAT_PRESCRIPTION = TEST_FILE_DIRECTORY
-        + "medication-request-with-plan-repeat-prescription.json";
-    private static final String OUTPUT_XML_WITH_AUTHORISE_REPEAT_PRESCRIPTION = TEST_FILE_DIRECTORY
-        + "medication-statement-with-authorise-repeat-prescription.xml";
-    private static final String INPUT_JSON_WITH_ORDER_REPEAT_PRESCRIPTION_NO_VALUE = TEST_FILE_DIRECTORY
-        + "medication-request-with-plan-repeat-prescription-no-value.json";
-    private static final String OUTPUT_XML_WITH_AUTHORISE_REPEAT_PRESCRIPTION_NO_VALUE = TEST_FILE_DIRECTORY
-        + "medication-statement-with-authorise-repeat-prescription-no-value.xml";
-    private static final String INPUT_JSON_WITH_PLAN_START_PERIOD_ONLY = TEST_FILE_DIRECTORY
-        + "medication-request-with-plan-start-period-only.json";
-    private static final String OUTPUT_XML_WITH_AUTHORISE_START_PERIOD_ONLY = TEST_FILE_DIRECTORY
-        + "medication-statement-with-authorise-start-period-only.xml";
-    private static final String INPUT_JSON_WITH_PLAN_NO_OPTIONAL_FIELDS = TEST_FILE_DIRECTORY
-        + "medication-request-with-plan-no-optional-fields.json";
-    private static final String OUTPUT_XML_WITH_AUTHORISE_NO_OPTIONAL_FIELDS = TEST_FILE_DIRECTORY
-        + "medication-statement-with-authorise-no-optional-fields.xml";
-    private static final String INPUT_JSON_WITH_ORDER_BASED_ON = TEST_FILE_DIRECTORY
-        + "medication-request-with-order-based-on.json";
     private static final String OUTPUT_XML_WITH_PRESCRIBE_BASED_ON = TEST_FILE_DIRECTORY
         + "medication-statement-with-prescribe-based-on.xml";
-    private static final String INPUT_JSON_WITH_PLAN_NO_STATUS_REASON_CODE = TEST_FILE_DIRECTORY
-        + "medication-request-with-plan-no-status-reason-code.json";
-    private static final String OUTPUT_XML_WITH_AUTHORISE_DEFAULT_STATUS_REASON_CODE = TEST_FILE_DIRECTORY
-        + "medication-statement-with-authorise-default-status-reason-code.xml";
-    private static final String INPUT_JSON_WITH_PLAN_NO_INFO_PRESCRIPTION_TEXT = TEST_FILE_DIRECTORY
-        + "medication-request-with-plan-no-info-prescription-text.json";
-    private static final String INPUT_JSON_WITH_NO_RECORDER_REFERENCE = TEST_FILE_DIRECTORY
-        + "medication-request-with-no-recorder-reference.json";
-    private static final String INPUT_JSON_WITH_EXTENSION_STATUS_REASON_TEXT = TEST_FILE_DIRECTORY
-        + "medication-request-with-extension-status-reason-with-text.json";
-    private static final String OUTPUT_XML_WITH_STATUS_REASON_TEXT = TEST_FILE_DIRECTORY
-        + "medication-statement-with-status-reason-text.xml";
-    private static final String OUTPUT_XML_WITH_NO_PARTICIPANT = TEST_FILE_DIRECTORY
-            + "medication-statement-with-no-participant.xml";
-    private static final String INPUT_JSON_WITH_REQUESTER_ON_BEHALF_OF = TEST_FILE_DIRECTORY
-        + "medication-request-with-requester-on-behalf-of.json";
-    private static final String INPUT_JSON_WITH_REQUESTER = TEST_FILE_DIRECTORY
-        + "medication-request-with-requester.json";
-    private static final String INPUT_JSON_WITH_NO_REQUESTER = TEST_FILE_DIRECTORY
-        + "medication-request-with-no-requester.json";
-    private static final String INPUT_JSON_WITH_REQUESTER_AGENT_AS_ORG = TEST_FILE_DIRECTORY
-        + "medication-request-with-requester-agent-as-org.json";
-    private static final String INPUT_JSON_WITH_REQUESTER_ORG_AND_ON_BEHALF_OF = TEST_FILE_DIRECTORY
-        + "medication-request-with-requester-org-and-on-behalf-of.json";
-    private static final String INPUT_JSON_WITH_PRESCRIBED_BY_ANOTHER_ORG_IN_BUNDLE = TEST_FILE_DIRECTORY
-        + "medication-request-prescribed-by-another-organisation.json";
     private static final String OUTPUT_XML_WITH_PRESCRIBED_BY_ANOTHER_ORG = TEST_FILE_DIRECTORY
         + "medication-statement-prescribed-by-another-organisation.xml";
-    private static final String INPUT_JSON_WITH_PRESCRIBED_BY_GP_IN_BUNDLE = TEST_FILE_DIRECTORY
-        + "medication-request-prescribed-by-gp-practice.json";
     private static final String OUTPUT_XML_NHS_PRESCRIPTION = TEST_FILE_DIRECTORY
         + "medication-statement-nhs-prescription.xml";
-    private static final String INPUT_JSON_WITH_PRESCRIBED_BY_PREVIOUS_PRACTICE_IN_BUNDLE = TEST_FILE_DIRECTORY
-        + "medication-request-prescribed-by-previous-practice.json";
-    private static final String INPUT_JSON_WITH_PRESCRIBING_AGENCY_ERROR_EMPTY_CODING = TEST_FILE_DIRECTORY
-        + "medication-request-empty-prescribing-agency-coding-array.json";
-    private static final String INPUT_JSON_WITH_PRESCRIBING_AGENCY_ERROR_MISSING_CODEABLE_CONCEPT = TEST_FILE_DIRECTORY
-        + "medication-request-missing-prescribing-agency-codeable-concept.json";
     private static final String CONFIDENTIALITY_CODE = """
         <confidentialityCode
             code="NOPAT"
@@ -211,30 +103,35 @@ public class MedicationStatementMapperTest {
     @ParameterizedTest
     @MethodSource("resourceFileParams")
     public void When_MappingObservationJson_Expect_NarrativeStatementXmlOutput(String inputJson, String outputXml) {
-        assertThatInputMapsToExpectedOutput(inputJson, outputXml);
+        assertThatInputMapsToExpectedOutput(TEST_FILE_DIRECTORY + inputJson, TEST_FILE_DIRECTORY + outputXml);
     }
 
     private static Stream<Arguments> resourceFileParams() {
         return Stream.of(
-            Arguments.of(INPUT_JSON_WITH_ORDER_NO_OPTIONAL_FIELDS, OUTPUT_XML_WITH_PRESCRIBE_NO_OPTIONAL_FIELDS),
-            Arguments.of(INPUT_JSON_WITH_ORDER_OPTIONAL_FIELDS, OUTPUT_XML_WITH_PRESCRIBE_OPTIONAL_FIELDS),
-            Arguments.of(INPUT_JSON_WITH_COMPLETE_STATUS, OUTPUT_XML_WITH_COMPLETE_STATUS),
-            Arguments.of(INPUT_JSON_WITH_ACTIVE_STATUS, OUTPUT_XML_WITH_ACTIVE_STATUS),
-            Arguments.of(INPUT_JSON_WITH_PLAN_OPTIONAL_FIELDS, OUTPUT_XML_WITH_AUTHORISE_OPTIONAL_FIELDS),
-            Arguments.of(INPUT_JSON_WITH_DISPENSE_QUANTITY_TEXT, OUTPUT_XML_WITH_DISPENSE_QUANTITY_TEXT),
-            Arguments.of(INPUT_JSON_WITH_QUANTITY_QUANTITY_TEXT, OUTPUT_XML_WITH_QUANTITY_QUANTITY_TEXT),
-            Arguments.of(INPUT_JSON_WITH_NO_DISPENSE_QUANTITY_TEXT, OUTPUT_XML_WITH_NO_DISPENSE_QUANTITY_TEXT),
-            Arguments.of(INPUT_JSON_WITH_NO_DISPENSE_QUANTITY_VALUE, OUTPUT_XML_WITH_NO_DISPENSE_QUANTITY_VALUE),
-            Arguments.of(INPUT_JSON_WITH_PLAN_ACUTE_PRESCRIPTION, OUTPUT_XML_WITH_AUTHORISE_ACUTE_PRESCRIPTION),
-            Arguments.of(INPUT_JSON_WITH_PLAN_REPEAT_PRESCRIPTION, OUTPUT_XML_WITH_AUTHORISE_REPEAT_PRESCRIPTION),
-            Arguments.of(INPUT_JSON_WITH_ORDER_REPEAT_PRESCRIPTION_NO_VALUE, OUTPUT_XML_WITH_AUTHORISE_REPEAT_PRESCRIPTION_NO_VALUE),
-            Arguments.of(INPUT_JSON_WITH_PLAN_START_PERIOD_ONLY, OUTPUT_XML_WITH_AUTHORISE_START_PERIOD_ONLY),
-            Arguments.of(INPUT_JSON_WITH_PLAN_NO_OPTIONAL_FIELDS, OUTPUT_XML_WITH_AUTHORISE_NO_OPTIONAL_FIELDS),
-            Arguments.of(INPUT_JSON_WITH_PLAN_NO_STATUS_REASON_CODE, OUTPUT_XML_WITH_AUTHORISE_DEFAULT_STATUS_REASON_CODE),
-            Arguments.of(INPUT_JSON_WITH_PLAN_NO_INFO_PRESCRIPTION_TEXT, OUTPUT_XML_WITH_AUTHORISE_REPEAT_PRESCRIPTION),
-            Arguments.of(INPUT_JSON_WITH_EXTENSION_STATUS_REASON_TEXT, OUTPUT_XML_WITH_STATUS_REASON_TEXT),
-            Arguments.of(INPUT_JSON_WITH_NO_RECORDER_REFERENCE, OUTPUT_XML_WITH_NO_PARTICIPANT),
-            Arguments.of(INPUT_JSON_WITH_INVALID_RECORDER_REFERENCE_TYPE, OUTPUT_XML_WITH_NO_PARTICIPANT)
+            Arguments.of("mr-with-order-no-optional-fields.json", "medication-statement-with-prescribe-no-optional-fields.xml"),
+            Arguments.of("mr-with-order-optional-fields.json", "medication-statement-with-prescribe-optional-fields.xml"),
+            Arguments.of("mr-with-complete-status.json", "medication-statement-with-complete-status.xml"),
+            Arguments.of("mr-with-active-status.json", "medication-statement-with-active-status.xml"),
+            Arguments.of("mr-with-structured-dosage-information.json", "medication-statement-with-active-status.xml"),
+            Arguments.of("mr-with-plan-optional-fields.json", "medication-statement-with-authorise-optional-fields.xml"),
+            Arguments.of("mr-with-plan-dispense-quantity-text.json", "medication-statement-with-dispense-quantity-text.xml"),
+            Arguments.of("mr-with-plan-quantity-quantity-text.json", "medication-statement-with-quantity-quantity-text.xml"),
+            Arguments.of("mr-with-plan-no-dispense-quantity-text.json", "medication-statement-with-no-dispense-quantity-text.xml"),
+            Arguments.of("mr-with-plan-no-dispense-quantity-value.json", "medication-statement-with-no-dispense-quantity-value.xml"),
+            Arguments.of("mr-with-plan-acute-prescription.json", "medication-statement-with-authorise-acute-prescription.xml"),
+            Arguments.of("mr-with-plan-repeat-prescription.json", "medication-statement-with-authorise-repeat-prescription.xml"),
+            Arguments.of(
+                "mr-with-plan-repeat-prescription-no-value.json",
+                "medication-statement-with-authorise-repeat-prescription-no-value.xml"
+            ),
+            Arguments.of("mr-with-plan-start-period-only.json", "medication-statement-with-authorise-start-period-only.xml"),
+            Arguments.of("mr-with-plan-no-optional-fields.json", "medication-statement-with-authorise-no-optional-fields.xml"),
+            Arguments.of("mr-with-plan-no-status-reason-code.json", "medication-statement-with-authorise-default-status-reason-code.xml"),
+            Arguments.of("mr-with-plan-no-info-prescription-text.json", "medication-statement-with-authorise-repeat-prescription.xml"),
+            Arguments.of("mr-with-extension-status-reason-with-text.json", "medication-statement-with-status-reason-text.xml"),
+            Arguments.of("mr-with-no-recorder-reference.json", "medication-statement-with-no-participant.xml"),
+            Arguments.of("mr-with-invalid-recorder-resource-type.json", "medication-statement-with-no-participant.xml"),
+            Arguments.of("medication-request-special-character-in-code.json", "medication-statement-with-xml-escaped-text-values.xml")
         );
     }
 
@@ -258,18 +155,18 @@ public class MedicationStatementMapperTest {
         when(mockRandomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn("456");
 
 
-        var inputAuthorise1 = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_PLAN_ACUTE_PRESCRIPTION);
+        var inputAuthorise1 = ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + "mr-with-plan-acute-prescription.json");
         var parsedMedicationRequest1 = new FhirParseService().parseResource(inputAuthorise1, MedicationRequest.class);
         medicationStatementMapper.mapMedicationRequestToMedicationStatement(parsedMedicationRequest1);
 
         when(mockRandomIdGeneratorService.createNewId()).thenReturn("456", "123", "789");
-        var inputWithBasedOn = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_ORDER_BASED_ON);
+        var inputWithBasedOn = ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + "mr-with-order-based-on.json");
         var parsedMedicationRequestWithBasedOn = new FhirParseService().parseResource(inputWithBasedOn, MedicationRequest.class);
         String outputMessageWithBasedOn =
             medicationStatementMapper.mapMedicationRequestToMedicationStatement(parsedMedicationRequestWithBasedOn);
 
         when(mockRandomIdGeneratorService.createNewId()).thenReturn("789");
-        var inputAuthorise2 = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_PLAN_REPEAT_PRESCRIPTION);
+        var inputAuthorise2 = ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + "mr-with-plan-repeat-prescription.json");
         var parsedMedicationRequest2 = new FhirParseService().parseResource(inputAuthorise2, MedicationRequest.class);
         medicationStatementMapper.mapMedicationRequestToMedicationStatement(parsedMedicationRequest2);
 
@@ -278,8 +175,8 @@ public class MedicationStatementMapperTest {
 
     @ParameterizedTest
     @MethodSource("resourceFileExpectException")
-    public void When_MappingMedicationRequestWithInvalidResource_Expect_Exception(String inputJson) throws IOException {
-        var jsonInput = ResourceTestFileUtils.getFileContent(inputJson);
+    public void When_MappingMedicationRequestWithInvalidResource_Expect_Exception(String inputJson) {
+        var jsonInput = ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + inputJson);
         MedicationRequest parsedMedicationRequest = new FhirParseService().parseResource(jsonInput, MedicationRequest.class);
 
         assertThrows(EhrMapperException.class, ()
@@ -288,21 +185,21 @@ public class MedicationStatementMapperTest {
 
     private static List<String> resourceFileExpectException() {
         return List.of(
-            INPUT_JSON_WITH_NO_VALIDITY_PERIOD,
-            INPUT_JSON_WITH_INVALID_INTENT,
-            INPUT_JSON_WITH_INVALID_PRESCRIPTION_TYPE,
-            INPUT_JSON_WITH_INVALID_BASED_ON_MEDICATION_REFERENCE,
-            INPUT_JSON_WITH_INVALID_BASED_ON_MEDICATION_REFERENCE_TYPE,
-            INPUT_JSON_WITH_NO_STATUS,
-            INPUT_JSON_WITH_NO_DOSAGE_INSTRUCTION,
-            INPUT_JSON_WITH_NO_DISPENSE_REQUEST,
-            INPUT_JSON_WITH_ORDER_NO_BASED_ON,
-            INPUT_JSON_WITH_PLAN_STATUS_REASON_STOPPED_NO_DATE
+            "mr-with-no-validity-period.json",
+            "mr-with-invalid-intent.json",
+            "mr-with-invalid-prescription-type.json",
+            "mr-with-invalid-based-on-medication-reference.json",
+            "mr-with-invalid-based-on-medication-reference-type.json",
+            "mr-with-no-status.json",
+            "mr-with-no-dosage-instruction.json",
+            "mr-with-no-dispense-request.json",
+            "mr-with-order-no-based-on.json",
+            "mr-with-plan-status-reason-stopped-no-date.json"
         );
     }
 
     @Test
-    public void When_MappingMedicationRequestWithRequesterWithOnBehalfOf_Expect_ParticipantMappedToAgent() throws IOException {
+    public void When_MappingMedicationRequestWithRequesterWithOnBehalfOf_Expect_ParticipantMappedToAgent() {
         when(mockRandomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         codeableConceptCdMapper = new CodeableConceptCdMapper();
         var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
@@ -326,7 +223,7 @@ public class MedicationStatementMapperTest {
             confidentialityService
         );
 
-        var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_REQUESTER_ON_BEHALF_OF);
+        var jsonInput = ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + "mr-with-requester-on-behalf-of.json");
         MedicationRequest parsedMedicationRequest = new FhirParseService().parseResource(jsonInput, MedicationRequest.class);
         medicationStatementMapper.mapMedicationRequestToMedicationStatement(parsedMedicationRequest);
 
@@ -340,17 +237,17 @@ public class MedicationStatementMapperTest {
 
     private static Stream<Arguments> resourceFilesWithParticipant() {
         return Stream.of(
-            Arguments.of(INPUT_JSON_WITH_REQUESTER, PRACTITIONER_RESOURCE_1),
-            Arguments.of(INPUT_JSON_WITH_NO_REQUESTER, PRACTITIONER_RESOURCE_2),
-            Arguments.of(INPUT_JSON_WITH_REQUESTER_AGENT_AS_ORG, ORGANIZATION_RESOURCE_1),
-            Arguments.of(INPUT_JSON_WITH_REQUESTER_ORG_AND_ON_BEHALF_OF, ORGANIZATION_RESOURCE_1)
+            Arguments.of("mr-with-requester.json", PRACTITIONER_RESOURCE_1),
+            Arguments.of("mr-with-no-requester.json", PRACTITIONER_RESOURCE_2),
+            Arguments.of("mr-with-requester-agent-as-org.json", ORGANIZATION_RESOURCE_1),
+            Arguments.of("mr-with-requester-org-and-on-behalf-of.json", ORGANIZATION_RESOURCE_1)
         );
     }
 
     @ParameterizedTest
     @MethodSource("resourceFilesWithParticipant")
     public void When_MappingMedicationRequestWithParticipant_Expect_ParticipantMappedToAgent(
-        String inputJson, String agentId) throws IOException {
+        String inputJson, String agentId) {
         when(mockRandomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         codeableConceptCdMapper = new CodeableConceptCdMapper();
         var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
@@ -374,7 +271,7 @@ public class MedicationStatementMapperTest {
             confidentialityService
         );
 
-        var jsonInput = ResourceTestFileUtils.getFileContent(inputJson);
+        var jsonInput = ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + inputJson);
         MedicationRequest parsedMedicationRequest = new FhirParseService().parseResource(jsonInput, MedicationRequest.class);
         medicationStatementMapper.mapMedicationRequestToMedicationStatement(parsedMedicationRequest);
 
@@ -386,18 +283,18 @@ public class MedicationStatementMapperTest {
 
     private static Stream<Arguments> resourceFilesWithMedicationStatement() {
         return Stream.of(
-            Arguments.of(INPUT_JSON_WITH_PRESCRIBED_BY_ANOTHER_ORG_IN_BUNDLE, OUTPUT_XML_WITH_PRESCRIBED_BY_ANOTHER_ORG),
-            Arguments.of(INPUT_JSON_WITH_PRESCRIBED_BY_GP_IN_BUNDLE, OUTPUT_XML_NHS_PRESCRIPTION),
-            Arguments.of(INPUT_JSON_WITH_PRESCRIBED_BY_PREVIOUS_PRACTICE_IN_BUNDLE, OUTPUT_XML_NHS_PRESCRIPTION),
-            Arguments.of(INPUT_JSON_WITH_PRESCRIBING_AGENCY_ERROR_EMPTY_CODING, OUTPUT_XML_NHS_PRESCRIPTION),
-            Arguments.of(INPUT_JSON_WITH_PRESCRIBING_AGENCY_ERROR_MISSING_CODEABLE_CONCEPT, OUTPUT_XML_NHS_PRESCRIPTION)
+            Arguments.of("mr-prescribed-by-another-organisation.json", OUTPUT_XML_WITH_PRESCRIBED_BY_ANOTHER_ORG),
+            Arguments.of("mr-prescribed-by-gp-practice.json", OUTPUT_XML_NHS_PRESCRIPTION),
+            Arguments.of("mr-prescribed-by-previous-practice.json", OUTPUT_XML_NHS_PRESCRIPTION),
+            Arguments.of("mr-empty-prescribing-agency-coding-array.json", OUTPUT_XML_NHS_PRESCRIPTION),
+            Arguments.of("mr-missing-prescribing-agency-codeable-concept.json", OUTPUT_XML_NHS_PRESCRIPTION)
         );
     }
 
     @ParameterizedTest
     @MethodSource("resourceFilesWithMedicationStatement")
     public void When_MappingMedicationRequest_WithMedicationStatement_Expect_PrescribingAgencyMappedToSupplyType(
-        String inputJson, String outputXml) throws IOException {
+        String inputJson, String outputXml) {
 
         var expected = ResourceTestFileUtils.getFileContent(outputXml);
 
@@ -425,7 +322,7 @@ public class MedicationStatementMapperTest {
             confidentialityService
         );
 
-        var jsonInput = ResourceTestFileUtils.getFileContent(inputJson);
+        var jsonInput = ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + inputJson);
         MedicationRequest parsedMedicationRequest = new FhirParseService().parseResource(jsonInput, MedicationRequest.class);
         var outputString = medicationStatementMapper.mapMedicationRequestToMedicationStatement(parsedMedicationRequest);
 
@@ -434,13 +331,13 @@ public class MedicationStatementMapperTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-        INPUT_JSON_WITH_PLAN_NO_OPTIONAL_FIELDS,
-        INPUT_JSON_WITH_ORDER_NO_OPTIONAL_FIELDS
+        "mr-with-plan-no-optional-fields.json",
+        "mr-with-order-no-optional-fields.json"
     })
     public void When_ConfidentialityServiceReturnsConfidentialityCode_Expect_MessageContainsConfidentialityCode(
         String inputJson
     ) {
-        final var jsonInput = ResourceTestFileUtils.getFileContent(inputJson);
+        final var jsonInput = ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + inputJson);
         final var parsedMedicationRequest = new FhirParseService()
             .parseResource(jsonInput, MedicationRequest.class);
         when(confidentialityService.generateConfidentialityCode(parsedMedicationRequest))
@@ -456,13 +353,13 @@ public class MedicationStatementMapperTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-        INPUT_JSON_WITH_PLAN_NO_OPTIONAL_FIELDS,
-        INPUT_JSON_WITH_ORDER_NO_OPTIONAL_FIELDS
+        "mr-with-plan-no-optional-fields.json",
+        "mr-with-order-no-optional-fields.json"
     })
     public void When_ConfidentialityServiceReturnsEmptyOptional_Expect_MessageDoesNotContainConfidentialityCode(
         String inputJson
     ) {
-        final var jsonInput = ResourceTestFileUtils.getFileContent(inputJson);
+        final var jsonInput = ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + inputJson);
         final var parsedMedicationRequest = new FhirParseService()
             .parseResource(jsonInput, MedicationRequest.class);
         when(confidentialityService.generateConfidentialityCode(parsedMedicationRequest))
