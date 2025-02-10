@@ -128,12 +128,9 @@ public class AllergyStructureMapperTest {
         + "expected-output-allergy-structure-22.xml";
     private static final String COMMON_ID = "6D340A1B-BC15-4D4E-93CF-BBCB5B74DF73";
 
-    private static final String CONFIDENTIALITY_CODE = """
-        <confidentialityCode
-            code="NOPAT"
-            codeSystem="2.16.840.1.113883.4.642.3.47"
-            displayName="no disclosure to patient, family or caregivers without attending provider's authorization"
-        />""";
+    public static final String CONFIDENTIALITY_CODE = "<confidentialityCode code=\"NOPAT\" "
+                      + "codeSystem=\"2.16.840.1.113883.4.642.3.47\" "
+                      + "displayName=\"no disclosure to patient, family or caregivers without attending provider's authorization\" />";
 
     @Mock
     private RandomIdGeneratorService randomIdGeneratorService;
