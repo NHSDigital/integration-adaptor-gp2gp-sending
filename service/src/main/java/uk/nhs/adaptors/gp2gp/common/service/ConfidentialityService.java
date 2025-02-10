@@ -15,12 +15,9 @@ import java.util.Optional;
 public class ConfidentialityService {
     private static final String REDACTION_CODE_SYSTEM = "http://hl7.org/fhir/v3/ActCode";
     public static final String NOPAT = "NOPAT";
-    private static final String REDACTION_CONFIDENTIALITY_CODE = """
-        <confidentialityCode
-            code="NOPAT"
-            codeSystem="2.16.840.1.113883.4.642.3.47"
-            displayName="no disclosure to patient, family or caregivers without attending provider's authorization"
-        />""";
+    public static final String REDACTION_CONFIDENTIALITY_CODE = "<confidentialityCode code=\"NOPAT\" "
+                        + "codeSystem=\"2.16.840.1.113883.4.642.3.47\" "
+                        + "displayName=\"no disclosure to patient, family or caregivers without attending provider's authorization\" />";
 
     private final RedactionsContext redactionsContext;
 
