@@ -96,15 +96,10 @@ public class ConfidentialityServiceTest {
 
         var confidentialityCode = confidentialityService.generateConfidentialityCode(resource);
 
-        assertThat(confidentialityCode)
-            .isPresent();
+        assertThat(confidentialityCode).isPresent();
         assertThat(confidentialityCode.get())
-            .isEqualTo("""
-                <confidentialityCode
-                    code="NOPAT"
-                    codeSystem="2.16.840.1.113883.4.642.3.47"
-                    displayName="no disclosure to patient, family or caregivers without attending provider's authorization"
-                />"""
-            );
+            .isEqualTo(new String("<confidentialityCode code=\"NOPAT\" "
+                   + "codeSystem=\"2.16.840.1.113883.4.642.3.47\" "
+                   + "displayName=\"no disclosure to patient, family or caregivers without attending provider's authorization\" />"));
     }
 }

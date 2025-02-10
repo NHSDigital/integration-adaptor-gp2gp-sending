@@ -10,12 +10,10 @@ public final class ConfidentialityCodeUtility {
     private ConfidentialityCodeUtility() { }
     public static final String NOPAT = "NOPAT";
     public static final String NOSCRUB = "NOSCRUB";
-    public static final String NOPAT_HL7_CONFIDENTIALITY_CODE = """
-        <confidentialityCode
-            code="NOPAT"
-            codeSystem="2.16.840.1.113883.4.642.3.47"
-            displayName="no disclosure to patient, family or caregivers without attending provider's authorization" />
-        """;
+    public static final String NOPAT_HL7_CONFIDENTIALITY_CODE =
+        "<confidentialityCode code=\"NOPAT\" "
+        + "codeSystem=\"2.16.840.1.113883.4.642.3.47\" "
+        + "displayName=\"no disclosure to patient, family or caregivers without attending provider's authorization\" />";
 
     public static <R extends DomainResource> String getSecurityCodeFromResource(R resource) {
         return resource.getMeta()
