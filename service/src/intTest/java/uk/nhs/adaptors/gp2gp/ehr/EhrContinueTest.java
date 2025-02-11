@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.common.task.TaskDispatcher;
@@ -40,7 +40,7 @@ public class EhrContinueTest {
     private EhrExtractRequestHandler ehrExtractRequestHandler;
     @Autowired
     private EhrExtractStatusRepository ehrExtractStatusRepository;
-    @MockBean
+    @MockitoBean
     private TaskDispatcher taskDispatcher;
 
     @Test

@@ -19,8 +19,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -42,7 +42,7 @@ public class SendDocumentComponentTest {
     private static final String DOCUMENT_NAME = "some-conversation-id/document-name.json";
     public static final String OUTBOUND_MESSAGE_JSON = "src/intTest/resources/outboundMessage.json";
 
-    @MockBean
+    @MockitoBean
     private MhsClient mhsClient;
 
     @Autowired

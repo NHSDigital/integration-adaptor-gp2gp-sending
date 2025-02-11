@@ -28,8 +28,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
@@ -79,7 +79,7 @@ public class GetGpcStructuredComponentTest extends BaseTaskTest {
     @MockitoSpyBean
     private StorageConnectorService storageConnectorService;
 
-    @MockBean
+    @MockitoBean
     private DetectTranslationCompleteService detectTranslationCompleteService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();

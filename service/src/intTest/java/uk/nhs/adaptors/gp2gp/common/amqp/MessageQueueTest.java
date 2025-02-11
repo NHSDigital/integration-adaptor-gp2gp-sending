@@ -14,13 +14,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.SneakyThrows;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.nhs.adaptors.gp2gp.ehr.EhrExtractStatusRepository;
 import uk.nhs.adaptors.gp2gp.mhs.InboundMessage;
 import uk.nhs.adaptors.gp2gp.mhs.InboundMessageHandler;
@@ -42,7 +42,7 @@ public class MessageQueueTest {
     private ObjectMapper objectMapper;
     @Autowired
     private EhrExtractStatusRepository ehrExtractStatusRepository;
-    @MockBean // mock the message handler to prevent any forward processing by the application
+    @MockitoBean // mock the message handler to prevent any forward processing by the application
     private InboundMessageHandler inboundMessageHandler;
 
     @Test
