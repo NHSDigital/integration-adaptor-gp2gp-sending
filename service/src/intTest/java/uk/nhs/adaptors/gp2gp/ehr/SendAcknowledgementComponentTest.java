@@ -20,9 +20,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.Resource;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -55,21 +55,21 @@ public class SendAcknowledgementComponentTest {
     private static final String NEGATIVE_ACK_TYPE_CODE = "AE";
     private static final String POSITIVE_ACK_TYPE_CODE = "AA";
 
-    @MockBean
+    @MockitoBean
     private WebClient.RequestHeadersSpec<?> request;
-    @MockBean
+    @MockitoBean
     private MhsRequestBuilder mhsRequestBuilder;
-    @MockBean
+    @MockitoBean
     private MhsClient mhsClient;
-    @MockBean
+    @MockitoBean
     private SendAcknowledgementTaskDefinition sendAcknowledgementTaskDefinition;
     @Autowired
     private SendAcknowledgementExecutor sendAcknowledgementExecutor;
     @Autowired
     private EhrExtractStatusRepository ehrExtractStatusRepository;
-    @MockBean
+    @MockitoBean
     private TimestampService timestampService;
-    @MockBean
+    @MockitoBean
     private RandomIdGeneratorService randomIdGeneratorService;
 
     @Value("classpath:ehr/expected-nack-message.json")

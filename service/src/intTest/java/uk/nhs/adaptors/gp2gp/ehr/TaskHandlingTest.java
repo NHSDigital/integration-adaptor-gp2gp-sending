@@ -25,8 +25,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -61,7 +61,7 @@ public class TaskHandlingTest {
     private EhrExtractStatusService ehrExtractStatusService;
     @MockitoSpyBean
     private TaskExecutorFactory taskExecutorFactory;
-    @MockBean
+    @MockitoBean
     private TaskDispatcher taskDispatcher;
     @Mock
     private Message message;

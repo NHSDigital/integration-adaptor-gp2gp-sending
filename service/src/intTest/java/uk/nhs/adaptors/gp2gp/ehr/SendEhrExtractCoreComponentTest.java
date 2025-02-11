@@ -30,8 +30,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -80,30 +80,30 @@ public class SendEhrExtractCoreComponentTest extends BaseTaskTest {
     public static final Instant NOW = Instant.parse("2024-01-01T10:00:00Z");
     public static final String COMPRESSED_LARGE_PAYLOAD = "H4sIAAAAAAAA/wtydfTxiVQIglBOnocWAwA3VEfTEgAAAA==";
 
-    @MockBean
+    @MockitoBean
     private EhrDocumentMapper ehrDocumentMapper;
 
-    @MockBean
+    @MockitoBean
     private TimestampService timestampService;
 
-    @MockBean
+    @MockitoBean
     private RandomIdGeneratorService randomIdGeneratorService;
 
     @Mock
     private StorageDataWrapper storageDataWrapper;
 
-    @MockBean
+    @MockitoBean
     private WebClient.RequestHeadersSpec<?> request;
 
-    @MockBean
+    @MockitoBean
     private MhsRequestBuilder mhsRequestBuilder;
 
-    @MockBean
+    @MockitoBean
     private MhsClient mhsClient;
 
     private SendEhrExtractCoreTaskDefinition sendEhrExtractCoreTaskDefinition;
 
-    @MockBean
+    @MockitoBean
     private StorageConnectorService storageConnectorService;
 
     @Autowired
@@ -113,13 +113,13 @@ public class SendEhrExtractCoreComponentTest extends BaseTaskTest {
     private EhrExtractStatusRepository ehrExtractStatusRepository;
     private EhrExtractStatus ehrExtractStatus;
 
-    @MockBean
+    @MockitoBean
     private SendAcknowledgementTaskDispatcher sendAcknowledgementTaskDispatcher;
 
-    @MockBean
+    @MockitoBean
     private StructuredRecordMappingService structuredRecordMappingService;
 
-    @MockBean
+    @MockitoBean
     private Gp2gpConfiguration gp2gpConfiguration;
 
     @Test
