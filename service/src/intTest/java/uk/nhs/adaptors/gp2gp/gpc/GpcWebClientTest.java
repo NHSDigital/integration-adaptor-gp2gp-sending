@@ -22,9 +22,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import okhttp3.mockwebserver.MockResponse;
@@ -60,9 +60,9 @@ public class GpcWebClientTest {
     private static final MockResponse STUB_NO_RESPONSE = initialiseNoResponse();
 
     private String baseUrl;
-    @SpyBean
+    @MockitoSpyBean
     private GpcConfiguration gpcConfiguration;
-    @SpyBean
+    @MockitoSpyBean
     private GpcTokenBuilder gpcTokenBuilder;
     @Autowired
     private GpcClient gpcWebClient;

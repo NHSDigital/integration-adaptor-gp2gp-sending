@@ -24,10 +24,10 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -79,9 +79,9 @@ public class AmqpServiceFailureTest {
     private JmsTemplate inboundJmsTemplate;
     @Autowired
     private ProcessDetectionService processDetectionService;
-    @SpyBean
+    @MockitoSpyBean
     private ProcessFailureHandlingService processFailureHandlingService;
-    @SpyBean
+    @MockitoSpyBean
     private SendEhrExtractCoreTaskExecutor sendEhrExtractCoreTaskExecutor;
     private String conversationId;
 
