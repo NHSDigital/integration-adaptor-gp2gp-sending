@@ -75,12 +75,6 @@ To change the patient record returned to be [Internal Server Error](stubs/__file
 curl --request PUT --data '{"state": "Internal Server Error"}' http://localhost:8110/__admin/scenarios/migrateStructuredRecord/state
 ```
 
-To change the patient record returned to be [No Documents](stubs/__files/correctPatientNoDocsStructuredRecordResponse.json):
-
-```shell
-curl --request PUT --data '{"state": "No Documents"}' http://localhost:8110/__admin/scenarios/migrateStructuredRecord/state
-```
-
 To change the patient record returned to be [PWTP3, which has many Prescriptions](stubs/__files/EMISPatientStructurede2eResponsePWTP3.json):
 
 ```shell
