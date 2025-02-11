@@ -87,6 +87,12 @@ To change the patient record returned to be [PWTP3, which has many Prescriptions
 curl --request PUT --data '{"state": "Medications"}' http://localhost:8110/__admin/scenarios/migrateStructuredRecord/state
 ```
 
+To change the patient record returned to be [PWTP6, which has many Immunisations](stubs/__files/EMISPatientStructurede2eResponsePWTP6.json):
+
+```shell
+curl --request PUT --data '{"state": "Immunisations"}' http://localhost:8110/__admin/scenarios/migrateStructuredRecord/state
+```
+
 To change the patient record returned to be [Large Patient Record](stubs/__files/correctPatientStructuredRecordLargePayload.json):
 
 ```shell
