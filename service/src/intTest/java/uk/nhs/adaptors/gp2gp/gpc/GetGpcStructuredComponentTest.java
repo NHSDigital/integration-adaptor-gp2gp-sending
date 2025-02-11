@@ -29,8 +29,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.w3c.dom.Document;
@@ -73,10 +73,10 @@ public class GetGpcStructuredComponentTest extends BaseTaskTest {
     @Autowired
     private StorageConnector storageConnector;
 
-    @SpyBean
+    @MockitoSpyBean
     private MessageContext messageContext;
 
-    @SpyBean
+    @MockitoSpyBean
     private StorageConnectorService storageConnectorService;
 
     @MockBean
