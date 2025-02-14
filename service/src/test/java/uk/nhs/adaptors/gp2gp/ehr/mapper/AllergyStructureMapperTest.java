@@ -29,6 +29,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.util.StringUtils;
 import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
@@ -248,6 +249,9 @@ public class AllergyStructureMapperTest {
         final var message = allergyStructureMapper.mapAllergyIntoleranceToAllergyStructure(allergyIntolerance);
 
         assertThat(message).contains(CONFIDENTIALITY_CODE);
+        assertThat(StringUtils.countOccurrencesOf(message, CONFIDENTIALITY_CODE))
+            .withFailMessage("<confidentialityCode /> should appear within both the CompoundStatement and ObservationStatement")
+            .isEqualTo(2);
     }
 
     @Test
