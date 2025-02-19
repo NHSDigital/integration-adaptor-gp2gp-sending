@@ -42,91 +42,8 @@ public class AllergyStructureMapperTest {
     private static final String TEST_ID = "394559384658936";
     private static final String TEST_FILE_DIRECTORY = "/ehr/mapper/allergy/";
     private static final String INPUT_JSON_BUNDLE = TEST_FILE_DIRECTORY + "fhir-bundle.json";
-    private static final String INPUT_JSON_WITH_OPTIONAL_TEXT_FIELDS = TEST_FILE_DIRECTORY + "example-allergy-intolerance-resource-1.json";
-    private static final String INPUT_JSON_WITH_NO_OPTIONAL_TEXT_FIELDS = TEST_FILE_DIRECTORY
-        + "example-allergy-intolerance-resource-2.json";
-    private static final String INPUT_JSON_WITH_PATIENT_RECORDER_AND_ASSERTER = TEST_FILE_DIRECTORY
-        + "example-allergy-intolerance-resource-3.json";
-    private static final String INPUT_JSON_WITH_RECORDER_AND_ASSERTER = TEST_FILE_DIRECTORY + "example-allergy-intolerance-resource-4.json";
-    private static final String INPUT_JSON_WITH_DATES = TEST_FILE_DIRECTORY + "example-allergy-intolerance-resource-5.json";
-    private static final String INPUT_JSON_WITH_ONSET_DATE_ONLY = TEST_FILE_DIRECTORY + "example-allergy-intolerance-resource-6.json";
-    private static final String INPUT_JSON_WITH_REASON_END_DATE_ONLY = TEST_FILE_DIRECTORY + "example-allergy-intolerance-resource-7.json";
-    private static final String INPUT_JSON_WITH_NO_DATES = TEST_FILE_DIRECTORY + "example-allergy-intolerance-resource-8.json";
-    private static final String INPUT_JSON_WITH_ENVIRONMENT_CATEGORY = TEST_FILE_DIRECTORY
-        + "example-allergy-intolerance-resource-9.json";
-    private static final String INPUT_JSON_WITH_MEDICATION_CATEGORY = TEST_FILE_DIRECTORY
-        + "example-allergy-intolerance-resource-10.json";
-    private static final String INPUT_JSON_WITH_REACTION = TEST_FILE_DIRECTORY + "example-allergy-intolerance-resource-11.json";
-    private static final String INPUT_JSON_WITH_NO_CATEGORY = TEST_FILE_DIRECTORY + "example-allergy-intolerance-resource-12.json";
-    private static final String INPUT_JSON_WITH_UNSUPPORTED_CATEGORY = TEST_FILE_DIRECTORY + "example-allergy-intolerance-resource-13.json";
-    private static final String INPUT_JSON_WITH_RELATION_TO_CONDITION_WITH_ONE_NOTE = TEST_FILE_DIRECTORY
-        + "example-allergy-intolerance-resource-14.json";
-    private static final String INPUT_JSON_WITH_RELATION_TO_CONDITION_WITH_TWO_NOTES = TEST_FILE_DIRECTORY
-        + "example-allergy-intolerance-resource-15.json";
-    private static final String INPUT_JSON_WITH_NO_RELATION_TO_CONDITION = TEST_FILE_DIRECTORY
-        + "example-allergy-intolerance-resource-16.json";
-    private static final String INPUT_JSON_WITH_DEVICE_RECORDER_AND_ASSERTER = TEST_FILE_DIRECTORY
-        + "example-allergy-intolerance-resource-17.json";
-    private static final String INPUT_JSON_WITH_RELATED_PERSON_ASSERTER = TEST_FILE_DIRECTORY
-        + "example-allergy-intolerance-resource-18.json";
-    private static final String INPUT_JSON_WITH_RELATED_PERSON_ASSERTER_NAME_TEXT = TEST_FILE_DIRECTORY
-        + "example-allergy-intolerance-resource-19.json";
-    private static final String INPUT_JSON_WITH_RELATED_PERSON_ASSERTER_NO_NAME = TEST_FILE_DIRECTORY
-        + "example-allergy-intolerance-resource-20.json";
-    private static final String INPUT_JSON_WITHOUT_END_DATE = TEST_FILE_DIRECTORY
-        + "example-allergy-intolerance-resource-without-endDate.json";
-    private static final String INPUT_JSON_WITHOUT_ASSERTED_DATE = TEST_FILE_DIRECTORY
-            + "example-allergy-intolerance-resource-without-assertedDate.json";
-    private static final String INPUT_JSON_WITH_VALID_RECORDER_NO_ASSERTER = TEST_FILE_DIRECTORY
-        + "example-allergy-intolerance-resource-21.json";
-    private static final String INPUT_JSON_WITH_INVALID_RECORDER_NO_ASSERTER = TEST_FILE_DIRECTORY
-        + "example-allergy-intolerance-resource-22.json";
-    private static final String INPUT_JSON_WITH_VALID_RECORDER_RELATED_PERSON_ASSERTER = TEST_FILE_DIRECTORY
-        + "example-allergy-intolerance-resource-23.json";
-    private static final String INPUT_JSON_WITH_VALID_RECORDER_PATIENT_ASSERTER = TEST_FILE_DIRECTORY
-        + "example-allergy-intolerance-resource-24.json";
-    private static final String INPUT_JSON_WITH_RESOLVED_CLINICAL_STATUS = TEST_FILE_DIRECTORY
-        + "example-allergy-intolerance-resource-25.json";
+    private static final String INPUT_JSON_WITH_OPTIONAL_TEXT_FIELDS = TEST_FILE_DIRECTORY + "input-with-optional-text-fields.json";
 
-
-    private static final String OUTPUT_XML_USES_OPTIONAL_TEXT_FIELDS = TEST_FILE_DIRECTORY + "expected-output-allergy-structure-1.xml";
-    private static final String OUTPUT_XML_USES_NO_OPTIONAL_TEXT_FIELDS = TEST_FILE_DIRECTORY + "expected-output-allergy-structure-2.xml";
-    private static final String OUTPUT_XML_USES_PATIENT_RECORDER_AND_ASSERTER = TEST_FILE_DIRECTORY
-        + "expected-output-allergy-structure-3.xml";
-    private static final String OUTPUT_XML_USES_DATES = TEST_FILE_DIRECTORY + "expected-output-allergy-structure-4.xml";
-    private static final String OUTPUT_XML_USES_ONSET_DATE = TEST_FILE_DIRECTORY + "expected-output-allergy-structure-5.xml";
-    private static final String OUTPUT_XML_USES_NULL_FLAVOR_DATE = TEST_FILE_DIRECTORY + "expected-output-allergy-structure-6.xml";
-    private static final String OUTPUT_XML_USES_ENVIRONMENT_CATEGORY = TEST_FILE_DIRECTORY + "expected-output-allergy-structure-7.xml";
-    private static final String OUTPUT_XML_USES_MEDICATION_CATEGORY = TEST_FILE_DIRECTORY + "expected-output-allergy-structure-8.xml";
-    private static final String OUTPUT_XML_USES_REACTION = TEST_FILE_DIRECTORY + "expected-output-allergy-structure-9.xml";
-    private static final String OUTPUT_XML_USES_RELATION_TO_CONDITION_WITH_ONE_NOTE = TEST_FILE_DIRECTORY
-        + "expected-output-allergy-structure-10.xml";
-    private static final String OUTPUT_XML_USES_RELATION_TO_CONDITION_WITH_TWO_NOTES = TEST_FILE_DIRECTORY
-        + "expected-output-allergy-structure-11.xml";
-    private static final String OUTPUT_XML_USES_NO_RELATION_TO_CONDITION = TEST_FILE_DIRECTORY + "expected-output-allergy-structure-12.xml";
-    private static final String OUTPUT_XML_USES_RECORDER_AND_ASSERTER = TEST_FILE_DIRECTORY
-        + "expected-output-allergy-structure-13.xml";
-    private static final String OUTPUT_XML_USES_DEVICE_RECORDER_AND_ASSERTER = TEST_FILE_DIRECTORY
-        + "expected-output-allergy-structure-14.xml";
-    private static final String OUTPUT_XML_USES_RELATED_PERSON_ASSERTER = TEST_FILE_DIRECTORY
-        + "expected-output-allergy-structure-15.xml";
-    private static final String OUTPUT_XML_USES_RELATED_PERSON_ASSERTER_NO_NAME = TEST_FILE_DIRECTORY
-        + "expected-output-allergy-structure-16.xml";
-    private static final String OUTPUT_XML_USES_END_DATE = TEST_FILE_DIRECTORY + "expected-output-allergy-structure-17.xml";
-    private static final String OUTPUT_XML_USES_NO_END_DATE = TEST_FILE_DIRECTORY
-        + "expected-output-allergy-structure-without-endDate.xml";
-    private static final String OUTPUT_XML_USES_NO_ASSERTED_DATE = TEST_FILE_DIRECTORY
-            + "expected-output-allergy-structure-without-assertedDate.xml";
-    private static final String OUTPUT_XML_USES_NO_AUTHOR_OR_PERFORMER = TEST_FILE_DIRECTORY
-            + "expected-output-allergy-structure-18.xml";
-    private static final String OUTPUT_XML_USES_RECORDER_AS_PERFORMER_RELATED_PERSON_ASSERTER = TEST_FILE_DIRECTORY
-            + "expected-output-allergy-structure-19.xml";
-    private static final String OUTPUT_XML_USES_RECORDER_AS_PERFORMER_PATIENT_ASSERTER = TEST_FILE_DIRECTORY
-            + "expected-output-allergy-structure-20.xml";
-    private static final String OUTPUT_XML_USES_RECORDER_AS_FALLBACK_ASSERTER = TEST_FILE_DIRECTORY
-        + "expected-output-allergy-structure-21.xml";
-    private static final String OUTPUT_XML_USES_RESOLVED_CLINICAL_STATUS = TEST_FILE_DIRECTORY
-        + "expected-output-allergy-structure-22.xml";
     private static final String COMMON_ID = "6D340A1B-BC15-4D4E-93CF-BBCB5B74DF73";
 
     public static final String CONFIDENTIALITY_CODE = "<confidentialityCode code=\"NOPAT\" "
@@ -146,38 +63,39 @@ public class AllergyStructureMapperTest {
 
     private static Stream<Arguments> resourceFileParams() {
         return Stream.of(
-            Arguments.of(INPUT_JSON_WITH_OPTIONAL_TEXT_FIELDS, OUTPUT_XML_USES_OPTIONAL_TEXT_FIELDS),
-            Arguments.of(INPUT_JSON_WITH_NO_OPTIONAL_TEXT_FIELDS, OUTPUT_XML_USES_NO_OPTIONAL_TEXT_FIELDS),
-            Arguments.of(INPUT_JSON_WITH_PATIENT_RECORDER_AND_ASSERTER, OUTPUT_XML_USES_PATIENT_RECORDER_AND_ASSERTER),
-            Arguments.of(INPUT_JSON_WITH_RECORDER_AND_ASSERTER, OUTPUT_XML_USES_RECORDER_AND_ASSERTER),
-            Arguments.of(INPUT_JSON_WITH_DATES, OUTPUT_XML_USES_DATES),
-            Arguments.of(INPUT_JSON_WITH_ONSET_DATE_ONLY, OUTPUT_XML_USES_ONSET_DATE),
-            Arguments.of(INPUT_JSON_WITH_REASON_END_DATE_ONLY, OUTPUT_XML_USES_END_DATE),
-            Arguments.of(INPUT_JSON_WITH_NO_DATES, OUTPUT_XML_USES_NULL_FLAVOR_DATE),
-            Arguments.of(INPUT_JSON_WITH_ENVIRONMENT_CATEGORY, OUTPUT_XML_USES_ENVIRONMENT_CATEGORY),
-            Arguments.of(INPUT_JSON_WITH_MEDICATION_CATEGORY, OUTPUT_XML_USES_MEDICATION_CATEGORY),
-            Arguments.of(INPUT_JSON_WITH_REACTION, OUTPUT_XML_USES_REACTION),
-            Arguments.of(INPUT_JSON_WITH_RELATION_TO_CONDITION_WITH_ONE_NOTE, OUTPUT_XML_USES_RELATION_TO_CONDITION_WITH_ONE_NOTE),
-            Arguments.of(INPUT_JSON_WITH_RELATION_TO_CONDITION_WITH_TWO_NOTES, OUTPUT_XML_USES_RELATION_TO_CONDITION_WITH_TWO_NOTES),
-            Arguments.of(INPUT_JSON_WITH_NO_RELATION_TO_CONDITION, OUTPUT_XML_USES_NO_RELATION_TO_CONDITION),
-            Arguments.of(INPUT_JSON_WITH_DEVICE_RECORDER_AND_ASSERTER, OUTPUT_XML_USES_DEVICE_RECORDER_AND_ASSERTER),
-            Arguments.of(INPUT_JSON_WITH_RELATED_PERSON_ASSERTER, OUTPUT_XML_USES_RELATED_PERSON_ASSERTER),
-            Arguments.of(INPUT_JSON_WITH_RELATED_PERSON_ASSERTER_NAME_TEXT, OUTPUT_XML_USES_RELATED_PERSON_ASSERTER),
-            Arguments.of(INPUT_JSON_WITH_RELATED_PERSON_ASSERTER_NO_NAME, OUTPUT_XML_USES_RELATED_PERSON_ASSERTER_NO_NAME),
-            Arguments.of(INPUT_JSON_WITHOUT_END_DATE, OUTPUT_XML_USES_NO_END_DATE),
-            Arguments.of(INPUT_JSON_WITHOUT_ASSERTED_DATE, OUTPUT_XML_USES_NO_ASSERTED_DATE),
-            Arguments.of(INPUT_JSON_WITH_VALID_RECORDER_NO_ASSERTER, OUTPUT_XML_USES_RECORDER_AS_FALLBACK_ASSERTER),
-            Arguments.of(INPUT_JSON_WITH_INVALID_RECORDER_NO_ASSERTER, OUTPUT_XML_USES_NO_AUTHOR_OR_PERFORMER),
-            Arguments.of(INPUT_JSON_WITH_VALID_RECORDER_RELATED_PERSON_ASSERTER,
-                    OUTPUT_XML_USES_RECORDER_AS_PERFORMER_RELATED_PERSON_ASSERTER),
-            Arguments.of(INPUT_JSON_WITH_VALID_RECORDER_PATIENT_ASSERTER, OUTPUT_XML_USES_RECORDER_AS_PERFORMER_PATIENT_ASSERTER),
-            Arguments.of(INPUT_JSON_WITH_RESOLVED_CLINICAL_STATUS, OUTPUT_XML_USES_RESOLVED_CLINICAL_STATUS)
-
+            Arguments.of("input-with-optional-text-fields.json", "expected-uses-optional-text-fields.xml"),
+            Arguments.of("input-with-no-optional-text-fields.json", "expected-uses-no-optional-text-fields.xml"),
+            Arguments.of("input-with-patient-recorder-and-asserter.json", "expected-uses-patient-recorder-and-asserter.xml"),
+            Arguments.of("input-with-recorder-and-asserter.json", "expected-uses-recorder-and-asserter.xml"),
+            Arguments.of("input-with-dates.json", "expected-uses-dates.xml"),
+            Arguments.of("input-with-onset-date-only.json", "expected-uses-onset-date.xml"),
+            Arguments.of("input-with-reason-end-date-only.json", "expected-uses-end-date.xml"),
+            Arguments.of("input-with-no-dates.json", "expected-uses-null-flavor-date.xml"),
+            Arguments.of("input-with-environment-category.json", "expected-uses-environment-category.xml"),
+            Arguments.of("input-with-medication-category.json", "expected-uses-medication-category.xml"),
+            Arguments.of("input-with-reaction.json", "expected-uses-reaction.xml"),
+            Arguments.of("input-with-relation-to-condition-with-one-note.json", "expected-uses-relation-to-condition-with-one-note.xml"),
+            Arguments.of("input-with-relation-to-condition-with-two-notes.json", "expected-uses-relation-to-condition-with-two-notes.xml"),
+            Arguments.of("input-with-no-relation-to-condition.json", "expected-uses-no-relation-to-condition.xml"),
+            Arguments.of("input-with-device-recorder-and-asserter.json", "expected-uses-device-recorder-and-asserter.xml"),
+            Arguments.of("input-with-related-person-asserter.json", "expected-uses-related-person-asserter.xml"),
+            Arguments.of("input-with-related-person-asserter-name-text.json", "expected-uses-related-person-asserter.xml"),
+            Arguments.of("input-with-related-person-asserter-no-name.json", "expected-uses-related-person-asserter-no-name.xml"),
+            Arguments.of("input-without-endDate.json", "expected-without-endDate.xml"),
+            Arguments.of("input-without-assertedDate.json", "expected-without-assertedDate.xml"),
+            Arguments.of("input-with-valid-recorder-no-asserter.json", "expected-uses-recorder-as-fallback-asserter.xml"),
+            Arguments.of("input-with-invalid-recorder-no-asserter.json", "expected-uses-no-author-or-performer.xml"),
+            Arguments.of(
+                "input-with-valid-recorder-related-person-asserter.json",
+                "expected-uses-recorder-as-performer-related-person-asserter.xml"
+            ),
+            Arguments.of("input-with-valid-recorder-patient-asserter.json", "expected-uses-recorder-as-performer-patient-asserter.xml"),
+            Arguments.of("input-with-resolved-clinical-status.json", "expected-uses-resolved-clinical-status.xml")
         );
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(TEST_ID);
 
@@ -210,22 +128,22 @@ public class AllergyStructureMapperTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         messageContext.resetMessageContext();
     }
 
     private static Stream<Arguments> resourceInvalidFileParams() {
         return Stream.of(
-            Arguments.of(INPUT_JSON_WITH_NO_CATEGORY),
-            Arguments.of(INPUT_JSON_WITH_UNSUPPORTED_CATEGORY)
+            Arguments.of("input-with-no-category.json"),
+            Arguments.of("input-with-unsupported-category.json")
         );
     }
 
     @ParameterizedTest
     @MethodSource("resourceFileParams")
-    public void When_MappingAllergyIntoleranceJson_Expect_AllergyStructureXmlOutput(String inputJson, String outputXml) {
-        final var expectedMessage = ResourceTestFileUtils.getFileContent(outputXml);
-        final var allergyIntolerance = parseAllergyIntoleranceFromJsonFile(inputJson);
+    void When_MappingAllergyIntoleranceJson_Expect_AllergyStructureXmlOutput(String inputJson, String outputXml) {
+        final var expectedMessage = ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + outputXml);
+        final var allergyIntolerance = parseAllergyIntoleranceFromJsonFile(TEST_FILE_DIRECTORY + inputJson);
 
         String message = allergyStructureMapper.mapAllergyIntoleranceToAllergyStructure(allergyIntolerance);
         assertThat(message).contains(expectedMessage);
@@ -233,15 +151,15 @@ public class AllergyStructureMapperTest {
 
     @ParameterizedTest
     @MethodSource("resourceInvalidFileParams")
-    public void When_MappingInvalidAllergyIntoleranceJson_Expect_Exception(String inputJson) {
-        final var allergyIntolerance = parseAllergyIntoleranceFromJsonFile(inputJson);
+    void When_MappingInvalidAllergyIntoleranceJson_Expect_Exception(String inputJson) {
+        final var allergyIntolerance = parseAllergyIntoleranceFromJsonFile(TEST_FILE_DIRECTORY + inputJson);
 
         assertThrows(EhrMapperException.class, ()
             -> allergyStructureMapper.mapAllergyIntoleranceToAllergyStructure(allergyIntolerance));
     }
 
     @Test
-    public void When_ConfidentialityServiceReturnsConfidentialityCode_Expect_MessageContainsConfidentialityCode() {
+    void When_ConfidentialityServiceReturnsConfidentialityCode_Expect_MessageContainsConfidentialityCode() {
         final var allergyIntolerance = parseAllergyIntoleranceFromJsonFile(INPUT_JSON_WITH_OPTIONAL_TEXT_FIELDS);
         when(confidentialityService.generateConfidentialityCode(allergyIntolerance))
             .thenReturn(Optional.of(CONFIDENTIALITY_CODE));
@@ -255,7 +173,7 @@ public class AllergyStructureMapperTest {
     }
 
     @Test
-    public void When_ConfidentialityServiceReturnsEmptyOptional_Expect_MessageDoesNotContainConfidentialityCode() {
+    void When_ConfidentialityServiceReturnsEmptyOptional_Expect_MessageDoesNotContainConfidentialityCode() {
         final var allergyIntolerance = parseAllergyIntoleranceFromJsonFile(INPUT_JSON_WITH_OPTIONAL_TEXT_FIELDS);
 
         final var message = allergyStructureMapper.mapAllergyIntoleranceToAllergyStructure(allergyIntolerance);
