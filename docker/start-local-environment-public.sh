@@ -13,5 +13,5 @@ fi
 docker-compose down --rmi=local --remove-orphans
 docker-compose rm
 docker-compose build
-docker-compose up gp2gp mock-mhs-adaptor mongodb activemq gpcc tkw gpconnect-api gpconnect-db
+docker-compose up gp2gp mock-mhs-adaptor mongodb activemq gpcc
 docker network rm commonforgp2gp
