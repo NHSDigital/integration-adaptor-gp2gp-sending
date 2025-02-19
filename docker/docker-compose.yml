@@ -94,7 +94,7 @@ services:
       - -global-response-templating
 
   gpcc:
-    image: nhsdev/nia-gpc-consumer-adaptor:1.0.0
+    image: nhsdev/nia-gpc-consumer-adaptor:1.1.0
     networks: 
       - commonforgp2gp
     ports:
