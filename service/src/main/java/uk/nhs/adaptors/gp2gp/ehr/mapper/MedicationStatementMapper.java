@@ -71,6 +71,7 @@ public class MedicationStatementMapper {
     private static final List<String> REPEAT_PRESCRIPTION_TYPE_CODES =
         Arrays.asList("delayed-prescribing", "repeat", "repeat-dispensing");
     private static final String ACUTE_REPEAT_VALUE = "0";
+    private static final String INVALID_PRESCRIPTION_TYPE_MESSAGE = "Could not resolve Prescription Type of `%s` in %s";
 
     private final MessageContext messageContext;
     private final CodeableConceptCdMapper codeableConceptCdMapper;
@@ -254,7 +255,7 @@ public class MedicationStatementMapper {
             } else if (prescriptionTypeCode.isBlank() && prescriptionTypeTextIsNoInfoAvailable(medicationRequest)) {
                 return extractRepeatValue(medicationRequest);
             }
-            throw new EhrMapperException("Could not resolve Prescription Type for Repeat value");
+            throw new EhrMapperException(INVALID_PRESCRIPTION_TYPE_MESSAGE.formatted(prescriptionTypeCode, medicationRequest.getId()));
         }
         return StringUtils.EMPTY;
     }
