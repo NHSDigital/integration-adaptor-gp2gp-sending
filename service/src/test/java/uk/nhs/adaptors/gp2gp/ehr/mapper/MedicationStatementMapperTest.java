@@ -373,6 +373,19 @@ public class MedicationStatementMapperTest {
             .doesNotContain(CONFIDENTIALITY_CODE);
     }
 
+    @Test
+    void When_MedicationRequestPlanHasInvalidPrescriptionType_Expect_EhrMapperExceptionThrown() {
+        final var jsonInput = ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + "mr-plan-with-invalid-prescription-type.json");
+        final var parsedMedicationRequest = new FhirParseService()
+            .parseResource(jsonInput, MedicationRequest.class);
+
+        var exception = assertThrows(
+            EhrMapperException.class,
+            () -> medicationStatementMapper.mapMedicationRequestToMedicationStatement(parsedMedicationRequest));
+
+        assertThat(exception.getMessage()).isEqualTo("Could not resolve Prescription Type of `invalid-type` in MedicationRequest/789");
+    }
+
     private void assertXmlIsEqual(String outputString, String expected) {
 
         Diff diff = DiffBuilder.compare(outputString).withTest(expected)
