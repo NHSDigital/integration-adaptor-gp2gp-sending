@@ -1,0 +1,51 @@
+{
+    "resourceType": "MedicationRequest",
+    "id": "789",
+    "meta": {
+        "profile": [
+            "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1"
+        ]
+    },
+    "extension": [
+        {
+            "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-PrescriptionType-1",
+            "valueCodeableConcept": {
+                "text": "Some medical information"
+            }
+        }
+    ],
+    "status": "completed",
+    "intent": "plan",
+    "medicationReference": {
+        "reference": "Medication/20"
+    },
+    "authoredOn": "2022-10-04",
+    "recorder": {
+        "reference": "Practitioner/1332aa9c-28d6-11eb-adc1-0242ac120002"
+    },
+    "requester": {
+        "agent": {
+            "reference": "Organization/F85003"
+        }
+    },
+    "dosageInstruction": [
+        {
+            "text": "One puff as needed. Max 10 doses per day"
+        }
+    ],
+    "dispenseRequest": {
+        "validityPeriod": {
+            "start": "2022-10-04",
+            "end": "2022-11-01"
+        },
+        "quantity": {
+            "value": 1,
+            "unit": "dose"
+        },
+        "expectedSupplyDuration": {
+            "value": 28,
+            "system": "http://unitsofmeasure.org",
+            "code": "d"
+        }
+    }
+}

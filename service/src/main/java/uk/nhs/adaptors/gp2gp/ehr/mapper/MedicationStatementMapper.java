@@ -4,13 +4,12 @@ import static uk.nhs.adaptors.gp2gp.ehr.mapper.MedicationStatementExtractor.extr
 import static uk.nhs.adaptors.gp2gp.ehr.mapper.MedicationStatementExtractor.extractDispenseRequestQuantityTextFromQuantity;
 import static uk.nhs.adaptors.gp2gp.ehr.mapper.MedicationStatementExtractor.extractEhrSupplyTypeCodeableConcept;
 import static uk.nhs.adaptors.gp2gp.ehr.mapper.MedicationStatementExtractor.extractIdFromPlanMedicationRequestReference;
-import static uk.nhs.adaptors.gp2gp.ehr.mapper.MedicationStatementExtractor.extractPrescriptionTypeCode;
 import static uk.nhs.adaptors.gp2gp.ehr.mapper.MedicationStatementExtractor.extractRepeatValue;
 import static uk.nhs.adaptors.gp2gp.ehr.mapper.MedicationStatementExtractor.extractStatusReasonStoppedAvailabilityTime;
 import static uk.nhs.adaptors.gp2gp.ehr.mapper.MedicationStatementExtractor.extractStatusReasonStoppedCode;
 import static uk.nhs.adaptors.gp2gp.ehr.mapper.MedicationStatementExtractor.extractStatusReasonStoppedText;
 import static uk.nhs.adaptors.gp2gp.ehr.mapper.MedicationStatementExtractor.hasStatusReasonStopped;
-import static uk.nhs.adaptors.gp2gp.ehr.mapper.MedicationStatementExtractor.prescriptionTypeTextIsNoInfoAvailable;
+import static uk.nhs.adaptors.gp2gp.ehr.utils.ExtensionMappingUtils.filterExtensionByUrl;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +21,9 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.dstu3.model.Annotation;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Coding;
+import org.hl7.fhir.dstu3.model.Extension;
 import org.hl7.fhir.dstu3.model.Medication;
 import org.hl7.fhir.dstu3.model.MedicationRequest;
 import org.hl7.fhir.dstu3.model.Reference;
@@ -72,6 +74,10 @@ public class MedicationStatementMapper {
         Arrays.asList("delayed-prescribing", "repeat", "repeat-dispensing");
     private static final String ACUTE_REPEAT_VALUE = "0";
     private static final String INVALID_PRESCRIPTION_TYPE_MESSAGE = "Could not resolve Prescription Type of `%s` in %s";
+    private static final String PRESCRIPTION_TYPE_UNRECOGNISED = "Could not resolve Prescription Type with text of `%s` in %s";
+    private static final String NO_INFO_AVAILABLE = "No information available";
+    private static final String PRESCRIPTION_TYPE_URL =
+        "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-PrescriptionType-1";
 
     private final MessageContext messageContext;
     private final CodeableConceptCdMapper codeableConceptCdMapper;
@@ -246,18 +252,43 @@ public class MedicationStatementMapper {
 
     private String buildRepeatNumber(MedicationRequest medicationRequest) {
         if (MedicationRequestIntent.PLAN.getDisplay().equals(medicationRequest.getIntent().getDisplay())) {
-            var prescriptionTypeCode = extractPrescriptionTypeCode(medicationRequest);
+            Optional<CodeableConcept> prescriptionType = filterExtensionByUrl(medicationRequest, PRESCRIPTION_TYPE_URL)
+                .map(Extension::getValue)
+                .map(CodeableConcept.class::cast);
 
-            if (ACUTE_PRESCRIPTION_TYPE_CODES.contains(prescriptionTypeCode)) {
-                return ACUTE_REPEAT_VALUE;
-            } else if (REPEAT_PRESCRIPTION_TYPE_CODES.contains(prescriptionTypeCode)) {
-                return extractRepeatValue(medicationRequest);
-            } else if (prescriptionTypeCode.isBlank() && prescriptionTypeTextIsNoInfoAvailable(medicationRequest)) {
-                return extractRepeatValue(medicationRequest);
-            }
-            throw new EhrMapperException(INVALID_PRESCRIPTION_TYPE_MESSAGE.formatted(prescriptionTypeCode, medicationRequest.getId()));
+            var prescriptionTypeCode = prescriptionType
+                .map(CodeableConcept::getCodingFirstRep)
+                .map(Coding::getCode);
+
+            return prescriptionTypeCode.isEmpty()
+                ? buildRepeatNumberFromPrescriptionTypeText(medicationRequest, prescriptionType)
+                : buildRepeatNumberFromPrescriptionTypeCode(medicationRequest, prescriptionTypeCode.get());
         }
         return StringUtils.EMPTY;
+    }
+
+    private static String buildRepeatNumberFromPrescriptionTypeCode(MedicationRequest medicationRequest, String prescriptionTypeCode) {
+        if (ACUTE_PRESCRIPTION_TYPE_CODES.contains(prescriptionTypeCode)) {
+            return ACUTE_REPEAT_VALUE;
+        } else if (REPEAT_PRESCRIPTION_TYPE_CODES.contains(prescriptionTypeCode)) {
+            return extractRepeatValue(medicationRequest);
+        }
+        throw new EhrMapperException(INVALID_PRESCRIPTION_TYPE_MESSAGE.formatted(prescriptionTypeCode, medicationRequest.getId()));
+    }
+
+    private static String buildRepeatNumberFromPrescriptionTypeText(
+        MedicationRequest medicationRequest,
+        Optional<CodeableConcept> prescriptionType
+    ) {
+        var prescriptionTypeText =  prescriptionType
+            .map(CodeableConcept::getText)
+            .orElse(StringUtils.EMPTY);
+
+        if (NO_INFO_AVAILABLE.equals(prescriptionTypeText)) {
+            return extractRepeatValue(medicationRequest);
+        } else {
+            throw new EhrMapperException(PRESCRIPTION_TYPE_UNRECOGNISED.formatted(prescriptionTypeText, medicationRequest.getId()));
+        }
     }
 
     private String buildBasedOn(MedicationRequest medicationRequest) {
