@@ -9,7 +9,6 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.dstu3.model.BaseExtension;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
-import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.DateTimeType;
 import org.hl7.fhir.dstu3.model.Extension;
 import org.hl7.fhir.dstu3.model.MedicationRequest;
@@ -34,7 +33,6 @@ public class MedicationStatementExtractor {
         TemplateUtils.loadTemplate("in_fulfilment_of_template.mustache");
 
     private static final String MEDICATION_QUANTITY_TEXT_URL = "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-MedicationQuantityText-1";
-    private static final String PRESCRIPTION_TYPE_URL = "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-PrescriptionType-1";
     private static final String REPEAT_INFORMATION_URL = "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-MedicationRepeatInformation-1";
     private static final String NUM_OF_REPEAT_PRESCRIPTIONS_ALLOWED_URL = "numberOfRepeatPrescriptionsAllowed";
     private static final String DEFAULT_REPEAT_VALUE = "1";
@@ -43,7 +41,7 @@ public class MedicationStatementExtractor {
     private static final String STATUS_CHANGE_URL = "statusChangeDate";
     private static final String AVAILABILITY_TIME_VALUE_TEMPLATE = "<availabilityTime value=\"%s\"/>";
     private static final String DEFAULT_QUANTITY_TEXT = "Unk UoM";
-    private static final String NO_INFO_AVAILABLE = "No information available";
+
     private static final String PRESCRIBING_AGENCY_EXTENSION_URL = "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-PrescribingAgency-1";
 
     public static String extractDispenseRequestQuantityText(MedicationRequest medicationRequest) {
@@ -66,25 +64,6 @@ public class MedicationStatementExtractor {
             .map(Extension::getValue)
             .map(Objects::toString)
             .orElse(DEFAULT_QUANTITY_TEXT);
-    }
-
-    public static String extractPrescriptionTypeCode(MedicationRequest medicationRequest) {
-        return filterExtensionByUrl(medicationRequest, PRESCRIPTION_TYPE_URL)
-            .map(Extension::getValue)
-            .map(CodeableConcept.class::cast)
-            .map(CodeableConcept::getCodingFirstRep)
-            .map(Coding::getCode)
-            .orElse(StringUtils.EMPTY);
-    }
-
-    public static boolean prescriptionTypeTextIsNoInfoAvailable(MedicationRequest medicationRequest) {
-        var prescriptionTypeText =  filterExtensionByUrl(medicationRequest, PRESCRIPTION_TYPE_URL)
-            .map(Extension::getValue)
-            .map(CodeableConcept.class::cast)
-            .map(CodeableConcept::getText)
-            .orElse(StringUtils.EMPTY);
-
-        return NO_INFO_AVAILABLE.equals(prescriptionTypeText);
     }
 
     public static String extractRepeatValue(MedicationRequest medicationRequest) {
