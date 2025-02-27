@@ -50,38 +50,29 @@ public class CodeableConceptCdMapper {
     private static final String OTHER_CATEGORY_DESCRIPTION = "Other category";
 
     public String mapCodeableConceptToCd(CodeableConcept codeableConcept) {
+        Optional<Coding> snomedCodeCoding = getSnomedCodeCoding(codeableConcept);
+
+        if (snomedCodeCoding.isEmpty()) {
+            return buildNullFlavourCodeableConceptCd(codeableConcept, snomedCodeCoding);
+        }
+
         var builder = CodeableConceptCdTemplateParameters.builder();
-        var mainCode = findMainCode(codeableConcept);
 
-        builder.nullFlavor(mainCode.isEmpty());
+        var descriptionExtensions = retrieveDescriptionExtension(snomedCodeCoding.get())
+            .map(Extension::getExtension);
 
-        if (mainCode.isPresent()) {
-            var extension = retrieveDescriptionExtension(mainCode.get())
-                .map(Extension::getExtension)
-                .orElse(Collections.emptyList());
+        builder.mainCodeSystem(SNOMED_SYSTEM_CODE);
 
-            builder.mainCodeSystem(SNOMED_SYSTEM_CODE);
+        if (descriptionExtensions.isPresent()) {
+            var mainCode = getMainCode(descriptionExtensions.get(), snomedCodeCoding.get());
+            mainCode.ifPresent(builder::mainCode);
 
-            Optional<String> code = extension.stream()
-                .filter(descriptionExt -> DESCRIPTION_ID.equals(descriptionExt.getUrl()))
-                .map(description -> description.getValue().toString())
-                .findFirst()
-                .or(() -> Optional.ofNullable(mainCode.get().getCode()));
-            code.ifPresent(builder::mainCode);
-
-            Optional<String> displayName = extension.stream()
-                .filter(displayExtension -> DESCRIPTION_DISPLAY.equals(displayExtension.getUrl()))
-                .map(description -> description.getValue().toString())
-                .findFirst()
-                .or(() -> Optional.ofNullable(mainCode.get().getDisplay()));
-            displayName.ifPresent(builder::mainDisplayName);
+            var mainDisplayName = getMainDisplayName(descriptionExtensions.get(), snomedCodeCoding.get());
+            mainDisplayName.ifPresent(builder::mainDisplayName);
 
             if (codeableConcept.hasText()) {
                 builder.mainOriginalText(codeableConcept.getText());
             }
-        } else {
-            var originalText = findOriginalText(codeableConcept, mainCode);
-            originalText.ifPresent(builder::mainOriginalText);
         }
 
         return TemplateUtils.fillTemplate(CODEABLE_CONCEPT_CD_TEMPLATE, builder.build());
@@ -92,7 +83,7 @@ public class CodeableConceptCdMapper {
     // we have agreed to use the Concept ID rather than Description Id for medications which will avoided the degradation.
     public String mapCodeableConceptForMedication(CodeableConcept codeableConcept) {
         var builder = CodeableConceptCdTemplateParameters.builder();
-        var mainCode = findMainCode(codeableConcept);
+        var mainCode = getSnomedCodeCoding(codeableConcept);
 
         builder.nullFlavor(mainCode.isEmpty());
 
@@ -127,7 +118,7 @@ public class CodeableConceptCdMapper {
     public String mapCodeableConceptToCdForAllergy(CodeableConcept codeableConcept, AllergyIntolerance.AllergyIntoleranceClinicalStatus
         allergyIntoleranceClinicalStatus) {
         var builder = CodeableConceptCdTemplateParameters.builder();
-        var mainCode = findMainCode(codeableConcept);
+        var mainCode = getSnomedCodeCoding(codeableConcept);
 
         builder.nullFlavor(mainCode.isEmpty());
 
@@ -177,7 +168,7 @@ public class CodeableConceptCdMapper {
 
     public String mapCodeableConceptToCdForBloodPressure(CodeableConcept codeableConcept) {
         var builder = CodeableConceptCdTemplateParameters.builder();
-        var mainCode = findMainCode(codeableConcept);
+        var mainCode = getSnomedCodeCoding(codeableConcept);
 
         builder.nullFlavor(mainCode.isEmpty());
         var originalText = findOriginalText(codeableConcept, mainCode);
@@ -238,7 +229,7 @@ public class CodeableConceptCdMapper {
     }
 
     public String mapToCdForTopic(CodeableConcept relatedProblem, String title) {
-        var mainCode = findMainCode(relatedProblem);
+        var mainCode = getSnomedCodeCoding(relatedProblem);
 
         if (mainCode.isEmpty()) {
             return mapToCdForTopic(title);
@@ -251,7 +242,7 @@ public class CodeableConceptCdMapper {
     }
 
     public String mapToCdForTopic(CodeableConcept relatedProblem) {
-        var mainCode = findMainCode(relatedProblem);
+        var mainCode = getSnomedCodeCoding(relatedProblem);
 
         if (mainCode.isEmpty()) {
             return getCdForTopic();
@@ -331,7 +322,7 @@ public class CodeableConceptCdMapper {
             .findFirst();
     }
 
-    private Optional<Coding> findMainCode(CodeableConcept codeableConcept) {
+    private Optional<Coding> getSnomedCodeCoding(CodeableConcept codeableConcept) {
         return codeableConcept.getCoding()
             .stream()
             .filter(this::isSnomed)
@@ -358,9 +349,11 @@ public class CodeableConceptCdMapper {
         }
     }
 
-    private Optional<String> findOriginalTextForAllergy(CodeableConcept codeableConcept, Optional<Coding> coding,
-        AllergyIntolerance.AllergyIntoleranceClinicalStatus allergyIntoleranceClinicalStatus) {
-
+    private Optional<String> findOriginalTextForAllergy(
+        CodeableConcept codeableConcept,
+        Optional<Coding> coding,
+        AllergyIntolerance.AllergyIntoleranceClinicalStatus allergyIntoleranceClinicalStatus
+    ) {
         if (!allergyIntoleranceClinicalStatus.toCode().isEmpty()) {
             if (RESOLVED_CLINICAL_STATUS.equals(allergyIntoleranceClinicalStatus.toCode())) {
                 if (coding.isPresent()) {
@@ -428,7 +421,7 @@ public class CodeableConceptCdMapper {
     }
 
     public String getDisplayFromCodeableConcept(CodeableConcept codeableConcept) {
-        return findMainCode(codeableConcept)
+        return getSnomedCodeCoding(codeableConcept)
             .map(cc -> findDisplayText(cc).orElse(StringUtils.EMPTY))
             .orElse(StringUtils.EMPTY);
     }
@@ -436,21 +429,58 @@ public class CodeableConceptCdMapper {
     public String mapToNullFlavorCodeableConcept(CodeableConcept codeableConcept) {
 
         var builder = CodeableConceptCdTemplateParameters.builder().nullFlavor(true);
-        var mainCode = findMainCode(codeableConcept);
+        var mainCode = getSnomedCodeCoding(codeableConcept);
 
         var originalText = findOriginalText(codeableConcept, mainCode);
         originalText.ifPresent(builder::mainOriginalText);
         return TemplateUtils.fillTemplate(CODEABLE_CONCEPT_CD_TEMPLATE, builder.build());
     }
 
-    public String mapToNullFlavorCodeableConceptForAllergy(CodeableConcept codeableConcept,
-        AllergyIntolerance.AllergyIntoleranceClinicalStatus allergyIntoleranceClinicalStatus) {
-
+    public String mapToNullFlavorCodeableConceptForAllergy(
+        CodeableConcept codeableConcept,
+        AllergyIntolerance.AllergyIntoleranceClinicalStatus allergyIntoleranceClinicalStatus
+    ) {
         var builder = CodeableConceptCdTemplateParameters.builder().nullFlavor(true);
-        var mainCode = findMainCode(codeableConcept);
+        var mainCode = getSnomedCodeCoding(codeableConcept);
 
         var originalText = findOriginalTextForAllergy(codeableConcept, mainCode, allergyIntoleranceClinicalStatus);
         originalText.ifPresent(builder::mainOriginalText);
         return TemplateUtils.fillTemplate(CODEABLE_CONCEPT_CD_TEMPLATE, builder.build());
     }
+
+    private String buildNullFlavourCodeableConceptCd(CodeableConcept codeableConcept, Optional<Coding> snomedCode) {
+        var builder = CodeableConceptCdTemplateParameters.builder();
+        builder.nullFlavor(true);
+        var originalText = findOriginalText(codeableConcept, snomedCode);
+        originalText.ifPresent(builder::mainOriginalText);
+
+        return TemplateUtils.fillTemplate(CODEABLE_CONCEPT_CD_TEMPLATE, builder.build());
+    }
+
+    private Optional<String> getMainCode(List<Extension> descriptionExtensions, Coding snomedCodeCoding) {
+        var descriptionCode = descriptionExtensions.stream()
+            .filter(descriptionExt -> DESCRIPTION_ID.equals(descriptionExt.getUrl()))
+            .map(description -> description.getValue().toString())
+            .findFirst();
+
+        if (descriptionCode.isPresent()) {
+            return descriptionCode;
+        }
+
+        return Optional.ofNullable(snomedCodeCoding.getCode());
+    }
+
+    private Optional<String> getMainDisplayName(List<Extension> descriptionExtensions, Coding snomedCodeCoding) {
+        var descriptionDisplayName = descriptionExtensions.stream()
+            .filter(descriptionExt -> DESCRIPTION_DISPLAY.equals(descriptionExt.getUrl()))
+            .map(description -> description.getValue().toString())
+            .findFirst();
+
+        if (descriptionDisplayName.isPresent()) {
+            return descriptionDisplayName;
+        }
+
+        return Optional.ofNullable(snomedCodeCoding.getDisplay());
+    }
+
 }
