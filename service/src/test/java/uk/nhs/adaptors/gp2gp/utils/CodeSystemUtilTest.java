@@ -31,8 +31,8 @@ public class CodeSystemUtilTest {
 
     @Test
     void When_FhirCodeSystemIsUnknown_Expect_FhirCodeSystemIsProvided() {
-        var hl7Code = CodeSystemsUtil.getHl7code("1.2.3.4.5.6");
+        var hl7Code = CodeSystemsUtil.getHl7code("https://unknown.code/system");
 
-        assertThat(hl7Code).isEqualTo("1.2.3.4.5.6");
+        assertThat(hl7Code).isEqualTo("https://unknown.code/system");
     }
 }
