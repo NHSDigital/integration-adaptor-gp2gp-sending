@@ -2,7 +2,8 @@
     <CompoundStatement classCode="CLUSTER" moodCode="EVN">
         <id root="Mapped-From-Observation/6E30A9E3-FF9A-4868-8FCD-7DAC26A16E78"/>
         <code code="2551971000000110" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Serum oestradiol level">
-</code>
+            <translation code="4465.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="Serum oestradiol level" />
+        </code>
         <statusCode code="COMPLETE"/>
         <effectiveTime>
             <center value="20100223"/>
@@ -12,7 +13,8 @@
     <ObservationStatement classCode="OBS" moodCode="EVN">
         <id root="random-unmapped-id"/>
         <code code="2551971000000110" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Serum oestradiol level">
-</code>
+            <translation code="4465.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="Serum oestradiol level" />
+        </code>
         <statusCode code="COMPLETE"/>
         <effectiveTime>
             <center value="20100223"/>

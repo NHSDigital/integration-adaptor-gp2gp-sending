@@ -2,7 +2,8 @@
     <ObservationStatement classCode="OBS" moodCode="EVN">
         <id root="Mapped-From-Observation/F8545C74-96E1-4B87-9E23-D8B383E97744"/>
         <code code="2558201000000119" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Serum iron level">
-</code>
+            <translation code="42R7.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="Serum iron level" />
+        </code>
         <statusCode code="COMPLETE"/>
         <effectiveTime>
             <center value="20030616"/>
