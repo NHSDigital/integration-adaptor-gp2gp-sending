@@ -50,7 +50,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-logging'
 
 	// Infrastructure
-	implementation 'software.amazon.awssdk:s3:2.30.26'
+	implementation 'software.amazon.awssdk:s3:2.30.31'
 	implementation ('com.azure:azure-storage-blob:12.29.0')
 	implementation 'org.apache.qpid:qpid-jms-client:2.6.1'
 
