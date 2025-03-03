@@ -17,6 +17,7 @@ import com.github.mustachejava.Mustache;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.CodeableConceptCdTemplateParameters;
+import uk.nhs.adaptors.gp2gp.ehr.utils.CodeSystemsUtil;
 import uk.nhs.adaptors.gp2gp.ehr.utils.CodeableConceptMappingUtils;
 import uk.nhs.adaptors.gp2gp.ehr.utils.TemplateUtils;
 
@@ -63,17 +64,14 @@ public class CodeableConceptCdMapper {
 
         builder.mainCodeSystem(SNOMED_SYSTEM_CODE);
 
-        if (descriptionExtensions.isPresent()) {
-            var mainCode = getMainCode(descriptionExtensions.get(), snomedCodeCoding.get());
-            mainCode.ifPresent(builder::mainCode);
+        var mainCode = getMainCode(descriptionExtensions, snomedCodeCoding.get());
+        mainCode.ifPresent(builder::mainCode);
 
-            var mainDisplayName = getMainDisplayName(descriptionExtensions.get(), snomedCodeCoding.get());
-            mainDisplayName.ifPresent(builder::mainDisplayName);
+        var mainDisplayName = getMainDisplayName(descriptionExtensions, snomedCodeCoding.get());
+        mainDisplayName.ifPresent(builder::mainDisplayName);
 
-            if (codeableConcept.hasText()) {
-                builder.mainOriginalText(codeableConcept.getText());
-            }
-        }
+        builder.mainOriginalText(codeableConcept.getText());
+        builder.translations(getNonSnomedCodeCodings(codeableConcept));
 
         return TemplateUtils.fillTemplate(CODEABLE_CONCEPT_CD_TEMPLATE, builder.build());
     }
@@ -329,6 +327,20 @@ public class CodeableConceptCdMapper {
             .findFirst();
     }
 
+    private List<Coding> getNonSnomedCodeCodings(CodeableConcept codeableConcept) {
+        var nonSnomedCodeCodings = codeableConcept.getCoding()
+            .stream()
+            .filter(coding -> !isSnomed(coding))
+            .toList();
+
+        for (Coding coding : nonSnomedCodeCodings) {
+            var hl7CodeSystem = CodeSystemsUtil.getHl7code(coding.getSystem());
+            coding.setSystem(hl7CodeSystem);
+        }
+
+        return nonSnomedCodeCodings;
+    }
+
     private Optional<String> findOriginalText(CodeableConcept codeableConcept, Optional<Coding> coding) {
         if (coding.isPresent()) {
             if (codeableConcept.hasText()) {
@@ -457,30 +469,33 @@ public class CodeableConceptCdMapper {
         return TemplateUtils.fillTemplate(CODEABLE_CONCEPT_CD_TEMPLATE, builder.build());
     }
 
-    private Optional<String> getMainCode(List<Extension> descriptionExtensions, Coding snomedCodeCoding) {
-        var descriptionCode = descriptionExtensions.stream()
-            .filter(descriptionExt -> DESCRIPTION_ID.equals(descriptionExt.getUrl()))
-            .map(description -> description.getValue().toString())
-            .findFirst();
+    private Optional<String> getMainCode(Optional<List<Extension>> descriptionExtensions, Coding snomedCodeCoding) {
+        if (descriptionExtensions.isPresent()) {
+            var descriptionCode = descriptionExtensions.get().stream()
+                .filter(descriptionExt -> DESCRIPTION_ID.equals(descriptionExt.getUrl()))
+                .map(description -> description.getValue().toString())
+                .findFirst();
 
-        if (descriptionCode.isPresent()) {
-            return descriptionCode;
+            if (descriptionCode.isPresent()) {
+                return descriptionCode;
+            }
         }
 
         return Optional.ofNullable(snomedCodeCoding.getCode());
     }
 
-    private Optional<String> getMainDisplayName(List<Extension> descriptionExtensions, Coding snomedCodeCoding) {
-        var descriptionDisplayName = descriptionExtensions.stream()
-            .filter(descriptionExt -> DESCRIPTION_DISPLAY.equals(descriptionExt.getUrl()))
-            .map(description -> description.getValue().toString())
-            .findFirst();
+    private Optional<String> getMainDisplayName(Optional<List<Extension>> descriptionExtensions, Coding snomedCodeCoding) {
+        if (descriptionExtensions.isPresent()) {
+            var descriptionDisplayName = descriptionExtensions.get().stream()
+                .filter(descriptionExt -> DESCRIPTION_DISPLAY.equals(descriptionExt.getUrl()))
+                .map(description -> description.getValue().toString())
+                .findFirst();
 
-        if (descriptionDisplayName.isPresent()) {
-            return descriptionDisplayName;
+            if (descriptionDisplayName.isPresent()) {
+                return descriptionDisplayName;
+            }
         }
 
         return Optional.ofNullable(snomedCodeCoding.getDisplay());
     }
-
 }

@@ -2,12 +2,7 @@
     "resourceType" : "Observation",
     "code": {
         "coding": [
-            {
-              "system": "http://blah.info/blahsomecodesystem",
-              "code": "F%^^%",
-              "display": "Happy puppet syndrome",
-              "userSelected": true
-            }, {
+             {
 	                "extension": [
 	                    {
 	                        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",

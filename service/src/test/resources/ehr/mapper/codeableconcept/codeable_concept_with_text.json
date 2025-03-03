@@ -3,12 +3,6 @@
     "code": {
         "coding": [
             {
-                "system": "http://blah.info/blahsomecodesystem",
-                "code": "X%^^%",
-                "display": "Display for invalid code/system",
-                "userSelected": true
-            },
-            {
                 "extension": [
                     {
                         "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
