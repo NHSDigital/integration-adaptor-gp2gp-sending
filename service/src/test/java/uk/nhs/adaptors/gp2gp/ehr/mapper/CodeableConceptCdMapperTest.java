@@ -85,6 +85,43 @@ public class CodeableConceptCdMapperTest {
             .isEqualToIgnoringWhitespace(expectedOutput);
     }
 
+    @Test
+    void When_MappingCodeableConceptWithNonSnomedCodeSystems_Expect_ManifestedXmlContainsTranslationsForThoseCodes() {
+        var inputJson = """
+            {
+                "resourceType" : "Observation",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "123456",
+                            "display": "Endometriosis of uterus"
+                        },
+                        {
+                            "system": "http://read.info/readv2",
+                            "code": "READ0",
+                            "display": "Read V2 Code Display"
+                        },
+                        {
+                            "system": "http://read.info/ctv3",
+                            "code": "READ1",
+                            "display": "Read CTV3 Code Display"
+                        }
+                   ]
+                }
+            }""";
+        var expectedOutputXml = """
+            <code code="123456" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Endometriosis of uterus">
+                <translation code="READ0" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="Read V2 Code Display" />
+                <translation code="READ1" codeSystem="2.16.840.1.113883.2.1.3.2.4.14" displayName="Read CTV3 Code Display" />
+            </code>""";
+        var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
+
+        var outputMessageXml = codeableConceptCdMapper.mapCodeableConceptToCd(codeableConcept);
+
+        assertThat(outputMessageXml).isEqualToIgnoringWhitespace(expectedOutputXml);
+    }
+
     @ParameterizedTest
     @MethodSource("getTestArgumentsActualProblem")
     public void When_MappingStubbedCodeableConceptForActualProblemHeader_Expect_HL7CdObjectXml(String inputJson, String outputXml)

@@ -1,4 +1,7 @@
 <code{{#nullFlavor}} nullFlavor="UNK"{{/nullFlavor}}{{^nullFlavor}} code="{{mainCode}}" codeSystem="{{mainCodeSystem}}" displayName="{{mainDisplayName}}"{{/nullFlavor}}>
+    {{#translations}}
+    <translation code="{{code}}" codeSystem="{{system}}" displayName="{{display}}" />
+    {{/translations}}
     {{#mainOriginalText}}
     <originalText>{{mainOriginalText}}</originalText>
     {{/mainOriginalText}}
