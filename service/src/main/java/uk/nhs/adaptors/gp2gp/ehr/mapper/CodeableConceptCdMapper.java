@@ -70,9 +70,8 @@ public class CodeableConceptCdMapper {
         var mainDisplayName = getMainDisplayName(descriptionExtensions, snomedCodeCoding.get());
         mainDisplayName.ifPresent(builder::mainDisplayName);
 
-        if (codeableConcept.hasText()) {
-            builder.mainOriginalText(codeableConcept.getText());
-        }
+        builder.mainOriginalText(codeableConcept.getText());
+
 
         addNonSnomedCodeTranslationsToTemplateParametersBuilder(codeableConcept, builder);
         return TemplateUtils.fillTemplate(CODEABLE_CONCEPT_CD_TEMPLATE, builder.build());
@@ -506,8 +505,7 @@ public class CodeableConceptCdMapper {
         CodeableConceptCdTemplateParameters.CodeableConceptCdTemplateParametersBuilder builder
     ) {
         var nonSnomedCodeCodings = getNonSnomedCodeCodings(codeableConcept);
-        if (!nonSnomedCodeCodings.isEmpty()) {
-            builder.translations(nonSnomedCodeCodings);
-        }
+
+        builder.translations(nonSnomedCodeCodings);
     }
 }
