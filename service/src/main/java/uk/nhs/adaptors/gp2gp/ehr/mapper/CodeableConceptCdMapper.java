@@ -103,9 +103,7 @@ public class CodeableConceptCdMapper {
             .or(() -> Optional.ofNullable(snomedCodeCoding.get().getDisplay()));
         displayName.ifPresent(builder::mainDisplayName);
 
-        if (codeableConcept.hasText()) {
-            builder.mainOriginalText(codeableConcept.getText());
-        }
+        builder.mainOriginalText(codeableConcept.getText());
 
         builder.translations(getNonSnomedCodeCodings(codeableConcept));
         return TemplateUtils.fillTemplate(CODEABLE_CONCEPT_CD_TEMPLATE, builder.build());
