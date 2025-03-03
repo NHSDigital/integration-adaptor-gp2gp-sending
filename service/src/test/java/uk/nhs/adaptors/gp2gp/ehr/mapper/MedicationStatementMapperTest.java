@@ -131,7 +131,9 @@ public class MedicationStatementMapperTest {
             Arguments.of("mr-with-extension-status-reason-with-text.json", "medication-statement-with-status-reason-text.xml"),
             Arguments.of("mr-with-no-recorder-reference.json", "medication-statement-with-no-participant.xml"),
             Arguments.of("mr-with-invalid-recorder-resource-type.json", "medication-statement-with-no-participant.xml"),
-            Arguments.of("medication-request-special-character-in-code.json", "medication-statement-with-xml-escaped-text-values.xml")
+            Arguments.of("medication-request-special-character-in-code.json", "medication-statement-with-xml-escaped-text-values.xml"),
+            Arguments.of("mr-referencing-medication-with-non-snomed-codes.json", "ms-with-material-coding-containing-translations.xml"),
+            Arguments.of("mr-referencing-medication-with-no-snomed-code.json", "ms-with-material-coding-containing-null-flavor-code.xml")
         );
     }
 

@@ -24,6 +24,51 @@
         },
         {
             "resource": {
+                "resourceType": "Medication",
+                "id": "21",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "430127000",
+                            "display": "Oral Form Oxycodone (product)"
+                        },
+                        {
+                            "system": "http://read.info/readv2",
+                            "code": "READ0",
+                            "display": "Display for Read V2"
+                        },
+                        {
+                            "system": "http://read.info/ctv3",
+                            "code": "READ1",
+                            "display": "Display for Read CTV3"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "resource": {
+                "resourceType": "Medication",
+                "id": "22",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://read.info/readv2",
+                            "code": "READ0",
+                            "display": "Display for Read V2"
+                        },
+                        {
+                            "system": "http://read.info/ctv3",
+                            "code": "READ1",
+                            "display": "Display for Read CTV3"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "resource": {
                 "resourceType":"MedicationRequest",
                 "id":"D66D84C9-C073-4EDF-8C2C-F309A83C3DC7",
                 "meta":{
