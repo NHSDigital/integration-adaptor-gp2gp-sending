@@ -24,7 +24,8 @@ public class CodeableConceptCdMapperTest {
     private static final String TEST_FILE_DIRECTORY = "/ehr/mapper/codeableconcept/";
     private static final String TEST_FILE_DIRECTORY_NULL_FLAVOR = "/ehr/mapper/codeableconcept/nullFlavor/";
     private static final String TEST_FILE_DIRECTORY_ACTUAL_PROBLEM = "/ehr/mapper/codeableconcept/actualProblem/";
-    private static final String TEST_FILE_DIRECTORY_ALLERGY_CLINICAL_STATUS = "/ehr/mapper/codeableconcept/allergyClinicalStatus/";
+    private static final String TEST_FILE_DIRECTORY_ALLERGY_RESOLVED = "/ehr/mapper/codeableconcept/allergyResolved/";
+    private static final String TEST_FILE_DIRECTORY_ALLERGY_ACTIVE = "/ehr/mapper/codeableconcept/allergyActive/";
     private static final String TEST_FILE_DIRECTORY_MEDICATION = "/ehr/mapper/codeableconcept/medication/";
 
     private static final String TEST_FILE_TOPIC_RELATED_CONDITION = TEST_FILE_DIRECTORY
@@ -54,8 +55,12 @@ public class CodeableConceptCdMapperTest {
         return TestArgumentsLoaderUtil.readTestCases(TEST_FILE_DIRECTORY_ACTUAL_PROBLEM);
     }
 
-    private static Stream<Arguments> getTestArgumentsAllergyClinicalStatus() {
-        return TestArgumentsLoaderUtil.readTestCases(TEST_FILE_DIRECTORY_ALLERGY_CLINICAL_STATUS);
+    private static Stream<Arguments> getTestArgumentsAllergyResolved() {
+        return TestArgumentsLoaderUtil.readTestCases(TEST_FILE_DIRECTORY_ALLERGY_RESOLVED);
+    }
+
+    private static Stream<Arguments> getTestArgumentsAllergyActive() {
+        return TestArgumentsLoaderUtil.readTestCases(TEST_FILE_DIRECTORY_ALLERGY_ACTIVE);
     }
 
     private static Stream<Arguments> getTestArgumentsMedication() {
@@ -151,15 +156,30 @@ public class CodeableConceptCdMapperTest {
     }
 
     @ParameterizedTest
-    @MethodSource("getTestArgumentsAllergyClinicalStatus")
-    public void When_MappingStubbedCodeableConceptAsAllergy_Expect_HL7CdObjectXml(String inputJson, String outputXml)
-        throws IOException {
+    @MethodSource("getTestArgumentsAllergyResolved")
+    public void When_MappingStubbedCodeableConceptAsResolvedAllergy_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
         var allergyCodeableConcept = ResourceTestFileUtils.getFileContent(inputJson);
         var expectedOutput = ResourceTestFileUtils.getFileContent(outputXml);
         var codeableConcept = fhirParseService.parseResource(allergyCodeableConcept, AllergyIntolerance.class).getCode();
 
         var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForAllergy(codeableConcept,
             AllergyIntolerance.AllergyIntoleranceClinicalStatus.RESOLVED);
+
+        assertThat(outputMessage)
+            .describedAs(TestArgumentsLoaderUtil.FAIL_MESSAGE, inputJson, outputXml)
+            .isEqualToIgnoringWhitespace(expectedOutput);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getTestArgumentsAllergyActive")
+    public void When_MappingStubbedCodeableConceptAsActiveAllergy_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
+        var allergyCodeableConcept = ResourceTestFileUtils.getFileContent(inputJson);
+        var expectedOutput = ResourceTestFileUtils.getFileContent(outputXml);
+        var codeableConcept = fhirParseService.parseResource(allergyCodeableConcept, AllergyIntolerance.class).getCode();
+
+        var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForAllergy(codeableConcept,
+            AllergyIntolerance.AllergyIntoleranceClinicalStatus.ACTIVE);
+
         assertThat(outputMessage)
             .describedAs(TestArgumentsLoaderUtil.FAIL_MESSAGE, inputJson, outputXml)
             .isEqualToIgnoringWhitespace(expectedOutput);
