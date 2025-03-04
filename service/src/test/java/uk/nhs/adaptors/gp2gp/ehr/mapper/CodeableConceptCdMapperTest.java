@@ -157,7 +157,7 @@ public class CodeableConceptCdMapperTest {
 
     @ParameterizedTest
     @MethodSource("getTestArgumentsAllergyResolved")
-    public void When_MappingStubbedCodeableConceptAsResolvedAllergy_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
+    void When_MappingStubbedCodeableConceptAsResolvedAllergy_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
         var allergyCodeableConcept = ResourceTestFileUtils.getFileContent(inputJson);
         var expectedOutput = ResourceTestFileUtils.getFileContent(outputXml);
         var codeableConcept = fhirParseService.parseResource(allergyCodeableConcept, AllergyIntolerance.class).getCode();
@@ -172,7 +172,7 @@ public class CodeableConceptCdMapperTest {
 
     @ParameterizedTest
     @MethodSource("getTestArgumentsAllergyActive")
-    public void When_MappingStubbedCodeableConceptAsActiveAllergy_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
+    void When_MappingStubbedCodeableConceptAsActiveAllergy_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
         var allergyCodeableConcept = ResourceTestFileUtils.getFileContent(inputJson);
         var expectedOutput = ResourceTestFileUtils.getFileContent(outputXml);
         var codeableConcept = fhirParseService.parseResource(allergyCodeableConcept, AllergyIntolerance.class).getCode();
