@@ -360,21 +360,13 @@ public class CodeableConceptCdMapper {
     }
 
     private Optional<String> getOriginalTextForActiveAllergy(Coding coding) {
-        Optional<Extension> extension = retrieveDescriptionExtension(coding);
-
-        if (extension.isPresent()) {
-            Optional<String> originalText = extension
-                .get()
+        return retrieveDescriptionExtension(coding)
+            .flatMap(value -> value
                 .getExtension().stream()
                 .filter(displayExtension -> DESCRIPTION_DISPLAY.equals(displayExtension.getUrl()))
                 .map(extension1 -> extension1.getValue().toString())
-                .findFirst();
-            if (originalText.isPresent()) {
-                return originalText;
-            }
-        }
-
-        return Optional.empty();
+                .findFirst()
+            );
     }
 
     private Optional<String> findDisplayText(Coding coding) {

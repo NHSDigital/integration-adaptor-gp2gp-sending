@@ -358,5 +358,4 @@ public class CodeableConceptCdMapperTest {
 
         assertThat(outputString).isEqualToIgnoringWhitespace(expectedOutput);
     }
-
 }
