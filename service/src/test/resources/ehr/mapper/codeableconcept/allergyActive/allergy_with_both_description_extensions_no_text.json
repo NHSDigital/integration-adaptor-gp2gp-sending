@@ -20,26 +20,24 @@
     "code": {
         "coding": [
             {
-                "system": "http://read.info/readv2",
-                "code": "TJ00800",
-                "display": "Adverse reaction to pivampicillin rt",
-                "userSelected": true
-            },
-            {
                 "extension": [
                     {
                         "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
                         "extension": [
                             {
                                 "url": "descriptionId",
-                                "valueId": "2164497013"
+                                "valueId": "442108015"
+                            },
+                            {
+                                "url": "descriptionDisplay",
+                                "valueString": "Chocolate allergy"
                             }
                         ]
                     }
                 ],
                 "system": "http://snomed.info/sct",
-                "code": "292971006",
-                "display": "Pivampicillin adverse reaction pt"
+                "code": "300912001",
+                "display": "Allergy to chocolate"
             }
         ]
     },
