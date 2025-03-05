@@ -81,35 +81,31 @@ public class CodeableConceptCdMapper {
     // we have agreed to use the Concept ID rather than Description Id for medications which will avoided the degradation.
     public String mapCodeableConceptForMedication(CodeableConcept codeableConcept) {
         var builder = CodeableConceptCdTemplateParameters.builder();
-        var mainCode = getSnomedCodeCoding(codeableConcept);
+        var snomedCodeCoding = getSnomedCodeCoding(codeableConcept);
 
-        builder.nullFlavor(mainCode.isEmpty());
-
-        if (mainCode.isPresent()) {
-            var extension = retrieveDescriptionExtension(mainCode.get())
-                .map(Extension::getExtension)
-                .orElse(Collections.emptyList());
-
-            builder.mainCodeSystem(SNOMED_SYSTEM_CODE);
-
-            Optional<String> code = Optional.ofNullable(mainCode.get().getCode());
-            code.ifPresent(builder::mainCode);
-
-            Optional<String> displayName = extension.stream()
-                .filter(displayExtension -> DESCRIPTION_DISPLAY.equals(displayExtension.getUrl()))
-                .map(description -> description.getValue().toString())
-                .findFirst()
-                .or(() -> Optional.ofNullable(mainCode.get().getDisplay()));
-            displayName.ifPresent(builder::mainDisplayName);
-
-            if (codeableConcept.hasText()) {
-                builder.mainOriginalText(codeableConcept.getText());
-            }
-        } else {
-            var originalText = findOriginalText(codeableConcept, mainCode);
-            originalText.ifPresent(builder::mainOriginalText);
+        if (snomedCodeCoding.isEmpty()) {
+            return buildNullFlavourCodeableConceptCd(codeableConcept, snomedCodeCoding);
         }
 
+        var extension = retrieveDescriptionExtension(snomedCodeCoding.get())
+            .map(Extension::getExtension)
+            .orElse(Collections.emptyList());
+
+        builder.mainCodeSystem(SNOMED_SYSTEM_CODE);
+
+        Optional<String> code = Optional.ofNullable(snomedCodeCoding.get().getCode());
+        code.ifPresent(builder::mainCode);
+
+        Optional<String> displayName = extension.stream()
+            .filter(displayExtension -> DESCRIPTION_DISPLAY.equals(displayExtension.getUrl()))
+            .map(description -> description.getValue().toString())
+            .findFirst()
+            .or(() -> Optional.ofNullable(snomedCodeCoding.get().getDisplay()));
+        displayName.ifPresent(builder::mainDisplayName);
+
+        builder.mainOriginalText(codeableConcept.getText());
+
+        builder.translations(getNonSnomedCodeCodings(codeableConcept));
         return TemplateUtils.fillTemplate(CODEABLE_CONCEPT_CD_TEMPLATE, builder.build());
     }
 
