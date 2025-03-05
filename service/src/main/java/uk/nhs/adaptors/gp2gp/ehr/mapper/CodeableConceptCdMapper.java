@@ -38,7 +38,6 @@ public class CodeableConceptCdMapper {
     private static final String FIXED_ACTUAL_PROBLEM_CODE = "55607006";
     private static final String PROBLEM_DISPLAY_NAME = "Problem";
     private static final String ACTIVE_CLINICAL_STATUS = "active";
-    private static final String RESOLVED_CLINICAL_STATUS = "resolved";
     private static final String PRESCRIBING_AGENCY_GP_PRACTICE_CODE = "prescribed-at-gp-practice";
     private static final String PRESCRIBING_AGENCY_PREVIOUS_PRACTICE_CODE = "prescribed-by-previous-practice";
     private static final String PRESCRIBING_AGENCY_ANOTHER_ORGANISATION_CODE = "prescribed-by-another-organisation";
@@ -353,9 +352,6 @@ public class CodeableConceptCdMapper {
             return Optional.empty();
         }
 
-        if (RESOLVED_CLINICAL_STATUS.equals(allergyIntoleranceClinicalStatus.toCode())) {
-            return getOriginalTextForResolvedAllergy(codeableConcept, coding.get());
-        }
         if (ACTIVE_CLINICAL_STATUS.equals(allergyIntoleranceClinicalStatus.toCode())) {
             return getOriginalTextForActiveAllergy(coding.get());
         }
@@ -376,35 +372,6 @@ public class CodeableConceptCdMapper {
             if (originalText.isPresent()) {
                 return originalText;
             }
-        }
-
-        return Optional.empty();
-    }
-
-    private Optional<String> getOriginalTextForResolvedAllergy(CodeableConcept codeableConcept, Coding coding) {
-
-        if (codeableConcept.hasText()) {
-            return Optional.ofNullable(codeableConcept.getText());
-        }
-
-        var extension = retrieveDescriptionExtension(coding);
-        if (extension.isEmpty()) {
-            return coding.hasDisplay()
-                ? Optional.ofNullable(coding.getDisplay())
-                : Optional.empty();
-        }
-
-        Optional<String> originalText = extension
-            .get()
-            .getExtension().stream()
-            .filter(displayExtension -> DESCRIPTION_DISPLAY.equals(displayExtension.getUrl()))
-            .map(extension1 -> extension1.getValue().toString())
-            .findFirst();
-
-        if (originalText.isPresent()) {
-            return originalText;
-        } else if (coding.hasDisplay()) {
-            return Optional.ofNullable(coding.getDisplay());
         }
 
         return Optional.empty();
