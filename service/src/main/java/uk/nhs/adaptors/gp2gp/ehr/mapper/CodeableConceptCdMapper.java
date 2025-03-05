@@ -3,6 +3,7 @@ package uk.nhs.adaptors.gp2gp.ehr.mapper;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
@@ -51,10 +52,23 @@ public class CodeableConceptCdMapper {
     private static final String OTHER_CATEGORY_DESCRIPTION = "Other category";
 
     public String mapCodeableConceptToCd(CodeableConcept codeableConcept) {
+        return mapCodeableConcept(codeableConcept, this::getMainCode);
+    }
+
+    public String mapCodeableConceptForMedication(CodeableConcept codeableConcept) {
+        return mapCodeableConcept(
+            codeableConcept,
+            (descriptionExtensions, snomedCodeCoding) -> Optional.ofNullable(snomedCodeCoding.getCode()));
+    }
+
+    private String mapCodeableConcept(
+        CodeableConcept codeableConcept,
+        BiFunction<Optional<List<Extension>>, Coding, Optional<String>> getMainCodeFunction
+    ) {
         Optional<Coding> snomedCodeCoding = getSnomedCodeCoding(codeableConcept);
 
         if (snomedCodeCoding.isEmpty()) {
-            return buildNullFlavourCodeableConceptCd(codeableConcept, snomedCodeCoding);
+            return mapToNullFlavorCodeableConcept(codeableConcept);
         }
 
         var builder = CodeableConceptCdTemplateParameters.builder();
@@ -64,87 +78,60 @@ public class CodeableConceptCdMapper {
 
         builder.mainCodeSystem(SNOMED_SYSTEM_CODE);
 
-        var mainCode = getMainCode(descriptionExtensions, snomedCodeCoding.get());
-        mainCode.ifPresent(builder::mainCode);
-
         var mainDisplayName = getMainDisplayName(descriptionExtensions, snomedCodeCoding.get());
         mainDisplayName.ifPresent(builder::mainDisplayName);
 
         builder.mainOriginalText(codeableConcept.getText());
         builder.translations(getNonSnomedCodeCodings(codeableConcept));
 
+        var mainCode = getMainCodeFunction.apply(descriptionExtensions, snomedCodeCoding.get());
+        mainCode.ifPresent(builder::mainCode);
+
         return TemplateUtils.fillTemplate(CODEABLE_CONCEPT_CD_TEMPLATE, builder.build());
     }
 
-    // Medications are currently using D&T Codes rather than snomed codes but are being passed through as SNOMED codes which is
-    // creating a degradation on the receiving side. Until the types are configured correctly and agreed to a specification
-    // we have agreed to use the Concept ID rather than Description Id for medications which will avoided the degradation.
-    public String mapCodeableConceptForMedication(CodeableConcept codeableConcept) {
+    public String mapCodeableConceptToCdForAllergy(
+        CodeableConcept codeableConcept,
+        AllergyIntolerance.AllergyIntoleranceClinicalStatus allergyIntoleranceClinicalStatus
+    ) {
         var builder = CodeableConceptCdTemplateParameters.builder();
-        var snomedCodeCoding = getSnomedCodeCoding(codeableConcept);
+        Optional<Coding> snomedCodeCoding = getSnomedCodeCoding(codeableConcept);
 
         if (snomedCodeCoding.isEmpty()) {
-            return buildNullFlavourCodeableConceptCd(codeableConcept, snomedCodeCoding);
+            builder.nullFlavor(true);
+            return TemplateUtils.fillTemplate(CODEABLE_CONCEPT_CD_TEMPLATE, builder.build());
         }
 
-        var extension = retrieveDescriptionExtension(snomedCodeCoding.get())
-            .map(Extension::getExtension)
-            .orElse(Collections.emptyList());
+        if (ACTIVE_CLINICAL_STATUS.equals(allergyIntoleranceClinicalStatus.toCode())) {
+            builder.mainCodeSystem(SNOMED_SYSTEM_CODE);
+        } else {
+            builder.nullFlavor(true);
+        }
 
-        builder.mainCodeSystem(SNOMED_SYSTEM_CODE);
+        getAllergyMainCode(snomedCodeCoding.get()).ifPresent(builder::mainCode);
+        getCodingDisplayName(snomedCodeCoding.get()).ifPresent(builder::mainDisplayName);
 
-        Optional<String> code = Optional.ofNullable(snomedCodeCoding.get().getCode());
-        code.ifPresent(builder::mainCode);
+        if (codeableConcept.hasText()) {
+            builder.mainOriginalText(codeableConcept.getText());
+        } else {
+            var originalText = findOriginalTextForAllergy(codeableConcept, snomedCodeCoding, allergyIntoleranceClinicalStatus);
+            originalText.ifPresent(builder::mainOriginalText);
+        }
 
-        Optional<String> displayName = extension.stream()
-            .filter(displayExtension -> DESCRIPTION_DISPLAY.equals(displayExtension.getUrl()))
-            .map(description -> description.getValue().toString())
-            .findFirst()
-            .or(() -> Optional.ofNullable(snomedCodeCoding.get().getDisplay()));
-        displayName.ifPresent(builder::mainDisplayName);
-
-        builder.mainOriginalText(codeableConcept.getText());
-
-        builder.translations(getNonSnomedCodeCodings(codeableConcept));
         return TemplateUtils.fillTemplate(CODEABLE_CONCEPT_CD_TEMPLATE, builder.build());
     }
 
-    public String mapCodeableConceptToCdForAllergy(CodeableConcept codeableConcept, AllergyIntolerance.AllergyIntoleranceClinicalStatus
-        allergyIntoleranceClinicalStatus) {
-        var builder = CodeableConceptCdTemplateParameters.builder();
-        var mainCode = getSnomedCodeCoding(codeableConcept);
+    private static Optional<String> getCodingDisplayName(Coding snomedCodeCoding) {
+        return Optional.ofNullable(snomedCodeCoding.getDisplay());
+    }
 
-        builder.nullFlavor(mainCode.isEmpty());
-
-        if (mainCode.isPresent()) {
-            var extension = retrieveDescriptionExtension(mainCode.get())
-                .map(Extension::getExtension)
-                .orElse(Collections.emptyList());
-
-            if (ACTIVE_CLINICAL_STATUS.equals(allergyIntoleranceClinicalStatus.toCode())) {
-                builder.mainCodeSystem(SNOMED_SYSTEM_CODE);
-            } else {
-                builder.nullFlavor(true);
-            }
-
-            Optional<String> code = extension.stream()
+    private static Optional<String> getAllergyMainCode(Coding snomedCodeCoding) {
+        return retrieveDescriptionExtension(snomedCodeCoding)
+            .flatMap(extension -> extension.getExtension().stream()
                 .filter(descriptionExt -> DESCRIPTION_ID.equals(descriptionExt.getUrl()))
-                .map(description -> description.getValue().toString())
                 .findFirst()
-                .or(() -> Optional.ofNullable(mainCode.get().getCode()));
-            code.ifPresent(builder::mainCode);
-
-            Optional<String> displayName = Optional.ofNullable(mainCode.get().getDisplay());
-            displayName.ifPresent(builder::mainDisplayName);
-
-            if (codeableConcept.hasText()) {
-                builder.mainOriginalText(codeableConcept.getText());
-            } else {
-                var originalText = findOriginalTextForAllergy(codeableConcept, mainCode, allergyIntoleranceClinicalStatus);
-                originalText.ifPresent(builder::mainOriginalText);
-            }
-        }
-        return TemplateUtils.fillTemplate(CODEABLE_CONCEPT_CD_TEMPLATE, builder.build());
+                .map(description -> description.getValue().toString()))
+            .or(() -> Optional.ofNullable(snomedCodeCoding.getCode()));
     }
 
     public String mapCodeableConceptToCdForTransformedActualProblemHeader(CodeableConcept codeableConcept) {
@@ -343,7 +330,7 @@ public class CodeableConceptCdMapper {
                 return Optional.ofNullable(codeableConcept.getText());
             } else {
                 if (coding.get().hasDisplay()) {
-                    return Optional.ofNullable(coding.get().getDisplay());
+                    return getCodingDisplayName(coding.get());
                 } else {
                     var extension = retrieveDescriptionExtension(coding.get());
                     return extension.stream()
@@ -362,50 +349,67 @@ public class CodeableConceptCdMapper {
         Optional<Coding> coding,
         AllergyIntolerance.AllergyIntoleranceClinicalStatus allergyIntoleranceClinicalStatus
     ) {
+        if (coding.isEmpty()) {
+            return Optional.empty();
+        }
+
         if (!allergyIntoleranceClinicalStatus.toCode().isEmpty()) {
             if (RESOLVED_CLINICAL_STATUS.equals(allergyIntoleranceClinicalStatus.toCode())) {
-                if (coding.isPresent()) {
-                    if (codeableConcept.hasText()) {
-                        return Optional.ofNullable(codeableConcept.getText());
-                    } else {
-                        var extension = retrieveDescriptionExtension(coding.get());
-                        if (extension.isPresent()) {
-                            Optional<String> originalText = extension
-                                .get()
-                                .getExtension().stream()
-                                .filter(displayExtension -> DESCRIPTION_DISPLAY.equals(displayExtension.getUrl()))
-                                .map(extension1 -> extension1.getValue().toString())
-                                .findFirst();
-
-                            if (originalText.isPresent()) {
-                                return originalText;
-                            } else if (coding.get().hasDisplay()) {
-                                return Optional.ofNullable(coding.get().getDisplay());
-                            }
-                        } else if (coding.get().hasDisplay()) {
-                            return Optional.ofNullable(coding.get().getDisplay());
-                        }
-                    }
-                }
-            } else if (ACTIVE_CLINICAL_STATUS.equals(allergyIntoleranceClinicalStatus.toCode())) {
-                Optional<Extension> extension = retrieveDescriptionExtension(coding.get());
-                if (extension.isPresent()) {
-                    Optional<String> originalText = extension
-                        .get()
-                        .getExtension().stream()
-                        .filter(displayExtension -> DESCRIPTION_DISPLAY.equals(displayExtension.getUrl()))
-                        .map(extension1 -> extension1.getValue().toString())
-                        .findFirst();
-                    if (originalText.isPresent() && StringUtils.isNotBlank(originalText.get())) {
-                        return originalText;
-                    }
-                }
-
-                return Optional.empty();
+                return getOriginalTextForResolvedAllergy(codeableConcept, coding.get());
+            }
+            if (ACTIVE_CLINICAL_STATUS.equals(allergyIntoleranceClinicalStatus.toCode())) {
+                return getOriginalTextForActiveAllergy(coding.get());
             }
         }
 
         return CodeableConceptMappingUtils.extractTextOrCoding(codeableConcept);
+    }
+
+    private Optional<String> getOriginalTextForActiveAllergy(Coding coding) {
+        Optional<Extension> extension = retrieveDescriptionExtension(coding);
+
+        if (extension.isPresent()) {
+            Optional<String> originalText = extension
+                .get()
+                .getExtension().stream()
+                .filter(displayExtension -> DESCRIPTION_DISPLAY.equals(displayExtension.getUrl()))
+                .map(extension1 -> extension1.getValue().toString())
+                .findFirst();
+            if (originalText.isPresent()) {
+                return originalText;
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private Optional<String> getOriginalTextForResolvedAllergy(CodeableConcept codeableConcept, Coding coding) {
+
+        if (codeableConcept.hasText()) {
+            return Optional.ofNullable(codeableConcept.getText());
+        }
+
+        var extension = retrieveDescriptionExtension(coding);
+        if (extension.isEmpty()) {
+            return coding.hasDisplay()
+                ? Optional.ofNullable(coding.getDisplay())
+                : Optional.empty();
+        }
+
+        Optional<String> originalText = extension
+            .get()
+            .getExtension().stream()
+            .filter(displayExtension -> DESCRIPTION_DISPLAY.equals(displayExtension.getUrl()))
+            .map(extension1 -> extension1.getValue().toString())
+            .findFirst();
+
+        if (originalText.isPresent()) {
+            return originalText;
+        } else if (coding.hasDisplay()) {
+            return Optional.ofNullable(coding.getDisplay());
+        }
+
+        return Optional.empty();
     }
 
     private Optional<String> findDisplayText(Coding coding) {
@@ -420,7 +424,7 @@ public class CodeableConceptCdMapper {
         return coding.hasSystem() && coding.getSystem().equals(CARE_CONNECT_PRESCRIBING_AGENCY_SYSTEM);
     }
 
-    private Optional<Extension> retrieveDescriptionExtension(Coding coding) {
+    private static Optional<Extension> retrieveDescriptionExtension(Coding coding) {
         return coding
             .getExtension()
             .stream()
@@ -435,7 +439,6 @@ public class CodeableConceptCdMapper {
     }
 
     public String mapToNullFlavorCodeableConcept(CodeableConcept codeableConcept) {
-
         var builder = CodeableConceptCdTemplateParameters.builder().nullFlavor(true);
         var mainCode = getSnomedCodeCoding(codeableConcept);
 
@@ -453,15 +456,6 @@ public class CodeableConceptCdMapper {
 
         var originalText = findOriginalTextForAllergy(codeableConcept, mainCode, allergyIntoleranceClinicalStatus);
         originalText.ifPresent(builder::mainOriginalText);
-        return TemplateUtils.fillTemplate(CODEABLE_CONCEPT_CD_TEMPLATE, builder.build());
-    }
-
-    private String buildNullFlavourCodeableConceptCd(CodeableConcept codeableConcept, Optional<Coding> snomedCode) {
-        var builder = CodeableConceptCdTemplateParameters.builder();
-        builder.nullFlavor(true);
-        var originalText = findOriginalText(codeableConcept, snomedCode);
-        originalText.ifPresent(builder::mainOriginalText);
-
         return TemplateUtils.fillTemplate(CODEABLE_CONCEPT_CD_TEMPLATE, builder.build());
     }
 
