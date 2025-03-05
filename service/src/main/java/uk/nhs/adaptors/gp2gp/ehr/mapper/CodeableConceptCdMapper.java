@@ -353,13 +353,11 @@ public class CodeableConceptCdMapper {
             return Optional.empty();
         }
 
-        if (!allergyIntoleranceClinicalStatus.toCode().isEmpty()) {
-            if (RESOLVED_CLINICAL_STATUS.equals(allergyIntoleranceClinicalStatus.toCode())) {
-                return getOriginalTextForResolvedAllergy(codeableConcept, coding.get());
-            }
-            if (ACTIVE_CLINICAL_STATUS.equals(allergyIntoleranceClinicalStatus.toCode())) {
-                return getOriginalTextForActiveAllergy(coding.get());
-            }
+        if (RESOLVED_CLINICAL_STATUS.equals(allergyIntoleranceClinicalStatus.toCode())) {
+            return getOriginalTextForResolvedAllergy(codeableConcept, coding.get());
+        }
+        if (ACTIVE_CLINICAL_STATUS.equals(allergyIntoleranceClinicalStatus.toCode())) {
+            return getOriginalTextForActiveAllergy(coding.get());
         }
 
         return CodeableConceptMappingUtils.extractTextOrCoding(codeableConcept);

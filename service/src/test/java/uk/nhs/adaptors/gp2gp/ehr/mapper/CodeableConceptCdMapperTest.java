@@ -127,9 +127,8 @@ public class CodeableConceptCdMapperTest {
         assertThat(outputMessageXml).isEqualToIgnoringWhitespace(expectedOutputXml);
     }
 
-
     @Test
-    void When_mapToNullFlavorCodeableConceptForAllergyWithoutSnomedCode_ExpectOriginalTextIsNotPresent() {
+    void When_MapToNullFlavorCodeableConceptForAllergyWithoutSnomedCode_Expect_OriginalTextIsNotPresent() {
         var inputJson = """
             {
                 "resourceType": "AllergyIntolerance",
@@ -162,9 +161,57 @@ public class CodeableConceptCdMapperTest {
             """;
         var codeableConcept = fhirParseService.parseResource(inputJson, AllergyIntolerance.class).getCode();
 
-        var outputXml = codeableConceptCdMapper.mapToNullFlavorCodeableConceptForAllergy(codeableConcept, AllergyIntolerance.AllergyIntoleranceClinicalStatus.ACTIVE);
+        var outputXml = codeableConceptCdMapper.mapToNullFlavorCodeableConceptForAllergy(
+            codeableConcept,
+            AllergyIntolerance.AllergyIntoleranceClinicalStatus.ACTIVE
+        );
 
         assertThat(outputXml).isEqualToIgnoringWhitespace(expectedOutputXML);
+    }
+
+    @Test
+    void When_MappingStubbedCodeableConceptAsInactiveAllergy_Expect_NullFlavourCodeableConceptWithOriginalTextAsDisplayName() {
+        var inputJson = """
+            {
+                "resourceType": "AllergyIntolerance",
+                "id": "0C1232CF-D34B-4C16-A5F4-0F6461C51A41",
+                "meta": {
+                    "profile": [
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-AllergyIntolerance-1"
+                    ]
+                },
+                "identifier": [
+                    {
+                        "system": "https://EMISWeb/A82038",
+                        "value": "55D2363D57A248F49A745B2E03F5E93D0C1232CFD34B4C16A5F40F6461C51A41"
+                    }
+                ],
+                "clinicalStatus": "inactive",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "292971006",
+                            "display": "Pivampicillin adverse reaction pt"
+                        }
+                    ]
+                }
+            }""";
+
+        var expectedOutputXML = """
+            <code nullFlavor="UNK">
+                <originalText>Pivampicillin adverse reaction pt</originalText>
+            </code>
+            """;
+        var codeableConcept = fhirParseService.parseResource(inputJson, AllergyIntolerance.class).getCode();
+
+        var outputXml = codeableConceptCdMapper.mapToNullFlavorCodeableConceptForAllergy(
+            codeableConcept,
+            AllergyIntolerance.AllergyIntoleranceClinicalStatus.INACTIVE
+        );
+
+        assertThat(outputXml).isEqualToIgnoringWhitespace(expectedOutputXML);
+
     }
 
     @ParameterizedTest
