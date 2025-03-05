@@ -127,6 +127,46 @@ public class CodeableConceptCdMapperTest {
         assertThat(outputMessageXml).isEqualToIgnoringWhitespace(expectedOutputXml);
     }
 
+
+    @Test
+    void When_mapToNullFlavorCodeableConceptForAllergyWithoutSnomedCode_ExpectOriginalTextIsNotPresent() {
+        var inputJson = """
+            {
+                "resourceType": "AllergyIntolerance",
+                "id": "0C1232CF-D34B-4C16-A5F4-0F6461C51A41",
+                "meta": {
+                    "profile": [
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-AllergyIntolerance-1"
+                    ]
+                },
+                "identifier": [
+                    {
+                        "system": "https://EMISWeb/A82038",
+                        "value": "55D2363D57A248F49A745B2E03F5E93D0C1232CFD34B4C16A5F40F6461C51A41"
+                    }
+                ],
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://read.info/readv2",
+                            "code": "TJ00800",
+                            "display": "Adverse reaction to pivampicillin rt"
+                        }
+                    ],
+                    "text": "Adverse reaction to pivampicillin"
+                }
+            }""";
+        var expectedOutputXML = """
+            <code nullFlavor="UNK">
+            </code>
+            """;
+        var codeableConcept = fhirParseService.parseResource(inputJson, AllergyIntolerance.class).getCode();
+
+        var outputXml = codeableConceptCdMapper.mapToNullFlavorCodeableConceptForAllergy(codeableConcept, AllergyIntolerance.AllergyIntoleranceClinicalStatus.ACTIVE);
+
+        assertThat(outputXml).isEqualToIgnoringWhitespace(expectedOutputXML);
+    }
+
     @ParameterizedTest
     @MethodSource("getTestArgumentsActualProblem")
     public void When_MappingStubbedCodeableConceptForActualProblemHeader_Expect_HL7CdObjectXml(String inputJson, String outputXml)
@@ -271,4 +311,5 @@ public class CodeableConceptCdMapperTest {
 
         assertThat(outputString).isEqualToIgnoringWhitespace(expectedOutput);
     }
+
 }
