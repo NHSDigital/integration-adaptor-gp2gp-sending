@@ -103,6 +103,7 @@ public class CodeableConceptCdMapper {
 
         if (ACTIVE_CLINICAL_STATUS.equals(allergyIntoleranceClinicalStatus.toCode())) {
             builder.mainCodeSystem(SNOMED_SYSTEM_CODE);
+            builder.translations(getNonSnomedCodeCodings(codeableConcept));
         } else {
             builder.nullFlavor(true);
         }
