@@ -26,6 +26,7 @@ public class CodeableConceptCdMapperTest {
     private static final String TEST_FILE_DIRECTORY_ACTUAL_PROBLEM = "/ehr/mapper/codeableconcept/actualProblem/";
     private static final String TEST_FILE_DIRECTORY_ALLERGY_RESOLVED = "/ehr/mapper/codeableconcept/allergyResolved/";
     private static final String TEST_FILE_DIRECTORY_ALLERGY_ACTIVE = "/ehr/mapper/codeableconcept/allergyActive/";
+    //private static final String TEST_FILE_DIRECTORY_BLOOD_PRESSURE = "/ehr/mapper/codeableconcept/bloodPressure/";
     private static final String TEST_FILE_DIRECTORY_MEDICATION = "/ehr/mapper/codeableconcept/medication/";
 
     private static final String TEST_FILE_TOPIC_RELATED_CONDITION = TEST_FILE_DIRECTORY
@@ -62,6 +63,10 @@ public class CodeableConceptCdMapperTest {
     private static Stream<Arguments> getTestArgumentsAllergyActive() {
         return TestArgumentsLoaderUtil.readTestCases(TEST_FILE_DIRECTORY_ALLERGY_ACTIVE);
     }
+
+//    private static Stream<Arguments> getTestArgumentsBloodPressure() {
+//        return TestArgumentsLoaderUtil.readTestCases(TEST_FILE_DIRECTORY_BLOOD_PRESSURE);
+//    }
 
     private static Stream<Arguments> getTestArgumentsMedication() {
         return TestArgumentsLoaderUtil.readTestCases(TEST_FILE_DIRECTORY_MEDICATION);
@@ -226,6 +231,37 @@ public class CodeableConceptCdMapperTest {
             .describedAs(TestArgumentsLoaderUtil.FAIL_MESSAGE, inputJson, outputXml)
             .isEqualToIgnoringWhitespace(expectedOutput);
     }
+
+    @Test
+    void When_MappingStubbedCodableConceptWithoutCoding_Expect_NullFlavorCdXmlWithoutOriginalText() {
+        var inputJson = """
+            {
+                "resourceType": "Observation"
+            }""";
+        var expectedOutput = """
+            <code nullFlavor="UNK">
+            </code>""";
+        var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
+
+        var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
+
+        assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+    }
+
+//    @ParameterizedTest
+//    @MethodSource("getTestArgumentsBloodPressure")
+//    void When_MappingStubbedCodeableConceptForBloodPressure_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
+//        var allergyCodeableConcept = ResourceTestFileUtils.getFileContent(inputJson);
+//        var expectedOutput = ResourceTestFileUtils.getFileContent(outputXml);
+//        var codeableConcept = fhirParseService.parseResource(allergyCodeableConcept, AllergyIntolerance.class).getCode();
+//
+//        var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForAllergy(codeableConcept,
+//            AllergyIntolerance.AllergyIntoleranceClinicalStatus.ACTIVE);
+//
+//        assertThat(outputMessage)
+//            .describedAs(TestArgumentsLoaderUtil.FAIL_MESSAGE, inputJson, outputXml)
+//            .isEqualToIgnoringWhitespace(expectedOutput);
+//    }
 
     @ParameterizedTest
     @MethodSource("getTestArgumentsForTopicRelatedProblem")
