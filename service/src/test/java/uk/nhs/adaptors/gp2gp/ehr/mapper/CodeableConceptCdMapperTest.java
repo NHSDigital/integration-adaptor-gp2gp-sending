@@ -233,7 +233,7 @@ public class CodeableConceptCdMapperTest {
     }
 
     @Test
-    void When_MappingStubbedCodableConceptWithoutCoding_Expect_NullFlavorCdXmlWithoutOriginalText() {
+    void When_MappingStubbedCodeableConceptWithoutCoding_Expect_NullFlavorCdXmlWithoutOriginalText() {
         var inputJson = """
             {
                 "resourceType": "Observation"
@@ -248,6 +248,118 @@ public class CodeableConceptCdMapperTest {
         assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
     }
 
+    @Test
+    void When_MappingStubbedCodeableConceptWithNonSnomedCodingWithDisplay_Expect_NullFlavorCdXmlWithOriginalText() {
+        var inputJson = """
+            {
+                "resourceType": "Observation",
+                "code": {
+                      "coding": [
+                          {
+                              "display": "Prothrombin time"
+                          }
+                      ]
+                  }
+            }""";
+        var expectedOutput = """
+            <code nullFlavor="UNK">
+                <originalText>Prothrombin time</originalText>
+            </code>""";
+        var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
+
+        var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
+
+        assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+    }
+
+    @Test
+    void When_MappingStubbedCodeableConceptWithSnomedCodingWithDisplay_Expect_SnomedCdXmlWithOriginalText() {
+        var inputJson = """
+            {
+                "resourceType": "Observation",
+                "code": {
+                      "coding": [
+                          {
+                               "system": "http://snomed.info/sct",
+                               "display": "Prothrombin time",
+                               "code": "852471000000107"
+                           }
+                      ]
+                  }
+            }""";
+        var expectedOutput = """
+            <code code="852471000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Prothrombin time">
+                <originalText>Prothrombin time</originalText>
+            </code>""";
+        var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
+
+        var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
+
+        assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+    }
+
+    @Test
+    void When_MappingStubbedCodeableConceptWithSnomedCodingWithoutCode_Expect_SnomedCdXmlWithOriginalTextFromText() {
+        var inputJson = """
+            {
+                "resourceType": "Observation",
+                "code": {
+                      "coding": [
+                          {
+                               "system": "http://snomed.info/sct",
+                               "display": "Prothrombin time",
+                               "code": "852471000000107"
+                          }
+                      ],
+                      "text": "Prothrombin time observed"
+                  }
+            }""";
+        var expectedOutput = """
+            <code code="852471000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Prothrombin time">
+                <originalText>Prothrombin time observed</originalText>
+            </code>""";
+        var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
+
+        var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
+
+        assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+    }
+
+    @Test
+    void When_MappingStubbedCodeableConceptWithSnomedCodingWithPartialExtensionWithoutCode_Expect_SnomedCdXmlWithOriginalTextFromExtension() {
+        var inputJson = """
+            {
+                "resourceType": "Observation",
+                "code": {
+                      "coding": [
+                          {
+                               "system": "http://snomed.info/sct",
+                               "code": "852471000000107",
+                               "extension": [
+                                    {
+                                        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
+                                        "extension": [
+                                          {
+                                              "url": "descriptionDisplay",
+                                              "valueId": "Prothrombin time (observed)"
+                                          }
+                                        ]
+                                    }
+                                ]
+                          }
+                      ]
+                  }
+            }""";
+        var expectedOutput = """
+            <code code="852471000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Prothrombin time">
+                <originalText>Prothrombin time (observed)</originalText>
+            </code>""";
+        var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
+
+        var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
+
+        assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+    }
 //    @ParameterizedTest
 //    @MethodSource("getTestArgumentsBloodPressure")
 //    void When_MappingStubbedCodeableConceptForBloodPressure_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
