@@ -184,7 +184,7 @@ public class EhrExtractUATTest {
                 codeableConceptCdMapper, new ParticipantMapper()),
             new ConditionLinkSetMapper(
                 messageContext, randomIdGeneratorService, codeableConceptCdMapper, participantMapper, confidentialityService),
-            new DiaryPlanStatementMapper(messageContext, codeableConceptCdMapper, participantMapper),
+            new DiaryPlanStatementMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService),
             documentReferenceToNarrativeStatementMapper,
             new ImmunizationObservationStatementMapper(
                 messageContext,

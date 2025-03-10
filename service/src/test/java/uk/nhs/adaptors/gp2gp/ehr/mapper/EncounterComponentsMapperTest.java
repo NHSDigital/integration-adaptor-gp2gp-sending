@@ -152,7 +152,7 @@ public class EncounterComponentsMapperTest {
             confidentialityService
         );
         DiaryPlanStatementMapper diaryPlanStatementMapper
-            = new DiaryPlanStatementMapper(messageContext, codeableConceptCdMapper, participantMapper);
+            = new DiaryPlanStatementMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService);
         DocumentReferenceToNarrativeStatementMapper documentReferenceToNarrativeStatementMapper
             = new DocumentReferenceToNarrativeStatementMapper(
                 messageContext, new SupportedContentTypes(), participantMapper, confidentialityService);

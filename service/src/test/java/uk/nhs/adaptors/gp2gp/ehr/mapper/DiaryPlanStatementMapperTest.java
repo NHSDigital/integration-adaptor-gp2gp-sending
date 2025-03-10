@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.hl7.fhir.dstu3.model.Bundle;
@@ -22,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
@@ -57,16 +59,22 @@ public class DiaryPlanStatementMapperTest {
         + "expected-output-procedure-request-resource-with-multiple-supportInfo.xml";
     private static final String INPUT_BUNDLE = TEST_DIRECTORY + "input-bundle.json";
 
+    public static final String CONFIDENTIALITY_CODE = "<confidentialityCode code=\"NOPAT\" "
+                                                      + "codeSystem=\"2.16.840.1.113883.4.642.3.47\" "
+                                                      + "displayName=\"no disclosure to patient, family or caregivers without attending provider's authorization\" />";
+
     @Mock
     private RandomIdGeneratorService randomIdGeneratorService;
     @Mock
     private CodeableConceptCdMapper codeableConceptCdMapper;
+    @Mock
+    private ConfidentialityService confidentialityService;
 
     private MessageContext messageContext;
     private DiaryPlanStatementMapper diaryPlanStatementMapper;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    public void setUp() {
         String inputJson = ResourceTestFileUtils.getFileContent(INPUT_BUNDLE);
         Bundle bundle = new FhirParseService().parseResource(inputJson, Bundle.class);
 
@@ -78,7 +86,7 @@ public class DiaryPlanStatementMapperTest {
         messageContext.initialize(bundle);
 
         diaryPlanStatementMapper =
-            new DiaryPlanStatementMapper(messageContext, codeableConceptCdMapper, new ParticipantMapper());
+            new DiaryPlanStatementMapper(messageContext, codeableConceptCdMapper, new ParticipantMapper(), confidentialityService);
     }
 
     @AfterEach
@@ -87,7 +95,19 @@ public class DiaryPlanStatementMapperTest {
     }
 
     @Test
-    public void When_MappingProcedureRequestIsNested_Expect_ResourceMappedWithIsNestedFlag() throws IOException {
+    public void When_MappingProcedureRequestWithNopat_Expect_ResourceMappedWithConfidentialityCode() {
+        String inputJson = ResourceTestFileUtils.getFileContent(INPUT_PROCEDURE_REQUEST_WITH_ALL_DATA);
+        ProcedureRequest inputProcedureRequest = new FhirParseService().parseResource(inputJson, ProcedureRequest.class);
+
+        when(confidentialityService.generateConfidentialityCode(inputProcedureRequest)).thenReturn(Optional.of(CONFIDENTIALITY_CODE));
+
+        var mappedXml = diaryPlanStatementMapper.mapProcedureRequestToPlanStatement(inputProcedureRequest, true);
+        assertThat(mappedXml).contains(CONFIDENTIALITY_CODE);
+    }
+
+
+    @Test
+    public void When_MappingProcedureRequestIsNested_Expect_ResourceMappedWithIsNestedFlag() {
         String expectedXml = ResourceTestFileUtils.getFileContent(EXPECTED_PLAN_STATEMENT_WITH_IS_NESTED);
 
         String inputJson = ResourceTestFileUtils.getFileContent(INPUT_PROCEDURE_REQUEST_WITH_ALL_DATA);
@@ -98,7 +118,7 @@ public class DiaryPlanStatementMapperTest {
     }
 
     @Test
-    public void When_MappingProcedureRequestThatIsNotPlan_Expect_ResourceNotMapped() throws IOException {
+    public void When_MappingProcedureRequestThatIsNotPlan_Expect_ResourceNotMapped() {
         String inputJson = ResourceTestFileUtils.getFileContent(INPUT_PROCEDURE_REQUEST_IS_NOT_PLAN);
         ProcedureRequest inputProcedureRequest = new FhirParseService().parseResource(inputJson, ProcedureRequest.class);
 
@@ -107,7 +127,7 @@ public class DiaryPlanStatementMapperTest {
     }
 
     @Test
-    public void When_MappingProcedureRequestWithoutRequiredAuthoredOn_Expect_MapperException() throws IOException {
+    public void When_MappingProcedureRequestWithoutRequiredAuthoredOn_Expect_MapperException() {
         String inputJson = ResourceTestFileUtils.getFileContent(INPUT_PROCEDURE_REQUEST_WITHOUT_REQUIRED_AUTHORED_ON);
         ProcedureRequest inputProcedureRequest = new FhirParseService().parseResource(inputJson, ProcedureRequest.class);
 
@@ -275,7 +295,7 @@ public class DiaryPlanStatementMapperTest {
 
     @ParameterizedTest
     @MethodSource("testData")
-    public void When_MappingProcedureRequest_Expect_ResourceMapped(String inputJsonPath, String expectedXmlPath) throws IOException {
+    public void When_MappingProcedureRequest_Expect_ResourceMapped(String inputJsonPath, String expectedXmlPath) {
         String expectedXml = ResourceTestFileUtils.getFileContent(expectedXmlPath);
 
         String inputJson = ResourceTestFileUtils.getFileContent(inputJsonPath);
