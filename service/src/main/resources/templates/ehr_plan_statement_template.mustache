@@ -12,6 +12,9 @@
             <center {{{effectiveTime}}}/>
         </effectiveTime>
         {{#availabilityTime}}<availabilityTime value="{{.}}"/>{{/availabilityTime}}
+        {{#confidentialityCode}}
+            {{{confidentialityCode}}}
+        {{/confidentialityCode}}
         {{#author}}
         <author typeCode="AUT" contextControlCode="OP">
             {{#authorTime}}<time value="{{.}}" />{{/authorTime}}

@@ -26,6 +26,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.DiaryPlanStatementMapper.PlanStatementMapperParameters.PlanStatementMapperParametersBuilder;
 import uk.nhs.adaptors.gp2gp.ehr.utils.CodeableConceptMappingUtils;
@@ -49,6 +50,7 @@ public class DiaryPlanStatementMapper {
     private final MessageContext messageContext;
     private final CodeableConceptCdMapper codeableConceptCdMapper;
     private final ParticipantMapper participantMapper;
+    private final ConfidentialityService confidentialityService;
 
     public String mapProcedureRequestToPlanStatement(ProcedureRequest procedureRequest, Boolean isNested) {
         if (procedureRequest.getIntent() == ProcedureRequest.ProcedureRequestIntent.PLAN) {
@@ -61,13 +63,16 @@ public class DiaryPlanStatementMapper {
     private String mapDiaryEntryToPlanStatement(ProcedureRequest procedureRequest, Boolean isNested) {
         var idMapper = messageContext.getIdMapper();
         var availabilityTime = buildAvailabilityTime(procedureRequest);
+        var confidentialityCode = confidentialityService.generateConfidentialityCode(procedureRequest);
+
         PlanStatementMapperParametersBuilder builder = PlanStatementMapperParameters.builder()
             .isNested(isNested)
             .id(idMapper.getOrNew(ResourceType.ProcedureRequest, procedureRequest.getIdElement()))
             .availabilityTime(availabilityTime)
             .effectiveTime(buildEffectiveTime(procedureRequest))
             .text(buildText(procedureRequest))
-            .code(buildCode(procedureRequest));
+            .code(buildCode(procedureRequest))
+            .confidentialityCode(confidentialityCode.orElse(null));
 
         buildParticipant(procedureRequest).ifPresent(builder::participant);
 
@@ -139,7 +144,7 @@ public class DiaryPlanStatementMapper {
         if (procedureRequest.hasSupportingInfo()) {
             return Optional.of("Supporting Information: " + procedureRequest.getSupportingInfo().stream()
                 .filter(this::checkIfReferenceIsObservation)
-                .map((observationReference) -> extractObservation(messageContext, observationReference))
+                .map(observationReference -> extractObservation(messageContext, observationReference))
                 .collect(Collectors.joining(COMMA)));
         }
         return Optional.empty();
@@ -230,5 +235,6 @@ public class DiaryPlanStatementMapper {
         private String effectiveTime;
         private String code;
         private String participant;
+        private String confidentialityCode;
     }
 }
