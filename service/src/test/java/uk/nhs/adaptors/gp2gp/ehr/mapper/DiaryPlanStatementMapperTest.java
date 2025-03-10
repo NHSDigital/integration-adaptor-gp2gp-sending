@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
-
-import java.io.IOException;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -61,7 +59,8 @@ public class DiaryPlanStatementMapperTest {
 
     public static final String CONFIDENTIALITY_CODE = "<confidentialityCode code=\"NOPAT\" "
                                                       + "codeSystem=\"2.16.840.1.113883.4.642.3.47\" "
-                                                      + "displayName=\"no disclosure to patient, family or caregivers without attending provider's authorization\" />";
+                                                      + "displayName=\"no disclosure to patient, family or "
+                                                      + "caregivers without attending provider's authorization\" />";
 
     @Mock
     private RandomIdGeneratorService randomIdGeneratorService;
