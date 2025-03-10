@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
@@ -152,7 +153,7 @@ public class CodeableConceptCdMapper {
         var mainCode = getSnomedCodeCoding(codeableConcept);
 
         builder.nullFlavor(mainCode.isEmpty());
-        var originalText = findOriginalText(codeableConcept, mainCode);
+        var originalText = findOriginalTextUsingNestedDisplayExtension(codeableConcept, mainCode);
         originalText.ifPresent(builder::mainOriginalText);
 
         if (mainCode.isPresent()) {
@@ -324,7 +325,11 @@ public class CodeableConceptCdMapper {
         return nonSnomedCodeCodings;
     }
 
-    private Optional<String> findOriginalText(CodeableConcept codeableConcept, Optional<Coding> coding) {
+    private Optional<String> findOriginalText(
+        CodeableConcept codeableConcept,
+        Optional<Coding> coding,
+        Function<Coding, List<Extension>> function) {
+
         if (coding.isPresent()) {
             if (codeableConcept.hasText()) {
                 return Optional.ofNullable(codeableConcept.getText());
@@ -332,7 +337,7 @@ public class CodeableConceptCdMapper {
                 if (coding.get().hasDisplay()) {
                     return getCodingDisplayName(coding.get());
                 } else {
-                    var extension = retrieveDescriptionExtension(coding.get());
+                    var extension = function.apply(coding.get());
                     return extension.stream()
                         .filter(displayExtension -> DESCRIPTION_DISPLAY.equals(displayExtension.getUrl()))
                         .map(extension1 -> extension1.getValue().toString())
@@ -342,6 +347,24 @@ public class CodeableConceptCdMapper {
         } else {
             return CodeableConceptMappingUtils.extractTextOrCoding(codeableConcept);
         }
+    }
+
+    private Optional<String> findOriginalText(CodeableConcept codeableConcept, Optional<Coding> coding) {
+        return findOriginalText(
+            codeableConcept,
+            coding,
+            codingParameter -> retrieveDescriptionExtension(codingParameter).stream().toList()
+        );
+    }
+
+    private Optional<String> findOriginalTextUsingNestedDisplayExtension(CodeableConcept codeableConcept, Optional<Coding> coding) {
+        return findOriginalText(
+            codeableConcept,
+            coding,
+            codingParameter -> retrieveDescriptionExtension(codingParameter)
+                .map(Extension::getExtension)
+                .orElseGet(Collections::emptyList)
+        );
     }
 
     private Optional<String> findOriginalTextForAllergy(
