@@ -442,7 +442,7 @@ public class CodeableConceptCdMapperTest {
                                          "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
                                          "extension": [
                                              {
-                                                 "url": "descriptionId",
+                                                 "url": "descriptioÍnId",
                                                  "valueId": "12345789"
                                              }
                                          ]
@@ -520,7 +520,43 @@ public class CodeableConceptCdMapperTest {
                                         "extension": [
                                             {
                                                 "url": "descriptionId",
-                                                "valueId": "12345789"
+                                                "valueString": "123456789"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }""";
+
+            var expectedOutput = """
+                <code nullFlavor="UNK">
+                </code>""";
+            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
+
+            var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
+
+            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+        }
+
+        @Test
+        void When_WithSnomedCodingNoTextNoDisplayWithDescriptionExtensionWithDisplayExtension_Expect_SnomedCdXmlWithoutOriginalText() {
+            var inputJson = """
+                {
+                    "resourceType": "Observation",
+                    "code": {
+                        "coding": [
+                            {
+                                "system": "http://snomed.info/sct",
+                                "code": "852471000000107",
+                                "extension": [
+                                    {
+                                        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
+                                        "extension": [
+                                            {
+                                                "url": "descriptionDisplay",
+                                                "valueString": "Prothrombin time (observed)"
                                             }
                                         ]
                                     }
