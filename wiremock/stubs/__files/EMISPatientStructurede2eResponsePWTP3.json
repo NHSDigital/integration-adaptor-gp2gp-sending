@@ -3101,13 +3101,8 @@
                 "id": "341EFC5C-E013-4578-9140-F65A79C16BC9",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1"
-                    ],
-                    "security": [{
-                      "system":"http://hl7.org/fhir/v3/ActCode",
-                      "code":"NOPAT",
-                      "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
-                    }]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-AllergyIntolerance-1"
+                    ]
                 },
                 "extension": [
                     {
@@ -4119,13 +4114,8 @@
                 "id": "A636BB7E-B3E9-4469-AB38-6188BAB64714",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1"
-                    ],
-                    "security": [{
-                        "system":"http://hl7.org/fhir/v3/ActCode",
-                        "code":"NOPAT",
-                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
-                    }]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-AllergyIntolerance-1"
+                    ]
                 },
                 "extension": [
                     {
@@ -4208,13 +4198,8 @@
                 "id": "F2DD8F92-32B5-49CB-8AD8-86340192E48C",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1"
-                    ],
-                    "security": [{
-                        "system":"http://hl7.org/fhir/v3/ActCode",
-                        "code":"NOPAT",
-                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
-                    }]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-AllergyIntolerance-1"
+                    ]
                 },
                 "extension": [
                     {
@@ -4287,13 +4272,8 @@
                 "id": "D8DAC6C3-4602-44A8-BE52-9684D66FF655",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1"
-                    ],
-                    "security": [{
-                        "system":"http://hl7.org/fhir/v3/ActCode",
-                        "code":"NOPAT",
-                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
-                    }]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-AllergyIntolerance-1"
+                    ]
                 },
                 "extension": [
                     {
@@ -4361,13 +4341,8 @@
                 "id": "79D00277-4FF6-4659-9AA5-05AC033CF37A",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1"
-                    ],
-                    "security": [{
-                        "system":"http://hl7.org/fhir/v3/ActCode",
-                        "code":"NOPAT",
-                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
-                    }]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-AllergyIntolerance-1"
+                    ]
                 },
                 "extension": [
                     {
@@ -4982,13 +4957,8 @@
                 "id": "A826CF5F-CC39-443A-B524-618F08637EF7-FI-1",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1"
-                    ],
-                    "security": [{
-                        "system":"http://hl7.org/fhir/v3/ActCode",
-                        "code":"NOPAT",
-                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
-                    }]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-AllergyIntolerance-1"
+                    ]
                 },
                 "extension": [
                     {
@@ -5211,13 +5181,8 @@
                 "id": "2FA44010-3A55-4788-A2BD-C1FC11A2F5E3",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1"
-                    ],
-                    "security": [{
-                        "system":"http://hl7.org/fhir/v3/ActCode",
-                        "code":"NOPAT",
-                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
-                    }]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-AllergyIntolerance-1"
+                    ]
                 },
                 "extension": [
                     {
@@ -5586,13 +5551,8 @@
                 "id": "4991881C-21EE-45F6-A412-CB46EBC4BC9F",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1"
-                    ],
-                    "security": [{
-                        "system":"http://hl7.org/fhir/v3/ActCode",
-                        "code":"NOPAT",
-                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
-                    }]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-AllergyIntolerance-1"
+                    ]
                 },
                 "extension": [
                     {
@@ -6058,8 +6018,13 @@
                 "id": "3FC884E6-A327-4076-B4C5-6B02192C5160-PROB",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-ProblemHeader-Condition-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-AllergyIntolerance-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "extension": [
                     {
@@ -6137,8 +6102,13 @@
                 "id": "62658072-28AF-47E5-B81C-BC0521D5C41C-PROB",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-ProblemHeader-Condition-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-AllergyIntolerance-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "extension": [
                     {
@@ -6217,12 +6187,7 @@
                 "meta": {
                     "profile": [
                         "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-AllergyIntolerance-1"
-                    ],
-                    "security": [{
-                        "system":"http://hl7.org/fhir/v3/ActCode",
-                        "code":"NOPAT",
-                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
-                    }]
+                    ]
                 },
                 "identifier": [
                     {
@@ -6601,12 +6566,7 @@
                 "meta": {
                     "profile": [
                         "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-AllergyIntolerance-1"
-                    ],
-                    "security": [{
-                        "system":"http://hl7.org/fhir/v3/ActCode",
-                        "code":"NOPAT",
-                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
-                    }]
+                    ]
                 },
                 "extension": [
                     {
