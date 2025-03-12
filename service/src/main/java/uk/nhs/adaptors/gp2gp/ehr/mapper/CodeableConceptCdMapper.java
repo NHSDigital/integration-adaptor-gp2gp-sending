@@ -328,43 +328,29 @@ public class CodeableConceptCdMapper {
     private Optional<String> findOriginalText(
         CodeableConcept codeableConcept,
         Optional<Coding> coding,
-        Function<Coding, List<Extension>> getOriginalTextFromDescriptionExtension) {
+        Function<Coding, Optional<String>> findOriginalTextInDisplayExtension) {
+
+        if (codeableConcept.hasText()) {
+            return Optional.ofNullable(codeableConcept.getText());
+        }
 
         if (coding.isPresent()) {
-            if (codeableConcept.hasText()) {
-                return Optional.ofNullable(codeableConcept.getText());
-            } else {
-                if (coding.get().hasDisplay()) {
-                    return getCodingDisplayName(coding.get());
-                } else {
-                    var extension = getOriginalTextFromDescriptionExtension.apply(coding.get());
-                    return extension.stream()
-                        .filter(displayExtension -> DESCRIPTION_DISPLAY.equals(displayExtension.getUrl()))
-                        .map(extension1 -> extension1.getValue().toString())
-                        .findFirst();
-                }
+            if (coding.get().hasDisplay()) {
+                return getCodingDisplayName(coding.get());
             }
-        } else {
-            return CodeableConceptMappingUtils.extractTextOrCoding(codeableConcept);
+
+            return findOriginalTextInDisplayExtension.apply(coding.get());
         }
+
+        return CodeableConceptMappingUtils.extractTextOrCoding(codeableConcept);
     }
 
     private Optional<String> findOriginalText(CodeableConcept codeableConcept, Optional<Coding> coding) {
-        return findOriginalText(
-            codeableConcept,
-            coding,
-            codingParameter -> retrieveDescriptionExtension(codingParameter).stream().toList()
-        );
+        return findOriginalText(codeableConcept, coding, codingParameter -> Optional.empty());
     }
 
     private Optional<String> findOriginalTextUsingNestedDisplayExtension(CodeableConcept codeableConcept, Optional<Coding> coding) {
-        return findOriginalText(
-            codeableConcept,
-            coding,
-            codingParameter -> retrieveDescriptionExtension(codingParameter)
-                .map(Extension::getExtension)
-                .orElseGet(Collections::emptyList)
-        );
+        return findOriginalText(codeableConcept, coding, this::getDisplayTextFromDescriptionExtension);
     }
 
     private Optional<String> findOriginalTextForAllergy(
@@ -377,13 +363,13 @@ public class CodeableConceptCdMapper {
         }
 
         if (ACTIVE_CLINICAL_STATUS.equals(allergyIntoleranceClinicalStatus.toCode())) {
-            return getOriginalTextForActiveAllergy(coding.get());
+            return getDisplayTextFromDescriptionExtension(coding.get());
         }
 
         return CodeableConceptMappingUtils.extractTextOrCoding(codeableConcept);
     }
 
-    private Optional<String> getOriginalTextForActiveAllergy(Coding coding) {
+    private Optional<String> getDisplayTextFromDescriptionExtension(Coding coding) {
         return retrieveDescriptionExtension(coding)
             .flatMap(value -> value
                 .getExtension().stream()
