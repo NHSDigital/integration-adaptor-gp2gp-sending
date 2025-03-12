@@ -187,7 +187,7 @@ public class EhrExtractMapperComponentTest {
                 codeableConceptCdMapper,
                 participantMapper
             ),
-            new RequestStatementMapper(messageContext, codeableConceptCdMapper, participantMapper),
+            new RequestStatementMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService),
             new DiagnosticReportMapper(
                 messageContext, specimenMapper, participantMapper, randomIdGeneratorService, confidentialityService
             ),

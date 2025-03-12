@@ -6,10 +6,10 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
+import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOPAT_HL7_CONFIDENTIALITY_CODE;
 
-import java.io.IOException;
+import java.util.Optional;
 import java.util.stream.Stream;
-
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.IdType;
@@ -30,6 +30,7 @@ import lombok.SneakyThrows;
 
 import org.mockito.stubbing.Answer;
 
+import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.utils.CodeableConceptMapperMockUtil;
@@ -77,6 +78,7 @@ public class RequestStatementMapperTest {
         + "example-referral-request-no-resolved-reference-requester.json";
     private static final String INPUT_JSON_WITH_NO_RESOLVED_REFERENCE_RECIPIENT = TEST_FILE_DIRECTORY
         + "example-referral-request-no-resolved-reference-recipient.json";
+    private static final String INPUT_JSON_WITH_NOPAT = TEST_FILE_DIRECTORY + "example-referral-request-with-nopat.json";
     private static final String INPUT_JSON_WITH_NO_RESOLVED_REFERENCE_NOTE_AUTHOR = TEST_FILE_DIRECTORY
         + "example-referral-request-no-resolved-reference-note-author.json";
     private static final String INPUT_JSON_WITH_PRACTITIONER_REQUESTER_NO_ONBEHALFOF = TEST_FILE_DIRECTORY
@@ -197,6 +199,8 @@ public class RequestStatementMapperTest {
     private IdMapper idMapper;
     @Mock
     private AgentDirectory agentDirectory;
+    @Mock
+    private ConfidentialityService confidentialityService;
 
     private InputBundle inputBundle;
 
@@ -272,7 +276,7 @@ public class RequestStatementMapperTest {
     }
 
     @BeforeEach
-    public void setUp() throws IOException {
+    public void setUp() {
         var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
         Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
         inputBundle = new InputBundle(bundle);
@@ -285,7 +289,10 @@ public class RequestStatementMapperTest {
         lenient().when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(mockIdForReference());
         lenient().when(agentDirectory.getAgentRef(any(Reference.class), any(Reference.class))).thenAnswer(mockIdForAgentReference());
 
-        requestStatementMapper = new RequestStatementMapper(messageContext, codeableConceptCdMapper, new ParticipantMapper());
+        requestStatementMapper = new RequestStatementMapper(messageContext,
+                                                            codeableConceptCdMapper,
+                                                            new ParticipantMapper(),
+                                                            confidentialityService);
     }
 
     private Answer<String> mockIdForResourceAndId() {
@@ -342,7 +349,7 @@ public class RequestStatementMapperTest {
     }
 
     @Test
-    public void When_MappingReferralRequestJsonWithNestedTrue_Expect_RequestStatementXmlOutput() throws IOException {
+    public void When_MappingReferralRequestJsonWithNestedTrue_Expect_RequestStatementXmlOutput() {
         String expectedOutputMessage = ResourceTestFileUtils.getFileContent(OUTPUT_XML_USES_NO_OPTIONAL_FIELDS_NESTED);
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_NO_OPTIONAL_FIELDS);
         ReferralRequest parsedReferralRequest = new FhirParseService().parseResource(jsonInput, ReferralRequest.class);
@@ -352,10 +359,21 @@ public class RequestStatementMapperTest {
         assertThat(outputMessage).isEqualTo(expectedOutputMessage);
     }
 
+    @Test
+    public void When_MappingReferralRequestWithNoPat_Expect_RequestStatementWithConfidentialityCode() {
+        when(confidentialityService.generateConfidentialityCode(any(ReferralRequest.class)))
+            .thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
+        var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_NOPAT);
+        ReferralRequest parsedReferralRequest = new FhirParseService().parseResource(jsonInput, ReferralRequest.class);
+
+        String outputMessage = requestStatementMapper.mapReferralRequestToRequestStatement(parsedReferralRequest, true);
+
+        assertThat(outputMessage).contains(NOPAT_HL7_CONFIDENTIALITY_CODE);
+    }
+
     @ParameterizedTest
     @MethodSource("resourceFileParamsWithInvalidData")
-    public void When_MappingReferralRequestJsonWithInvalidData_Expect_Exception(String inputJson, String exceptionMessage)
-        throws IOException {
+    public void When_MappingReferralRequestJsonWithInvalidData_Expect_Exception(String inputJson, String exceptionMessage) {
         var jsonInput = ResourceTestFileUtils.getFileContent(inputJson);
         ReferralRequest parsedReferralRequest = new FhirParseService().parseResource(jsonInput, ReferralRequest.class);
 

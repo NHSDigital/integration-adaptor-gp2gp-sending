@@ -62,8 +62,7 @@ public class CodeableConceptCdMapper {
 
     private String mapCodeableConcept(
         CodeableConcept codeableConcept,
-        BiFunction<Optional<List<Extension>>, Coding, Optional<String>> getMainCodeFunction
-    ) {
+        BiFunction<Optional<List<Extension>>, Coding, Optional<String>> getMainCodeFunction) {
         Optional<Coding> snomedCodeCoding = getSnomedCodeCoding(codeableConcept);
 
         if (snomedCodeCoding.isEmpty()) {
