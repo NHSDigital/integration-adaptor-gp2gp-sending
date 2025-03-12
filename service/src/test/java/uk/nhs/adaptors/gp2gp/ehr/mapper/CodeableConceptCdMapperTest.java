@@ -23,7 +23,6 @@ import uk.nhs.adaptors.gp2gp.utils.TestArgumentsLoaderUtil;
 
 public class CodeableConceptCdMapperTest {
     private static final String TEST_FILE_DIRECTORY = "/ehr/mapper/codeableconcept/";
-    private static final String TEST_FILE_DIRECTORY_NULL_FLAVOR = "/ehr/mapper/codeableconcept/nullFlavor/";
     private static final String TEST_FILE_DIRECTORY_ACTUAL_PROBLEM = "/ehr/mapper/codeableconcept/actualProblem/";
     private static final String TEST_FILE_DIRECTORY_ALLERGY_RESOLVED = "/ehr/mapper/codeableconcept/allergyResolved/";
     private static final String TEST_FILE_DIRECTORY_ALLERGY_ACTIVE = "/ehr/mapper/codeableconcept/allergyActive/";
@@ -46,10 +45,6 @@ public class CodeableConceptCdMapperTest {
 
     private static Stream<Arguments> getTestArguments() {
         return TestArgumentsLoaderUtil.readTestCases(TEST_FILE_DIRECTORY);
-    }
-
-    private static Stream<Arguments> getTestArgumentsNullFlavor() {
-        return TestArgumentsLoaderUtil.readTestCases(TEST_FILE_DIRECTORY_NULL_FLAVOR);
     }
 
     private static Stream<Arguments> getTestArgumentsActualProblem() {
@@ -179,20 +174,6 @@ public class CodeableConceptCdMapperTest {
         var codeableConcept = fhirParseService.parseResource(observationCodeableConcept, Observation.class).getCode();
 
         var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForTransformedActualProblemHeader(codeableConcept);
-        assertThat(outputMessage)
-            .describedAs(TestArgumentsLoaderUtil.FAIL_MESSAGE, inputJson, outputXml)
-            .isEqualToIgnoringWhitespace(expectedOutput);
-    }
-
-    @ParameterizedTest
-    @MethodSource("getTestArgumentsNullFlavor")
-    public void When_MappingStubbedCodeableConceptAsNullFlavor_Expect_HL7CdObjectXml(String inputJson, String outputXml)
-        throws IOException {
-        var observationCodeableConcept = ResourceTestFileUtils.getFileContent(inputJson);
-        var expectedOutput = ResourceTestFileUtils.getFileContent(outputXml);
-        var codeableConcept = fhirParseService.parseResource(observationCodeableConcept, Observation.class).getCode();
-
-        var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
         assertThat(outputMessage)
             .describedAs(TestArgumentsLoaderUtil.FAIL_MESSAGE, inputJson, outputXml)
             .isEqualToIgnoringWhitespace(expectedOutput);
@@ -502,6 +483,7 @@ public class CodeableConceptCdMapperTest {
 
             var expectedOutput = """
                 <code nullFlavor="UNK">
+                    <originalText>Prothrombin time (observed)</originalText>
                 </code>""";
             var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
 
@@ -522,7 +504,7 @@ public class CodeableConceptCdMapperTest {
                                 "code": "852471000000107",
                                 "extension": [
                                     {
-                                        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
+                                        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-some-other",
                                         "extension": [
                                             {
                                                 "url": "descriptionDisplay",
@@ -547,7 +529,7 @@ public class CodeableConceptCdMapperTest {
         }
 
         @Test
-        void When_WithNonSnomedCodingWithText_Expect_SnomedCdXmlWithOriginalTexFromText() {
+        void When_WithNonSnomedCodingWithText_Expect_SnomedCdXmlWithOriginalTextFromText() {
             var inputJson = """
                 {
                     "resourceType": "Observation",

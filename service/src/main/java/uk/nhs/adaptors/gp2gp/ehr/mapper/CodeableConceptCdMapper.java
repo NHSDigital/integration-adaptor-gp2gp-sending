@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
@@ -153,7 +152,7 @@ public class CodeableConceptCdMapper {
         var mainCode = getSnomedCodeCoding(codeableConcept);
 
         builder.nullFlavor(mainCode.isEmpty());
-        var originalText = findOriginalTextUsingNestedDisplayExtension(codeableConcept, mainCode);
+        var originalText = findOriginalText(codeableConcept, mainCode);
         originalText.ifPresent(builder::mainOriginalText);
 
         if (mainCode.isPresent()) {
@@ -325,10 +324,7 @@ public class CodeableConceptCdMapper {
         return nonSnomedCodeCodings;
     }
 
-    private Optional<String> findOriginalText(
-        CodeableConcept codeableConcept,
-        Optional<Coding> coding,
-        Function<Coding, Optional<String>> findOriginalTextInDisplayExtension) {
+    private Optional<String> findOriginalText(CodeableConcept codeableConcept, Optional<Coding> coding) {
 
         if (codeableConcept.hasText()) {
             return Optional.ofNullable(codeableConcept.getText());
@@ -339,18 +335,10 @@ public class CodeableConceptCdMapper {
                 return getCodingDisplayName(coding.get());
             }
 
-            return findOriginalTextInDisplayExtension.apply(coding.get());
+            return getDisplayTextFromDescriptionExtension(coding.get());
         }
 
         return CodeableConceptMappingUtils.extractTextOrCoding(codeableConcept);
-    }
-
-    private Optional<String> findOriginalText(CodeableConcept codeableConcept, Optional<Coding> coding) {
-        return findOriginalText(codeableConcept, coding, codingParameter -> Optional.empty());
-    }
-
-    private Optional<String> findOriginalTextUsingNestedDisplayExtension(CodeableConcept codeableConcept, Optional<Coding> coding) {
-        return findOriginalText(codeableConcept, coding, this::getDisplayTextFromDescriptionExtension);
     }
 
     private Optional<String> findOriginalTextForAllergy(
