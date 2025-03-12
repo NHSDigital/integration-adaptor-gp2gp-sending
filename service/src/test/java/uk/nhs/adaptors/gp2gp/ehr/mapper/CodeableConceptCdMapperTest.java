@@ -488,6 +488,7 @@ public class CodeableConceptCdMapperTest {
 
             var expectedOutput = """
                 <code nullFlavor="UNK">
+                    <originalText>Prothrombin time (observed)</originalText>
                 </code>""";
             var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
 
@@ -508,7 +509,7 @@ public class CodeableConceptCdMapperTest {
                                 "code": "852471000000107",
                                 "extension": [
                                     {
-                                        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
+                                        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-some-other",
                                         "extension": [
                                             {
                                                 "url": "descriptionDisplay",
