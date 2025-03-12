@@ -23,7 +23,6 @@ import uk.nhs.adaptors.gp2gp.utils.TestArgumentsLoaderUtil;
 
 public class CodeableConceptCdMapperTest {
     private static final String TEST_FILE_DIRECTORY = "/ehr/mapper/codeableconcept/";
-    private static final String TEST_FILE_DIRECTORY_NULL_FLAVOR = "/ehr/mapper/codeableconcept/nullFlavor/";
     private static final String TEST_FILE_DIRECTORY_ACTUAL_PROBLEM = "/ehr/mapper/codeableconcept/actualProblem/";
     private static final String TEST_FILE_DIRECTORY_ALLERGY_RESOLVED = "/ehr/mapper/codeableconcept/allergyResolved/";
     private static final String TEST_FILE_DIRECTORY_ALLERGY_ACTIVE = "/ehr/mapper/codeableconcept/allergyActive/";
@@ -46,10 +45,6 @@ public class CodeableConceptCdMapperTest {
 
     private static Stream<Arguments> getTestArguments() {
         return TestArgumentsLoaderUtil.readTestCases(TEST_FILE_DIRECTORY);
-    }
-
-    private static Stream<Arguments> getTestArgumentsNullFlavor() {
-        return TestArgumentsLoaderUtil.readTestCases(TEST_FILE_DIRECTORY_NULL_FLAVOR);
     }
 
     private static Stream<Arguments> getTestArgumentsActualProblem() {
