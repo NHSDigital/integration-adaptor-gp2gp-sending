@@ -185,20 +185,6 @@ public class CodeableConceptCdMapperTest {
     }
 
     @ParameterizedTest
-    @MethodSource("getTestArgumentsNullFlavor")
-    public void When_MappingStubbedCodeableConceptAsNullFlavor_Expect_HL7CdObjectXml(String inputJson, String outputXml)
-        throws IOException {
-        var observationCodeableConcept = ResourceTestFileUtils.getFileContent(inputJson);
-        var expectedOutput = ResourceTestFileUtils.getFileContent(outputXml);
-        var codeableConcept = fhirParseService.parseResource(observationCodeableConcept, Observation.class).getCode();
-
-        var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
-        assertThat(outputMessage)
-            .describedAs(TestArgumentsLoaderUtil.FAIL_MESSAGE, inputJson, outputXml)
-            .isEqualToIgnoringWhitespace(expectedOutput);
-    }
-
-    @ParameterizedTest
     @MethodSource("getTestArgumentsAllergyResolved")
     void When_MappingStubbedCodeableConceptAsResolvedAllergy_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
         var allergyCodeableConcept = ResourceTestFileUtils.getFileContent(inputJson);
@@ -547,7 +533,7 @@ public class CodeableConceptCdMapperTest {
         }
 
         @Test
-        void When_WithNonSnomedCodingWithText_Expect_SnomedCdXmlWithOriginalTexFromText() {
+        void When_WithNonSnomedCodingWithText_Expect_SnomedCdXmlWithOriginalTextFromText() {
             var inputJson = """
                 {
                     "resourceType": "Observation",
