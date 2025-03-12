@@ -777,8 +777,6 @@ public class CodeableConceptCdMapperTest {
         }
     }
 
-
-
     @ParameterizedTest
     @MethodSource("getTestArgumentsForTopicRelatedProblem")
     @SneakyThrows
