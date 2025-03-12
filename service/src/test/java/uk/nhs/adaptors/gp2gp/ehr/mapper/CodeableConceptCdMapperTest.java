@@ -230,7 +230,6 @@ public class CodeableConceptCdMapperTest {
 
     @Nested
     class WhenMappingStubbedCodeableConceptForBloodPressure {
-
         @Test
         void When_WithoutCoding_Expect_NullFlavorCdXmlWithoutOriginalText() {
             var inputJson = """
@@ -240,31 +239,6 @@ public class CodeableConceptCdMapperTest {
             var expectedOutput = """
             <code nullFlavor="UNK">
             </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
-
-            var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
-
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
-        }
-
-        @Test
-        void When_WithNonSnomedCodingWithDisplay_Expect_NullFlavorCdXmlWithOriginalText() {
-            var inputJson = """
-                {
-                     "resourceType": "Observation",
-                     "code": {
-                         "coding": [
-                             {
-                                 "display": "Prothrombin time"
-                             }
-                         ]
-                     }
-                }""";
-
-            var expectedOutput = """
-                <code nullFlavor="UNK">
-                    <originalText>Prothrombin time</originalText>
-                </code>""";
             var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
 
             var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
@@ -290,33 +264,6 @@ public class CodeableConceptCdMapperTest {
             var expectedOutput = """
                 <code code="852471000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Prothrombin time">
                     <originalText>Prothrombin time</originalText>
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
-
-            var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
-
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
-        }
-
-        @Test
-        void When_WithSnomedCodingWithoutCode_Expect_SnomedCdXmlWithOriginalTextFromText() {
-            var inputJson = """
-                {
-                     "resourceType": "Observation",
-                     "code": {
-                         "coding": [
-                             {
-                                 "system": "http://snomed.info/sct",
-                                 "display": "Prothrombin time",
-                                 "code": "852471000000107"
-                             }
-                         ],
-                         "text": "Prothrombin time observed"
-                     }
-                }""";
-            var expectedOutput = """
-                <code code="852471000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Prothrombin time">
-                    <originalText>Prothrombin time observed</originalText>
                 </code>""";
             var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
 
@@ -397,7 +344,7 @@ public class CodeableConceptCdMapperTest {
         }
 
         @Test
-        void When_WithoutSnomedCodingWithText_Expect_NullFlavorUnkCDWithOriginalTextFromText() {
+        void When_WithNonSnomedCodingWithText_Expect_NullFlavorUnkCDWithOriginalTextFromText() {
             var inputJson = """
                 {
                      "resourceType": "Observation",
@@ -415,6 +362,33 @@ public class CodeableConceptCdMapperTest {
             var expectedOutput = """
                 <code nullFlavor="UNK">
                     <originalText>Prothrombin time (observed)</originalText>
+                </code>""";
+            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
+
+            var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
+
+            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+        }
+
+        @Test
+        void When_WithNonSnomedCodingNoTextWithDisplay_Expect_NullFlavorCdXmlWithOriginalTextFromDisplay() {
+            var inputJson = """
+                {
+                     "resourceType": "Observation",
+                     "code": {
+                         "coding": [
+                             {
+                                 "system": "http://read.info/readv2",
+                                 "code": "42Q5.00",
+                                 "display": "Prothrombin time"
+                             }
+                         ]
+                     }
+                }""";
+
+            var expectedOutput = """
+                <code nullFlavor="UNK">
+                    <originalText>Prothrombin time</originalText>
                 </code>""";
             var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
 
@@ -500,43 +474,6 @@ public class CodeableConceptCdMapperTest {
 
     @Nested
     class WhenMappingToNullFlavorCodeableConcept {
-
-        @Test
-        void When_WithNonSnomedCodingWithNoDisplayNoTextAndDescriptionExtensionNoDisplayExtension_Expect_SnomedCdXmlWithoutOriginalText() {
-            var inputJson = """
-                {
-                    "resourceType": "Observation",
-                    "code": {
-                        "coding": [
-                            {
-                                "system": "http://read.info/readv2",
-                                "code": "42Q5.00",
-                                "extension": [
-                                    {
-                                        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
-                                        "extension": [
-                                            {
-                                                "url": "descriptionId",
-                                                "valueString": "123456789"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                }""";
-
-            var expectedOutput = """
-                <code nullFlavor="UNK">
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
-
-            var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
-
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
-        }
-
         @Test
         void When_WithSnomedCodingNoTextNoDisplayWithDescriptionExtensionWithDisplayExtension_Expect_SnomedCdXmlWithoutOriginalText() {
             var inputJson = """
@@ -676,7 +613,43 @@ public class CodeableConceptCdMapperTest {
         }
 
         @Test
-        void When_WithNonSnomedCodingWithNoTextWithDescriptionExtensionNoDisplayExtension_Expect_SnomedCdXmlWithOriginalTextFromDisplay() {
+        void When_WithNonSnomedCodingWithNoDisplayNoTextWithDescriptionExtNoDisplayExt_Expect_SnomedCdXmlWithoutOriginalText() {
+            var inputJson = """
+                {
+                    "resourceType": "Observation",
+                    "code": {
+                        "coding": [
+                            {
+                                "system": "http://read.info/readv2",
+                                "code": "42Q5.00",
+                                "extension": [
+                                    {
+                                        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
+                                        "extension": [
+                                            {
+                                                "url": "descriptionId",
+                                                "valueString": "123456789"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }""";
+
+            var expectedOutput = """
+                <code nullFlavor="UNK">
+                </code>""";
+            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
+
+            var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
+
+            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+        }
+
+        @Test
+        void When_WithNonSnomedCodingWithDisplayNoTextWithDescriptionExtNoDisplayExt_Expect_SnomedCdXmlWithOriginalTextFromDisplay() {
             var inputJson = """
                 {
                     "resourceType": "Observation",
