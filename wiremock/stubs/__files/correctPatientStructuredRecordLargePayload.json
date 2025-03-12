@@ -900,10 +900,10 @@
                         {
                             "system": "http://snomed.info/sct",
                             "code": "231504006",
-                            "display": "Mixed anxiety and depressive disorder"
+                            "display": "Mixed anxiety and depressive disorder: no NOPAT1"
                         }
                     ],
-                    "text": "Anxiety with depression"
+                    "text": "Anxiety with depression: no NOPAT1"
                 },
                 "subject":
                 {
@@ -7494,10 +7494,10 @@
                         {
                             "system": "http://snomed.info/sct",
                             "code": "231504006",
-                            "display": "Mixed anxiety and depressive disorder"
+                            "display": "Mixed anxiety and depressive disorder: NOPAT2"
                         }
                     ],
-                    "text": "Anxiety with depression"
+                    "text": "Anxiety with depression: NOPAT2"
                 },
                 "subject":
                 {
@@ -15351,10 +15351,10 @@
                             ],
                             "system": "http://snomed.info/sct",
                             "code": "231504006",
-                            "display": "Mixed anxiety and depressive disorder"
+                            "display": "Mixed anxiety and depressive disorder: NOPAT3"
                         }
                     ],
-                    "text": "Anxiety with depression"
+                    "text": "Anxiety with depression: NOPAT3"
                 },
                 "subject":
                 {
@@ -16958,10 +16958,10 @@
                         {
                             "system": "http://snomed.info/sct",
                             "code": "231504006",
-                            "display": "Mixed anxiety and depressive disorder"
+                            "display": "Mixed anxiety and depressive disorder: NOPAT5"
                         }
                     ],
-                    "text": "Anxiety with depression"
+                    "text": "Anxiety with depression: NOPAT5"
                 },
                 "subject":
                 {
@@ -17214,10 +17214,10 @@
                         {
                             "system": "http://snomed.info/sct",
                             "code": "231504006",
-                            "display": "Mixed anxiety and depressive disorder"
+                            "display": "Mixed anxiety and depressive disorder: no NOPAT6"
                         }
                     ],
-                    "text": "Anxiety with depression"
+                    "text": "Anxiety with depression: no NOPAT6"
                 },
                 "subject":
                 {
@@ -17566,10 +17566,10 @@
                         {
                             "system": "http://snomed.info/sct",
                             "code": "231504006",
-                            "display": "Mixed anxiety and depressive disorder"
+                            "display": "Mixed anxiety and depressive disorder: no NOPAT7"
                         }
                     ],
-                    "text": "Anxiety with depression"
+                    "text": "Anxiety with depression: no NOPAT7"
                 },
                 "subject":
                 {
@@ -19926,10 +19926,10 @@
                         {
                             "system": "http://snomed.info/sct",
                             "code": "231504006",
-                            "display": "Mixed anxiety and depressive disorder"
+                            "display": "Mixed anxiety and depressive disorder: no NOPAT8"
                         }
                     ],
-                    "text": "Anxiety with depression"
+                    "text": "Anxiety with depression: no NOPAT8"
                 },
                 "subject":
                 {
