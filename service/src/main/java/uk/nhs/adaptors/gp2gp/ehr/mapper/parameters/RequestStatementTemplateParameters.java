@@ -17,4 +17,5 @@ public class RequestStatementTemplateParameters {
     private String participant;
     private String responsibleParty;
     private String text;
+    private String confidentialityCode;
 }

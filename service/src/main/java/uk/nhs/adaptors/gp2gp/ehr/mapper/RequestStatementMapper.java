@@ -33,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.RequestStatementTemplateParameters;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.RequestStatementTemplateParameters.RequestStatementTemplateParametersBuilder;
@@ -66,11 +67,6 @@ public class RequestStatementMapper {
     private static final String NOTE_WITH_NO_AUTHOR_AND_TIME = "Annotation: %s";
     private static final String COMMA = ", ";
 
-    private static final String PRIORITY_CODE_IMMEDIATE =
-        "<priorityCode code=\"88694003\" displayName=\"Immediate\" codeSystem=\"2.16.840.1.113883.2.1.3.2.4.15\">"
-            + "<originalText>Asap</originalText>"
-            + "</priorityCode>";
-
     private static final String PRIORITY_CODE_NORMAL =
         "<priorityCode code=\"394848005\" displayName=\"Normal\" codeSystem=\"2.16.840.1.113883.2.1.3.2.4.15\">"
             + "<originalText>Routine</originalText>"
@@ -84,6 +80,7 @@ public class RequestStatementMapper {
     private final MessageContext messageContext;
     private final CodeableConceptCdMapper codeableConceptCdMapper;
     private final ParticipantMapper participantMapper;
+    private final ConfidentialityService confidentialityService;
 
     public String mapReferralRequestToRequestStatement(ReferralRequest referralRequest, boolean isNested) {
         return new InnerMapper(referralRequest, isNested).map();
@@ -106,11 +103,14 @@ public class RequestStatementMapper {
                 processAgent(agentRef, onBehalfOf);
             }
 
+            var confidentialityCode = confidentialityService.generateConfidentialityCode(referralRequest);
+
             final IdMapper idMapper = messageContext.getIdMapper();
             templateParameters
                 .requestStatementId(idMapper.getOrNew(ResourceType.ReferralRequest, referralRequest.getIdElement()))
                 .isNested(isNested)
                 .availabilityTime(StatementTimeMappingUtils.prepareAvailabilityTime(referralRequest.getAuthoredOnElement()))
+                .confidentialityCode(confidentialityCode.orElse(null))
                 .text(buildTextDescription())
                 .priorityCode(buildPriorityCode())
                 .code(buildCode());

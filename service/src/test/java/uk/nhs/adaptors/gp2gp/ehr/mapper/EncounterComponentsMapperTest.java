@@ -181,7 +181,7 @@ public class EncounterComponentsMapperTest {
                 confidentialityService
             );
         RequestStatementMapper requestStatementMapper
-            = new RequestStatementMapper(messageContext, codeableConceptCdMapper, participantMapper);
+            = new RequestStatementMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService);
         DiagnosticReportMapper diagnosticReportMapper = new DiagnosticReportMapper(
             messageContext, specimenMapper, participantMapper, randomIdGeneratorService, confidentialityService
         );
