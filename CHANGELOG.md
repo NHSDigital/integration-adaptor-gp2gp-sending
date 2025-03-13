@@ -8,8 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* GP2GP Adaptor now populates the PlanStatement / confidentialityCode field 
-when the ProcedureRequest.meta.security field contains NOPAT and the message type is RCMR_IN030000UK07
+* GP2GP Adaptor now populates the PlanStatement / confidentialityCode field when the ProcedureRequest.meta.security field contains NOPAT
+* When the ReferralRequest.meta.security field contains NOPAT, the GP2GP Adaptor will now populate the RequestStatement / confidentialityCode field accordingly.
 
 ## [2.2.2] - 2025-02-07
 
