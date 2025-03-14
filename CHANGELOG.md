@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+* When mapping to `<code nullFlavor="UNK">` XML elements from an existing `CodeableConcept` the element will now contain
+the original text value from the DisplayExtension, if a separate text field is not provided. 
+In the case that neither of these are present, the existing behavior of using the `code.display` element is used. 
+
 ### Added
 
 * GP2GP Adaptor now populates the PlanStatement / confidentialityCode field when the ProcedureRequest.meta.security field contains NOPAT

@@ -161,6 +161,7 @@ public class CodeableConceptCdMapper {
 
             code.ifPresent(builder::mainCode);
             displayText.ifPresent(builder::mainDisplayName);
+            builder.translations(getNonSnomedCodeCodings(codeableConcept));
         }
 
         return TemplateUtils.fillTemplate(CODEABLE_CONCEPT_CD_TEMPLATE, builder.build());
@@ -324,23 +325,20 @@ public class CodeableConceptCdMapper {
     }
 
     private Optional<String> findOriginalText(CodeableConcept codeableConcept, Optional<Coding> coding) {
-        if (coding.isPresent()) {
-            if (codeableConcept.hasText()) {
-                return Optional.ofNullable(codeableConcept.getText());
-            } else {
-                if (coding.get().hasDisplay()) {
-                    return getCodingDisplayName(coding.get());
-                } else {
-                    var extension = retrieveDescriptionExtension(coding.get());
-                    return extension.stream()
-                        .filter(displayExtension -> DESCRIPTION_DISPLAY.equals(displayExtension.getUrl()))
-                        .map(extension1 -> extension1.getValue().toString())
-                        .findFirst();
-                }
-            }
-        } else {
-            return CodeableConceptMappingUtils.extractTextOrCoding(codeableConcept);
+
+        if (codeableConcept.hasText()) {
+            return Optional.ofNullable(codeableConcept.getText());
         }
+
+        if (coding.isPresent()) {
+            if (coding.get().hasDisplay()) {
+                return getCodingDisplayName(coding.get());
+            }
+
+            return getDisplayTextFromDescriptionExtension(coding.get());
+        }
+
+        return CodeableConceptMappingUtils.extractTextOrCoding(codeableConcept);
     }
 
     private Optional<String> findOriginalTextForAllergy(
@@ -353,13 +351,13 @@ public class CodeableConceptCdMapper {
         }
 
         if (ACTIVE_CLINICAL_STATUS.equals(allergyIntoleranceClinicalStatus.toCode())) {
-            return getOriginalTextForActiveAllergy(coding.get());
+            return getDisplayTextFromDescriptionExtension(coding.get());
         }
 
         return CodeableConceptMappingUtils.extractTextOrCoding(codeableConcept);
     }
 
-    private Optional<String> getOriginalTextForActiveAllergy(Coding coding) {
+    private Optional<String> getDisplayTextFromDescriptionExtension(Coding coding) {
         return retrieveDescriptionExtension(coding)
             .flatMap(value -> value
                 .getExtension().stream()
