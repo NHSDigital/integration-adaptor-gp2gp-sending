@@ -13,14 +13,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.utils.CodeableConceptMapperMockUtil;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 import uk.nhs.adaptors.gp2gp.utils.TestArgumentsLoaderUtil;
-
-import java.io.IOException;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,8 +42,10 @@ public class BloodPressureMapperTest {
     private static final String INPUT_ARTERIAL_PRESSURE_WITHOUT_DATA = "arterial-pressure-without-data.json";
     private static final String EXPECTED_ARTERIAL_PRESSURE_WITHOUT_DATA = "arterial-pressure-without-data.xml";
     private static final String INPUT_BLOOD_PRESSURE_WITH_DATA = "blood-pressure-with-data.json";
+    private static final String INPUT_BLOOD_PRESSURE_WITH_NOPAT = "blood-pressure-with-nopat.json";
     private static final String EXPECTED_BLOOD_PRESSURE_WITH_DATA = "blood-pressure-with-data.xml";
     private static final String EXPECTED_NESTED_BLOOD_PRESSURE = "blood-pressure-with-data-nested.xml";
+    private static final String EXPECTED_NESTED_BLOOD_PRESSURE_WITH_CONFIDENTIALITY_CODE = "blood-pressure-with-nopat.xml";
     private static final String INPUT_BLOOD_PRESSURE_WITHOUT_DATA = "blood-pressure-without-data.json";
     private static final String EXPECTED_BLOOD_PRESSURE_WITHOUT_DATA = "blood-pressure-without-data.xml";
     private static final String INPUT_EMPTY_OBSERVATION = "empty-observation.json";
@@ -60,10 +62,18 @@ public class BloodPressureMapperTest {
     private static final String EXPECTED_BLOOD_PRESSURE_WITH_CODEABLE_CONCEPTS = "blood-pressure-with-codeable-concepts.xml";
     private static final String INPUT_BLOOD_PRESSURE_WITH_NO_CODEABLE_CONCEPTS = "blood-pressure-with-no-codeable-concepts.json";
 
+    public static final String CONFIDENTIALITY_CODE =
+                    "<confidentialityCode code=\"NOPAT\" "
+                    + "codeSystem=\"2.16.840.1.113883.4.642.3.47\" "
+                    + "displayName=\"no disclosure to patient, family or caregivers without attending provider's authorization\" />";
+
     @Mock
     private RandomIdGeneratorService randomIdGeneratorService;
     @Mock
     private CodeableConceptCdMapper mockCodeableConceptCdMapper;
+
+    @Mock
+    private ConfidentialityService confidentialityService;
 
     private MessageContext messageContext;
     private BloodPressureMapper bloodPressureMapper;
@@ -76,7 +86,7 @@ public class BloodPressureMapperTest {
         messageContext.initialize(new Bundle());
         bloodPressureMapper = new BloodPressureMapper(
             messageContext, randomIdGeneratorService, new StructuredObservationValueMapper(),
-            mockCodeableConceptCdMapper, new ParticipantMapper());
+            mockCodeableConceptCdMapper, new ParticipantMapper(), confidentialityService);
     }
 
     @AfterEach
@@ -85,7 +95,7 @@ public class BloodPressureMapperTest {
     }
 
     @Test
-    public void When_MappingEmptyObservation_Expect_CompoundStatementXmlReturned() throws IOException {
+    public void When_MappingEmptyObservation_Expect_CompoundStatementXmlReturned() {
         when(mockCodeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(any(CodeableConcept.class)))
             .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
 
@@ -99,7 +109,7 @@ public class BloodPressureMapperTest {
     }
 
     @Test
-    public void When_MappingBloodPressureWithNestedTrue_Expect_CompoundStatementXmlReturned() throws IOException {
+    public void When_MappingBloodPressureWithNestedTrue_Expect_CompoundStatementXmlReturned() {
         when(mockCodeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(any(CodeableConcept.class)))
             .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
 
@@ -112,9 +122,26 @@ public class BloodPressureMapperTest {
         assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
     }
 
+    @Test
+    public void When_MappingBloodPressureWithNopat_Expect_CompoundStatementWithConfidentialityCode() {
+        when(mockCodeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(any(CodeableConcept.class)))
+            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+
+        var jsonInput = ResourceTestFileUtils.getFileContent(BLOOD_PRESSURE_FILE_LOCATION + INPUT_BLOOD_PRESSURE_WITH_NOPAT);
+        var expectedOutput = ResourceTestFileUtils.getFileContent(BLOOD_PRESSURE_FILE_LOCATION
+                                                                        + EXPECTED_NESTED_BLOOD_PRESSURE_WITH_CONFIDENTIALITY_CODE);
+
+        Observation observation = new FhirParseService().parseResource(jsonInput, Observation.class);
+        when(confidentialityService.generateConfidentialityCode(observation)).thenReturn(Optional.of(CONFIDENTIALITY_CODE));
+
+        var outputMessage = bloodPressureMapper.mapBloodPressure(observation, true);
+
+        assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+    }
+
     @ParameterizedTest
     @MethodSource("testArguments")
-    public void When_MappingBloodPressure_Expect_CompoundStatementXmlReturned(String inputJson, String outputXml) throws IOException {
+    public void When_MappingBloodPressure_Expect_CompoundStatementXmlReturned(String inputJson, String outputXml) {
         when(mockCodeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(any(CodeableConcept.class)))
             .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
 
@@ -144,7 +171,7 @@ public class BloodPressureMapperTest {
     }
 
     @Test
-    public void When_MappingBloodPressureWithCodeableConcepts_Expect_CompoundStatementXmlReturned() throws IOException {
+    public void When_MappingBloodPressureWithCodeableConcepts_Expect_CompoundStatementXmlReturned() {
         when(randomIdGeneratorService.createNewOrUseExistingUUID(any()))
             .thenReturn("5E496953-065B-41F2-9577-BE8F2FBD0757");
 
@@ -155,7 +182,7 @@ public class BloodPressureMapperTest {
         CodeableConceptCdMapper codeableConceptCdMapper = new CodeableConceptCdMapper();
         bloodPressureMapper = new BloodPressureMapper(
             messageContext, randomIdGeneratorService, new StructuredObservationValueMapper(),
-            codeableConceptCdMapper, new ParticipantMapper());
+            codeableConceptCdMapper, new ParticipantMapper(), confidentialityService);
 
         Observation observation = new FhirParseService().parseResource(jsonInput, Observation.class);
         var outputMessage = bloodPressureMapper.mapBloodPressure(observation, true);
@@ -164,13 +191,13 @@ public class BloodPressureMapperTest {
     }
 
     @Test
-    public void When_MappingBloodPressureWithNoCodeableConcepts_Expect_Exception() throws IOException {
+    public void When_MappingBloodPressureWithNoCodeableConcepts_Expect_Exception() {
         var jsonInput = ResourceTestFileUtils.getFileContent(BLOOD_PRESSURE_FILE_LOCATION + INPUT_BLOOD_PRESSURE_WITH_NO_CODEABLE_CONCEPTS);
 
         CodeableConceptCdMapper codeableConceptCdMapper = new CodeableConceptCdMapper();
         bloodPressureMapper = new BloodPressureMapper(
             messageContext, randomIdGeneratorService, new StructuredObservationValueMapper(),
-            codeableConceptCdMapper, new ParticipantMapper());
+            codeableConceptCdMapper, new ParticipantMapper(), confidentialityService);
 
         Observation observation = new FhirParseService().parseResource(jsonInput, Observation.class);
 

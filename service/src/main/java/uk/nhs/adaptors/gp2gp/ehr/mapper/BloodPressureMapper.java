@@ -10,6 +10,7 @@ import org.hl7.fhir.dstu3.model.ResourceType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.BloodPressureParameters;
@@ -57,13 +58,18 @@ public class BloodPressureMapper {
     private final StructuredObservationValueMapper structuredObservationValueMapper;
     private final CodeableConceptCdMapper codeableConceptCdMapper;
     private final ParticipantMapper participantMapper;
+    private final ConfidentialityService confidentialityService;
 
     public String mapBloodPressure(Observation observation, boolean isNested) {
+
+        var confidentialityCode = confidentialityService.generateConfidentialityCode(observation);
+
         BloodPressureParametersBuilder builder = BloodPressureParameters.builder()
             .isNested(isNested)
             .id(messageContext.getIdMapper().getOrNew(ResourceType.Observation, observation.getIdElement()))
             .effectiveTime(prepareEffectiveTimeForObservation(observation))
             .availabilityTime(prepareAvailabilityTimeForObservation(observation))
+            .confidentialityCode(confidentialityCode.orElse(null))
             .compoundStatementCode(buildBloodPressureCode(observation));
 
         extractBloodPressureComponent(observation, SYSTOLIC_CODE).ifPresent(observationComponent -> {

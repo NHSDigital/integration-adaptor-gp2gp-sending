@@ -181,7 +181,7 @@ public class EhrExtractUATTest {
             new AllergyStructureMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService),
             new BloodPressureMapper(
                 messageContext, randomIdGeneratorService, new StructuredObservationValueMapper(),
-                codeableConceptCdMapper, new ParticipantMapper()),
+                codeableConceptCdMapper, new ParticipantMapper(), confidentialityService),
             new ConditionLinkSetMapper(
                 messageContext, randomIdGeneratorService, codeableConceptCdMapper, participantMapper, confidentialityService),
             new DiaryPlanStatementMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService),
