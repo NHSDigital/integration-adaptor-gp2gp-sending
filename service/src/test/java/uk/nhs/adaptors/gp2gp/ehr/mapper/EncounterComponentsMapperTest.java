@@ -143,7 +143,8 @@ public class EncounterComponentsMapperTest {
             randomIdGeneratorService,
             structuredObservationValueMapper,
             codeableConceptCdMapper,
-            participantMapper
+            participantMapper,
+            confidentialityService
         );
         ConditionLinkSetMapper conditionLinkSetMapper = new ConditionLinkSetMapper(messageContext,
             randomIdGeneratorService,
