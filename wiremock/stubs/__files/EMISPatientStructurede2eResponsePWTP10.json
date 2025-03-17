@@ -3865,8 +3865,13 @@
                 "id": "1D16C40C-8EF3-48C8-84A1-EBD20AE9130C",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-ProcedureRequest-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -3919,8 +3924,13 @@
                 "id": "59889C48-4EA4-4BDE-8622-959581E20A40",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-ProcedureRequest-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -3969,8 +3979,13 @@
                 "id": "58EF971E-B8F0-46E5-A403-B3432C17FD70",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-ProcedureRequest-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -4027,8 +4042,13 @@
                 "id": "B301E01E-61D2-45BB-ACE9-C960C9041E8C",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-ProcedureRequest-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
