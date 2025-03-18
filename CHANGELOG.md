@@ -17,6 +17,10 @@ In the case that neither of these are present, the existing behavior of using th
 * GP2GP Adaptor now populates the PlanStatement / confidentialityCode field when the ProcedureRequest.meta.security field contains NOPAT
 * When the ReferralRequest.meta.security field contains NOPAT, the GP2GP Adaptor will now populate the RequestStatement / confidentialityCode field accordingly.
 * The GP2GP Adaptor now populates the CompoundStatement / confidentialityCode field when Observation.meta.security field contains NOPAT
+* When mapping from JSON FHIR `codaeableConcept` to HL7 XML `<code>`, if both a legacy code and system (i.e., ReadV2, 
+  Egton) and a `SNOMEDCT` code are provided, then the legacy code will be preserved and presented as a nested
+ `<translation>` element. The provided `coding.system` will be converted from url to OID format for known codes systems.
+
 
 ## [2.2.2] - 2025-02-07
 
