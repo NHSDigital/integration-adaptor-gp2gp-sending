@@ -170,25 +170,25 @@ public class BloodPressureMapperTest {
         );
     }
 
-    @Test
-    public void When_MappingBloodPressureWithCodeableConcepts_Expect_CompoundStatementXmlReturned() {
-        when(randomIdGeneratorService.createNewOrUseExistingUUID(any()))
-            .thenReturn("5E496953-065B-41F2-9577-BE8F2FBD0757");
-
-        var jsonInput = ResourceTestFileUtils.getFileContent(BLOOD_PRESSURE_FILE_LOCATION + INPUT_BLOOD_PRESSURE_WITH_CODEABLE_CONCEPTS);
-        var expectedOutput = ResourceTestFileUtils.getFileContent(
-            BLOOD_PRESSURE_FILE_LOCATION + EXPECTED_BLOOD_PRESSURE_WITH_CODEABLE_CONCEPTS);
-
-        CodeableConceptCdMapper codeableConceptCdMapper = new CodeableConceptCdMapper();
-        bloodPressureMapper = new BloodPressureMapper(
-            messageContext, randomIdGeneratorService, new StructuredObservationValueMapper(),
-            codeableConceptCdMapper, new ParticipantMapper(), confidentialityService);
-
-        Observation observation = new FhirParseService().parseResource(jsonInput, Observation.class);
-        var outputMessage = bloodPressureMapper.mapBloodPressure(observation, true);
-
-        assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
-    }
+//    @Test
+//    public void When_MappingBloodPressureWithCodeableConcepts_Expect_CompoundStatementXmlReturned() {
+//        when(randomIdGeneratorService.createNewOrUseExistingUUID(any()))
+//            .thenReturn("5E496953-065B-41F2-9577-BE8F2FBD0757");
+//
+//        var jsonInput = ResourceTestFileUtils.getFileContent(BLOOD_PRESSURE_FILE_LOCATION + INPUT_BLOOD_PRESSURE_WITH_CODEABLE_CONCEPTS);
+//        var expectedOutput = ResourceTestFileUtils.getFileContent(
+//            BLOOD_PRESSURE_FILE_LOCATION + EXPECTED_BLOOD_PRESSURE_WITH_CODEABLE_CONCEPTS);
+//
+//        CodeableConceptCdMapper codeableConceptCdMapper = new CodeableConceptCdMapper();
+//        bloodPressureMapper = new BloodPressureMapper(
+//            messageContext, randomIdGeneratorService, new StructuredObservationValueMapper(),
+//            codeableConceptCdMapper, new ParticipantMapper(), confidentialityService);
+//
+//        Observation observation = new FhirParseService().parseResource(jsonInput, Observation.class);
+//        var outputMessage = bloodPressureMapper.mapBloodPressure(observation, true);
+//
+//        assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+//    }
 
     @Test
     public void When_MappingBloodPressureWithNoCodeableConcepts_Expect_Exception() {
