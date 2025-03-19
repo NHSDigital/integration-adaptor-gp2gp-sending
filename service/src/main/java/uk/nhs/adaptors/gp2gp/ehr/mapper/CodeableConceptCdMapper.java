@@ -314,6 +314,7 @@ public class CodeableConceptCdMapper {
         var nonSnomedCodeCodings = codeableConcept.getCoding()
             .stream()
             .filter(coding -> !isSnomed(coding))
+            .filter(coding -> !CodeSystemsUtil.getHl7code(coding.getSystem()).isEmpty())
             .toList();
 
         for (Coding coding : nonSnomedCodeCodings) {

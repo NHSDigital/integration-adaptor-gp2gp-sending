@@ -16,6 +16,6 @@ public final class CodeSystemsUtil {
     );
 
     public static String getHl7code(String fhirCodeSystem) {
-        return SYSTEM_CODES.getOrDefault(fhirCodeSystem, fhirCodeSystem);
+        return SYSTEM_CODES.getOrDefault(fhirCodeSystem, "");
     }
 }

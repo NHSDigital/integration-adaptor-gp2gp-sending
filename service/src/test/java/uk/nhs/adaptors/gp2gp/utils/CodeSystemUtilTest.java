@@ -30,9 +30,9 @@ public class CodeSystemUtilTest {
     }
 
     @Test
-    void When_FhirCodeSystemIsUnknown_Expect_FhirCodeSystemIsProvided() {
+    void When_FhirCodeSystemIsUnknown_Expect_EmptyString() {
         var hl7Code = CodeSystemsUtil.getHl7code("https://unknown.code/system");
 
-        assertThat(hl7Code).isEqualTo("https://unknown.code/system");
+        assertThat(hl7Code).isEmpty();
     }
 }
