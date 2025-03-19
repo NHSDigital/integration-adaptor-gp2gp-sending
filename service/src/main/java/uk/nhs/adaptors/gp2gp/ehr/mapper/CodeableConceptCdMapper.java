@@ -1,5 +1,6 @@
 package uk.nhs.adaptors.gp2gp.ehr.mapper;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -314,15 +315,18 @@ public class CodeableConceptCdMapper {
         var nonSnomedCodeCodings = codeableConcept.getCoding()
             .stream()
             .filter(coding -> !isSnomed(coding))
-            .filter(coding -> !CodeSystemsUtil.getHl7code(coding.getSystem()).isEmpty())
             .toList();
+
+        List<Coding> nonSnomedCodes = new ArrayList<>();
 
         for (Coding coding : nonSnomedCodeCodings) {
             var hl7CodeSystem = CodeSystemsUtil.getHl7code(coding.getSystem());
-            coding.setSystem(hl7CodeSystem);
+            if (!hl7CodeSystem.isEmpty()) {
+                nonSnomedCodes.add(new Coding(hl7CodeSystem, coding.getCode(), coding.getDisplay()));
+            }
         }
 
-        return nonSnomedCodeCodings;
+        return nonSnomedCodes;
     }
 
     private Optional<String> findOriginalText(CodeableConcept codeableConcept, Optional<Coding> coding) {
