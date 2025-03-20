@@ -1668,6 +1668,12 @@
                     {
                         "url": "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect-ProblemSignificance-1",
                         "valueCode": "minor"
+                    },
+                    {
+                        "url": "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect-RelatedClinicalContent-1",
+                        "valueReference": {
+                            "reference": "ReferralRequest/Consultation1-Topic5-Category-Plan-ReferralRequest-1"
+                        }
                     }
                 ],
                 "identifier": [
@@ -1725,6 +1731,65 @@
                 "asserter": {
                     "reference": "Practitioner/6AB948A5-2067-4A67-AD00-60EAF13E9CAA"
                 }
+            }
+        },
+        {
+            "resource": {
+                "resourceType": "ReferralRequest",
+                "id": "Consultation1-Topic5-Category-Plan-ReferralRequest-1",
+                "meta": {
+                    "profile": [
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
+                },
+                "identifier": [
+                    {
+                        "system": "https://fhir.nhs.uk/Id/cross-care-setting-identifier",
+                        "value": "B154D1A3-D631-49BD-8B67-2F76D7D85865"
+                    },
+                    {
+                        "system": "https://fhir.nhs.uk/Id/ubr-number",
+                        "value": "bb2378b6-dde2-11e9-9d36-2a2ae2dbcce4"
+                    }
+                ],
+                "status": "unknown",
+                "intent": "order",
+                "priority": "routine",
+                "subject": {
+                    "reference": "Patient/2"
+                },
+                "context": {
+                    "reference": "Encounter/Encounter1"
+                },
+                "authoredOn": "2019-03-28T10:30:00+00:00",
+                "requester": {
+                    "agent": {
+                        "reference": "Practitioner/1"
+                    }
+                },
+                "recipient": [
+                    {
+                        "reference": "Practitioner/1",
+                        "display": "Dr Dave"
+                    }
+                ],
+                "reasonCode": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://snomed.info/sct",
+                                "code": "308447003",
+                                "display": "Referral to physiotherapist"
+                            }
+                        ]
+                    }
+                ],
+                "description": "Referral due to swollen legs"
             }
         },
         {
