@@ -351,9 +351,9 @@ public class CodeableConceptCdMapperTest {
                 }""";
             var expectedOutput = """
                 <code code="852471000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Prothrombin time">
+                    <originalText>Prothrombin time</originalText>
                     <translation code="42Q5.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="Observed Prothrombin time" />
                     <translation code="123456" codeSystem="2.16.840.1.113883.2.1.3.2.4.14" displayName="Prothrombin time (observed)" />
-                    <originalText>Prothrombin time</originalText>
                 </code>""";
             var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
 
