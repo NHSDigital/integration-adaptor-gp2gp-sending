@@ -1767,17 +1767,6 @@
                     "reference": "Encounter/Encounter1"
                 },
                 "authoredOn": "2019-03-28T10:30:00+00:00",
-                "requester": {
-                    "agent": {
-                        "reference": "Practitioner/1"
-                    }
-                },
-                "recipient": [
-                    {
-                        "reference": "Practitioner/1",
-                        "display": "Dr Dave"
-                    }
-                ],
                 "reasonCode": [
                     {
                         "coding": [
