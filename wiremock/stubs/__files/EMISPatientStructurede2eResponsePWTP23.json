@@ -1756,12 +1756,6 @@
                 "status": "unknown",
                 "intent": "order",
                 "priority": "routine",
-                "subject": {
-                    "reference": "Patient/2"
-                },
-                "context": {
-                    "reference": "Encounter/Encounter1"
-                },
                 "authoredOn": "2019-03-28T10:30:00+00:00",
                 "reasonCode": [
                     {
