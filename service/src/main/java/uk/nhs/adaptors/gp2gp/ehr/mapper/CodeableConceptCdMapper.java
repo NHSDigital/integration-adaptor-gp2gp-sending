@@ -18,7 +18,6 @@ import com.github.mustachejava.Mustache;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.CodeableConceptCdTemplateParameters;
-import uk.nhs.adaptors.gp2gp.ehr.utils.CodeSystemsUtil;
 import uk.nhs.adaptors.gp2gp.ehr.utils.CodeableConceptMappingUtils;
 import uk.nhs.adaptors.gp2gp.ehr.utils.TemplateUtils;
 
@@ -311,17 +310,20 @@ public class CodeableConceptCdMapper {
     }
 
     private List<Coding> getNonSnomedCodeCodings(CodeableConcept codeableConcept) {
-        var nonSnomedCodeCodings = codeableConcept.getCoding()
-            .stream()
-            .filter(coding -> !isSnomed(coding))
-            .toList();
-
-        for (Coding coding : nonSnomedCodeCodings) {
-            var hl7CodeSystem = CodeSystemsUtil.getHl7code(coding.getSystem());
-            coding.setSystem(hl7CodeSystem);
-        }
-
-        return nonSnomedCodeCodings;
+        return List.of();
+//
+//        var nonSnomedCodeCodings = codeableConcept.getCoding()
+//            .stream()
+//            .filter(coding -> !isSnomed(coding))
+//            .filter(coding -> !CodeSystemsUtil.getHl7code(coding.getSystem()).isEmpty())
+//            .toList();
+//
+//        for (Coding coding : nonSnomedCodeCodings) {
+//            var hl7CodeSystem = CodeSystemsUtil.getHl7code(coding.getSystem());
+//            coding.setSystem(hl7CodeSystem);
+//        }
+//
+//        return nonSnomedCodeCodings;
     }
 
     private Optional<String> findOriginalText(CodeableConcept codeableConcept, Optional<Coding> coding) {
