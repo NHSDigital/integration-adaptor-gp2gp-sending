@@ -8817,7 +8817,7 @@
                     "coding": [
                         {
                             "system": "https://fhir.hl7.org.uk/Id/emis-drug-codes",
-                            "code": "CO2 27587NEMIS",
+                            "code": "CO227587NEMIS",
                             "display": "Coloplast Micro-bag two piece ostomy system urostomy bag 14204 40mm (Coloplast Ltd)",
                             "userSelected": true
                         },

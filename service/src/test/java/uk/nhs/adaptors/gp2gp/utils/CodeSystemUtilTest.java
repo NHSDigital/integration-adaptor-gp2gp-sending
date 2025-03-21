@@ -10,14 +10,14 @@ import uk.nhs.adaptors.gp2gp.ehr.utils.CodeSystemsUtil;
 
 import java.util.stream.Stream;
 
-public class CodeSystemUtilTest {
-
+class CodeSystemUtilTest {
     private static Stream<Arguments> knownCodeSystems() {
         return Stream.of(
             Arguments.of("http://snomed.info/sct", "2.16.840.1.113883.2.1.3.2.4.15"),
             Arguments.of("https://fhir.hl7.org.uk/Id/egton-codes", "2.16.840.1.113883.2.1.6.3"),
             Arguments.of("http://read.info/readv2", "2.16.840.1.113883.2.1.6.2"),
-            Arguments.of("http://read.info/ctv3", "2.16.840.1.113883.2.1.3.2.4.14")
+            Arguments.of("http://read.info/ctv3", "2.16.840.1.113883.2.1.3.2.4.14"),
+            Arguments.of("https://fhir.hl7.org.uk/Id/emis-drug-codes", "2.16.840.1.113883.2.1.6.9")
         );
     }
 
@@ -30,9 +30,9 @@ public class CodeSystemUtilTest {
     }
 
     @Test
-    void When_FhirCodeSystemIsUnknown_Expect_FhirCodeSystemIsProvided() {
+    void When_FhirCodeSystemIsUnknown_Expect_EmptyString() {
         var hl7Code = CodeSystemsUtil.getHl7code("https://unknown.code/system");
 
-        assertThat(hl7Code).isEqualTo("https://unknown.code/system");
+        assertThat(hl7Code).isEmpty();
     }
 }
