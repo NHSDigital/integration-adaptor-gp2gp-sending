@@ -322,8 +322,7 @@ public class CodeableConceptCdMapper {
         for (Coding coding : nonSnomedCodeCodings) {
             var hl7CodeSystem = CodeSystemsUtil.getHl7code(coding.getSystem());
             if (!hl7CodeSystem.isEmpty()) {
-                coding.setSystem(hl7CodeSystem);
-                nonSnomedCodings.add(coding);
+                nonSnomedCodings.add(new Coding(hl7CodeSystem, coding.getCode(), coding.getDisplay()));
             }
         }
 
