@@ -10,8 +10,7 @@ import uk.nhs.adaptors.gp2gp.ehr.utils.CodeSystemsUtil;
 
 import java.util.stream.Stream;
 
-public class CodeSystemUtilTest {
-
+class CodeSystemUtilTest {
     private static Stream<Arguments> knownCodeSystems() {
         return Stream.of(
             Arguments.of("http://snomed.info/sct", "2.16.840.1.113883.2.1.3.2.4.15"),
