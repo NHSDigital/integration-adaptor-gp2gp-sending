@@ -50,8 +50,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-logging'
 
 	// Infrastructure
-	implementation 'software.amazon.awssdk:s3:2.31.1'
-	implementation ('com.azure:azure-storage-blob:12.29.1')
+	implementation 'software.amazon.awssdk:s3:2.31.6'
+	implementation ('com.azure:azure-storage-blob:12.30.0')
 	implementation 'org.apache.qpid:qpid-jms-client:2.6.1'
 
 	// Utils
@@ -66,7 +66,7 @@ dependencies {
 	// Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation "org.assertj:assertj-core:3.27.3"
-	testImplementation 'org.testcontainers:testcontainers:1.20.5'
+	testImplementation 'org.testcontainers:testcontainers:1.20.6'
 	testImplementation 'org.awaitility:awaitility:4.2.2'
 	testImplementation 'org.wiremock:wiremock-standalone:3.12.1'
 	testImplementation 'com.squareup.okhttp3:okhttp:4.12.0'
