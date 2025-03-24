@@ -2,8 +2,8 @@
     <CompoundStatement classCode="BATTERY" moodCode="EVN">
         <id root="5E496953-065B-41F2-9577-BE8F2FBD0757"/>
         <code code="852471000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Prothrombin time">
-            <translation code="42Q5.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="Prothrombin time" />
             <originalText>Prothrombin time</originalText>
+            <translation code="42Q5.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="Prothrombin time" />
         </code>
         <statusCode code="COMPLETE"/>
         <effectiveTime>
@@ -14,8 +14,8 @@
             <ObservationStatement classCode="OBS" moodCode="EVN">
                 <id root="5E496953-065B-41F2-9577-BE8F2FBD0757"/>
                 <code code="72313002" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Systolic arterial pressure">
-                    <translation code="2469" codeSystem="2.16.840.1.113883.2.1.6.3" displayName="Systolic arterial pressure" />
                     <originalText>Systolic arterial pressure</originalText>
+                    <translation code="2469" codeSystem="2.16.840.1.113883.2.1.6.3" displayName="Systolic arterial pressure" />
                 </code>
                 <statusCode code="COMPLETE"/>
                 <effectiveTime>
@@ -36,8 +36,8 @@
             <ObservationStatement classCode="OBS" moodCode="EVN">
                 <id root="5E496953-065B-41F2-9577-BE8F2FBD0757"/>
                 <code code="1091811000000102" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Diastolic arterial pressure">
-                    <translation code="246A" codeSystem="2.16.840.1.113883.2.1.6.3" displayName="Diastolic arterial pressure" />
                     <originalText>Diastolic arterial pressure</originalText>
+                    <translation code="246A" codeSystem="2.16.840.1.113883.2.1.6.3" displayName="Diastolic arterial pressure" />
                 </code>
                 <statusCode code="COMPLETE"/>
                 <effectiveTime>
