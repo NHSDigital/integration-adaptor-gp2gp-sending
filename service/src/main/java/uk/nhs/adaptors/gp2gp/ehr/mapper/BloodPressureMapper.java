@@ -62,8 +62,6 @@ public class BloodPressureMapper {
 
     public String mapBloodPressure(Observation observation, boolean isNested) {
 
-        var confidentialityCode = confidentialityService.generateConfidentialityCode(observation);
-
         BloodPressureParametersBuilder builder = BloodPressureParameters.builder()
             .isNested(isNested)
             .id(messageContext.getIdMapper().getOrNew(ResourceType.Observation, observation.getIdElement()))

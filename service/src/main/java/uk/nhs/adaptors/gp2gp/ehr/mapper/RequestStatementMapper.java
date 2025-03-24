@@ -103,8 +103,6 @@ public class RequestStatementMapper {
                 processAgent(agentRef, onBehalfOf);
             }
 
-            var confidentialityCode = confidentialityService.generateConfidentialityCode(referralRequest);
-
             final IdMapper idMapper = messageContext.getIdMapper();
             templateParameters
                 .requestStatementId(idMapper.getOrNew(ResourceType.ReferralRequest, referralRequest.getIdElement()))
