@@ -69,7 +69,6 @@ public class BloodPressureMapper {
             .id(messageContext.getIdMapper().getOrNew(ResourceType.Observation, observation.getIdElement()))
             .effectiveTime(prepareEffectiveTimeForObservation(observation))
             .availabilityTime(prepareAvailabilityTimeForObservation(observation))
-            .confidentialityCode(confidentialityCode.orElse(null))
             .compoundStatementCode(buildBloodPressureCode(observation));
 
         extractBloodPressureComponent(observation, SYSTOLIC_CODE).ifPresent(observationComponent -> {

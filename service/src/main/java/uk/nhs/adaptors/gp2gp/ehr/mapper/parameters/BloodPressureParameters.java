@@ -23,5 +23,4 @@ public class BloodPressureParameters {
     private String systolicCode;
     private String diastolicCode;
     private String participant;
-    private String confidentialityCode;
 }
