@@ -62,11 +62,14 @@ public class BloodPressureMapper {
 
     public String mapBloodPressure(Observation observation, boolean isNested) {
 
+        var confidentialityCode = confidentialityService.generateConfidentialityCode(observation);
+
         BloodPressureParametersBuilder builder = BloodPressureParameters.builder()
             .isNested(isNested)
             .id(messageContext.getIdMapper().getOrNew(ResourceType.Observation, observation.getIdElement()))
             .effectiveTime(prepareEffectiveTimeForObservation(observation))
             .availabilityTime(prepareAvailabilityTimeForObservation(observation))
+            .confidentialityCode(confidentialityCode.orElse(null))
             .compoundStatementCode(buildBloodPressureCode(observation));
 
         extractBloodPressureComponent(observation, SYSTOLIC_CODE).ifPresent(observationComponent -> {

@@ -5,7 +5,6 @@ import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -95,7 +94,7 @@ public class BloodPressureMapperTest {
         messageContext.resetMessageContext();
     }
 
-    @Disabled
+
     @Test
     public void When_MappingBloodPressureWithNopat_Expect_CompoundStatementWithConfidentialityCode() {
         when(mockCodeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(any(CodeableConcept.class)))
