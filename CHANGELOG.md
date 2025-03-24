@@ -6,21 +6,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2025-03-24
+
 ### Fixed
 
-* When mapping to `<code nullFlavor="UNK">` XML elements from an existing `CodeableConcept` the element will now contain
-the original text value from the DisplayExtension, if a separate text field is not provided. 
-In the case that neither of these are present, the existing behavior of using the `code.display` element is used. 
+* When mapping to `<code nullFlavor="UNK">` XML elements from an existing `CodeableConcept` the element will now contain the original text value from the DisplayExtension, if a separate text field is not provided. In the case that neither of these are present, the existing behavior of using the `code.display` element is used.
 
 ### Added
 
+* Legacy codes are preserved as translations within the XML when mapping `CodeableConcepts`, when a SNOMEDCT code is provided along with additional codings for Egton, READ (v2 or v3), or EMIS drug codes. For other unknown code systems, these will not be preserved.
 * GP2GP Adaptor now populates the PlanStatement / confidentialityCode field when the ProcedureRequest.meta.security field contains NOPAT
+
 * When the ReferralRequest.meta.security field contains NOPAT, the GP2GP Adaptor will now populate the RequestStatement / confidentialityCode field accordingly.
 * The GP2GP Adaptor now populates the CompoundStatement / confidentialityCode field when Observation.meta.security field contains NOPAT
 * When mapping from JSON FHIR `codaeableConcept` to HL7 XML `<code>`, if both a legacy code and system (i.e., ReadV2, 
   Egton) and a `SNOMEDCT` code are provided, then the legacy code will be preserved and presented as a nested
  `<translation>` element. The provided `coding.system` will be converted from url to OID format for known codes systems.
-
 
 ## [2.2.2] - 2025-02-07
 
