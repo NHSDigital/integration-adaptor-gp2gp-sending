@@ -18,7 +18,6 @@ import org.hl7.fhir.dstu3.model.ReferralRequest;
 import org.hl7.fhir.dstu3.model.ResourceType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -360,7 +359,6 @@ public class RequestStatementMapperTest {
         assertThat(outputMessage).isEqualTo(expectedOutputMessage);
     }
 
-    @Disabled
     @Test
     public void When_MappingReferralRequestWithNoPat_Expect_RequestStatementWithConfidentialityCode() {
         when(confidentialityService.generateConfidentialityCode(any(ReferralRequest.class)))
