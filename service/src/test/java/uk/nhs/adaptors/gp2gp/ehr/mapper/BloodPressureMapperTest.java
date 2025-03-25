@@ -94,6 +94,7 @@ public class BloodPressureMapperTest {
         messageContext.resetMessageContext();
     }
 
+
     @Test
     public void When_MappingBloodPressureWithNopat_Expect_CompoundStatementWithConfidentialityCode() {
         when(mockCodeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(any(CodeableConcept.class)))
