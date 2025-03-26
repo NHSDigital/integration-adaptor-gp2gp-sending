@@ -8381,8 +8381,8 @@
                     "coding": [
                         {
                             "system": "https://fhir.hl7.org.uk/Id/egton-codes",
-                            "code": "EMISNQPR489",
-                            "display": "Preferred method of contact: unknown",
+                            "code": "163020007",
+                            "display": "O/E - blood pressure reading",
                             "userSelected": true
                         },
                         {
@@ -8402,8 +8402,8 @@
                                 }
                             ],
                             "system": "http://snomed.info/sct",
-                            "code": "1990681000006100",
-                            "display": "Preferred method of contact: unknown"
+                            "code": "163020007",
+                            "display": "O/E - blood pressure reading"
                         }
                     ]
                 },
