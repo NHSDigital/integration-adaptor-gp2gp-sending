@@ -110,9 +110,9 @@ public class RequestStatementMapper {
                 .requestStatementId(idMapper.getOrNew(ResourceType.ReferralRequest, referralRequest.getIdElement()))
                 .isNested(isNested)
                 .availabilityTime(StatementTimeMappingUtils.prepareAvailabilityTime(referralRequest.getAuthoredOnElement()))
-                .confidentialityCode(confidentialityCode.orElse(null))
                 .text(buildTextDescription())
                 .priorityCode(buildPriorityCode())
+                .confidentialityCode(confidentialityCode.orElse(null))
                 .code(buildCode());
 
             if (referralRequest.hasRecipient()) {
