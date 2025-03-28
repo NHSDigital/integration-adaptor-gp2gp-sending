@@ -8421,6 +8421,62 @@
                     {
                         "reference": "Practitioner/2DB481A3-306A-4133-9491-1558161D6A2B"
                     }
+                ],
+                "component": [
+                    {
+                        "code": {
+                            "coding": [
+                                {
+                                    "extension": [
+                                        {
+                                            "url": "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
+                                            "extension": [
+                                                {
+                                                    "url": "DescriptionID",
+                                                    "valueId": "254075012"
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "system": "http://snomed.info/sct",
+                                    "code": "72313002",
+                                    "display": "O/E - Systolic BP reading"
+                                }
+                            ],
+                            "text": "O/E Systolic BP reading"
+                        },
+                        "valueQuantity": {
+                            "value": 130,
+                            "unit": "mm[Hg]"
+                        }
+                    },
+                    {
+                        "code": {
+                            "coding": [
+                                {
+                                    "extension": [
+                                        {
+                                            "url": "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
+                                            "extension": [
+                                                {
+                                                    "url": "DescriptionID",
+                                                    "valueId": "254076013"
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "system": "http://snomed.info/sct",
+                                    "code": "271649006",
+                                    "display": "O/E - Diastolic BP reading"
+                                }
+                            ],
+                            "text": "O/E Diastolic BP reading"
+                        },
+                        "valueQuantity": {
+                            "value": 72,
+                            "unit": "mm[Hg]"
+                        }
+                    }
                 ]
             }
         },
