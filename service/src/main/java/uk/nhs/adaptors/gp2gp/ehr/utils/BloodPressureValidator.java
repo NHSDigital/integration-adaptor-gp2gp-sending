@@ -3,11 +3,14 @@ package uk.nhs.adaptors.gp2gp.ehr.utils;
 import java.util.Collection;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.springframework.stereotype.Component;
+import uk.nhs.adaptors.gp2gp.common.task.TaskType;
 
 @Component
+@Slf4j
 public class BloodPressureValidator {
     static final String BLOOD_PRESSURE_READING_CODE = "163020007";
     static final String ARTERIAL_BLOOD_PRESSURE_CODE = "386534000";
@@ -32,7 +35,9 @@ public class BloodPressureValidator {
         if (CodeableConceptMappingUtils.hasCode(observation.getCode(), List.of(
             BLOOD_PRESSURE_READING_CODE, ARTERIAL_BLOOD_PRESSURE_CODE, BLOOD_PRESSURE_CODE
         ))) {
+            LOGGER.info("Observation has code");
             if (hasBloodPressureCode(observation, List.of(SYSTOLIC_ARTERIAL_PRESSURE, SYSTOLIC_BLOOD_PRESSURE))) {
+                LOGGER.info("Observation component has code");
                 return hasBloodPressureCode(observation, List.of(DIASTOLIC_ARTERIAL_PRESSURE, DIASTOLIC_BLOOD_PRESSURE));
             }
             return false;
