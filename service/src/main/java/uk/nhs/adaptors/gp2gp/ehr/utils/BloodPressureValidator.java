@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.springframework.stereotype.Component;
-import uk.nhs.adaptors.gp2gp.common.task.TaskType;
 
 @Component
 @Slf4j
