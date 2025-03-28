@@ -8364,29 +8364,24 @@
         {
             "resource": {
                 "resourceType": "Observation",
-                "id": "93DB52CE-17FF-4AD1-89E2-7213A87FDC98",
+                "id": "9BEFB146-B729-4EB8-908C-539B279FFEB5",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-MedicationRequest-1"
-                    ],
-                    "security": [{
-                        "system":"http://hl7.org/fhir/v3/ActCode",
-                        "code":"NOPAT",
-                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
-                    }]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
+                    ]
                 },
                 "identifier": [
                     {
                         "system": "https://EMISWeb/A82038",
-                        "value": "9340157B697342099B57BF6C64F29E4693DB52CE17FF4AD189E27213A87FDC98"
+                        "value": "9BEFB146-B729-4EB8-908C-539B279FFEB5"
                     }
                 ],
                 "status": "final",
                 "code": {
                     "coding": [
                         {
-                            "system": "https://fhir.hl7.org.uk/Id/egton-codes",
-                            "code": "163020007",
+                            "system": "http://read.info/readv2",
+                            "code": "246..00",
                             "display": "O/E - blood pressure reading",
                             "userSelected": true
                         },
@@ -8397,7 +8392,7 @@
                                     "extension": [
                                         {
                                             "url": "descriptionId",
-                                            "valueId": "1990681000006116"
+                                            "valueId": "254063019"
                                         },
                                         {
                                             "url": "descriptionDisplay",
@@ -8413,68 +8408,90 @@
                     ]
                 },
                 "subject": {
-                    "reference": "Patient/9340157B-6973-4209-9B57-BF6C64F29E46"
+                    "reference": "Patient/88F14BF6-CADE-47D6-90E2-B10519BF956F"
                 },
-                "effectiveDateTime": "2019-03-26",
-                "issued": "2019-03-26T16:36:50.68+00:00",
+                "context": {
+                    "reference": "Encounter/4088F3A1-CE58-4374-AABA-763C31738281"
+                },
+                "effectiveDateTime": "2010-07-14T17:55:00+01:00",
+                "issued": "2010-07-14T16:28:13.577+01:00",
                 "performer": [
                     {
-                        "reference": "Practitioner/2DB481A3-306A-4133-9491-1558161D6A2B"
+                        "reference": "Practitioner/6D340A1B-BC15-4D4E-93CF-BBCB5B74DF73"
                     }
                 ],
+                "comment": "This is the BP reading in a consultation with a note",
                 "component": [
                     {
                         "code": {
                             "coding": [
                                 {
+                                    "system": "https://fhir.hl7.org.uk/Id/egton-codes",
+                                    "code": "2469",
+                                    "display": "Systolic blood pressure",
+                                    "userSelected": true
+                                },
+                                {
                                     "extension": [
                                         {
-                                            "url": "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
+                                            "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
                                             "extension": [
                                                 {
-                                                    "url": "DescriptionID",
-                                                    "valueId": "254075012"
+                                                    "url": "descriptionId",
+                                                    "valueId": "120159016"
+                                                },
+                                                {
+                                                    "url": "descriptionDisplay",
+                                                    "valueString": "Systolic arterial pressure"
                                                 }
                                             ]
                                         }
                                     ],
                                     "system": "http://snomed.info/sct",
                                     "code": "72313002",
-                                    "display": "O/E - Systolic BP reading"
+                                    "display": "Systolic arterial pressure"
                                 }
-                            ],
-                            "text": "O/E Systolic BP reading"
+                            ]
                         },
                         "valueQuantity": {
-                            "value": 130,
-                            "unit": "mm[Hg]"
+                            "value": 120,
+                            "unit": "mmHg"
                         }
                     },
                     {
                         "code": {
                             "coding": [
                                 {
+                                    "system": "https://fhir.hl7.org.uk/Id/egton-codes",
+                                    "code": "246A",
+                                    "display": "Diastolic blood pressure",
+                                    "userSelected": true
+                                },
+                                {
                                     "extension": [
                                         {
-                                            "url": "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
+                                            "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
                                             "extension": [
                                                 {
-                                                    "url": "DescriptionID",
-                                                    "valueId": "254076013"
+                                                    "url": "descriptionId",
+                                                    "valueId": "2734671000000117"
+                                                },
+                                                {
+                                                    "url": "descriptionDisplay",
+                                                    "valueString": "Diastolic arterial pressure"
                                                 }
                                             ]
                                         }
                                     ],
                                     "system": "http://snomed.info/sct",
-                                    "code": "271649006",
-                                    "display": "O/E - Diastolic BP reading"
+                                    "code": "1091811000000102",
+                                    "display": "Diastolic arterial pressure"
                                 }
-                            ],
-                            "text": "O/E Diastolic BP reading"
+                            ]
                         },
                         "valueQuantity": {
-                            "value": 72,
-                            "unit": "mm[Hg]"
+                            "value": 75,
+                            "unit": "mmHg"
                         }
                     }
                 ]
