@@ -255,32 +255,32 @@ public class EncounterComponentsMapper {
             resource.getIdElement().getIdPart()));
     }
 
-    private Optional<String> mapAllergyIntolerance(Resource resource) {
+    protected Optional<String> mapAllergyIntolerance(Resource resource) {
         return Optional.of(allergyStructureMapper.mapAllergyIntoleranceToAllergyStructure((AllergyIntolerance) resource));
     }
 
-    private Optional<String> mapCondition(Resource resource) {
+    protected Optional<String> mapCondition(Resource resource) {
         return Optional.of(conditionLinkSetMapper.mapConditionToLinkSet((Condition) resource, IS_NESTED));
     }
 
-    private Optional<String> mapDocumentReference(Resource resource) {
+    protected Optional<String> mapDocumentReference(Resource resource) {
         return Optional.of(
             documentReferenceToNarrativeStatementMapper.mapDocumentReferenceToNarrativeStatement((DocumentReference) resource));
     }
 
-    private Optional<String> mapImmunization(Resource resource) {
+    protected Optional<String> mapImmunization(Resource resource) {
         return Optional.of(
             immunizationObservationStatementMapper.mapImmunizationToObservationStatement((Immunization) resource, IS_NESTED));
     }
 
-    private Optional<String> mapMedicationRequest(Resource resource) {
+    protected Optional<String> mapMedicationRequest(Resource resource) {
         return Optional.of(resource)
             .map(MedicationRequest.class::cast)
             .filter(not(MedicationRequestUtils::isStoppedMedicationOrder))
             .map(medicationStatementMapper::mapMedicationRequestToMedicationStatement);
     }
 
-    private Optional<String> mapObservation(Resource resource) {
+    protected Optional<String> mapObservation(Resource resource) {
         Observation observation = (Observation) resource;
         if (CodeableConceptMappingUtils.hasCode(observation.getCode(), List.of(NARRATIVE_STATEMENT_CODE))) {
             return Optional.of(observationToNarrativeStatementMapper.mapObservationToNarrativeStatement(observation, IS_NESTED));
@@ -292,17 +292,17 @@ public class EncounterComponentsMapper {
         return Optional.of(observationStatementMapper.mapObservationToObservationStatement(observation, IS_NESTED));
     }
 
-    private Optional<String> mapProcedureRequest(Resource resource) {
+    protected Optional<String> mapProcedureRequest(Resource resource) {
         return Optional.ofNullable(
             diaryPlanStatementMapper.mapProcedureRequestToPlanStatement((ProcedureRequest) resource, IS_NESTED)
         );
     }
 
-    private Optional<String> mapReferralRequest(Resource resource) {
+    protected Optional<String> mapReferralRequest(Resource resource) {
         return Optional.of(requestStatementMapper.mapReferralRequestToRequestStatement((ReferralRequest) resource, IS_NESTED));
     }
 
-    private Optional<String> mapDiagnosticReport(Resource resource) {
+    protected Optional<String> mapDiagnosticReport(Resource resource) {
         return Optional.of(diagnosticReportMapper.mapDiagnosticReportToCompoundStatement((DiagnosticReport) resource));
     }
 
