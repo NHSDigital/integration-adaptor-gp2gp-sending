@@ -230,14 +230,14 @@ public class EncounterComponentsMapperTest {
     }
 
     @Test
-    public void testObservationWithNOPATGetsTranslatedIntoNarrativeWithConfidentialityCode() {
+    void testObservationWithNOPATGetsTranslatedIntoNarrativeWithConfidentialityCode() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_AGENT_DIRECTORY);
         Bundle bundle = FHIR_PARSE_SERVICE.parseResource(jsonInput, Bundle.class);
         Resource observation = bundle.getEntry().get(1).getResource();
 
         when(confidentialityService.generateConfidentialityCode(observation)).thenReturn(Optional.of(CONFIDENTIALITY_CODE));
 
-        var result = encounterComponentsMapper.mapObservation(observation);
+        var result = encounterComponentsMapper.mapResourceToComponent(observation);
 
         assertThat(result.get()).contains(CONFIDENTIALITY_CODE);
     }
