@@ -22,6 +22,8 @@ import uk.nhs.adaptors.gp2gp.mhs.exception.UnsupportedInteractionException;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import static uk.nhs.adaptors.gp2gp.common.utils.Jms.getJmsMessageTimestamp;
 import static uk.nhs.adaptors.gp2gp.ehr.model.SpineInteraction.ACKNOWLEDGMENT_REQUEST;
 import static uk.nhs.adaptors.gp2gp.ehr.model.SpineInteraction.CONTINUE_REQUEST;
@@ -141,7 +143,7 @@ public class InboundMessageHandler {
     private Document getMessageEnvelope(InboundMessage inboundMessage) {
         try {
             return xPathService.parseDocumentFromXml(inboundMessage.getEbXML());
-        } catch (SAXException e) {
+        } catch (SAXException | ParserConfigurationException e) {
             throw new InvalidInboundMessageException("Unable to parse the XML envelope (ebxml) of the inbound MHS message", e);
         }
     }
@@ -149,7 +151,7 @@ public class InboundMessageHandler {
     private Document getMessagePayload(InboundMessage inboundMessage) {
         try {
             return xPathService.parseDocumentFromXml(inboundMessage.getPayload());
-        } catch (SAXException e) {
+        } catch (SAXException | ParserConfigurationException e) {
             throw new InvalidInboundMessageException("Unable to parse the XML payload of the inbound MHS message", e);
         }
     }

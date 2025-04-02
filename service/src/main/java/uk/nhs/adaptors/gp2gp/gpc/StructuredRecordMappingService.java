@@ -175,6 +175,7 @@ public class StructuredRecordMappingService {
 
     private static String toString(Document document) throws TransformerException {
         TransformerFactory tf = TransformerFactory.newDefaultInstance();
+        tf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         Transformer transformer = tf.newTransformer();
         StringWriter writer = new StringWriter();
 

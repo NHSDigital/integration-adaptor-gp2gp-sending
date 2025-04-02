@@ -24,8 +24,9 @@ import lombok.SneakyThrows;
 
 @Component
 public class XPathService {
-    public Document parseDocumentFromXml(String xml) throws SAXException {
+    public Document parseDocumentFromXml(String xml) throws SAXException, ParserConfigurationException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newDefaultInstance();
+        documentBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         InputSource inputSource;
         DocumentBuilder documentBuilder;
         try {
