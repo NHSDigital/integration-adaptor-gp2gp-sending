@@ -25,7 +25,7 @@ import lombok.SneakyThrows;
 @Component
 public class XPathService {
     public Document parseDocumentFromXml(String xml) throws SAXException {
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newDefaultInstance();
         InputSource inputSource;
         DocumentBuilder documentBuilder;
         try {

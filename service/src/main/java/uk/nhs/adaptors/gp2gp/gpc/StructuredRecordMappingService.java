@@ -174,7 +174,7 @@ public class StructuredRecordMappingService {
     }
 
     private static String toString(Document document) throws TransformerException {
-        TransformerFactory tf = TransformerFactory.newInstance();
+        TransformerFactory tf = TransformerFactory.newDefaultInstance();
         Transformer transformer = tf.newTransformer();
         StringWriter writer = new StringWriter();
 
