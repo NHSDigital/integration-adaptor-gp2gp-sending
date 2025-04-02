@@ -28,6 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
@@ -60,6 +61,9 @@ public class ObservationToNarrativeStatementMapperTest {
     @Mock
     private RandomIdGeneratorService randomIdGeneratorService;
 
+    @Mock
+    private ConfidentialityService confidentialityService;
+
     private CharSequence expectedOutputMessage;
     private ObservationToNarrativeStatementMapper observationToNarrativeStatementMapper;
     private MessageContext messageContext;
@@ -71,7 +75,9 @@ public class ObservationToNarrativeStatementMapperTest {
 
         messageContext = new MessageContext(randomIdGeneratorService);
         messageContext.initialize(new Bundle());
-        observationToNarrativeStatementMapper = new ObservationToNarrativeStatementMapper(messageContext, new ParticipantMapper());
+        observationToNarrativeStatementMapper = new ObservationToNarrativeStatementMapper(messageContext,
+                                                                                          new ParticipantMapper(),
+                                                                                          confidentialityService);
     }
 
     @AfterEach

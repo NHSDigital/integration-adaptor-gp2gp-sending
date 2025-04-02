@@ -7,6 +7,7 @@ import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.dstu3.model.QuestionnaireResponse;
 import org.hl7.fhir.dstu3.model.Reference;
+import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.dstu3.model.ResourceType;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
@@ -83,6 +84,15 @@ public class EncounterComponentsMapperTest {
         + "expected-components-17-topic-no-categories.xml";
     private static final String CONTAINED_TEST_DIRECTORY = TEST_DIRECTORY + "contained-resources/";
 
+    private static final String AGENT_DIRECTORY_FOLDER = "/ehr/mapper/observation/";
+    private static final String INPUT_AGENT_DIRECTORY = AGENT_DIRECTORY_FOLDER + "observation-of-narrative-type-with-nopat.json";
+    private static final String CONFIDENTIALITY_CODE = """
+        <confidentialityCode
+            code="NOPAT"
+            codeSystem="2.16.840.1.113883.4.642.3.47"
+            displayName="no disclosure to patient, family or caregivers without attending provider's authorization"
+        />""";
+
     @Mock
     private RandomIdGeneratorService randomIdGeneratorService;
     @Mock
@@ -96,6 +106,7 @@ public class EncounterComponentsMapperTest {
 
     private EncounterComponentsMapper encounterComponentsMapper;
     private MessageContext messageContext;
+    private static final FhirParseService FHIR_PARSE_SERVICE = new FhirParseService();
 
     @BeforeEach
     public void setUp() {
@@ -165,7 +176,7 @@ public class EncounterComponentsMapperTest {
             confidentialityService
         );
         ObservationToNarrativeStatementMapper observationToNarrativeStatementMapper =
-            new ObservationToNarrativeStatementMapper(messageContext, participantMapper);
+            new ObservationToNarrativeStatementMapper(messageContext, participantMapper, confidentialityService);
         SpecimenMapper specimenMapper = getSpecimenMapper(structuredObservationValueMapper, participantMapper);
 
         ObservationStatementMapper observationStatementMapper = new ObservationStatementMapper(
@@ -216,6 +227,19 @@ public class EncounterComponentsMapperTest {
     @AfterEach
     public void tearDown() {
         messageContext.resetMessageContext();
+    }
+
+    @Test
+    void testObservationWithNOPATGetsTranslatedIntoNarrativeWithConfidentialityCode() {
+        var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_AGENT_DIRECTORY);
+        Bundle bundle = FHIR_PARSE_SERVICE.parseResource(jsonInput, Bundle.class);
+        Resource observation = bundle.getEntry().get(1).getResource();
+
+        when(confidentialityService.generateConfidentialityCode(observation)).thenReturn(Optional.of(CONFIDENTIALITY_CODE));
+
+        var result = encounterComponentsMapper.mapResourceToComponent(observation);
+
+        assertThat(result.get()).contains(CONFIDENTIALITY_CODE);
     }
 
     @Test

@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id "io.freefair.lombok" version "8.13"
+    id "io.freefair.lombok" version "8.13.1"
 }
 
 apply plugin: 'java'
@@ -24,7 +24,7 @@ dependencies {
     testImplementation "org.assertj:assertj-core:3.27.3"
     testImplementation 'ch.qos.logback:logback-classic:1.5.18'
     testImplementation 'org.xmlunit:xmlunit-assertj3:2.10.0'
-    testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.4.2'
+    testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.4.3'
 
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
 }
