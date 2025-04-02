@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.0] - 2025-04-02
+
 ### Added
 * When the ReferralRequest.meta.security field contains NOPAT, the GP2GP Adaptor will now populate the RequestStatement / confidentialityCode field accordingly.
 * The GP2GP Adaptor now populates the CompoundStatement / confidentialityCode field when Observation.meta.security field contains NOPAT
