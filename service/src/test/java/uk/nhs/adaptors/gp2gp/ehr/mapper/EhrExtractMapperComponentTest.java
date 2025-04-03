@@ -208,7 +208,7 @@ public class EhrExtractMapperComponentTest {
 
         ehrExtractMapper = new EhrExtractMapper(randomIdGeneratorService,
             timestampService,
-            new EncounterMapper(messageContext, encounterComponentsMapper),
+            new EncounterMapper(messageContext, encounterComponentsMapper, confidentialityService),
             nonConsultationResourceMapper,
             agentDirectoryMapper,
             messageContext);

@@ -14,6 +14,9 @@
             {{{effectiveTime}}}
         </effectiveTime>
         {{{availabilityTime}}}
+        {{#confidentialityCode}}
+            {{{confidentialityCode}}}
+        {{/confidentialityCode}}
         <author typeCode="AUT" contextControlCode="OP">
             <time {{#authorTime}}value="{{authorTime}}"{{/authorTime}}{{^authorTime}}nullFlavor="UNK"{{/authorTime}} />
             <agentRef classCode="AGNT">

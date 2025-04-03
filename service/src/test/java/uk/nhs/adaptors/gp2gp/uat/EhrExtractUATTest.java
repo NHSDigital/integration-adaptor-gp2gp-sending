@@ -152,7 +152,7 @@ public class EhrExtractUATTest {
             = new AgentPersonMapper(messageContext);
         final AgentDirectoryMapper agentDirectoryMapper = new AgentDirectoryMapper(messageContext, agentPersonMapper);
 
-        final EncounterMapper encounterMapper = new EncounterMapper(messageContext, encounterComponentsMapper);
+        final EncounterMapper encounterMapper = new EncounterMapper(messageContext, encounterComponentsMapper, confidentialityService);
 
         final NonConsultationResourceMapper nonConsultationResourceMapper =
             new NonConsultationResourceMapper(messageContext, randomIdGeneratorService, encounterComponentsMapper,

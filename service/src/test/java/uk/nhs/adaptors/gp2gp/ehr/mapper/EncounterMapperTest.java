@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +31,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
@@ -44,6 +46,12 @@ public class EncounterMapperTest {
     private static final Date CONSULTATION_DATE = Date.from(Instant.parse("2010-01-13T15:13:32Z"));
     private static final String TEST_LOCATION_NAME = "Test Location";
     private static final String TEST_LOCATION_ID = "EB3994A6-5A87-4B53-A414-913137072F57";
+    private static final String CONFIDENTIALITY_CODE = """
+        <confidentialityCode
+            code="NOPAT"
+            codeSystem="2.16.840.1.113883.4.642.3.47"
+            displayName="no disclosure to patient, family or caregivers without attending provider's authorization"
+        />""";
 
     public static final Bundle.BundleEntryComponent BUNDLE_ENTRY_WITH_CONSULTATION = new Bundle.BundleEntryComponent()
         .setResource(new ListResource()
@@ -67,6 +75,9 @@ public class EncounterMapperTest {
     @Mock
     private Bundle bundle;
 
+    @Mock
+    private ConfidentialityService confidentialityService;
+
     private EncounterMapper encounterMapper;
     private MessageContext messageContext;
 
@@ -80,12 +91,30 @@ public class EncounterMapperTest {
             BUNDLE_ENTRY_WITH_CONSULTATION,
             BUNDLE_ENTRY_WITH_LOCATION
         ));
-        encounterMapper = new EncounterMapper(messageContext, encounterComponentsMapper);
+        encounterMapper = new EncounterMapper(messageContext, encounterComponentsMapper, confidentialityService);
     }
 
     @AfterEach
     public void tearDown() {
         messageContext.resetMessageContext();
+    }
+
+    @Test
+    public void testEncounterWithNOPATAddsConfidentialityCodeIntoEhrComposition() {
+        lenient().when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+        var sampleComponent = ResourceTestFileUtils.getFileContent(SAMPLE_EHR_COMPOSITION_COMPONENT);
+        var encounterJsonInput = ResourceTestFileUtils.getFileContent(TEST_FILES_DIRECTORY + "input-encounter-with-nopat.json");
+        var expectedOutputWithConfidentialityCode
+                            = ResourceTestFileUtils.getFileContent(TEST_FILES_DIRECTORY + "output-with-confidentiality-code.xml");
+
+        Encounter parsedEncounter = new FhirParseService().parseResource(encounterJsonInput, Encounter.class);
+        when(confidentialityService.generateConfidentialityCode(parsedEncounter)).thenReturn(Optional.of(CONFIDENTIALITY_CODE));
+        when(encounterComponentsMapper.mapComponents(parsedEncounter)).thenReturn(sampleComponent);
+
+        String outputMessageWithConfidentialityCode = encounterMapper.mapEncounterToEhrComposition(parsedEncounter);
+
+        assertThat(outputMessageWithConfidentialityCode).isEqualToIgnoringWhitespace(expectedOutputWithConfidentialityCode);
+        verify(encounterComponentsMapper).mapComponents(parsedEncounter);
     }
 
     @ParameterizedTest
