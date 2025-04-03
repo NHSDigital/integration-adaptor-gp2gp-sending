@@ -27,6 +27,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.EncounterTemplateParameters;
 import uk.nhs.adaptors.gp2gp.ehr.utils.DateFormatUtil;
@@ -48,6 +49,7 @@ public class EncounterMapper {
 
     private final MessageContext messageContext;
     private final EncounterComponentsMapper encounterComponentsMapper;
+    private final ConfidentialityService confidentialityService;
 
     public String mapEncounterToEhrComposition(Encounter encounter) {
         LOGGER.debug("Generating ehrComposition for Encounter {}", encounter.getId());
@@ -59,6 +61,8 @@ public class EncounterMapper {
             return StringUtils.EMPTY;
         }
 
+        var confidentialityCode = confidentialityService.generateConfidentialityCode(encounter);
+
         final IdMapper idMapper = messageContext.getIdMapper();
         AgentDirectory agentDirectory = messageContext.getAgentDirectory();
 
@@ -66,6 +70,7 @@ public class EncounterMapper {
             .encounterStatementId(idMapper.getOrNew(ResourceType.Encounter, encounter.getIdElement()))
             .effectiveTime(StatementTimeMappingUtils.prepareEffectiveTimeForEncounter(encounter))
             .availabilityTime(StatementTimeMappingUtils.prepareAvailabilityTime(encounter.getPeriod().getStartElement()))
+            .confidentialityCode(confidentialityCode.orElse(null))
             .status(COMPLETE_CODE)
             .components(components)
             .code(buildCode(encounter))
