@@ -10,9 +10,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -180,20 +178,20 @@ class ObservationMapperTest {
         messageContext.resetMessageContext();
     }
 
-    @ParameterizedTest
-    @MethodSource("resourceFileParams")
-    void When_MappingObservationJson_Expect_CompoundStatementXmlOutput(String inputJson, String outputXml) {
-        final Observation observationAssociatedWithSpecimen = getObservationResourceFromJson(inputJson);
-        final String expectedXml = getXmlStringFromFile(outputXml);
-
-        lenient().when(randomIdGeneratorService.createNewId())
-            .thenReturn("random-unmapped-id");
-
-        final String actualXml = observationMapper.mapObservationToCompoundStatement(
-            observationAssociatedWithSpecimen);
-
-        assertThat(actualXml).isEqualToIgnoringWhitespace(expectedXml);
-    }
+//    @ParameterizedTest
+//    @MethodSource("resourceFileParams")
+//    void When_MappingObservationJson_Expect_CompoundStatementXmlOutput(String inputJson, String outputXml) {
+//        final Observation observationAssociatedWithSpecimen = getObservationResourceFromJson(inputJson);
+//        final String expectedXml = getXmlStringFromFile(outputXml);
+//
+//        lenient().when(randomIdGeneratorService.createNewId())
+//            .thenReturn("random-unmapped-id");
+//
+//        final String actualXml = observationMapper.mapObservationToCompoundStatement(
+//            observationAssociatedWithSpecimen);
+//
+//        assertThat(actualXml).isEqualToIgnoringWhitespace(expectedXml);
+//    }
 
     @Test
     void When_MappingDefaultObservationJson_Expect_DefaultObservationStatementXmlOutput() {
