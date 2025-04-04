@@ -6600,13 +6600,8 @@
                 "id": "8542B59A-D8A0-48E6-9B17-67AB9BD488AC",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-AllergyIntolerance-1"
-                    ],
-                    "security": [{
-                        "system":"http://hl7.org/fhir/v3/ActCode",
-                        "code":"NOPAT",
-                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
-                    }]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-List-1"
+                    ]
                 },
                 "extension": [
                     {
