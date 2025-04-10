@@ -228,7 +228,7 @@ public class ObservationStatementMapperTest {
     }
 
     @Test
-    public void When_MappingParsedObservationWithNopat_Expect_ObservationStatementWithConfidentialityCode() {
+    void When_MappingParsedObservationWithNopat_Expect_ObservationStatementWithConfidentialityCode() {
         expectedOutputMessage = ResourceTestFileUtils.getFileContent(OUTPUT_XML_WITH_NOPAT);
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_NOPAT);
         Observation parsedObservation = new FhirParseService().parseResource(jsonInput, Observation.class);
