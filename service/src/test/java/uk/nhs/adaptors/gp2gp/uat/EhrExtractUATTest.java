@@ -205,7 +205,8 @@ public class EhrExtractUATTest {
                 new StructuredObservationValueMapper(),
                 new PertinentInformationObservationValueMapper(),
                 codeableConceptCdMapper,
-                participantMapper
+                participantMapper,
+                confidentialityService
             ),
             new RequestStatementMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService),
             new DiagnosticReportMapper(messageContext, specimenMapper, participantMapper, randomIdGeneratorService, confidentialityService),

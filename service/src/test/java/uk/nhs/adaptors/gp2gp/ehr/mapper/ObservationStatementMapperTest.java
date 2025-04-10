@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
+import static uk.nhs.adaptors.gp2gp.common.configuration.RedactionsContext.REDACTION_INTERACTION_ID;
 import static uk.nhs.adaptors.gp2gp.utils.IdUtil.buildReference;
 
 import java.io.IOException;
@@ -29,6 +30,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import uk.nhs.adaptors.gp2gp.common.configuration.RedactionsContext;
+import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
@@ -43,6 +46,7 @@ public class ObservationStatementMapperTest {
 
     private static final String INPUT_JSON_WITH_EFFECTIVE_DATE_TIME = TEST_FILE_DIRECTORY
         + "example-observation-resource-1.json";
+    private static final String INPUT_JSON_WITH_NOPAT = TEST_FILE_DIRECTORY + "example-observation-resource-with-nopat.json";
     private static final String INPUT_JSON_WITH_NULL_EFFECTIVE_DATE_TIME = TEST_FILE_DIRECTORY
         + "example-observation-resource-2.json";
     private static final String INPUT_JSON_WITH_EFFECTIVE_PERIOD = TEST_FILE_DIRECTORY
@@ -127,6 +131,8 @@ public class ObservationStatementMapperTest {
         + "expected-output-observation-statement-2.xml";
     private static final String OUTPUT_XML_USES_NESTED_COMPONENT = TEST_FILE_DIRECTORY
         + "expected-output-observation-statement-3.xml";
+    private static final String OUTPUT_XML_WITH_NOPAT = TEST_FILE_DIRECTORY
+        + "expected-observation-statement-with-confidentiality-code.xml";
     private static final String OUTPUT_XML_USES_EFFECTIVE_PERIOD = TEST_FILE_DIRECTORY
         + "expected-output-observation-statement-4.xml";
     private static final String OUTPUT_XML_WITH_STRING_VALUE = TEST_FILE_DIRECTORY
@@ -186,6 +192,10 @@ public class ObservationStatementMapperTest {
     private static final String OUTPUT_XML_WITH_BODY_SITE = TEST_FILE_DIRECTORY
             + "expected-output-observation-with-body-site.xml";
 
+    private static final String CONFIDENTIALITY_CODE =
+        "<confidentialityCode code=\"NOPAT\" codeSystem=\"2.16.840.1.113883.4.642.3.47\" "
+        + "displayName=\"no disclosure to patient, family or caregivers without attending provider's authorization\" />";
+
     private CharSequence expectedOutputMessage;
     private ObservationStatementMapper observationStatementMapper;
     private MessageContext messageContext;
@@ -208,12 +218,24 @@ public class ObservationStatementMapperTest {
             new StructuredObservationValueMapper(),
             new PertinentInformationObservationValueMapper(),
             codeableConceptCdMapper,
-            new ParticipantMapper());
+            new ParticipantMapper(),
+            new ConfidentialityService(new RedactionsContext(REDACTION_INTERACTION_ID)));
     }
 
     @AfterEach
     public void tearDown() {
         messageContext.resetMessageContext();
+    }
+
+    @Test
+    public void When_MappingParsedObservationWithNopat_Expect_ObservationStatementWithConfidentialityCode() {
+        expectedOutputMessage = ResourceTestFileUtils.getFileContent(OUTPUT_XML_WITH_NOPAT);
+        var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_NOPAT);
+        Observation parsedObservation = new FhirParseService().parseResource(jsonInput, Observation.class);
+
+        String outputMessage = observationStatementMapper.mapObservationToObservationStatement(parsedObservation, true);
+
+        assertThat(outputMessage).contains(CONFIDENTIALITY_CODE);
     }
 
     @ParameterizedTest
