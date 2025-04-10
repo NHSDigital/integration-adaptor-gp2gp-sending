@@ -11,6 +11,7 @@ public class ObservationStatementTemplateParameters {
     private String observationStatementId;
     private String comment;
     private String effectiveTime;
+    private String confidentialityCode;
     private String issued;
     private String value;
     private String referenceRange;

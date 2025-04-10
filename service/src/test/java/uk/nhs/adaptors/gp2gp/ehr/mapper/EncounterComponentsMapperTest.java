@@ -183,7 +183,8 @@ public class EncounterComponentsMapperTest {
             messageContext,
             structuredObservationValueMapper,
             new PertinentInformationObservationValueMapper(), codeableConceptCdMapper,
-            participantMapper
+            participantMapper,
+            confidentialityService
         );
         ImmunizationObservationStatementMapper immunizationObservationStatementMapper =
             new ImmunizationObservationStatementMapper(

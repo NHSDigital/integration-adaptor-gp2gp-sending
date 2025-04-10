@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import com.github.mustachejava.Mustache;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.ObservationStatementTemplateParameters;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.wrapper.ConditionWrapper;
@@ -47,15 +48,20 @@ public class ObservationStatementMapper {
     private final PertinentInformationObservationValueMapper pertinentInformationObservationValueMapper;
     private final CodeableConceptCdMapper codeableConceptCdMapper;
     private final ParticipantMapper participantMapper;
+    private final ConfidentialityService confidentialityService;
 
     public String mapObservationToObservationStatement(Observation observation, boolean isNested) {
+
+        var confidentialityCode = confidentialityService.generateConfidentialityCode(observation);
+
         final IdMapper idMapper = messageContext.getIdMapper();
         var observationStatementTemplateParametersBuilder = ObservationStatementTemplateParameters.builder()
             .observationStatementId(idMapper.getOrNew(ResourceType.Observation, observation.getIdElement()))
             .code(prepareCode(observation))
             .issued(StatementTimeMappingUtils.prepareAvailabilityTimeForObservation(observation))
             .isNested(isNested)
-            .effectiveTime(StatementTimeMappingUtils.prepareEffectiveTimeForObservation(observation));
+            .effectiveTime(StatementTimeMappingUtils.prepareEffectiveTimeForObservation(observation))
+            .confidentialityCode(confidentialityCode.orElse(null));
 
         if (observation.hasValue()) {
             Type value = observation.getValue();

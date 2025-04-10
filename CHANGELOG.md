@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-The GP2GP Adaptor now adds the EhrComposition / confidentialityCode field when Encounter.meta.security contains NOPAT security entry
-
+* The GP2GP Adaptor now adds the EhrComposition / confidentialityCode field when Encounter.meta.security contains NOPAT security entry
+* The GP2GP Adaptor now populates the ObservationStatement / confidentialityCode field when the .meta.security field of an Uncategorised Data Observation contains NOPAT
 
 ## [2.4.0] - 2025-04-02
 
