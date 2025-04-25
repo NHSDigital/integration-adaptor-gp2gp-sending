@@ -7468,8 +7468,13 @@
                 "id": "12041BEF-DF85-4DAB-9F1C-64DEEA0DCCDE",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Immunization-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -7499,7 +7504,7 @@
                                 }
                             ],
                             "system": "http://snomed.info/sct",
-                            "code": "163020007",
+                            "code": "EMISNQPR489",
                             "display": "O/E - blood pressure reading"
                         }
                     ]
@@ -10390,8 +10395,13 @@
                 "id": "C82B7A99-5F2C-4EA8-BABA-98FB224164E7",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Immunization-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -10404,7 +10414,7 @@
                     "coding": [
                         {
                             "system": "http://snomed.info/sct",
-                            "code": "37331000000100",
+                            "code": "EMISNQPR489",
                             "display": "Comment note"
                         }
                     ]
@@ -10431,8 +10441,13 @@
                 "id": "E35B868E-B80D-4C31-8812-0ABE3405468F",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Immunization-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -10445,7 +10460,7 @@
                     "coding": [
                         {
                             "system": "http://snomed.info/sct",
-                            "code": "37331000000100",
+                            "code": "EMISNQPR489",
                             "display": "Comment note"
                         }
                     ]
@@ -10513,8 +10528,13 @@
                 "id": "AC8E61D6-0186-4FC1-89F5-8933A3A38B14",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Immunization-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -10527,7 +10547,7 @@
                     "coding": [
                         {
                             "system": "http://snomed.info/sct",
-                            "code": "37331000000100",
+                            "code": "EMISNQPR489",
                             "display": "Comment note"
                         }
                     ]
