@@ -7593,8 +7593,13 @@
                 "id": "B141FC3E-4DD2-4412-9655-DF43BBCE290B",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Immunization-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -7643,8 +7648,13 @@
                 "id": "E0DD7160-64CA-48F3-AB00-B21C39D3FB23",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Immunization-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -7708,8 +7718,13 @@
                 "id": "21B95C86-121F-4BC5-A2CD-3E2955F4D604",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Immunization-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -7757,8 +7772,13 @@
                 "id": "E8746411-9D21-4A5C-B70B-9D1FF00D3AE4",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Immunization-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -7806,8 +7826,13 @@
                 "id": "A77C238E-F630-48C0-B2EA-26F1B126DC1D",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Immunization-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -7875,8 +7900,13 @@
                 "id": "58E20D47-F007-47F4-811E-992AE160BECC",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Immunization-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -7941,8 +7971,13 @@
                 "id": "3E1A4EA2-661B-4467-8843-6A6B21DEF14F",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Immunization-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -7991,8 +8026,13 @@
                 "id": "6418F5A3-C427-4292-ABCF-F53E71B43F15",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Immunization-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -8061,8 +8101,13 @@
                 "id": "C8B1BEAF-FB71-45D1-89DA-298148C00CE1",
                 "meta": {
                     "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ]
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Immunization-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
