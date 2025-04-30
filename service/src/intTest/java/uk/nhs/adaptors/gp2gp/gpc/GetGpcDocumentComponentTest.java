@@ -7,10 +7,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-
 import static uk.nhs.adaptors.gp2gp.ehr.EhrStatusConstants.CONVERSATION_ID;
 import static uk.nhs.adaptors.gp2gp.ehr.EhrStatusConstants.DOCUMENT_ID;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
@@ -40,12 +38,10 @@ import uk.nhs.adaptors.gp2gp.testcontainers.MongoDBExtension;
 @ExtendWith({SpringExtension.class, MongoDBExtension.class, ActiveMQExtension.class})
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class GetGpcDocumentComponentTest extends BaseTaskTest {
-    
+class GetGpcDocumentComponentTest extends BaseTaskTest {
     private static final String NO_RECORD_FOUND_STRING = "No Record Found";
     private static final String ODS_CODE_PLACEHOLDER = "@ODS_CODE@";
-    private static final String EXPECTED_DOCUMENT_JSON_FILENAME =
-        CONVERSATION_ID.concat("/").concat(DOCUMENT_ID).concat(".json");
+    private static final String EXPECTED_DOCUMENT_JSON_FILENAME = CONVERSATION_ID.concat("/").concat(DOCUMENT_ID).concat(".json");
     private static final String DOCUMENT_BINARY_ENDPOINT = "/documents/fhir/Binary/";
 
     @Autowired
