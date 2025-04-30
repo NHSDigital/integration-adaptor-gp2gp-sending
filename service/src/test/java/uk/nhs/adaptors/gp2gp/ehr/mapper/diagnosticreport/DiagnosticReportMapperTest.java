@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -107,7 +105,7 @@ class DiagnosticReportMapperTest {
     private DiagnosticReportMapper mapper;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    public void setUp() {
         final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
 
         when(messageContext.getIdMapper()).thenReturn(idMapper);

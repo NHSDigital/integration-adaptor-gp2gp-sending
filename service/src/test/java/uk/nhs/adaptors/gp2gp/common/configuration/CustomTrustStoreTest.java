@@ -58,7 +58,7 @@ class CustomTrustStoreTest {
     }
 
     @Test
-    void trustManagerLoadsSuccessfullyTest() throws NoSuchFieldException, IllegalAccessException {
+    void trustManagerLoadsSuccessfullyTest() {
 
         String s3Uri = "s3://" + BUCKET_NAME + "/" + TRUSTSTORE_PATH;
 

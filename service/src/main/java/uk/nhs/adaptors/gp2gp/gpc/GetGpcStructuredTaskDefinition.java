@@ -31,7 +31,7 @@ public class GetGpcStructuredTaskDefinition extends TaskDefinition {
 
     public static GetGpcStructuredTaskDefinition getGetGpcStructuredTaskDefinition(RandomIdGeneratorService randomIdGeneratorService,
                                                                                    EhrExtractStatus ehrExtractStatus) {
-        var getGpcStructuredTaskDefinition = GetGpcStructuredTaskDefinition.builder()
+        return GetGpcStructuredTaskDefinition.builder()
             .nhsNumber(ehrExtractStatus.getEhrRequest().getNhsNumber())
             .taskId(randomIdGeneratorService.createNewId())
             .conversationId(ehrExtractStatus.getConversationId())
@@ -41,6 +41,5 @@ public class GetGpcStructuredTaskDefinition extends TaskDefinition {
             .toOdsCode(ehrExtractStatus.getEhrRequest().getToOdsCode())
             .fromOdsCode(ehrExtractStatus.getEhrRequest().getFromOdsCode())
             .build();
-        return getGpcStructuredTaskDefinition;
     }
 }

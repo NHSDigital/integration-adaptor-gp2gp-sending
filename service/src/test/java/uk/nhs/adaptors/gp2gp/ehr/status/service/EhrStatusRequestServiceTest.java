@@ -64,7 +64,7 @@ public class EhrStatusRequestServiceTest {
 
         Optional<List<EhrStatusRequest>> statusRequests = ehrStatusRequestsService.getEhrStatusRequests(query);
 
-        assertThat(statusRequests).isEqualTo(Optional.empty());
+        assertThat(statusRequests).isEmpty();
     }
 
     @Test

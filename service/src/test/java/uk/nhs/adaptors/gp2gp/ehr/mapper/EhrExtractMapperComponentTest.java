@@ -270,6 +270,6 @@ public class EhrExtractMapperComponentTest {
         Bundle parsedBundle = new FhirParseService().parseResource(bundle, Bundle.class);
         messageContext.initialize(parsedBundle);
         var translatedOutput = nonConsultationResourceMapper.mapRemainingResourcesToEhrCompositions(parsedBundle);
-        assertThat(translatedOutput.size()).isEqualTo(1);
+        assertThat(translatedOutput).hasSize(1);
     }
 }

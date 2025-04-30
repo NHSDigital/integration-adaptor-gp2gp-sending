@@ -89,7 +89,7 @@ public class EhrExtractAckHandlerTest {
 
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_OK_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(eq(CONVERSATION_ID))).thenReturn(Optional.of(EHR_MESSAGE_REF));
+        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(EHR_MESSAGE_REF));
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -105,7 +105,7 @@ public class EhrExtractAckHandlerTest {
 
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_OK_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(eq(CONVERSATION_ID))).thenReturn(Optional.of(EHR_MESSAGE_REF));
+        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(EHR_MESSAGE_REF));
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -117,7 +117,7 @@ public class EhrExtractAckHandlerTest {
 
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_OK_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(RANDOM_MESSAGE_REF);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(eq(CONVERSATION_ID))).thenReturn(Optional.of(EHR_MESSAGE_REF));
+        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(EHR_MESSAGE_REF));
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -129,7 +129,7 @@ public class EhrExtractAckHandlerTest {
 
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_OK_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(RANDOM_MESSAGE_REF);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(eq(CONVERSATION_ID))).thenReturn(Optional.of(EHR_MESSAGE_REF));
+        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(EHR_MESSAGE_REF));
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -142,7 +142,7 @@ public class EhrExtractAckHandlerTest {
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_OK_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
 
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(eq(CONVERSATION_ID))).thenReturn(Optional.empty());
+        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(EhrExtractException.class)
             .isThrownBy(() -> ehrExtractAckHandler.handle(CONVERSATION_ID, document));
@@ -158,7 +158,7 @@ public class EhrExtractAckHandlerTest {
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_BUSINESS_ERROR_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ERROR_CODE_XPATH))).thenReturn(codeNodeList);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(eq(CONVERSATION_ID))).thenReturn(Optional.of(EHR_MESSAGE_REF));
+        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(EHR_MESSAGE_REF));
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -177,7 +177,7 @@ public class EhrExtractAckHandlerTest {
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_BUSINESS_ERROR_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ERROR_CODE_XPATH))).thenReturn(codeNodeList);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(eq(CONVERSATION_ID))).thenReturn(Optional.of(EHR_MESSAGE_REF));
+        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(EHR_MESSAGE_REF));
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -195,7 +195,7 @@ public class EhrExtractAckHandlerTest {
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_BUSINESS_ERROR_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ERROR_CODE_XPATH))).thenReturn(codeNodeList);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(eq(CONVERSATION_ID))).thenReturn(Optional.of(RANDOM_MESSAGE_REF));
+        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(RANDOM_MESSAGE_REF));
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -213,7 +213,7 @@ public class EhrExtractAckHandlerTest {
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_BUSINESS_ERROR_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ERROR_CODE_XPATH))).thenReturn(codeNodeList);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(eq(CONVERSATION_ID))).thenReturn(Optional.of(RANDOM_MESSAGE_REF));
+        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(RANDOM_MESSAGE_REF));
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -231,7 +231,7 @@ public class EhrExtractAckHandlerTest {
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_REJECTED_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ACK_DETAILS_XPATH))).thenReturn(codeNodeList);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(eq(CONVERSATION_ID))).thenReturn(Optional.of(EHR_MESSAGE_REF));
+        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(EHR_MESSAGE_REF));
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -250,7 +250,7 @@ public class EhrExtractAckHandlerTest {
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_REJECTED_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ACK_DETAILS_XPATH))).thenReturn(codeNodeList);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(eq(CONVERSATION_ID))).thenReturn(Optional.of(RANDOM_MESSAGE_REF));
+        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(RANDOM_MESSAGE_REF));
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -268,7 +268,7 @@ public class EhrExtractAckHandlerTest {
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_REJECTED_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ACK_DETAILS_XPATH))).thenReturn(codeNodeList);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(eq(CONVERSATION_ID))).thenReturn(Optional.of(EHR_MESSAGE_REF));
+        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(EHR_MESSAGE_REF));
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -285,7 +285,7 @@ public class EhrExtractAckHandlerTest {
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_REJECTED_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ACK_DETAILS_XPATH))).thenReturn(codeNodeList);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(eq(CONVERSATION_ID))).thenReturn(Optional.of(RANDOM_MESSAGE_REF));
+        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(RANDOM_MESSAGE_REF));
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 

@@ -175,7 +175,7 @@ public class ObservationMapper {
             .map(referenceElement -> messageContext.getInputBundleHolder().getResource(referenceElement))
             .flatMap(Optional::stream)
             .map(Observation.class::cast)
-            .map(observation -> createHolder(observation))
+            .map(this::createHolder)
             .collect(Collectors.toList());
     }
 

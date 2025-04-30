@@ -129,7 +129,7 @@ class ConditionLinkSetMapperTest {
     private ConditionLinkSetMapper conditionLinkSetMapper;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         var bundleInput = ResourceTestFileUtils.getFileContent(TEST_FILES_DIRECTORY + INPUT_JSON_BUNDLE);
         final Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
         inputBundle = new InputBundle(bundle);

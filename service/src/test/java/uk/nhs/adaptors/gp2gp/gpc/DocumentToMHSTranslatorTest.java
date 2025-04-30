@@ -17,8 +17,6 @@ import uk.nhs.adaptors.gp2gp.common.utils.Base64Utils;
 import uk.nhs.adaptors.gp2gp.ehr.EhrDocumentMapper;
 import uk.nhs.adaptors.gp2gp.ehr.GetAbsentAttachmentTaskDefinition;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
-
-import java.io.IOException;
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +60,7 @@ public class DocumentToMHSTranslatorTest {
     private DocumentToMHSTranslator documentToMHSTranslator;
 
     @BeforeAll
-    public static void initialize() throws IOException {
+    public static void initialize() {
         jsonBinaryContent = ResourceTestFileUtils.getFileContent(INPUT_PATH + BINARY_INPUT_FILE);
         absentAttachmentTxtContent = ResourceTestFileUtils.getFileContent(INPUT_PATH + ABSENT_ATTACHMENT_INPUT_FILE);
         expectedMhsOutboundRequest = ResourceTestFileUtils.getFileContent(OUTPUT_PATH + EXPECTED_MHS_OUTBOUND_REQUEST_FILE);
