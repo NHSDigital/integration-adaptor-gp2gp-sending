@@ -213,7 +213,8 @@ public class EncounterComponentsMapperTest {
             requestStatementMapper,
             diagnosticReportMapper,
             bloodPressureValidator,
-            codeableConceptCdMapper
+            codeableConceptCdMapper,
+            confidentialityService
         );
     }
 
@@ -266,8 +267,7 @@ public class EncounterComponentsMapperTest {
         var encounter = extractEncounter(bundle);
 
         String mappedXml = encounterComponentsMapper.mapComponents(encounter);
-        assertThat(mappedXml)
-            .isEqualToIgnoringWhitespace(expectedXml);
+        assertThat(mappedXml).isEqualToIgnoringWhitespace(expectedXml);
     }
 
     @ParameterizedTest

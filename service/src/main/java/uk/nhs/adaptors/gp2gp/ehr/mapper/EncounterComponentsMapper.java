@@ -38,6 +38,7 @@ import com.github.mustachejava.Mustache;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport.DiagnosticReportMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.CompoundStatementParameters;
@@ -81,6 +82,7 @@ public class EncounterComponentsMapper {
     private final DiagnosticReportMapper diagnosticReportMapper;
     private final BloodPressureValidator bloodPressureValidator;
     private final CodeableConceptCdMapper codeableConceptCdMapper;
+    private final ConfidentialityService confidentialityService;
 
     private final Map<ResourceType, Function<Resource, Optional<String>>> encounterComponents = Map.of(
         ResourceType.AllergyIntolerance, this::mapAllergyIntolerance,
@@ -407,8 +409,10 @@ public class EncounterComponentsMapper {
         String classCode,
         String compoundStatementCode,
         boolean nested,
-        String components
-    ) {
+        String components) {
+
+        var confidentialityCode = confidentialityService.generateConfidentialityCode(topicList);
+
         if (StringUtils.isEmpty(components)) {
             return StringUtils.EMPTY;
         }
@@ -424,6 +428,7 @@ public class EncounterComponentsMapper {
             .statusCode(COMPLETE_CODE)
             .effectiveTime(effectiveTime)
             .availabilityTime(availabilityTime)
+            .confidentialityCode(confidentialityCode.orElse(null))
             .components(components)
             .build();
 
