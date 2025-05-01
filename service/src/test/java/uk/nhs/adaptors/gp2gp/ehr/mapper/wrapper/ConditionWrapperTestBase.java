@@ -1,9 +1,6 @@
 package uk.nhs.adaptors.gp2gp.ehr.mapper.wrapper;
 
 import static uk.nhs.adaptors.gp2gp.utils.IdUtil.buildIdType;
-
-import java.io.IOException;
-
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.hl7.fhir.dstu3.model.Reference;
@@ -31,7 +28,7 @@ public abstract class ConditionWrapperTestBase {
     private static InputBundle inputBundle;
 
     @BeforeAll
-    public static void setUp() throws IOException {
+    public static void setUp() {
         var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
         bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
         inputBundle = new InputBundle(bundle);

@@ -100,13 +100,12 @@ public class EhrExtractTest {
     private static final String ACK_TO_REQUESTER = "ackToRequester";
     private static final String ACK_TO_PENDING = "ackPending";
     private static final String NACK_CODE_FAILED_TO_GENERATE_EHR = "10";
-    private final static String NACK_CODE_REQUEST_NOT_WELL_FORMED = "18";
-    private final static String NACK_CODE_PATIENT_NOT_FOUND = "06";
-    private final static String NACK_CODE_INVALID = "19";
-    private final static String NACK_CODE_GP_CONNECT_ERROR = "20";
-    private final static String NACK_CODE_NO_RELATIONSHIP = "19";
-    private final static String NACK_MESSAGE_REQUEST_NOT_WELL_FORMED = "An error occurred processing the initial EHR request";
-    private final static String NACK_MESSAGE_NOT_FOUND = "Patient not at surgery.";
+    private static final String NACK_CODE_REQUEST_NOT_WELL_FORMED = "18";
+    private static final String NACK_CODE_PATIENT_NOT_FOUND = "06";
+    private static final String NACK_CODE_INVALID = "19";
+    private static final String NACK_CODE_GP_CONNECT_ERROR = "20";
+    private static final String NACK_CODE_NO_RELATIONSHIP = "19";
+    private static final String NACK_MESSAGE_NOT_FOUND = "Patient not at surgery.";
 
     private static final CharSequence XML_NAMESPACE = "/urn:hl7-org:v3:";
     private static final String DOCUMENT_REFERENCE_XPATH_TEMPLATE = "/RCMR_IN030000UK06/ControlActEvent/subject/EhrExtract/component/ehrFolder/component/ehrComposition/component/NarrativeStatement/reference/referredToExternalDocument/text/reference[@value='cid:%s']";
@@ -311,7 +310,7 @@ public class EhrExtractTest {
 
         var documentList = ehrExtractStatus.get(GPC_ACCESS_DOCUMENT, Document.class).get("documents", Collections.emptyList());
 
-        assertThat(documentList.size()).isEqualTo(1); // large ehr as a document
+        assertThat(documentList).hasSize(1); // large ehr as a document
 
         var ackToPending = ehrExtractStatus.get(ACK_TO_PENDING, Document.class);
         assertThatAcknowledgementPending(ackToPending, ACCEPTED_ACKNOWLEDGEMENT_TYPE_CODE);
@@ -321,7 +320,7 @@ public class EhrExtractTest {
         assertThat(mhsMockRequests).hasSize(3);
         var ehrExtractMhsRequest = mhsMockRequests.get(0);
 
-        assertThat(ehrExtractMhsRequest.getAttachments()).hasSize(0);
+        assertThat(ehrExtractMhsRequest.getAttachments()).isEmpty();
         assertThat(ehrExtractMhsRequest.getExternalAttachments()).hasSize(1);
 
         var externalAttachment = ehrExtractMhsRequest.getExternalAttachments().get(0);
@@ -670,15 +669,8 @@ public class EhrExtractTest {
             .filter(status -> status.getFileStatus().equals(PLACEHOLDER))
             .collect(Collectors.toList());
 
-        boolean hasAbsentAttachmentInFilename = placeholders.stream()
-            .allMatch(status -> status.getFileName().startsWith("AbsentAttachment"));
-
-        boolean hasPlainTextSuffix = placeholders.stream()
-            .allMatch(status -> status.getFileName().endsWith(".txt"));
-
-        assertThat(placeholders.isEmpty())
-            .as("Migration should have placeholders")
-            .isFalse();
+        assertThat(placeholders).isNotEmpty()
+            .as("Migration should have placeholders");
 
         // TODO: NIAD-2394 - These assertions can be used to ensure AbsentAttachment is appended to a placeholders filename and there is a plain text suffix
 

@@ -130,7 +130,7 @@ public class NonConsultationResourceMapperTest {
 
         var translatedOutput = nonConsultationResourceMapper.mapRemainingResourcesToEhrCompositions(parsedBundle);
         assertAll(
-            () -> assertThat(translatedOutput.size()).isEqualTo(2),
+            () -> assertThat(translatedOutput).hasSize(2),
             () -> assertThat(translatedOutput.get(0)).isEqualToIgnoringWhitespace(expectedOutput),
             () -> assertThat(translatedOutput.get(1)).isEqualToIgnoringWhitespace(expectedOutput)
         );

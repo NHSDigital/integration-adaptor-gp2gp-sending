@@ -18,7 +18,7 @@ class AttachmentDescriptionTest {
             .domainData(null)
             .build();
 
-        assertThat(attachmentDescription.toString()).isEqualTo(
+        assertThat(attachmentDescription).hasToString(
             "Filename=\"this_is_a_filename\" "
             + "ContentType=this_is_a_content_type "
             + "Compressed=No "
@@ -30,7 +30,7 @@ class AttachmentDescriptionTest {
     void When_BuildingAttachmentDescriptionUsingAllParameters_Expect_DescriptionIsCreated() {
         var attachmentDescription = getAttachmentDescriptionBuilder().build();
 
-        assertThat(attachmentDescription.toString()).isEqualTo(
+        assertThat(attachmentDescription).hasToString(
             "Filename=\"this_is_a_filename\" "
             + "ContentType=this_is_a_content_type "
             + "Compressed=Yes LargeAttachment=Yes "

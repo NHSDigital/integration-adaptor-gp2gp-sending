@@ -2,8 +2,6 @@ package uk.nhs.adaptors.gp2gp.ehr.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.io.IOException;
 import java.util.stream.Stream;
 
 import org.hl7.fhir.dstu3.model.Observation;
@@ -47,7 +45,7 @@ public class StructuredObservationValueMapperTest {
     private static final StructuredObservationValueMapper XML_OBSERVATION_VALUE_MAPPER = new StructuredObservationValueMapper();
 
     @Test
-    public void When_MappingParsedObservationStringValueJson_Expect_CorrectXmlOutput() throws IOException {
+    public void When_MappingParsedObservationStringValueJson_Expect_CorrectXmlOutput() {
         String expectedOutputMessage = ResourceTestFileUtils.getFileContent(OUTPUT_XML_WITH_STRING_TYPE);
 
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_STRING_TYPE);
@@ -64,8 +62,7 @@ public class StructuredObservationValueMapperTest {
     @MethodSource("referenceRangeTestParams")
     public void When_MappingParsedObservationReferenceRangeJson_Expect_CorrectXmlOutput(
         String inputJsonPath,
-        String expectedOutputXmlPath
-    ) throws IOException {
+        String expectedOutputXmlPath) {
         String expectedOutputMessage = ResourceTestFileUtils.getFileContent(expectedOutputXmlPath);
 
         var jsonInput = ResourceTestFileUtils.getFileContent(inputJsonPath);
@@ -76,7 +73,7 @@ public class StructuredObservationValueMapperTest {
     }
 
     @Test
-    public void When_MappingParsedObservationInterpretationJson_Expect_CorrectXmlOutput() throws IOException {
+    public void When_MappingParsedObservationInterpretationJson_Expect_CorrectXmlOutput() {
         String expectedOutputMessage = ResourceTestFileUtils.getFileContent(OUTPUT_XML_WITH_INTERPRETATION);
 
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_INTERPRETATION);
@@ -88,7 +85,7 @@ public class StructuredObservationValueMapperTest {
     }
 
     @Test
-    public void When_MappingParsedObservationInvalidValueJson_Expect_IllegalArgumentException() throws IOException {
+    public void When_MappingParsedObservationInvalidValueJson_Expect_IllegalArgumentException() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_INVALID_VALUE);
         Observation observation = new FhirParseService().parseResource(jsonInput, Observation.class);
 

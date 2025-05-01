@@ -51,6 +51,7 @@ public class GpcWebClientTest {
     private static final String TASK_ID = "testTaskId";
     private static final String TEST_BODY = "Test Body";
     private static final int FOUR = 4;
+    public static final String RETRIES_EXHAUSTED_3_3 = "Retries exhausted: 3/3";
 
     private static MockWebServer mockWebServer;
 
@@ -131,7 +132,7 @@ public class GpcWebClientTest {
 
         assertThatThrownBy(() -> gpcWebClient.getDocumentRecord(taskDefinition))
             .isInstanceOf(RetryLimitReachedException.class)
-            .hasMessage("Retries exhausted: 3/3")
+            .hasMessage(RETRIES_EXHAUSTED_3_3)
             .hasRootCauseInstanceOf(GpcServerErrorException.class)
             .hasRootCauseMessage("The following error occurred during GPC request: " + TEST_BODY);
 
@@ -150,7 +151,7 @@ public class GpcWebClientTest {
 
         assertThatThrownBy(() -> gpcWebClient.getDocumentRecord(taskDefinition))
             .isInstanceOf(RetryLimitReachedException.class)
-            .hasMessage("Retries exhausted: 3/3")
+            .hasMessage(RETRIES_EXHAUSTED_3_3)
             .hasRootCauseInstanceOf(GpcServerErrorException.class)
             .hasRootCauseMessage("The following error occurred during GPC request: 500 INTERNAL_SERVER_ERROR");
 
@@ -170,7 +171,7 @@ public class GpcWebClientTest {
         assertThatThrownBy(() -> gpcWebClient.getDocumentRecord(taskDefinition))
             .isInstanceOf(RetryLimitReachedException.class)
             .hasRootCauseInstanceOf(TimeoutException.class)
-            .hasMessage("Retries exhausted: 3/3");
+            .hasMessage(RETRIES_EXHAUSTED_3_3);
 
         assertThat(mockWebServer.getRequestCount()).isEqualTo(FOUR);
         verify(gpcTokenBuilder, times(FOUR)).buildToken(taskDefinition.getFromOdsCode());
@@ -211,7 +212,7 @@ public class GpcWebClientTest {
         assertThatThrownBy(() -> gpcWebClient.getStructuredRecord(taskDefinition))
             .isInstanceOf(RetryLimitReachedException.class)
             .hasRootCauseInstanceOf(TimeoutException.class)
-            .hasMessage("Retries exhausted: 3/3");
+            .hasMessage(RETRIES_EXHAUSTED_3_3);
 
         assertThat(mockWebServer.getRequestCount()).isEqualTo(FOUR);
         verify(gpcTokenBuilder, times(FOUR)).buildToken(taskDefinition.getFromOdsCode());
@@ -227,7 +228,7 @@ public class GpcWebClientTest {
 
         assertThatThrownBy(() -> gpcWebClient.getStructuredRecord(taskDefinition))
             .isInstanceOf(RetryLimitReachedException.class)
-            .hasMessage("Retries exhausted: 3/3")
+            .hasMessage(RETRIES_EXHAUSTED_3_3)
             .hasRootCauseInstanceOf(GpcServerErrorException.class)
             .hasRootCauseMessage("The following error occurred during GPC request: " + TEST_BODY);
 

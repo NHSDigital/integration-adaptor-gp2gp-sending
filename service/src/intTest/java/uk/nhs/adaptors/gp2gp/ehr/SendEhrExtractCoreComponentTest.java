@@ -244,7 +244,7 @@ public class SendEhrExtractCoreComponentTest extends BaseTaskTest {
                     .description(
                         OutboundMessage.AttachmentDescription.builder()
                             .fileName(GpcFilenameUtils.generateLargeExrExtractFilename(COMPRESSED_EHR_EXTRACT_DOCUMENT_ID))
-                            .contentType("text/xml")
+                            .contentType(TEXT_XML_CONTENT_TYPE)
                             .length(COMPRESSED_LARGE_PAYLOAD.length())
                             .compressed(true)
                             .largeAttachment(true)
@@ -280,7 +280,7 @@ public class SendEhrExtractCoreComponentTest extends BaseTaskTest {
                     OutboundMessage.builder()
                         .payload("<COPC />")
                         .attachments(List.of(OutboundMessage.Attachment.builder()
-                            .contentType("text/xml")
+                            .contentType(TEXT_XML_CONTENT_TYPE)
                             .isBase64(true)
                             .description(COMPRESSED_EHR_EXTRACT_DOCUMENT_ID)
                             .payload(COMPRESSED_LARGE_PAYLOAD)

@@ -2,8 +2,6 @@ package uk.nhs.adaptors.gp2gp.ehr.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.io.IOException;
 import java.util.stream.Stream;
 
 import org.hl7.fhir.dstu3.model.Observation;
@@ -57,7 +55,7 @@ public class PertinentInformationObservationValueMapperTest {
 
     @ParameterizedTest
     @MethodSource("testValueFilePaths")
-    public void When_MappingParsedObservationValueJson_Expect_CorrectXmlOutput(String input, String output) throws IOException {
+    public void When_MappingParsedObservationValueJson_Expect_CorrectXmlOutput(String input, String output) {
         var jsonInput = ResourceTestFileUtils.getFileContent(input);
         Observation observation = new FhirParseService().parseResource(jsonInput, Observation.class);
 
@@ -72,8 +70,7 @@ public class PertinentInformationObservationValueMapperTest {
 
     @ParameterizedTest
     @MethodSource("testReferenceRangeFilePaths")
-    public void When_MappingParsedObservationJsonWithReferenceRange_Expect_CorrectXmlOutput(String input,
-            String output) throws IOException {
+    public void When_MappingParsedObservationJsonWithReferenceRange_Expect_CorrectXmlOutput(String input, String output)  {
         var jsonInput = ResourceTestFileUtils.getFileContent(input);
         Observation observation = new FhirParseService().parseResource(jsonInput, Observation.class);
 
@@ -83,7 +80,7 @@ public class PertinentInformationObservationValueMapperTest {
     }
 
     @Test
-    public void When_MappingParsedObservationInvalidValueJson_Expect_IllegalArgumentException() throws IOException {
+    public void When_MappingParsedObservationInvalidValueJson_Expect_IllegalArgumentException() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_INVALID_VALUE);
         Observation observation = new FhirParseService().parseResource(jsonInput, Observation.class);
 

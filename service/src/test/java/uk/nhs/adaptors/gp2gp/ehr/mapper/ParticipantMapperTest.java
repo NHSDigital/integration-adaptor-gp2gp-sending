@@ -5,8 +5,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
-
-import java.io.IOException;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,8 +22,7 @@ public class ParticipantMapperTest {
 
     @ParameterizedTest
     @MethodSource("getTestArguments")
-    public void When_MappingParticipantData_Expect_ParticipantXml(String reference, ParticipantType type, String expectedOutputFile)
-            throws IOException {
+    public void When_MappingParticipantData_Expect_ParticipantXml(String reference, ParticipantType type, String expectedOutputFile) {
         var expectedOutput = ResourceTestFileUtils.getFileContent(expectedOutputFile);
 
         var actual = participantMapper.mapToParticipant(reference, type);

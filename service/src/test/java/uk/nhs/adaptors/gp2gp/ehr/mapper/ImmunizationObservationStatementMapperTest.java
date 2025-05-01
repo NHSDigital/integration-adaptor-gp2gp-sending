@@ -21,8 +21,6 @@ import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.utils.CodeableConceptMapperMockUtil;
 import uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
-
-import java.io.IOException;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -169,7 +167,7 @@ public class ImmunizationObservationStatementMapperTest {
     private FhirParseService fhirParseService;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(TEST_ID);
         when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
