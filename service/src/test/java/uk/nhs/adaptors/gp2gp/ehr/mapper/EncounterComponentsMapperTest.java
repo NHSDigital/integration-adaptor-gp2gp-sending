@@ -5,6 +5,7 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.IdType;
+import org.hl7.fhir.dstu3.model.ListResource;
 import org.hl7.fhir.dstu3.model.QuestionnaireResponse;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
@@ -54,6 +55,7 @@ public class EncounterComponentsMapperTest {
     private static final String TEST_DIRECTORY = "/ehr/mapper/encountercomponents/";
     private static final String INPUT_BUNDLE_WITH_ALL_MAPPERS_USED = TEST_DIRECTORY + "input-bundle-1.json";
     private static final String EXPECTED_COMPONENTS_MAPPED_WITH_ALL_MAPPERS_USED = TEST_DIRECTORY + "expected-components-1.xml";
+    private static final String EXPECTED_COMPONENTS_MAPPED_WITH_NOPAT = TEST_DIRECTORY + "expected-components-with-nopat.xml";
     private static final String INPUT_BUNDLE_WITH_EMPTY_CONSULTATION_LIST = TEST_DIRECTORY + "input-bundle-2.json";
     private static final String INPUT_BUNDLE_WITH_EMPTY_TOPIC_LIST = TEST_DIRECTORY + "input-bundle-3.json";
     private static final String INPUT_BUNDLE_WITH_EMPTY_CATEGORY_LIST = TEST_DIRECTORY + "input-bundle-4.json";
@@ -63,6 +65,7 @@ public class EncounterComponentsMapperTest {
     private static final String INPUT_BUNDLE_WITH_NON_TOPIC_CONSULTATION_LIST_ENTRY = TEST_DIRECTORY + "input-bundle-8.json";
     private static final String INPUT_BUNDLE_WITH_UNSUPPORTED_RESOURCES = TEST_DIRECTORY + "input-bundle-9-unsupported-resource.json";
     private static final String INPUT_BUNDLE_WITH_IGNORED_RESOURCE = TEST_DIRECTORY + "input-bundle-10-ignored-resource.json";
+    private static final String INPUT_BUNDLE_WITH_META_SECURITY = TEST_DIRECTORY + "input-bundle-10-with-meta.json";
     private static final String INPUT_BUNDLE_WITH_NON_CATEGORY_TOPIC_LIST_ENTRY = TEST_DIRECTORY
         + "input-bundle-11-invalid-category-list.json";
     private static final String INPUT_BUNDLE_WITH_RELATED_PROBLEM_IN_TOPIC = TEST_DIRECTORY + "input-bundle-12-related-problem.json";
@@ -265,6 +268,18 @@ public class EncounterComponentsMapperTest {
 
         var bundle = initializeMessageContext(INPUT_BUNDLE_WITH_IGNORED_RESOURCE);
         var encounter = extractEncounter(bundle);
+
+        String mappedXml = encounterComponentsMapper.mapComponents(encounter);
+        assertThat(mappedXml).isEqualToIgnoringWhitespace(expectedXml);
+    }
+
+    @Test
+    public void When_EncounterComponentsIncludeListWithMetaSecurity_Expect_CompoundStatementWithNOPAT() {
+        String expectedXml = ResourceTestFileUtils.getFileContent(EXPECTED_COMPONENTS_MAPPED_WITH_NOPAT);
+
+        var bundle = initializeMessageContext(INPUT_BUNDLE_WITH_META_SECURITY);
+        var encounter = extractEncounter(bundle);
+        when(confidentialityService.generateConfidentialityCode(any(ListResource.class))).thenReturn(Optional.of(CONFIDENTIALITY_CODE));
 
         String mappedXml = encounterComponentsMapper.mapComponents(encounter);
         assertThat(mappedXml).isEqualToIgnoringWhitespace(expectedXml);

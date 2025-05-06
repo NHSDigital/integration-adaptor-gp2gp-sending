@@ -120,12 +120,15 @@ public class EncounterComponentsMapper {
                 + "Topic (EHR)", topicList.getId()));
         }
 
+        var confidentialityCode = confidentialityService.generateConfidentialityCode(topicList);
+
         return buildCompoundStatement(
             topicList,
             TOPIC.getCode(),
             prepareCdForTopic(topicList),
             false,
-            mapTopicListComponents(topicList)
+            mapTopicListComponents(topicList),
+            confidentialityCode
         );
     }
 
@@ -164,7 +167,8 @@ public class EncounterComponentsMapper {
             CATEGORY.getCode(),
             prepareCdForCategory(categoryList),
             true,
-            mapListResourceToComponents(categoryList)
+            mapListResourceToComponents(categoryList),
+            Optional.empty()
         );
     }
 
@@ -196,7 +200,8 @@ public class EncounterComponentsMapper {
             CATEGORY.getCode(),
             codeableConceptCdMapper.getCdForCategory(),
             true,
-            components
+            components,
+            Optional.empty()
         );
     }
 
@@ -409,9 +414,8 @@ public class EncounterComponentsMapper {
         String classCode,
         String compoundStatementCode,
         boolean nested,
-        String components) {
-
-        var confidentialityCode = confidentialityService.generateConfidentialityCode(topicList);
+        String components,
+        Optional<String> confidentialityCode) {
 
         if (StringUtils.isEmpty(components)) {
             return StringUtils.EMPTY;
