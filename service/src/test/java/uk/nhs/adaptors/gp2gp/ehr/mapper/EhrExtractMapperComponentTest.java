@@ -39,6 +39,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class EhrExtractMapperComponentTest {
+    
     private static final String TEST_FILE_DIRECTORY = "/ehr/request/fhir/";
     private static final String INPUT_DIRECTORY = "input/";
     private static final String OUTPUT_DIRECTORY = "output/";
