@@ -7469,7 +7469,12 @@
                 "meta": {
                     "profile": [
                         "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ]
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -7499,7 +7504,7 @@
                                 }
                             ],
                             "system": "http://snomed.info/sct",
-                            "code": "163020007",
+                            "code": "EMISNQPR489",
                             "display": "O/E - blood pressure reading"
                         }
                     ]
@@ -10391,7 +10396,12 @@
                 "meta": {
                     "profile": [
                         "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ]
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -10404,7 +10414,7 @@
                     "coding": [
                         {
                             "system": "http://snomed.info/sct",
-                            "code": "37331000000100",
+                            "code": "EMISNQPR489",
                             "display": "Comment note"
                         }
                     ]
@@ -10432,7 +10442,12 @@
                 "meta": {
                     "profile": [
                         "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ]
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -10445,7 +10460,7 @@
                     "coding": [
                         {
                             "system": "http://snomed.info/sct",
-                            "code": "37331000000100",
+                            "code": "EMISNQPR489",
                             "display": "Comment note"
                         }
                     ]
@@ -10514,7 +10529,12 @@
                 "meta": {
                     "profile": [
                         "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ]
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "identifier": [
                     {
@@ -10527,7 +10547,7 @@
                     "coding": [
                         {
                             "system": "http://snomed.info/sct",
-                            "code": "37331000000100",
+                            "code": "EMISNQPR489",
                             "display": "Comment note"
                         }
                     ]
