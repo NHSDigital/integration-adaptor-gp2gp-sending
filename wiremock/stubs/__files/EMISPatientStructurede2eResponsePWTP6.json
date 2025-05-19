@@ -832,6 +832,11 @@
                     },
                     {
                         "item": {
+                            "reference": "Observation/FB5E6E97-3152-46EB-B46A-B48D21FC1099"
+                        }
+                    },
+                    {
+                        "item": {
                             "reference": "Observation/F55FDF4E-E09B-445C-9290-8CBDEAAC7835"
                         }
                     },
@@ -7053,6 +7058,67 @@
         {
             "resource": {
                 "resourceType": "Observation",
+                "id": "FB5E6E97-3152-46EB-B46A-B48D21FC1099",
+                "meta": {
+                    "profile": [
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
+                    ]
+                },
+                "identifier": [
+                    {
+                        "system": "https://EMISWeb/A82038",
+                        "value": "FB5E6E97-3152-46EB-B46A-B48D21FC1099"
+                    }
+                ],
+                "status": "final",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://read.info/readv2",
+                            "code": "1969.00",
+                            "display": "Abdominal pain",
+                            "userSelected": true
+                        },
+                        {
+                            "extension": [
+                                {
+                                    "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
+                                    "extension": [
+                                        {
+                                            "url": "descriptionId",
+                                            "valueId": "36112013"
+                                        },
+                                        {
+                                            "url": "descriptionDisplay",
+                                            "valueString": "Abdominal pain"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "system": "http://snomed.info/sct",
+                            "code": "21522001",
+                            "display": "Abdominal pain"
+                        }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/88F14BF6-CADE-47D6-90E2-B10519BF956F"
+                },
+                "context": {
+                    "reference": "Encounter/9B69F6AE-F991-49EE-9FFD-028E39B38BFE"
+                },
+                "effectiveDateTime": "2010-01-23T13:48:00+00:00",
+                "issued": "2010-01-23T14:03:54.38+00:00",
+                "performer": [
+                    {
+                        "reference": "Practitioner/6D340A1B-BC15-4D4E-93CF-BBCB5B74DF73"
+                    }
+                ]
+            }
+        },
+        {
+            "resource": {
+                "resourceType": "Observation",
                 "id": "F55FDF4E-E09B-445C-9290-8CBDEAAC7835",
                 "meta": {
                     "profile": [
@@ -10117,6 +10183,11 @@
                     },
                     {
                         "item": {
+                            "reference": "Observation/FB5E6E97-3152-46EB-B46A-B48D21FC1099"
+                        }
+                    },
+                    {
+                        "item": {
                             "reference": "Observation/876CC354-1F59-4592-B3FC-90C4F11373DA"
                         }
                     },
@@ -11323,6 +11394,11 @@
                     {
                         "item": {
                             "reference": "Observation/B0BC8F0A-B6E3-48D9-898C-393F23FD559A"
+                        }
+                    },
+                    {
+                        "item": {
+                            "reference": "Observation/FB5E6E97-3152-46EB-B46A-B48D21FC1099"
                         }
                     },
                     {
