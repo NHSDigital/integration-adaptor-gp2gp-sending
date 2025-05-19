@@ -3,6 +3,8 @@ package uk.nhs.adaptors.gp2gp.ehr.mapper;
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Observation;
+import org.hl7.fhir.dstu3.model.ResourceType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,7 @@ import uk.nhs.adaptors.gp2gp.utils.CodeableConceptMapperMockUtil;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,6 +49,7 @@ public class EhrExtractMapperComponentTest {
     private static final String OUTPUT_PATH = TEST_FILE_DIRECTORY + OUTPUT_DIRECTORY;
 
     private static final String JSON_INPUT_FILE = "gpc-access-structured.json";
+    private static final String JSON_INPUT_FILE_WITH_NOPAT = "gpc-access-structured-with-nopat.json";
     private static final String DUPLICATE_RESOURCE_BUNDLE = INPUT_PATH + "duplicated-resource-bundle.json";
     private static final String ONE_CONSULTATION_RESOURCE_BUNDLE = INPUT_PATH + "1-consultation-resource.json";
     private static final String FHIR_BUNDLE_WITHOUT_EFFECTIVE_TIME = "fhir-bundle-without-effective-time.json";
@@ -64,6 +68,7 @@ public class EhrExtractMapperComponentTest {
     private static final String EXPECTED_XML_FOR_ONE_CONSULTATION_RESOURCE = "ExpectedResponseFrom1ConsultationResponse.xml";
 
     private static final String EXPECTED_XML_TO_JSON_FILE = "expected-ehr-extract-response-from-json.xml";
+    private static final String EXPECTED_XML_TO_JSON_FILE_WITH_NOPAT = "expected-ehr-extract-response-from-json-with-nopat.xml";
     private static final String EXPECTED_XML_WITHOUT_EFFECTIVE_TIME = "expected-xml-without-effective-time.xml";
     private static final String EXPECTED_XML_WITHOUT_HIGH_EFFECTIVE_TIME = "expected-xml-without-high-effective-time.xml";
     private static final String EXPECTED_XML_WITH_EFFECTIVE_TIME = "expected-xml-with-effective-time.xml";
@@ -80,6 +85,10 @@ public class EhrExtractMapperComponentTest {
     private static final String TEST_FROM_ODS_CODE = "test-from-ods-code";
     private static final String TEST_TO_ODS_CODE = "test-to-ods-code";
     private static final String TEST_DATE_TIME = "2020-01-01T01:01:01.01Z";
+
+    private static final String CONFIDENTIALITY_CODE =
+        "<confidentialityCode code=\"NOPAT\" codeSystem=\"2.16.840.1.113883.4.642.3.47\" "
+        + "displayName=\"no disclosure to patient, family or caregivers without attending provider's authorization\" />";
 
     private static GetGpcStructuredTaskDefinition getGpcStructuredTaskDefinition;
 
@@ -218,6 +227,33 @@ public class EhrExtractMapperComponentTest {
     @AfterEach
     public void tearDown() {
         messageContext.resetMessageContext();
+    }
+
+    @Test
+    public void When_MappingUncategorizedObservationWithNOPAT_Expect_ObservationStatementWithConfidentialityCode() {
+
+        String expectedJsonToXmlContent = ResourceTestFileUtils.getFileContent(OUTPUT_PATH + EXPECTED_XML_TO_JSON_FILE_WITH_NOPAT);
+        String inputJsonFileContent = ResourceTestFileUtils.getFileContent(INPUT_PATH + JSON_INPUT_FILE_WITH_NOPAT);
+        Bundle bundle = new FhirParseService().parseResource(inputJsonFileContent, Bundle.class);
+
+        Observation uncategorizedObservation = bundle.getEntry().stream()
+            .map(Bundle.BundleEntryComponent::getResource)
+            .filter(resource -> ResourceType.Observation.equals(resource.getResourceType()))
+            .map(Observation.class::cast)
+            .filter(o -> "Observation/FB5E6E97-3152-46EB-B46A-B48D21FC1099".equals(o.getId()))
+            .findFirst()
+            .get();
+
+        when(confidentialityService.generateConfidentialityCode(uncategorizedObservation)).thenReturn(Optional.of(CONFIDENTIALITY_CODE));
+
+        messageContext.initialize(bundle);
+
+        EhrExtractTemplateParameters ehrExtractTemplateParameters = ehrExtractMapper.mapBundleToEhrFhirExtractParams(
+            getGpcStructuredTaskDefinition,
+            bundle);
+        String output = ehrExtractMapper.mapEhrExtractToXml(ehrExtractTemplateParameters);
+
+        assertThat(output).isEqualToIgnoringWhitespace(expectedJsonToXmlContent);
     }
 
     @ParameterizedTest
