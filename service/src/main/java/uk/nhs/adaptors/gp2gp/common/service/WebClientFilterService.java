@@ -52,8 +52,6 @@ public class WebClientFilterService {
     private static final String INVALID_RESOURCE_STATUS = "INVALID_RESOURCE";
     private static final String BAD_REQUEST_STATUS = "BAD_REQUEST";
     private static final String INVALID_PARAMETER_STATUS = "INVALID_PARAMETER";
-    private static final String INTERNAL_SERVER_ERROR_STATUS = "INTERNAL_SERVER_ERROR";
-
     private static final int NACK_ERROR_6 = 6;
     private static final int NACK_ERROR_18 = 18;
     private static final int NACK_ERROR_19 = 19;

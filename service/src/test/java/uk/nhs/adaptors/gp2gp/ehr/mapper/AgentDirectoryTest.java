@@ -152,7 +152,7 @@ public class AgentDirectoryTest {
     }
 
     private void assertPractitionerWithOrganizationSavedInAgentDirectory(AgentDirectory agentDirectory) {
-        assertThat(agentDirectory.getEntries().size()).isEqualTo(2);
+        assertThat(agentDirectory.getEntries()).hasSize(2);
         AgentDirectory.AgentKey expectedAgentKey1 = AgentDirectory.AgentKey.builder()
             .organizationReference(ORGANIZATION_REFERENCE)
             .build();
@@ -171,7 +171,7 @@ public class AgentDirectoryTest {
         Optional<Map.Entry<AgentDirectory.AgentKey, String>> secondAgentKeyStringEntry = agentDirectory.getEntries().stream()
             .filter(entry -> entry.getKey().equals(expectedAgentKey))
             .findFirst();
-        assertThat(secondAgentKeyStringEntry.isPresent()).isTrue();
+        assertThat(secondAgentKeyStringEntry).isPresent();
         assertThat(secondAgentKeyStringEntry.get().getKey()).isEqualTo(expectedAgentKey);
         assertThat(secondAgentKeyStringEntry.get().getValue()).isEqualTo(generatedId);
     }
@@ -209,10 +209,10 @@ public class AgentDirectoryTest {
     }
 
     private void assertSingleElementSavedInAgentDirectory(AgentDirectory agentDirectory, AgentDirectory.AgentKey expectedAgentKey) {
-        assertThat(agentDirectory.getEntries().size()).isEqualTo(1);
+        assertThat(agentDirectory.getEntries()).hasSize(1);
 
         Optional<Map.Entry<AgentDirectory.AgentKey, String>> entry = agentDirectory.getEntries().stream().findFirst();
-        assertThat(entry.isPresent()).isTrue();
+        assertThat(entry).isPresent();
         assertThat(entry.get().getKey()).isEqualTo(expectedAgentKey);
         assertThat(entry.get().getValue()).isEqualTo(GENERATED_ID_1);
     }

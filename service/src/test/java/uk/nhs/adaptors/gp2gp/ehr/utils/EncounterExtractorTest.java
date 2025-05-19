@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
-import java.io.IOException;
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,7 +31,7 @@ public class EncounterExtractorTest {
     private static Bundle bundleWithNoConsultationList;
 
     @BeforeAll
-    public static void initialize() throws IOException {
+    public static void initialize() {
         String inputFullBundle = ResourceTestFileUtils.getFileContent(INPUT_PATH
             + FULL_BUNDLE_FILE);
         fullBundle = FHIR_PARSE_SERVICE.parseResource(inputFullBundle, Bundle.class);
@@ -50,7 +49,7 @@ public class EncounterExtractorTest {
     public void When_ExtractingEncounters_Expect_EncountersExtractedByReferences() {
         List<Encounter> encounters = EncounterExtractor.extractEncounterReferencesFromEncounterList(fullBundle);
 
-        assertThat(encounters.size()).isEqualTo(EXPECTED_ENCOUNTER_NUMBER);
+        assertThat(encounters).hasSize(EXPECTED_ENCOUNTER_NUMBER);
 
         for (int index = 0; index < EXPECTED_ENCOUNTER_NUMBER; index++) {
             assertThat(encounters.get(index).getId()).isEqualTo(ENCOUNTER_ID_PREFIX + EXPECTED_ENCOUNTER_IDS.get(index));
@@ -62,7 +61,7 @@ public class EncounterExtractorTest {
         List<Encounter> encounters = EncounterExtractor.extractEncounterReferencesFromEncounterList(
             bundleWithEmptyConsultationList);
 
-        assertThat(encounters.isEmpty()).isTrue();
+        assertThat(encounters).isEmpty();
     }
 
     @Test
@@ -70,6 +69,6 @@ public class EncounterExtractorTest {
         List<Encounter> encounters = EncounterExtractor.extractEncounterReferencesFromEncounterList(
             bundleWithNoConsultationList);
 
-        assertThat(encounters.isEmpty()).isTrue();
+        assertThat(encounters).isEmpty();
     }
 }

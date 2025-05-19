@@ -17,9 +17,11 @@ public class JmsReader {
         if (message instanceof JmsTextMessage) {
             return readTextMessage((JmsTextMessage) message);
         }
+
         if (message instanceof JmsBytesMessage) {
             return readBytesMessage((JmsBytesMessage) message);
         }
+
         if (message != null) {
             return message.getBody(String.class);
         }

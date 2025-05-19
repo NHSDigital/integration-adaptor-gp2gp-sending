@@ -2,8 +2,6 @@ package uk.nhs.adaptors.gp2gp.ehr.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
-import java.io.IOException;
 import java.util.Optional;
 
 import org.hl7.fhir.dstu3.model.Bundle;
@@ -40,7 +38,7 @@ public class InputBundleTest {
     private Bundle bundle;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    public void setUp() {
         String inputJson = ResourceTestFileUtils.getFileContent(INPUT_BUNDLE_PATH);
         bundle = new FhirParseService().parseResource(inputJson, Bundle.class);
     }
