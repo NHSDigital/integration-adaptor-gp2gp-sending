@@ -256,7 +256,7 @@ class ObservationMapperTest {
 
         assertAll(
             () -> assertThat(actualXml).doesNotContainIgnoringCase(NOPAT_HL7_CONFIDENTIALITY_CODE),
-            () -> assertThat(metaWithNopat).hasSize(0)
+            () -> assertThat(metaWithNopat).isEmpty()
         );
     }
 

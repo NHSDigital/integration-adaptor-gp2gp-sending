@@ -73,8 +73,7 @@ public class AgentPersonMapperTest {
 
     @ParameterizedTest
     @MethodSource("readPractitionerOnlyTests")
-    public void When_MappingPractitionerOnlyToAgent_Expect_NoRepresentedOrganization(String inputJson, String outputXml)
-        throws IOException {
+    public void When_MappingPractitionerOnlyToAgent_Expect_NoRepresentedOrganization(String inputJson, String outputXml) {
         var jsonInputPractitioner = ResourceTestFileUtils.getFileContent(inputJson);
         var expectedOutput = ResourceTestFileUtils.getFileContent(outputXml);
 
@@ -89,7 +88,7 @@ public class AgentPersonMapperTest {
     }
 
     @Test
-    public void When_MappingOrganizationOnlyToAgent_Expect_NoPractitionerData() throws IOException {
+    public void When_MappingOrganizationOnlyToAgent_Expect_NoPractitionerData() {
         var expectedOutput = ResourceTestFileUtils.getFileContent(EXPECTED_AGENT_PERSON_WITH_ORGANIZATION);
         AgentDirectory.AgentKey agentKey = setUpDataWithOrganization();
 
@@ -98,7 +97,7 @@ public class AgentPersonMapperTest {
         assertThat(outputMessage).isEqualTo(expectedOutput);
     }
 
-    private AgentDirectory.AgentKey setUpDataWithOrganization() throws IOException {
+    private AgentDirectory.AgentKey setUpDataWithOrganization() {
         Organization organization = getOrganizationResource();
 
         Bundle bundle = new Bundle();
@@ -114,7 +113,7 @@ public class AgentPersonMapperTest {
         return TestArgumentsLoaderUtil.readTestCases(PRACTITIONER_ONLY_FILE_LOCATION);
     }
 
-    private AgentDirectory.AgentKey setUpDataWithOrganizationAndPractitionerRole(String jsonInputPractitionerRole) throws IOException {
+    private AgentDirectory.AgentKey setUpDataWithOrganizationAndPractitionerRole(String jsonInputPractitionerRole) {
         Practitioner practitioner = getPractitionerResource();
         PractitionerRole practitionerRole = fhirParseService.parseResource(jsonInputPractitionerRole, PractitionerRole.class);
         Organization organization = getOrganizationResource();
@@ -147,12 +146,12 @@ public class AgentPersonMapperTest {
         return TestArgumentsLoaderUtil.readTestCases(PRACTITIONER_ROLE_FILE_LOCATION);
     }
 
-    private static Practitioner getPractitionerResource() throws IOException {
+    private static Practitioner getPractitionerResource() {
         String jsonPractitioner = ResourceTestFileUtils.getFileContent(PRACTITIONER);
         return new FhirParseService().parseResource(jsonPractitioner, Practitioner.class);
     }
 
-    private static Organization getOrganizationResource() throws IOException {
+    private static Organization getOrganizationResource() {
         String jsonOrganization = ResourceTestFileUtils.getFileContent(ORGANIZATION);
         return new FhirParseService().parseResource(jsonOrganization, Organization.class);
     }

@@ -1,9 +1,6 @@
 package uk.nhs.adaptors.gp2gp.ehr.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.IOException;
-
 import org.hl7.fhir.dstu3.model.Organization;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +25,7 @@ public class OrganizationToAgentMapperTest {
         + "output_organization_1.xml";
 
     @Test
-    public void When_MappingOrganization_Expect_AgentResourceXml() throws IOException {
+    public void When_MappingOrganization_Expect_AgentResourceXml() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_ORGANIZATION_JSON);
         var expectedOutput = ResourceTestFileUtils.getFileContent(OUTPUT_ORGANIZATION_AS_AGENT_PERSON_JSON);
 

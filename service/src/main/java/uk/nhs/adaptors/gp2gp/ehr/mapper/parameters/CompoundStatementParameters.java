@@ -15,5 +15,6 @@ public class CompoundStatementParameters {
     private String statusCode;
     private String effectiveTime;
     private String availabilityTime;
+    private String confidentialityCode;
     private String components;
 }

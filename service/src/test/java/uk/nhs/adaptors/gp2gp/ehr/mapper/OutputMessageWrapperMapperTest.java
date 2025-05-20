@@ -3,8 +3,6 @@ package uk.nhs.adaptors.gp2gp.ehr.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.when;
-
-import java.io.IOException;
 import java.time.Instant;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +48,7 @@ class OutputMessageWrapperMapperTest {
     private GetGpcStructuredTaskDefinition gpcStructuredTaskDefinition;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         when(timestampService.now()).thenReturn(Instant.parse(TEST_DATE_TIME));
 

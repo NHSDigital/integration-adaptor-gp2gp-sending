@@ -7,16 +7,13 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-
 import static uk.nhs.adaptors.gp2gp.ehr.EhrStatusConstants.CONVERSATION_ID;
 import static uk.nhs.adaptors.gp2gp.ehr.EhrStatusConstants.DOCUMENT_ID;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.UUID;
 
-import org.hl7.fhir.dstu3.model.OperationOutcome;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,12 +38,10 @@ import uk.nhs.adaptors.gp2gp.testcontainers.MongoDBExtension;
 @ExtendWith({SpringExtension.class, MongoDBExtension.class, ActiveMQExtension.class})
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class GetGpcDocumentComponentTest extends BaseTaskTest {
-    private static final String NO_RECORD_FOUND = "NO_RECORD_FOUND";
+class GetGpcDocumentComponentTest extends BaseTaskTest {
     private static final String NO_RECORD_FOUND_STRING = "No Record Found";
     private static final String ODS_CODE_PLACEHOLDER = "@ODS_CODE@";
-    private static final String EXPECTED_DOCUMENT_JSON_FILENAME =
-        CONVERSATION_ID.concat("/").concat(DOCUMENT_ID).concat(".json");
+    private static final String EXPECTED_DOCUMENT_JSON_FILENAME = CONVERSATION_ID.concat("/").concat(DOCUMENT_ID).concat(".json");
     private static final String DOCUMENT_BINARY_ENDPOINT = "/documents/fhir/Binary/";
 
     @Autowired
@@ -158,7 +153,7 @@ public class GetGpcDocumentComponentTest extends BaseTaskTest {
         assertThat(gpcDocuments.get(0).getAccessedAt()).isNotNull();
         assertThat(gpcDocuments.get(0).getObjectName()).isEqualTo(absentAttachmentFilename);
         assertThat(gpcDocuments.get(0).getMessageId()).isEqualTo(documentId);
-        assertThat(gpcDocuments.get(0).getGpConnectErrorMessage()).isEqualTo("No Record Found");
+        assertThat(gpcDocuments.get(0).getGpConnectErrorMessage()).isEqualTo(NO_RECORD_FOUND_STRING);
 
         assertDoesNotThrow(() -> storageConnector.downloadFromStorage(absentAttachmentFilename));
 
@@ -207,14 +202,6 @@ public class GetGpcDocumentComponentTest extends BaseTaskTest {
             .documentId(DOCUMENT_ID)
             .accessDocumentUrl(String.format(EhrStatusConstants.GPC_ACCESS_DOCUMENT_URL, DOCUMENT_ID))
             .build());
-    }
-
-    private void assertOperationOutcome(Exception exception) {
-        var operationOutcomeString = exception.getMessage().replace("The following error occurred during GPC request: ", "");
-        var operationOutcome = FHIR_PARSE_SERVICE.parseResource(operationOutcomeString, OperationOutcome.class).getIssueFirstRep();
-        var coding = operationOutcome.getDetails().getCodingFirstRep();
-        assertThat(coding.getCode()).isEqualTo(NO_RECORD_FOUND);
-        assertThat(coding.getDisplay()).isEqualTo(NO_RECORD_FOUND_STRING);
     }
 
     private String buildDocumentUrl(String documentId, String odsCode) {

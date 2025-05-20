@@ -1,8 +1,6 @@
 package uk.nhs.adaptors.gp2gp.ehr.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.IOException;
 import java.util.stream.Stream;
 
 import org.hl7.fhir.dstu3.model.AllergyIntolerance;
@@ -75,7 +73,7 @@ public class CodeableConceptCdMapperTest {
 
     @ParameterizedTest
     @MethodSource("getTestArguments")
-    public void When_MappingStubbedCodeableConcept_Expect_HL7CdObjectXml(String inputJson, String outputXml) throws IOException {
+    public void When_MappingStubbedCodeableConcept_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
         var observationCodeableConcept = ResourceTestFileUtils.getFileContent(inputJson);
         var expectedOutput = ResourceTestFileUtils.getFileContent(outputXml);
         var codeableConcept = fhirParseService.parseResource(observationCodeableConcept, Observation.class).getCode();
@@ -197,8 +195,7 @@ public class CodeableConceptCdMapperTest {
 
     @ParameterizedTest
     @MethodSource("getTestArgumentsActualProblem")
-    public void When_MappingStubbedCodeableConceptForActualProblemHeader_Expect_HL7CdObjectXml(String inputJson, String outputXml)
-        throws IOException {
+    public void When_MappingStubbedCodeableConceptForActualProblemHeader_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
         var observationCodeableConcept = ResourceTestFileUtils.getFileContent(inputJson);
         var expectedOutput = ResourceTestFileUtils.getFileContent(outputXml);
         var codeableConcept = fhirParseService.parseResource(observationCodeableConcept, Observation.class).getCode();

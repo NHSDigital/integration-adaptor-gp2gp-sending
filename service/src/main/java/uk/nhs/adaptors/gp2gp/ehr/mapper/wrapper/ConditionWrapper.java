@@ -134,7 +134,7 @@ public class ConditionWrapper {
     private Optional<String> getOptionalTransformedProblemHeaderText() {
         var transformedProblemHeaderText = ExtensionMappingUtils.filterExtensionByUrl(this.condition, ACTUAL_PROBLEM_URL)
             .map(Extension::getValue)
-            .map(value -> (Reference) value)
+            .map(Reference.class::cast)
             .filter(this::isTransformedActualProblemHeader)
             .map(this::buildTransformedText);
 

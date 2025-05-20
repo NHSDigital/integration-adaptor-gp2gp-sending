@@ -38,6 +38,7 @@ import com.github.mustachejava.Mustache;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport.DiagnosticReportMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.CompoundStatementParameters;
@@ -81,6 +82,7 @@ public class EncounterComponentsMapper {
     private final DiagnosticReportMapper diagnosticReportMapper;
     private final BloodPressureValidator bloodPressureValidator;
     private final CodeableConceptCdMapper codeableConceptCdMapper;
+    private final ConfidentialityService confidentialityService;
 
     private final Map<ResourceType, Function<Resource, Optional<String>>> encounterComponents = Map.of(
         ResourceType.AllergyIntolerance, this::mapAllergyIntolerance,
@@ -118,12 +120,15 @@ public class EncounterComponentsMapper {
                 + "Topic (EHR)", topicList.getId()));
         }
 
+        var confidentialityCode = confidentialityService.generateConfidentialityCode(topicList);
+
         return buildCompoundStatement(
             topicList,
             TOPIC.getCode(),
             prepareCdForTopic(topicList),
             false,
-            mapTopicListComponents(topicList)
+            mapTopicListComponents(topicList),
+            confidentialityCode
         );
     }
 
@@ -162,7 +167,8 @@ public class EncounterComponentsMapper {
             CATEGORY.getCode(),
             prepareCdForCategory(categoryList),
             true,
-            mapListResourceToComponents(categoryList)
+            mapListResourceToComponents(categoryList),
+            Optional.empty()
         );
     }
 
@@ -194,7 +200,8 @@ public class EncounterComponentsMapper {
             CATEGORY.getCode(),
             codeableConceptCdMapper.getCdForCategory(),
             true,
-            components
+            components,
+            Optional.empty()
         );
     }
 
@@ -407,8 +414,9 @@ public class EncounterComponentsMapper {
         String classCode,
         String compoundStatementCode,
         boolean nested,
-        String components
-    ) {
+        String components,
+        Optional<String> confidentialityCode) {
+
         if (StringUtils.isEmpty(components)) {
             return StringUtils.EMPTY;
         }
@@ -424,6 +432,7 @@ public class EncounterComponentsMapper {
             .statusCode(COMPLETE_CODE)
             .effectiveTime(effectiveTime)
             .availabilityTime(availabilityTime)
+            .confidentialityCode(confidentialityCode.orElse(null))
             .components(components)
             .build();
 
