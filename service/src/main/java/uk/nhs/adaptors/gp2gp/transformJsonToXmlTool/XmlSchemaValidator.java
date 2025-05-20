@@ -89,7 +89,7 @@ public class XmlSchemaValidator {
             ? RCMR_IN030000UK07_SCHEMA_PATH
             : RCMR_IN030000UK06_SCHEMA_PATH;
 
-        var schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        var schemaFactory = SchemaFactory.newDefaultInstance();
         var schemaFileStream = new StreamSource(new File(schemaPath));
         var schema = schemaFactory.newSchema(schemaFileStream);
         var validator = schema.newValidator();
