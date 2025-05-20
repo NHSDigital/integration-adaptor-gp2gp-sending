@@ -48,7 +48,7 @@ import static org.mockito.Mockito.when;
 import static uk.nhs.adaptors.gp2gp.utils.IdUtil.buildIdType;
 
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class EncounterComponentsMapperTest {
+class EncounterComponentsMapperTest {
     private static final String TEST_ID = "394559384658936";
     private static final String PRACTITIONER_ID = "6D340A1B-BC15-4D4E-93CF-BBCB5B74DF73";
 
@@ -248,7 +248,7 @@ public class EncounterComponentsMapperTest {
     }
 
     @Test
-    public void When_MappingEncounterComponents_Expect_ResourceMapped() {
+    void When_MappingEncounterComponents_Expect_ResourceMapped() {
         String expectedXml = ResourceTestFileUtils.getFileContent(EXPECTED_COMPONENTS_MAPPED_WITH_ALL_MAPPERS_USED);
 
         var bundle = initializeMessageContext(INPUT_BUNDLE_WITH_ALL_MAPPERS_USED);
@@ -263,7 +263,7 @@ public class EncounterComponentsMapperTest {
     }
 
     @Test
-    public void When_MappingEncounterComponents_Expect_IgnoredResourceNotMapped() {
+    void When_MappingEncounterComponents_Expect_IgnoredResourceNotMapped() {
         String expectedXml = ResourceTestFileUtils.getFileContent(EXPECTED_COMPONENTS_MAPPED_WITH_ALL_MAPPERS_USED);
 
         var bundle = initializeMessageContext(INPUT_BUNDLE_WITH_IGNORED_RESOURCE);
@@ -274,7 +274,7 @@ public class EncounterComponentsMapperTest {
     }
 
     @Test
-    public void When_EncounterComponentsIncludeListWithMetaSecurity_Expect_CompoundStatementWithNOPAT() {
+    void When_EncounterComponentsIncludeListWithMetaSecurity_Expect_CompoundStatementWithNOPAT() {
         String expectedXml = ResourceTestFileUtils.getFileContent(EXPECTED_COMPONENTS_MAPPED_WITH_NOPAT);
 
         var bundle = initializeMessageContext(INPUT_BUNDLE_WITH_META_SECURITY);
@@ -287,7 +287,7 @@ public class EncounterComponentsMapperTest {
 
     @ParameterizedTest
     @MethodSource("emptyResult")
-    public void When_MappingEncounterComponents_Expect_NoResourceMapped(String inputJsonPath) {
+    void When_MappingEncounterComponents_Expect_NoResourceMapped(String inputJsonPath) {
         var bundle = initializeMessageContext(inputJsonPath);
         var encounter = extractEncounter(bundle);
 
@@ -296,7 +296,7 @@ public class EncounterComponentsMapperTest {
     }
 
     @Test
-    public void When_MappingEncounterMissingComponents_Expect_ExceptionThrown() {
+    void When_MappingEncounterMissingComponents_Expect_ExceptionThrown() {
         var bundle = initializeMessageContext(INPUT_BUNDLE_WITH_RESOURCES_NOT_IN_BUNDLE);
         var encounter = extractEncounter(bundle);
 
@@ -306,7 +306,7 @@ public class EncounterComponentsMapperTest {
     }
 
     @Test
-    public void When_MappingEncounterUnsupportedResource_Expect_ExceptionThrown() {
+    void When_MappingEncounterUnsupportedResource_Expect_ExceptionThrown() {
         var bundle = initializeMessageContext(INPUT_BUNDLE_WITH_UNSUPPORTED_RESOURCES);
         var encounter = extractEncounter(bundle);
 
@@ -316,7 +316,7 @@ public class EncounterComponentsMapperTest {
     }
 
     @Test
-    public void When_MappingConsultation_WithNonTopicList_Expect_ExceptionThrown() {
+    void When_MappingConsultation_WithNonTopicList_Expect_ExceptionThrown() {
         var bundle = initializeMessageContext(INPUT_BUNDLE_WITH_NON_TOPIC_CONSULTATION_LIST_ENTRY);
         var encounter = extractEncounter(bundle);
 
@@ -328,7 +328,7 @@ public class EncounterComponentsMapperTest {
     }
 
     @Test
-    public void When_MappingTopic_WithNonCategoryList_Expect_ExceptionThrown() {
+    void When_MappingTopic_WithNonCategoryList_Expect_ExceptionThrown() {
         var bundle = initializeMessageContext(INPUT_BUNDLE_WITH_NON_CATEGORY_TOPIC_LIST_ENTRY);
         var encounter = extractEncounter(bundle);
 
@@ -340,7 +340,7 @@ public class EncounterComponentsMapperTest {
     }
 
     @Test
-    public void When_MappingTopic_With_RelatedProblem_Expect_MappedToCode() {
+    void When_MappingTopic_With_RelatedProblem_Expect_MappedToCode() {
 
         when(codeableConceptCdMapper.mapToCdForTopic(any(CodeableConcept.class), any(String.class)))
             .thenCallRealMethod();
@@ -356,7 +356,7 @@ public class EncounterComponentsMapperTest {
     }
 
     @Test
-    public void When_MappingTopic_With_RelatedProblemAndNoTitle_Expect_MappedToCode() {
+    void When_MappingTopic_With_RelatedProblemAndNoTitle_Expect_MappedToCode() {
         when(codeableConceptCdMapper.mapToCdForTopic(any(CodeableConcept.class)))
             .thenCallRealMethod();
 
@@ -371,7 +371,7 @@ public class EncounterComponentsMapperTest {
     }
 
     @Test
-    public void When_MappingTopic_With_MissingDate_Expect_DateMappedFromEncounter() {
+    void When_MappingTopic_With_MissingDate_Expect_DateMappedFromEncounter() {
         var expectedXml = ResourceTestFileUtils.getFileContent(EXPECTED_COMPONENTS_TOPIC_AVAILABILITY_DATE_MAPPED_FROM_ENCOUNTER);
         var bundle = initializeMessageContext(INPUT_BUNDLE_WITH_NO_DATE_PROVIDED_IN_TOPIC);
         var encounter = extractEncounter(bundle);
@@ -383,7 +383,7 @@ public class EncounterComponentsMapperTest {
     }
 
     @Test
-    public void When_MappingCategory_WithAndWithout_Title_Expect_BothCdsPresent() {
+    void When_MappingCategory_WithAndWithout_Title_Expect_BothCdsPresent() {
         when(codeableConceptCdMapper.getCdForCategory()).thenCallRealMethod();
         when(codeableConceptCdMapper.mapToCdForCategory(any())).thenCallRealMethod();
 
@@ -398,7 +398,7 @@ public class EncounterComponentsMapperTest {
     }
 
     @Test
-    public void When_MappingTopic_WithAndWithout_Title_Expect_BothCdsPresent() {
+    void When_MappingTopic_WithAndWithout_Title_Expect_BothCdsPresent() {
 
         when(codeableConceptCdMapper.mapToCdForTopic(any(String.class))).thenCallRealMethod();
         when(codeableConceptCdMapper.getCdForTopic()).thenCallRealMethod();
@@ -414,7 +414,7 @@ public class EncounterComponentsMapperTest {
     }
 
     @Test
-    public void When_MappingTopic_WithoutCategory_Expect_ComponentsMapped() {
+    void When_MappingTopic_WithoutCategory_Expect_ComponentsMapped() {
         var expectedXml = ResourceTestFileUtils.getFileContent(EXPECTED_COMPONENTS_TOPIC_NO_CATEGORIES);
         var bundle = initializeMessageContext(INPUT_BUNDLE_TOPIC_NO_CATEGORIES);
         var encounter = extractEncounter(bundle);
@@ -427,7 +427,7 @@ public class EncounterComponentsMapperTest {
 
     @ParameterizedTest
     @MethodSource("containedResourceMappingArguments")
-    public void When_MappingContainedResource_Expect_ResourcesMapped(String inputBundle, String expectedComponents) {
+    void When_MappingContainedResource_Expect_ResourcesMapped(String inputBundle, String expectedComponents) {
         var expectedXml = ResourceTestFileUtils.getFileContent(CONTAINED_TEST_DIRECTORY + expectedComponents);
         var bundle = initializeMessageContext(CONTAINED_TEST_DIRECTORY + inputBundle);
         var encounter = extractEncounter(bundle);
