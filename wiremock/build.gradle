@@ -6,7 +6,7 @@ repositories {
 
 dependencies {
   implementation "org.wiremock:wiremock:3.13.0"
-  implementation "org.json:json:20250107"
+  implementation "org.json:json:20250517"
   implementation "com.auth0:java-jwt:4.5.0"
   implementation "org.slf4j:slf4j-simple:2.0.17"
 }
