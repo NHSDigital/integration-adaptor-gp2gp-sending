@@ -211,7 +211,8 @@ public class EhrExtractUATTest {
             new RequestStatementMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService),
             new DiagnosticReportMapper(messageContext, specimenMapper, participantMapper, randomIdGeneratorService, confidentialityService),
             new BloodPressureValidator(),
-            codeableConceptCdMapper
+            codeableConceptCdMapper,
+            confidentialityService
         );
     }
 
