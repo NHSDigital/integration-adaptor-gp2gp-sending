@@ -1,4 +1,4 @@
-package uk.nhs.adaptors.gp2gp.transformJsonToXmlTool;
+package uk.nhs.adaptors.gp2gp.transformjsontoxmltool;
 
 import java.io.BufferedWriter;
 import java.io.File;

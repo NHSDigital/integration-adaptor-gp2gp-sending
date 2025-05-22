@@ -1,4 +1,4 @@
-package uk.nhs.adaptors.gp2gp.transformJsonToXmlTool;
+package uk.nhs.adaptors.gp2gp.transformjsontoxmltool;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,17 +56,17 @@ public class XmlSchemaValidator {
             var xmlResultSource = new StreamSource(new StringReader(xmlResult));
             xmlValidator.validate(xmlResultSource);
         } catch (SAXParseException parseException) {
-            LOGGER.info(FAILED_TO_VALIDATE_SCHEMA_TEMPLATE, inputJsonFilename, RedactionsContext.REDACTION_INTERACTION_ID);
+            LOGGER.warn(FAILED_TO_VALIDATE_SCHEMA_TEMPLATE, inputJsonFilename, RedactionsContext.REDACTION_INTERACTION_ID);
             writeValidationExceptionsToFile(xsdErrorHandler, inputJsonFilename);
         } catch (IOException e) {
-            LOGGER.info(COULD_NOT_READ_FROM_STREAM_SOURCE_TEMPLATE, inputJsonFilename);
+            LOGGER.error(COULD_NOT_READ_FROM_STREAM_SOURCE_TEMPLATE, inputJsonFilename);
             return;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
         if (!xsdErrorHandler.isValid()) {
-            LOGGER.info(FAILED_TO_VALIDATE_SCHEMA_TEMPLATE, inputJsonFilename, RedactionsContext.REDACTION_INTERACTION_ID);
+            LOGGER.warn(FAILED_TO_VALIDATE_SCHEMA_TEMPLATE, inputJsonFilename, RedactionsContext.REDACTION_INTERACTION_ID);
             writeValidationExceptionsToFile(xsdErrorHandler, inputJsonFilename);
             return;
         }

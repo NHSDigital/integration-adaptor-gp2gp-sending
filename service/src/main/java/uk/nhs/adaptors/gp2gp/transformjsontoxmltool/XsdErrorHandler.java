@@ -1,4 +1,4 @@
-package uk.nhs.adaptors.gp2gp.transformJsonToXmlTool;
+package uk.nhs.adaptors.gp2gp.transformjsontoxmltool;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

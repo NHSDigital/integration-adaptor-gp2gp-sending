@@ -103,7 +103,7 @@ sourceSets {
 }
 
 task(interoperabilityTestingToolJsonToXml, dependsOn: 'classes', type: JavaExec) {
-	mainClass.set('uk.nhs.adaptors.gp2gp.transformJsonToXmlTool.TransformJsonToXml')
+	mainClass.set('uk.nhs.adaptors.gp2gp.transformjsontoxmltool.TransformJsonToXml')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -172,7 +172,7 @@ sonar {
 		property("sonar.host.url", "https://sonarcloud.io")
 		property("sonar.projectKey", "NHSDigital_integration-adaptor-gp2gp")
 		property("sonar.organization", "nhsdigital")
-		property("sonar.exclusions", "**/transformJsonToXmlTool/*")
+		property("sonar.exclusions", "**/transformjsontoxmltool/*")
 	}
 }
 
