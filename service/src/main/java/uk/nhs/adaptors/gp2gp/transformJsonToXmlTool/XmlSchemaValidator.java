@@ -1,4 +1,4 @@
-package uk.nhs.adaptors.gp2gp.transformjsontoxmltool;
+package uk.nhs.adaptors.gp2gp.transformJsonToXmlTool;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class XmlSchemaValidator {
     public void validateOutputToXmlSchema(String filename, String xmlResult) {
         LOGGER.info("Validating {} against {} schema", filename, RedactionsContext.REDACTION_INTERACTION_ID);
 
-        var xsdErrorHandler = new uk.nhs.adaptors.gp2gp.transformjsontoxmltool.XsdErrorHandler();
+        var xsdErrorHandler = new XsdErrorHandler();
         Validator xmlValidator;
 
         try {
@@ -66,10 +66,7 @@ public class XmlSchemaValidator {
         LOGGER.info("Successfully validated {} against {} schema", filename, RedactionsContext.REDACTION_INTERACTION_ID);
     }
 
-    private void writeValidationExceptionsToFile(
-        uk.nhs.adaptors.gp2gp.transformjsontoxmltool.XsdErrorHandler xsdErrorHandler,
-        String fileName
-    ) {
+    private void writeValidationExceptionsToFile(XsdErrorHandler xsdErrorHandler, String fileName) {
         String outputFileName = FilenameUtils.removeExtension(fileName) + ".validation-errors.log";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(OUTPUT_PATH + outputFileName, StandardCharsets.UTF_8))) {
             for (SAXParseException e : xsdErrorHandler.getExceptions()) {
@@ -83,7 +80,7 @@ public class XmlSchemaValidator {
         }
     }
 
-    private Validator getXmlValidator(uk.nhs.adaptors.gp2gp.transformjsontoxmltool.XsdErrorHandler xsdErrorHandler) throws SAXException {
+    private Validator getXmlValidator(XsdErrorHandler xsdErrorHandler) throws SAXException {
         var schemaPath = RedactionsContext.REDACTION_INTERACTION_ID.equals(redactionsContext.ehrExtractInteractionId())
             ? RCMR_IN030000UK07_SCHEMA_PATH
             : RCMR_IN030000UK06_SCHEMA_PATH;

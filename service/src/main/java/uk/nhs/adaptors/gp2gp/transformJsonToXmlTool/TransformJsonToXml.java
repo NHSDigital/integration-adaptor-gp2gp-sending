@@ -1,4 +1,4 @@
-package uk.nhs.adaptors.gp2gp.transformjsontoxmltool;
+package uk.nhs.adaptors.gp2gp.transformJsonToXmlTool;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -56,7 +56,7 @@ public class TransformJsonToXml implements CommandLineRunner {
     private final MessageContext messageContext;
     private final OutputMessageWrapperMapper outputMessageWrapperMapper;
     private final EhrExtractMapper ehrExtractMapper;
-    private final uk.nhs.adaptors.gp2gp.transformjsontoxmltool.XmlSchemaValidator xmlSchemaValidator;
+    private final XmlSchemaValidator xmlSchemaValidator;
 
     public static void main(String[] args) {
         SpringApplication.run(TransformJsonToXml.class, args).close();

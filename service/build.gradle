@@ -103,7 +103,7 @@ sourceSets {
 }
 
 task(interoperabilityTestingToolJsonToXml, dependsOn: 'classes', type: JavaExec) {
-	mainClass.set('uk.nhs.adaptors.gp2gp.transformjsontoxmltool.TransformJsonToXml')
+	mainClass.set('uk.nhs.adaptors.gp2gp.transformJsonToXmlTool.TransformJsonToXml')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
