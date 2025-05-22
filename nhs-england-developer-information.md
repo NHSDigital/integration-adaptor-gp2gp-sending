@@ -191,7 +191,7 @@ We provide a mock MHS adaptor for local development and testing.
 
 ### How to transform arbitrary json ASR payload files
 
-This is an interoperability testing tool to transform arbitrary/ad-hoc json ASR payloads and access the outputs.
+This is an interoperability testing tool to transform arbitrary/ad-hoc json ASR payloads, access the outputs and validate the produced XML against the relevant schema.
 
 1. Navigate to the input folder and place all Json files to convert here.
    `integration-adaptor-gp2gp/transformJsonToXml/input/`
@@ -203,8 +203,10 @@ This is an interoperability testing tool to transform arbitrary/ad-hoc json ASR 
    ./TransformJsonToXml.sh
     ```
 
-3. The Converted .Xml files will be located in the output folder.
+3. The converted XML files will be located in the output folder.
    `integration-adaptor-gp2gp/transformJsonToXml/output/`
+
+4. Any schema validation errors will be located with the extension `.validation-errors.log` and will be located in the same output folder as the converted XML files.
 
 ## Troubleshooting
 

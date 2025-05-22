@@ -48,7 +48,6 @@ import uk.nhs.adaptors.gp2gp.gpc.GetGpcStructuredTaskDefinition;
     matchIfMissing = false)
 @Component
 public class TransformJsonToXml implements CommandLineRunner {
-
     private static final String JSON_FILE_INPUT_PATH =
         Paths.get("src/").toFile().getAbsoluteFile().getAbsolutePath() + "/../../transformJsonToXml/input/";
     private static final String XML_OUTPUT_PATH =
@@ -57,6 +56,7 @@ public class TransformJsonToXml implements CommandLineRunner {
     private final MessageContext messageContext;
     private final OutputMessageWrapperMapper outputMessageWrapperMapper;
     private final EhrExtractMapper ehrExtractMapper;
+    private final XmlSchemaValidator xmlSchemaValidator;
 
     public static void main(String[] args) {
         SpringApplication.run(TransformJsonToXml.class, args).close();
@@ -68,6 +68,7 @@ public class TransformJsonToXml implements CommandLineRunner {
             getFiles().forEach(file -> {
                 String xmlResult = mapJsonToXml(file.getJsonFileInput());
                 writeToFile(xmlResult, file.getJsonFileName());
+                xmlSchemaValidator.validateOutputToXmlSchema(file.getJsonFileName(), xmlResult);
             });
         } catch (NHSNumberNotFound | UnreadableJsonFileException | NoJsonFileFound | Hl7TranslatedResponseError e) {
             LOGGER.error("error: " + e.getMessage());
