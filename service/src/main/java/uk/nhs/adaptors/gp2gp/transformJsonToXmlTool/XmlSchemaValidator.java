@@ -31,8 +31,16 @@ public class XmlSchemaValidator {
     private static final String OUTPUT_PATH =
         Paths.get("src/").toFile().getAbsoluteFile().getAbsolutePath() + "/../../transformJsonToXml/output/";
 
-    public void validateOutputToXmlSchema(String filename, String xmlResult) {
-        LOGGER.info("Validating {} against {} schema", filename, RedactionsContext.REDACTION_INTERACTION_ID);
+    private static final String VALIDATING_AGAINST_SCHEMA_TEMPLATE = "Validating {} against {} schema";
+    private static final String COULD_NOT_LOAD_SCHEMA_FILE_TEMPLATE = "Could not load schema file for {} context.";
+    private static final String FAILED_TO_VALIDATE_SCHEMA_TEMPLATE = "Failed to validate {} against {} schema";
+    private static final String COULD_NOT_READ_FROM_STREAM_SOURCE_TEMPLATE = "Could not read from stream source for produced XML for {}";
+    private static final String SUCCESSFULLY_VALIDATED_SCHEMA_TEMPLATE = "Successfully validated {} against {} schema";
+    private static final String VALIDATION_ERRORS_WRITTEN_TEMPLATE = "Validation errors written to {}";
+    private static final String COULD_NOT_WRITE_VALIDATION_ERRORS_TEMPLATE = "Could not write validation errors to {}";
+
+    public void validateOutputToXmlSchema(String inputJsonFilename, String xmlResult) {
+        LOGGER.info(VALIDATING_AGAINST_SCHEMA_TEMPLATE, inputJsonFilename, RedactionsContext.REDACTION_INTERACTION_ID);
 
         var xsdErrorHandler = new XsdErrorHandler();
         Validator xmlValidator;
@@ -40,7 +48,7 @@ public class XmlSchemaValidator {
         try {
             xmlValidator = getXmlValidator(xsdErrorHandler);
         } catch (SAXException e) {
-            LOGGER.info("Could not load schema file for {} context.", RedactionsContext.REDACTION_INTERACTION_ID);
+            LOGGER.error(COULD_NOT_LOAD_SCHEMA_FILE_TEMPLATE, RedactionsContext.REDACTION_INTERACTION_ID);
             return;
         }
 
@@ -48,22 +56,22 @@ public class XmlSchemaValidator {
             var xmlResultSource = new StreamSource(new StringReader(xmlResult));
             xmlValidator.validate(xmlResultSource);
         } catch (SAXParseException parseException) {
-            LOGGER.info("Failed to validate {} against {} schema", filename, RedactionsContext.REDACTION_INTERACTION_ID);
-            writeValidationExceptionsToFile(xsdErrorHandler, filename);
+            LOGGER.info(FAILED_TO_VALIDATE_SCHEMA_TEMPLATE, inputJsonFilename, RedactionsContext.REDACTION_INTERACTION_ID);
+            writeValidationExceptionsToFile(xsdErrorHandler, inputJsonFilename);
         } catch (IOException e) {
-            LOGGER.info("Could not read from stream source for produced XML for {}", filename);
+            LOGGER.info(COULD_NOT_READ_FROM_STREAM_SOURCE_TEMPLATE, inputJsonFilename);
             return;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
         if (!xsdErrorHandler.isValid()) {
-            LOGGER.info("Failed to validate {} against {} schema", filename, RedactionsContext.REDACTION_INTERACTION_ID);
-            writeValidationExceptionsToFile(xsdErrorHandler, filename);
+            LOGGER.info(FAILED_TO_VALIDATE_SCHEMA_TEMPLATE, inputJsonFilename, RedactionsContext.REDACTION_INTERACTION_ID);
+            writeValidationExceptionsToFile(xsdErrorHandler, inputJsonFilename);
             return;
         }
 
-        LOGGER.info("Successfully validated {} against {} schema", filename, RedactionsContext.REDACTION_INTERACTION_ID);
+        LOGGER.info(SUCCESSFULLY_VALIDATED_SCHEMA_TEMPLATE, inputJsonFilename, RedactionsContext.REDACTION_INTERACTION_ID);
     }
 
     private void writeValidationExceptionsToFile(XsdErrorHandler xsdErrorHandler, String fileName) {
@@ -74,9 +82,9 @@ public class XmlSchemaValidator {
                 writer.write(message);
                 writer.newLine();
             }
-            LOGGER.info("Validation errors written to {}", outputFileName);
+            LOGGER.info(VALIDATION_ERRORS_WRITTEN_TEMPLATE, outputFileName);
         } catch (IOException e) {
-            LOGGER.error("Could not write validation errors to {}", outputFileName, e);
+            LOGGER.error(COULD_NOT_WRITE_VALIDATION_ERRORS_TEMPLATE, outputFileName, e);
         }
     }
 
