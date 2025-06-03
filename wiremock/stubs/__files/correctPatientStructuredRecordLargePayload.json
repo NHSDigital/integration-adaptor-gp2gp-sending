@@ -816,6 +816,12 @@
                     {
                         "item":
                         {
+                            "reference": "Condition/Problem-A-Anxiety-With-Depression"
+                        }
+                    },
+                    {
+                        "item":
+                        {
                             "reference": "Condition/MedicationProblem"
                         }
                     },
