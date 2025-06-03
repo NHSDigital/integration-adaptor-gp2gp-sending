@@ -7494,10 +7494,10 @@
                         {
                             "system": "http://snomed.info/sct",
                             "code": "231504006",
-                            "display": "Mixed anxiety and depressive disorder"
+                            "display": "Mixed anxiety and depressive disorder 1"
                         }
                     ],
-                    "text": "Anxiety with depression"
+                    "text": "Anxiety with depression 1"
                 },
                 "subject":
                 {
@@ -15351,10 +15351,10 @@
                             ],
                             "system": "http://snomed.info/sct",
                             "code": "231504006",
-                            "display": "Mixed anxiety and depressive disorder"
+                            "display": "Mixed anxiety and depressive disorder 2"
                         }
                     ],
-                    "text": "Anxiety with depression"
+                    "text": "Anxiety with depression 2"
                 },
                 "subject":
                 {
@@ -16958,10 +16958,10 @@
                         {
                             "system": "http://snomed.info/sct",
                             "code": "231504006",
-                            "display": "Mixed anxiety and depressive disorder"
+                            "display": "Mixed anxiety and depressive disorder 3"
                         }
                     ],
-                    "text": "Anxiety with depression"
+                    "text": "Anxiety with depression 3"
                 },
                 "subject":
                 {
