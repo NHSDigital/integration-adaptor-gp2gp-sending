@@ -11272,12 +11272,7 @@
                 "meta": {
                     "profile": [
                         "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ],
-                    "security": [{
-                      "system":"http://hl7.org/fhir/v3/ActCode",
-                      "code":"NOPAT",
-                      "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
-                    }]
+                    ]
                 },
                 "identifier": [
                     {
@@ -11984,12 +11979,7 @@
                 "meta": {
                     "profile": [
                         "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ],
-                    "security": [{
-                      "system":"http://hl7.org/fhir/v3/ActCode",
-                      "code":"NOPAT",
-                      "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
-                    }]
+                    ]
                 },
                 "identifier": [
                     {
@@ -12704,12 +12694,7 @@
                 "meta": {
                     "profile": [
                         "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Specimen-1"
-                    ],
-                    "security": [{
-                      "system":"http://hl7.org/fhir/v3/ActCode",
-                      "code":"NOPAT",
-                      "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
-                    }]
+                    ]
                 },
                 "identifier": [
                     {
@@ -25857,12 +25842,7 @@
                 "meta": {
                     "profile": [
                         "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-                    ],
-                    "security": [{
-                      "system":"http://hl7.org/fhir/v3/ActCode",
-                      "code":"NOPAT",
-                      "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
-                    }]
+                    ]
                 },
                 "identifier": [
                     {
