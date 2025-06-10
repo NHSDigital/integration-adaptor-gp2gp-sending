@@ -46,7 +46,8 @@ import uk.nhs.adaptors.gp2gp.ehr.utils.TemplateUtils;
 public class RequestStatementMapper {
     private static final Mustache REQUEST_STATEMENT_TEMPLATE = TemplateUtils.loadTemplate("ehr_request_statement_template.mustache");
 
-    private static final String UBRN_SYSTEM_URL = "https://fhir.nhs.uk/Id/ubr-number";
+    private static final String UBRN_SYSTEM_URL = "https://fhir.nhs.uk/Id/UBRN";
+    private static final String UBR_NUMBER_SYSTEM_URL = "https://fhir.nhs.uk/Id/ubr-number";
     private static final String REQUESTER_DEVICE = "Requester Device: ";
     private static final String REQUESTER_PATIENT = "Requester: Patient";
     private static final String REQUESTER_ORG = "Requester Org: ";
@@ -173,7 +174,7 @@ public class RequestStatementMapper {
                 .map(ReferralRequest::getIdentifier)
                 .flatMap(List::stream)
                 .filter(Objects::nonNull)
-                .filter(val -> UBRN_SYSTEM_URL.equals(val.getSystem()))
+                .filter(val -> UBRN_SYSTEM_URL.equals(val.getSystem()) || UBR_NUMBER_SYSTEM_URL.equals(val.getSystem()))
                 .map(Identifier::getValue)
                 .findAny()
                 .map(UBRN::concat)

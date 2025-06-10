@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The GP2GP Adaptor now populates the ObservationStatement / confidentialityCode field when the .meta.security field of an Uncategorised Data Observation contains NOPAT
 * When List.meta.security field contains NOPAT, the GP2GP Adaptor will now populate the CompoundStatement.confidentialityCode
 
+### Update
+* The GP2GP Adaptor is now able to identify e-referrals by using either `https://fhir.nhs.uk/Id/ubr-number` or `https://fhir.nhs.uk/Id/UBRN` when provided as an identifier system URL.
+
 
 ## [2.4.0] - 2025-04-02
 

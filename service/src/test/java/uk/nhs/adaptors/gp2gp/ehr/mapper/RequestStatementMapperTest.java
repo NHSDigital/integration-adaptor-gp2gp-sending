@@ -123,7 +123,10 @@ public class RequestStatementMapperTest {
         + "example-referral-request-supportingInfo-with-ignored-resources.json";
     private static final String INPUT_JSON_WITH_NO_AUTHOR_AND_TIME = TEST_FILE_DIRECTORY
         + "example-referral-request-no-author-and-time.json";
-
+    private static final String INPUT_JSON_WITH_WITH_UBR_NUMBER_SYSTEM_URL = TEST_FILE_DIRECTORY
+            + "example-referral-request-with-ubr-number-system-url.json";
+    private static final String INPUT_JSON_WITH_WITH_UBRN_SYSTEM_URL = TEST_FILE_DIRECTORY
+            + "example-referral-request-with-ubrn-system-url.json";
 
     // OUTPUT FILES
     private static final String OUTPUT_XML_USES_NO_OPTIONAL_FIELDS = TEST_FILE_DIRECTORY
@@ -190,6 +193,8 @@ public class RequestStatementMapperTest {
         + "expected-output-request-statement-no-supportingInfo.xml";
     private static final String OUTPUT_XML_WITH_NO_AUTHOR_AND_TIME = TEST_FILE_DIRECTORY
         + "expected-output-request-statement-no-author-and-time.xml";
+    private static final String OUTPUT_XML_WITH_SYSTEM_URL = TEST_FILE_DIRECTORY
+            + "expected-output-request-for-system-url.xml";
 
     @Mock
     private CodeableConceptCdMapper codeableConceptCdMapper;
@@ -225,7 +230,7 @@ public class RequestStatementMapperTest {
             arguments(INPUT_JSON_WITH_ROUTINE_PRIORITY, OUTPUT_XML_WITH_NORMAL_PRIORITY),
             arguments(INPUT_JSON_WITH_URGENT_PRIORITY, OUTPUT_XML_WITH_HIGH_PRIORITY),
             arguments(INPUT_JSON_WITH_SUPPORTINGINFO_DOCUMENTREFERENCE,
-                OUTPUT_XML_WITH_SUPPORTINGINFO_DOCUMENTREFERENCE),
+                    OUTPUT_XML_WITH_SUPPORTINGINFO_DOCUMENTREFERENCE),
             arguments(INPUT_JSON_WITH_SUPPORTINGINFO_DOCUMENTREFERENCE_NO_DESCRIPTION,
                 OUTPUT_XML_WITH_SUPPORTINGINFO_DOCUMENTREFERENCE_NO_DESCRIPTION),
             arguments(INPUT_JSON_WITH_SUPPORTINGINFO_DOCUMENTREFERENCE_NO_CREATED_NO_TEXT,
@@ -252,7 +257,9 @@ public class RequestStatementMapperTest {
                 OUTPUT_XML_WITH_SUPPORTINGINFO_MEDICATIONREQUEST_NO_DATE),
             arguments(INPUT_JSON_WITH_SUPPORTINGINFO_IGNORED_RESOURCES,
                 OUTPUT_XML_WITH_NO_SUPPORTINGINFO),
-            arguments(INPUT_JSON_WITH_NO_AUTHOR_AND_TIME, OUTPUT_XML_WITH_NO_AUTHOR_AND_TIME)
+            arguments(INPUT_JSON_WITH_NO_AUTHOR_AND_TIME, OUTPUT_XML_WITH_NO_AUTHOR_AND_TIME),
+            arguments(INPUT_JSON_WITH_WITH_UBR_NUMBER_SYSTEM_URL, OUTPUT_XML_WITH_SYSTEM_URL),
+            arguments(INPUT_JSON_WITH_WITH_UBRN_SYSTEM_URL, OUTPUT_XML_WITH_SYSTEM_URL)
         );
     }
 
