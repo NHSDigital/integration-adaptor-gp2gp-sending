@@ -8421,6 +8421,51 @@
         },
         {
             "resource": {
+                "resourceType": "List",
+                "id": "BDB564D2-D1E0-4DFD-9395-2D0104DE89FF-PG1",
+                "meta": {
+                    "profile": [
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-List-1"
+                    ]
+                },
+                "status": "current",
+                "mode": "snapshot",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "25851000000105",
+                            "display": "Topic (EHR)"
+                        }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/9340157B-6973-4209-9B57-BF6C64F29E46"
+                },
+                "encounter": {
+                    "reference": "Encounter/BDB564D2-D1E0-4DFD-9395-2D0104DE89FF"
+                },
+                "date": "2021-09-17T13:16:04.847+01:00",
+                "orderedBy": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/list-order",
+                            "code": "system",
+                            "display": "Sorted by System 2"
+                        }
+                    ]
+                },
+                "entry": [
+                    {
+                        "item": {
+                            "reference": "List/BDB564D2-D1E0-4DFD-9395-2D0104DE89FF-PG0-HD1"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "resource": {
                 "resourceType": "Organization",
                 "id": "5E496953-065B-41F2-9577-BE8F2FBD0757",
                 "meta": {
@@ -9310,6 +9355,52 @@
                     {
                         "item": {
                             "reference": "AllergyIntolerance/8542B59A-D8A0-48E6-9B17-67AB9BD488AC"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "resource": {
+                "resourceType": "List",
+                "id": "BDB564D2-D1E0-4DFD-9395-2D0104DE89FF-PG0-HD1",
+                "meta": {
+                    "profile": [
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-List-1"
+                    ]
+                },
+                "status": "current",
+                "mode": "snapshot",
+                "title": "Examination",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "24781000000107",
+                            "display": "Category (EHR)"
+                        }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/9340157B-6973-4209-9B57-BF6C64F29E46"
+                },
+                "encounter": {
+                    "reference": "Encounter/BDB564D2-D1E0-4DFD-9395-2D0104DE89FF"
+                },
+                "date": "2021-09-17T13:16:04.847+01:00",
+                "orderedBy": {
+                    "coding": [
+                        {
+                            "system": "http://hl7.org/fhir/list-order",
+                            "code": "system",
+                            "display": "Sorted by System 2"
+                        }
+                    ]
+                },
+                "entry": [
+                    {
+                        "item": {
+                            "reference": "AllergyIntolerance/172EF8A1-0178-4F5B-8F1C-300E632D71D7"
                         }
                     }
                 ]
