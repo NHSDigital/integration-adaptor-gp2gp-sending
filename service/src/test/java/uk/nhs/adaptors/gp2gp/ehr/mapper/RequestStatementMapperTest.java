@@ -119,6 +119,8 @@ public class RequestStatementMapperTest {
             + "example-referral-request-supportingInfo-with-medication-request.json";
     private static final String INPUT_JSON_WITH_SUPPORTINGINFO_MEDICATIONREQUEST_NO_DATE = TEST_FILE_DIRECTORY
         + "example-referral-request-supportingInfo-with-medication-request-no-date.json";
+    private static final String INPUT_JSON_WITH_SUPPORTINGINFO_MEDICATION_REQUEST_WITH_MEDICATION_CODEABLE_CONCEPT = TEST_FILE_DIRECTORY
+            + "example-referral-request-supportingInfo-medication-request-with-medication-codeable-concept.json";
     private static final String INPUT_JSON_WITH_SUPPORTINGINFO_IGNORED_RESOURCES = TEST_FILE_DIRECTORY
         + "example-referral-request-supportingInfo-with-ignored-resources.json";
     private static final String INPUT_JSON_WITH_NO_AUTHOR_AND_TIME = TEST_FILE_DIRECTORY
