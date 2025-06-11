@@ -191,6 +191,8 @@ public class RequestStatementMapperTest {
             + "expected-output-request-statement-supportingInfo-with-medication-request.xml";
     private static final String OUTPUT_XML_WITH_SUPPORTINGINFO_MEDICATIONREQUEST_NO_DATE = TEST_FILE_DIRECTORY
         + "expected-output-request-statement-supportingInfo-with-medication-request-no-date.xml";
+    private static final String OUTPUT_XML_WITH_SUPPORTINGINFO_FROM_MEDICATION_CODEABLE_CONCEPT_DISPLAY = TEST_FILE_DIRECTORY
+            + "expected-output-request-statement-supportingInfo-from-medication-codeable-concept-display.xml";
     private static final String OUTPUT_XML_WITH_NO_SUPPORTINGINFO = TEST_FILE_DIRECTORY
         + "expected-output-request-statement-no-supportingInfo.xml";
     private static final String OUTPUT_XML_WITH_NO_AUTHOR_AND_TIME = TEST_FILE_DIRECTORY
@@ -261,7 +263,8 @@ public class RequestStatementMapperTest {
                 OUTPUT_XML_WITH_NO_SUPPORTINGINFO),
             arguments(INPUT_JSON_WITH_NO_AUTHOR_AND_TIME, OUTPUT_XML_WITH_NO_AUTHOR_AND_TIME),
             arguments(INPUT_JSON_WITH_WITH_UBR_NUMBER_SYSTEM_URL, OUTPUT_XML_WITH_SYSTEM_URL),
-            arguments(INPUT_JSON_WITH_WITH_UBRN_SYSTEM_URL, OUTPUT_XML_WITH_SYSTEM_URL)
+            arguments(INPUT_JSON_WITH_WITH_UBRN_SYSTEM_URL, OUTPUT_XML_WITH_SYSTEM_URL),
+                arguments(INPUT_JSON_WITH_SUPPORTINGINFO_MEDICATION_REQUEST_WITH_MEDICATION_CODEABLE_CONCEPT, OUTPUT_XML_WITH_SUPPORTINGINFO_FROM_MEDICATION_CODEABLE_CONCEPT_DISPLAY)
         );
     }
 

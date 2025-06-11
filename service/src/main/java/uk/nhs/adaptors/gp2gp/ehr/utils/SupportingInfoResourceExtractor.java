@@ -197,7 +197,11 @@ public class SupportingInfoResourceExtractor {
             }
         }
 
-        if (medicationRequest.hasMedicationReference()) {
+        if (medicationRequest.hasMedicationCodeableConcept()) {
+            var medicationCodeableConceptText = CodeableConceptMappingUtils.extractTextOrCoding(medicationRequest.getMedicationCodeableConcept());
+
+            medicationCodeableConceptText.ifPresent(text -> stringBuilder.append(" ").append(text));
+        } else if (medicationRequest.hasMedicationReference()) {
             messageContext
                 .getInputBundleHolder()
                 .getResource(medicationRequest.getMedicationReference().getReferenceElement())
