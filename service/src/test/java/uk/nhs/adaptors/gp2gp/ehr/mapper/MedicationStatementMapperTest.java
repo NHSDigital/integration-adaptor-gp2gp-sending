@@ -107,6 +107,10 @@ public class MedicationStatementMapperTest {
     private static Stream<Arguments> resourceFileParams() {
         return Stream.of(
             Arguments.of("mr-with-order-no-optional-fields.json", "medication-statement-with-prescribe-no-optional-fields.xml"),
+            Arguments.of(
+                "mr-with-order-no-optional-fields-with-medication-codeable-concept.json",
+                "medication-statement-with-prescribe-no-optional-fields.xml"
+            ),
             Arguments.of("mr-with-order-optional-fields.json", "medication-statement-with-prescribe-optional-fields.xml"),
             Arguments.of("mr-with-complete-status.json", "medication-statement-with-complete-status.xml"),
             Arguments.of("mr-with-active-status.json", "medication-statement-with-active-status.xml"),

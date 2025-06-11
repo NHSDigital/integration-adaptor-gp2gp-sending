@@ -148,6 +148,10 @@ public class MedicationStatementMapper {
     }
 
     private String buildMedicationReferenceCode(MedicationRequest medicationRequest) {
+        if (medicationRequest.hasMedicationCodeableConcept()) {
+            return codeableConceptCdMapper.mapCodeableConceptForMedication(medicationRequest.getMedicationCodeableConcept());
+        }
+
         IIdType reference = medicationRequest.getMedicationReference().getReferenceElement();
         return messageContext.getInputBundleHolder()
             .getResource(reference)
