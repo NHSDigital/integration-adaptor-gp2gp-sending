@@ -122,7 +122,7 @@ public class SupportingInfoResourceExtractor {
         }
 
         if (referralRequest.hasReasonCode()) {
-            CodeableConceptMappingUtils.extractTextOrCoding(referralRequest.getReasonCode().get(0)).ifPresent(
+            CodeableConceptMappingUtils.extractTextOrCoding(referralRequest.getReasonCode().getFirst()).ifPresent(
                     reasonCode -> stringBuilder
                         .append(" ")
                         .append(reasonCode)
@@ -170,51 +170,77 @@ public class SupportingInfoResourceExtractor {
         return stringBuilder.toString();
     }
 
+    private static void buildDispenseRequestText(MedicationRequest medicationRequest, StringBuilder stringBuilder) {
+        if (medicationRequest.hasDispenseRequest() && medicationRequest.getDispenseRequest().getValidityPeriod().hasStart()) {
+            stringBuilder
+                .append(" ")
+                .append(formatDateUsingDayPrecision(medicationRequest.getDispenseRequest().getValidityPeriod().getStartElement()));
+        }
+    }
+
     public static String extractMedicationRequest(MessageContext messageContext, Reference reference) {
-        var medicationRequestOptional = messageContext
+        return messageContext
                 .getInputBundleHolder()
                 .getResource(reference.getReferenceElement())
-                .map(MedicationRequest.class::cast);
+                .map(MedicationRequest.class::cast)
+                .map(medicationRequest -> buildMedicationRequestText(messageContext, medicationRequest))
+                .orElse(StringUtils.EMPTY);
+    }
 
-        if (medicationRequestOptional.isEmpty()) {
-            return "";
-        }
-
+    private static String buildMedicationRequestText(MessageContext messageContext, MedicationRequest medicationRequest) {
         var stringBuilder = new StringBuilder();
+
         stringBuilder.append("{ Medication:");
 
-        var medicationRequest = medicationRequestOptional.get();
+        buildDispenseRequestText(medicationRequest, stringBuilder);
+        buildCodeableConceptText(messageContext, medicationRequest, stringBuilder);
 
-        if (medicationRequest.hasDispenseRequest()) {
-            if (medicationRequest.getDispenseRequest().getValidityPeriod().hasStart()) {
-                stringBuilder
-                    .append(" ")
-                    .append(
-                        formatDateUsingDayPrecision(
-                            medicationRequest.getDispenseRequest().getValidityPeriod().getStartElement()
-                        )
-                    );
-            }
-        }
-
-        if (medicationRequest.hasMedicationCodeableConcept()) {
-            var medicationCodeableConceptText = CodeableConceptMappingUtils.extractTextOrCoding(medicationRequest.getMedicationCodeableConcept());
-
-            medicationCodeableConceptText.ifPresent(text -> stringBuilder.append(" ").append(text));
-        } else if (medicationRequest.hasMedicationReference()) {
-            messageContext
-                .getInputBundleHolder()
-                .getResource(medicationRequest.getMedicationReference().getReferenceElement())
-                .map(Medication.class::cast)
-                .flatMap(medication -> CodeableConceptMappingUtils.extractTextOrCoding(medication.getCode()))
-                .ifPresent(code -> stringBuilder
-                    .append(" ")
-                    .append(code)
-                );
-        }
         stringBuilder.append(" }");
 
         return stringBuilder.toString();
+    }
+
+    private static void buildCodeableConceptText(
+        MessageContext messageContext,
+        MedicationRequest medicationRequest,
+        StringBuilder stringBuilder
+    ) {
+        if (medicationRequest.hasMedicationCodeableConcept()) {
+            buildCodeableConceptTextFromMedicationCodableConcept(medicationRequest, stringBuilder);
+            return;
+        }
+
+        if (medicationRequest.hasMedicationReference()) {
+            buildCodeableConceptFromMedicationReference(messageContext, medicationRequest, stringBuilder);
+        }
+    }
+
+    private static void buildCodeableConceptFromMedicationReference(
+        MessageContext messageContext,
+        MedicationRequest medicationRequest,
+        StringBuilder stringBuilder
+    ) {
+        messageContext
+            .getInputBundleHolder()
+            .getResource(medicationRequest.getMedicationReference().getReferenceElement())
+            .map(Medication.class::cast)
+            .flatMap(medication -> CodeableConceptMappingUtils.extractTextOrCoding(medication.getCode()))
+            .ifPresent(code -> stringBuilder
+                .append(" ")
+                .append(code)
+            );
+    }
+
+    private static void buildCodeableConceptTextFromMedicationCodableConcept(
+        MedicationRequest medicationRequest,
+        StringBuilder stringBuilder
+    ) {
+        var medicationCodeableConceptText = CodeableConceptMappingUtils
+            .extractTextOrCoding(
+                medicationRequest.getMedicationCodeableConcept()
+            );
+
+        medicationCodeableConceptText.ifPresent(text -> stringBuilder.append(" ").append(text));
     }
 
     private static String formatDateUsingDayPrecision(BaseDateTimeType baseDateTimeType) {

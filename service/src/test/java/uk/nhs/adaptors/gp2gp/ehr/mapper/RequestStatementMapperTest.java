@@ -211,8 +211,6 @@ public class RequestStatementMapperTest {
     @Mock
     private ConfidentialityService confidentialityService;
 
-    private InputBundle inputBundle;
-
     private RequestStatementMapper requestStatementMapper;
 
     private static Stream<Arguments> resourceFileParams() {
@@ -261,10 +259,11 @@ public class RequestStatementMapperTest {
                 OUTPUT_XML_WITH_SUPPORTINGINFO_MEDICATIONREQUEST_NO_DATE),
             arguments(INPUT_JSON_WITH_SUPPORTINGINFO_IGNORED_RESOURCES,
                 OUTPUT_XML_WITH_NO_SUPPORTINGINFO),
-            arguments(INPUT_JSON_WITH_NO_AUTHOR_AND_TIME, OUTPUT_XML_WITH_NO_AUTHOR_AND_TIME),
-            arguments(INPUT_JSON_WITH_WITH_UBR_NUMBER_SYSTEM_URL, OUTPUT_XML_WITH_SYSTEM_URL),
             arguments(INPUT_JSON_WITH_WITH_UBRN_SYSTEM_URL, OUTPUT_XML_WITH_SYSTEM_URL),
-                arguments(INPUT_JSON_WITH_SUPPORTINGINFO_MEDICATION_REQUEST_WITH_MEDICATION_CODEABLE_CONCEPT, OUTPUT_XML_WITH_SUPPORTINGINFO_FROM_MEDICATION_CODEABLE_CONCEPT_DISPLAY)
+            arguments(INPUT_JSON_WITH_SUPPORTINGINFO_MEDICATION_REQUEST_WITH_MEDICATION_CODEABLE_CONCEPT,
+                OUTPUT_XML_WITH_SUPPORTINGINFO_FROM_MEDICATION_CODEABLE_CONCEPT_DISPLAY),
+            arguments(INPUT_JSON_WITH_NO_AUTHOR_AND_TIME, OUTPUT_XML_WITH_NO_AUTHOR_AND_TIME),
+            arguments(INPUT_JSON_WITH_WITH_UBR_NUMBER_SYSTEM_URL, OUTPUT_XML_WITH_SYSTEM_URL)
         );
     }
 
@@ -291,7 +290,7 @@ public class RequestStatementMapperTest {
     public void setUp() {
         var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
         Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
-        inputBundle = new InputBundle(bundle);
+        var inputBundle = new InputBundle(bundle);
 
         lenient().when(messageContext.getIdMapper()).thenReturn(idMapper);
         lenient().when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
