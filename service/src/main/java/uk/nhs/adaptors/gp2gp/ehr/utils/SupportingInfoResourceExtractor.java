@@ -122,7 +122,7 @@ public class SupportingInfoResourceExtractor {
         }
 
         if (referralRequest.hasReasonCode()) {
-            CodeableConceptMappingUtils.extractTextOrCoding(referralRequest.getReasonCode().get(0)).ifPresent(
+            CodeableConceptMappingUtils.extractTextOrCoding(referralRequest.getReasonCode().getFirst()).ifPresent(
                     reasonCode -> stringBuilder
                         .append(" ")
                         .append(reasonCode)
@@ -170,47 +170,61 @@ public class SupportingInfoResourceExtractor {
         return stringBuilder.toString();
     }
 
+    private static String buildDispenseRequestText(MedicationRequest medicationRequest) {
+        if (medicationRequest.hasDispenseRequest() && medicationRequest.getDispenseRequest().getValidityPeriod().hasStart()) {
+            return " " + formatDateUsingDayPrecision(medicationRequest.getDispenseRequest().getValidityPeriod().getStartElement());
+        }
+        return "";
+    }
+
     public static String extractMedicationRequest(MessageContext messageContext, Reference reference) {
-        var medicationRequestOptional = messageContext
+        return messageContext
                 .getInputBundleHolder()
                 .getResource(reference.getReferenceElement())
-                .map(MedicationRequest.class::cast);
+                .map(MedicationRequest.class::cast)
+                .map(medicationRequest -> buildMedicationRequestText(messageContext, medicationRequest))
+                .orElse(StringUtils.EMPTY);
+    }
 
-        if (medicationRequestOptional.isEmpty()) {
-            return "";
+    private static String buildMedicationRequestText(MessageContext messageContext, MedicationRequest medicationRequest) {
+        return new StringBuilder()
+            .append("{ Medication:")
+            .append(buildDispenseRequestText(medicationRequest))
+            .append(buildCodeableConceptText(messageContext, medicationRequest))
+            .append(" }")
+            .toString();
+    }
+
+    private static String buildCodeableConceptText(
+        MessageContext messageContext,
+        MedicationRequest medicationRequest
+    ) {
+        if (medicationRequest.hasMedicationCodeableConcept()) {
+            return buildCodeableConceptTextFromMedicationCodableConcept(medicationRequest);
+        } else if (medicationRequest.hasMedicationReference()) {
+            return buildCodeableConceptFromMedicationReference(messageContext, medicationRequest);
         }
+        return "";
+    }
 
-        var stringBuilder = new StringBuilder();
-        stringBuilder.append("{ Medication:");
+    private static String buildCodeableConceptFromMedicationReference(
+        MessageContext messageContext,
+        MedicationRequest medicationRequest
+    ) {
+        return messageContext
+            .getInputBundleHolder()
+            .getResource(medicationRequest.getMedicationReference().getReferenceElement())
+            .map(Medication.class::cast)
+            .flatMap(medication -> CodeableConceptMappingUtils.extractTextOrCoding(medication.getCode()))
+            .map(code -> " " + code)
+            .orElse("");
+    }
 
-        var medicationRequest = medicationRequestOptional.get();
-
-        if (medicationRequest.hasDispenseRequest()) {
-            if (medicationRequest.getDispenseRequest().getValidityPeriod().hasStart()) {
-                stringBuilder
-                    .append(" ")
-                    .append(
-                        formatDateUsingDayPrecision(
-                            medicationRequest.getDispenseRequest().getValidityPeriod().getStartElement()
-                        )
-                    );
-            }
-        }
-
-        if (medicationRequest.hasMedicationReference()) {
-            messageContext
-                .getInputBundleHolder()
-                .getResource(medicationRequest.getMedicationReference().getReferenceElement())
-                .map(Medication.class::cast)
-                .flatMap(medication -> CodeableConceptMappingUtils.extractTextOrCoding(medication.getCode()))
-                .ifPresent(code -> stringBuilder
-                    .append(" ")
-                    .append(code)
-                );
-        }
-        stringBuilder.append(" }");
-
-        return stringBuilder.toString();
+    private static String buildCodeableConceptTextFromMedicationCodableConcept(
+        MedicationRequest medicationRequest
+    ) {
+        return " " + CodeableConceptMappingUtils.extractTextOrCoding(medicationRequest.getMedicationCodeableConcept())
+            .orElse("");
     }
 
     private static String formatDateUsingDayPrecision(BaseDateTimeType baseDateTimeType) {

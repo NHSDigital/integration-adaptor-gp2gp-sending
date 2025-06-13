@@ -119,6 +119,8 @@ public class RequestStatementMapperTest {
             + "example-referral-request-supportingInfo-with-medication-request.json";
     private static final String INPUT_JSON_WITH_SUPPORTINGINFO_MEDICATIONREQUEST_NO_DATE = TEST_FILE_DIRECTORY
         + "example-referral-request-supportingInfo-with-medication-request-no-date.json";
+    private static final String INPUT_JSON_WITH_SUPPORTINGINFO_MEDICATION_REQUEST_WITH_MEDICATION_CODEABLE_CONCEPT = TEST_FILE_DIRECTORY
+            + "example-referral-request-supportingInfo-medication-request-with-medication-codeable-concept.json";
     private static final String INPUT_JSON_WITH_SUPPORTINGINFO_IGNORED_RESOURCES = TEST_FILE_DIRECTORY
         + "example-referral-request-supportingInfo-with-ignored-resources.json";
     private static final String INPUT_JSON_WITH_NO_AUTHOR_AND_TIME = TEST_FILE_DIRECTORY
@@ -189,6 +191,8 @@ public class RequestStatementMapperTest {
             + "expected-output-request-statement-supportingInfo-with-medication-request.xml";
     private static final String OUTPUT_XML_WITH_SUPPORTINGINFO_MEDICATIONREQUEST_NO_DATE = TEST_FILE_DIRECTORY
         + "expected-output-request-statement-supportingInfo-with-medication-request-no-date.xml";
+    private static final String OUTPUT_XML_WITH_SUPPORTINGINFO_FROM_MEDICATION_CODEABLE_CONCEPT_DISPLAY = TEST_FILE_DIRECTORY
+            + "expected-output-request-statement-supportingInfo-from-medication-codeable-concept-display.xml";
     private static final String OUTPUT_XML_WITH_NO_SUPPORTINGINFO = TEST_FILE_DIRECTORY
         + "expected-output-request-statement-no-supportingInfo.xml";
     private static final String OUTPUT_XML_WITH_NO_AUTHOR_AND_TIME = TEST_FILE_DIRECTORY
@@ -206,8 +210,6 @@ public class RequestStatementMapperTest {
     private AgentDirectory agentDirectory;
     @Mock
     private ConfidentialityService confidentialityService;
-
-    private InputBundle inputBundle;
 
     private RequestStatementMapper requestStatementMapper;
 
@@ -257,9 +259,11 @@ public class RequestStatementMapperTest {
                 OUTPUT_XML_WITH_SUPPORTINGINFO_MEDICATIONREQUEST_NO_DATE),
             arguments(INPUT_JSON_WITH_SUPPORTINGINFO_IGNORED_RESOURCES,
                 OUTPUT_XML_WITH_NO_SUPPORTINGINFO),
+            arguments(INPUT_JSON_WITH_WITH_UBRN_SYSTEM_URL, OUTPUT_XML_WITH_SYSTEM_URL),
+            arguments(INPUT_JSON_WITH_SUPPORTINGINFO_MEDICATION_REQUEST_WITH_MEDICATION_CODEABLE_CONCEPT,
+                OUTPUT_XML_WITH_SUPPORTINGINFO_FROM_MEDICATION_CODEABLE_CONCEPT_DISPLAY),
             arguments(INPUT_JSON_WITH_NO_AUTHOR_AND_TIME, OUTPUT_XML_WITH_NO_AUTHOR_AND_TIME),
-            arguments(INPUT_JSON_WITH_WITH_UBR_NUMBER_SYSTEM_URL, OUTPUT_XML_WITH_SYSTEM_URL),
-            arguments(INPUT_JSON_WITH_WITH_UBRN_SYSTEM_URL, OUTPUT_XML_WITH_SYSTEM_URL)
+            arguments(INPUT_JSON_WITH_WITH_UBR_NUMBER_SYSTEM_URL, OUTPUT_XML_WITH_SYSTEM_URL)
         );
     }
 
@@ -286,7 +290,7 @@ public class RequestStatementMapperTest {
     public void setUp() {
         var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
         Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
-        inputBundle = new InputBundle(bundle);
+        var inputBundle = new InputBundle(bundle);
 
         lenient().when(messageContext.getIdMapper()).thenReturn(idMapper);
         lenient().when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
