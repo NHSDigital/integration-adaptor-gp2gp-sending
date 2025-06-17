@@ -10,15 +10,23 @@
         {{#confidentialityCode}}
             {{{confidentialityCode}}}
         {{/confidentialityCode}}
-        {{{value}}}
-        {{{interpretation}}}
+        {{#value}}
+            {{{value}}}
+        {{/value}}
+        {{#interpretation}}
+            {{{interpretation}}}
+        {{/interpretation}}
+        {{#comment}}
         <pertinentInformation typeCode="PERT">
             <sequenceNumber value="+1" />
             <pertinentAnnotation classCode="OBS" moodCode="EVN">
                 <text>{{comment}}</text>
             </pertinentAnnotation>
         </pertinentInformation>
-        {{{referenceRange}}}
+        {{/comment}}
+        {{#referenceRange}}
+            {{{referenceRange}}}
+        {{/referenceRange}}
         {{#participant}}
         {{{.}}}
         {{/participant}}

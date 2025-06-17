@@ -236,15 +236,6 @@
                                 <center nullFlavor="UNK"/>
                             </effectiveTime>
                             <availabilityTime nullFlavor="UNK"/>
-
-
-                            <pertinentInformation typeCode="PERT">
-                                <sequenceNumber value="+1"/>
-                                <pertinentAnnotation classCode="OBS" moodCode="EVN">
-                                    <text></text>
-                                </pertinentAnnotation>
-                            </pertinentInformation>
-
                             <Participant typeCode="PRF" contextControlCode="OP">
                                 <agentRef classCode="AGNT">
                                     <id root="test-id-3"/>

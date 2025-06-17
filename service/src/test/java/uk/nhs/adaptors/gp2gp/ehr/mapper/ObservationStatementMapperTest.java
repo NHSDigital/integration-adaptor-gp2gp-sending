@@ -134,7 +134,7 @@ public class ObservationStatementMapperTest {
     private static final String OUTPUT_XML_WITH_NOPAT = TEST_FILE_DIRECTORY
         + "expected-observation-statement-with-confidentiality-code.xml";
     private static final String OUTPUT_XML_WITH_NO_PERTINENT_INFORMATION = TEST_FILE_DIRECTORY
-            + "expected-observation-statement-with-confidentiality-code.xml";
+            + "expected-observation-statement-without-pertinent-information-block.xml";
     private static final String OUTPUT_XML_USES_EFFECTIVE_PERIOD = TEST_FILE_DIRECTORY
         + "expected-output-observation-statement-4.xml";
     private static final String OUTPUT_XML_WITH_STRING_VALUE = TEST_FILE_DIRECTORY
@@ -237,7 +237,7 @@ public class ObservationStatementMapperTest {
 
         String outputMessage = observationStatementMapper.mapObservationToObservationStatement(parsedObservation, true);
 
-        assertThat(outputMessage).doesNotContain("<pertinentInformation ");
+        assertThat(outputMessage).isEqualTo(expectedOutputMessage);
     }
 
     @Test
