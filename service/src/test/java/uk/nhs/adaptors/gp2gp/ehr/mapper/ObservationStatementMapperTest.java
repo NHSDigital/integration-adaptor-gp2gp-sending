@@ -45,7 +45,8 @@ public class ObservationStatementMapperTest {
     private static final String INPUT_JSON_WITH_EFFECTIVE_DATE_TIME = TEST_FILE_DIRECTORY
         + "example-observation-resource-1.json";
     private static final String INPUT_JSON_WITH_NOPAT = TEST_FILE_DIRECTORY + "example-observation-resource-with-nopat.json";
-    private static final String INPUT_JSON_WITH_NO_PERTINENT_INFORMATION_DATA = TEST_FILE_DIRECTORY + "example-observation-resource-with-no-pertinent-information-data.json";
+    private static final String INPUT_JSON_WITH_NO_PERTINENT_INFORMATION_DATA = TEST_FILE_DIRECTORY
+            + "example-observation-resource-with-no-pertinent-information-data.json";
     private static final String INPUT_JSON_WITH_NULL_EFFECTIVE_DATE_TIME = TEST_FILE_DIRECTORY
         + "example-observation-resource-2.json";
     private static final String INPUT_JSON_WITH_EFFECTIVE_PERIOD = TEST_FILE_DIRECTORY
