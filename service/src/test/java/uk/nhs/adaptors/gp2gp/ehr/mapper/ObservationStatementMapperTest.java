@@ -45,6 +45,7 @@ public class ObservationStatementMapperTest {
     private static final String INPUT_JSON_WITH_EFFECTIVE_DATE_TIME = TEST_FILE_DIRECTORY
         + "example-observation-resource-1.json";
     private static final String INPUT_JSON_WITH_NOPAT = TEST_FILE_DIRECTORY + "example-observation-resource-with-nopat.json";
+    private static final String INPUT_JSON_WITH_NO_PERTINENT_INFORMATION_DATA = TEST_FILE_DIRECTORY + "example-observation-resource-with-no-pertinent-information-data.json";
     private static final String INPUT_JSON_WITH_NULL_EFFECTIVE_DATE_TIME = TEST_FILE_DIRECTORY
         + "example-observation-resource-2.json";
     private static final String INPUT_JSON_WITH_EFFECTIVE_PERIOD = TEST_FILE_DIRECTORY
@@ -131,6 +132,8 @@ public class ObservationStatementMapperTest {
         + "expected-output-observation-statement-3.xml";
     private static final String OUTPUT_XML_WITH_NOPAT = TEST_FILE_DIRECTORY
         + "expected-observation-statement-with-confidentiality-code.xml";
+    private static final String OUTPUT_XML_WITH_NO_PERTINENT_INFORMATION = TEST_FILE_DIRECTORY
+            + "expected-observation-statement-with-confidentiality-code.xml";
     private static final String OUTPUT_XML_USES_EFFECTIVE_PERIOD = TEST_FILE_DIRECTORY
         + "expected-output-observation-statement-4.xml";
     private static final String OUTPUT_XML_WITH_STRING_VALUE = TEST_FILE_DIRECTORY
@@ -223,6 +226,17 @@ public class ObservationStatementMapperTest {
     @AfterEach
     public void tearDown() {
         messageContext.resetMessageContext();
+    }
+
+    @Test
+    void When_No_Pertinent_Information_Content_Suppress_Element() {
+        expectedOutputMessage = ResourceTestFileUtils.getFileContent(OUTPUT_XML_WITH_NO_PERTINENT_INFORMATION);
+        var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_NO_PERTINENT_INFORMATION_DATA);
+        Observation parsedObservation = new FhirParseService().parseResource(jsonInput, Observation.class);
+
+        String outputMessage = observationStatementMapper.mapObservationToObservationStatement(parsedObservation, true);
+
+        assertThat(outputMessage).doesNotContain("<pertinentInformation ");
     }
 
     @Test
