@@ -229,7 +229,7 @@ public class ObservationStatementMapperTest {
     }
 
     @Test
-    void When_No_Pertinent_Information_Content_Suppress_Element() {
+    void When_NoPertinentInformation_Expect_ContentSuppressed() {
         expectedOutputMessage = ResourceTestFileUtils.getFileContent(OUTPUT_XML_WITH_NO_PERTINENT_INFORMATION);
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_NO_PERTINENT_INFORMATION_DATA);
         Observation parsedObservation = new FhirParseService().parseResource(jsonInput, Observation.class);
