@@ -96,20 +96,31 @@ public class SendEhrExtractCoreTaskExecutor implements TaskExecutor<SendEhrExtra
     private String compressEhrExtractAndReplacePayloadWithSkeleton(
             SendEhrExtractCoreTaskDefinition sendEhrExtractCoreTaskDefinition,
             OutboundMessage outboundMessage) throws JsonProcessingException {
+
+        LOGGER.info("Starting compression and skeleton replacement for outbound message");
+
         String documentId = randomIdGeneratorService.createNewId();
         String messageId = randomIdGeneratorService.createNewId();
         String taskId = randomIdGeneratorService.createNewId();
+
+        LOGGER.debug("Generated IDs - Document ID: {}, Message ID: {}, Task ID: {}", documentId, messageId, taskId);
+
         String fileName = GpcFilenameUtils.generateLargeExrExtractFilename(documentId);
-        final var compressedEhrExtract = Base64Utils.toBase64String(Gzip.compress(outboundMessage.getPayload()));
+        String originalPayload = outboundMessage.getPayload();
+        final var compressedEhrExtract = Base64Utils.toBase64String(Gzip.compress(originalPayload));
+        LOGGER.info("Compressed EHR extract: original size = {}, compressed size = {}",
+                    originalPayload.length(), compressedEhrExtract.length());
+
         storeCompressedEhrExtractAsDocument(sendEhrExtractCoreTaskDefinition, documentId, messageId, fileName, taskId);
 
         uploadCompressedEhrExtractToStorageWrapper(
                 sendEhrExtractCoreTaskDefinition, messageId, documentId, compressedEhrExtract, taskId, fileName);
 
-        outboundMessage.setPayload(structuredRecordMappingService.buildSkeletonEhrExtractXml(outboundMessage.getPayload(), documentId));
+        outboundMessage.setPayload(structuredRecordMappingService.buildSkeletonEhrExtractXml(originalPayload, documentId));
         referenceCompressedEhrExtractDocumentAsAttachmentInOutboundMessage(
                 outboundMessage, documentId, messageId, fileName, compressedEhrExtract.length());
 
+        LOGGER.info("Successfully completed compression and skeleton replacement for outbound message with document ID: {}", documentId);
         return objectMapper.writeValueAsString(outboundMessage);
     }
 
@@ -146,31 +157,41 @@ public class SendEhrExtractCoreTaskExecutor implements TaskExecutor<SendEhrExtra
             String taskId,
             String fileName) throws JsonProcessingException {
 
-        String data = objectMapper.writeValueAsString(
-            OutboundMessage.builder()
-            .payload(
-                ehrDocumentMapper.generateMhsPayload(
-                    sendEhrExtractCoreTaskDefinition,
-                    messageId,
-                    documentId,
-                    "application/xml"
-                )
-            ).attachments(
-                List.of(
-                    OutboundMessage.Attachment.builder()
-                        .contentType(TEXT_XML_CONTENT_TYPE)
-                        .isBase64(true)
-                        .description(documentId)
-                        .payload(compressedEhrExtract)
-                        .build()
-                )
-            ).build()
-        );
+        LOGGER.info("Preparing to upload compressed EHR extract. File name: {}, Document ID: {}, Task ID: {}, Message ID: {}",
+                 fileName, documentId, taskId, messageId);
+
+        String data;
+
+        try {
+            data = objectMapper.writeValueAsString(
+                OutboundMessage.builder()
+                    .payload(
+                        ehrDocumentMapper.generateMhsPayload(
+                            sendEhrExtractCoreTaskDefinition,
+                            messageId,
+                            documentId,
+                            "application/xml"
+                                                            )
+                            ).attachments(
+                        List.of(
+                            OutboundMessage.Attachment.builder()
+                                .contentType(TEXT_XML_CONTENT_TYPE)
+                                .isBase64(true)
+                                .description(documentId)
+                                .payload(compressedEhrExtract)
+                                .build()
+                               )).build());
+        } catch (JsonProcessingException exception) {
+            LOGGER.error("Failed to serialize OutboundMessage for document ID: {}", documentId, exception);
+            throw exception;
+        }
 
         storageConnectorService.uploadFile(
             StorageDataWrapperProvider.buildStorageDataWrapper(sendEhrExtractCoreTaskDefinition, data, taskId),
             fileName
         );
+
+        LOGGER.info("Upload completed for file: {}", fileName);
     }
 
     private void storeCompressedEhrExtractAsDocument(
