@@ -397,15 +397,6 @@
                                                 <center value="20100123134800"/>
                                             </effectiveTime>
                                             <availabilityTime value="20100123134800"/>
-
-
-                                            <pertinentInformation typeCode="PERT">
-                                                <sequenceNumber value="+1" />
-                                                <pertinentAnnotation classCode="OBS" moodCode="EVN">
-                                                    <text></text>
-                                                </pertinentAnnotation>
-                                            </pertinentInformation>
-
                                             <Participant typeCode="PRF" contextControlCode="OP">
                                                 <agentRef classCode="AGNT">
                                                     <id root="test-id-3"/>
@@ -457,15 +448,6 @@
                                             <center value="20100123134800"/>
                                         </effectiveTime>
                                         <availabilityTime value="20100123134800"/>
-
-
-                                        <pertinentInformation typeCode="PERT">
-                                            <sequenceNumber value="+1" />
-                                            <pertinentAnnotation classCode="OBS" moodCode="EVN">
-                                                <text></text>
-                                            </pertinentAnnotation>
-                                        </pertinentInformation>
-
                                         <Participant typeCode="PRF" contextControlCode="OP">
                                             <agentRef classCode="AGNT">
                                                 <id root="test-id-3"/>
@@ -7635,14 +7617,6 @@
                             </effectiveTime>
                             <availabilityTime value="20091102"/>
                             <value xsi:type="PQ" value="120" unit="1"><translation value="120"><originalText>mmHg</originalText></translation></value>
-
-                            <pertinentInformation typeCode="PERT">
-                                <sequenceNumber value="+1" />
-                                <pertinentAnnotation classCode="OBS" moodCode="EVN">
-                                    <text></text>
-                                </pertinentAnnotation>
-                            </pertinentInformation>
-
                             <Participant typeCode="PRF" contextControlCode="OP">
                                 <agentRef classCode="AGNT">
                                     <id root="test-id-3"/>
@@ -7682,14 +7656,6 @@
                             </effectiveTime>
                             <availabilityTime value="20091102"/>
                             <value xsi:type="PQ" value="90" unit="1"><translation value="90"><originalText>mmHg</originalText></translation></value>
-
-                            <pertinentInformation typeCode="PERT">
-                                <sequenceNumber value="+1" />
-                                <pertinentAnnotation classCode="OBS" moodCode="EVN">
-                                    <text></text>
-                                </pertinentAnnotation>
-                            </pertinentInformation>
-
                             <Participant typeCode="PRF" contextControlCode="OP">
                                 <agentRef classCode="AGNT">
                                     <id root="test-id-3"/>
@@ -7916,15 +7882,6 @@
                                 <center value="20100609160800"/>
                             </effectiveTime>
                             <availabilityTime value="20100609160800"/>
-
-
-                            <pertinentInformation typeCode="PERT">
-                                <sequenceNumber value="+1" />
-                                <pertinentAnnotation classCode="OBS" moodCode="EVN">
-                                    <text></text>
-                                </pertinentAnnotation>
-                            </pertinentInformation>
-
                             <Participant typeCode="PRF" contextControlCode="OP">
                                 <agentRef classCode="AGNT">
                                     <id root="test-id-3"/>
@@ -8127,15 +8084,6 @@
                                 <center value="20201026"/>
                             </effectiveTime>
                             <availabilityTime value="20201026"/>
-
-
-                            <pertinentInformation typeCode="PERT">
-                                <sequenceNumber value="+1" />
-                                <pertinentAnnotation classCode="OBS" moodCode="EVN">
-                                    <text></text>
-                                </pertinentAnnotation>
-                            </pertinentInformation>
-
                             <Participant typeCode="PRF" contextControlCode="OP">
                                 <agentRef classCode="AGNT">
                                     <id root="test-id-3"/>
