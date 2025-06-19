@@ -241,8 +241,7 @@ jobs:
           GP2GP_LOGGING_LEVEL: "DEBUG"
           MHS_MOCK_REQUEST_JOURNAL_ENABLED: "true"
         run: |
-          docker network create commonforgp2gp
-          docker compose -f docker-compose.yml -f docker-compose-e2e-tests.yml up --build --exit-code-from gp2gp-e2e-tests mongodb activemq gp2gp wiremock gpcc gp2gp-e2e-tests
+          ./run-e2e-tests.sh
         working-directory: ./docker
 
       - name: Dump Docker Logs
