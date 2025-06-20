@@ -440,7 +440,7 @@ public class EhrExtractStatusService {
         Update.AddToSetBuilder updateBuilder,
         FindAndModifyOptions returningUpdatedRecordOption) {
 
-        LOGGER.debug("Attempting to update EHR extract status. Query: {}, Number of documents: {}", query, docs.size());
+        LOGGER.debug("Attempting to update EHR extract status. Number of documents: {}", docs.size());
 
         Update update = updateBuilder.each(docs);
 

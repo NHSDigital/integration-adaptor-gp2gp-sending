@@ -157,13 +157,9 @@ public class SendEhrExtractCoreTaskExecutor implements TaskExecutor<SendEhrExtra
             String taskId,
             String fileName) throws JsonProcessingException {
 
-        LOGGER.info("Preparing to upload compressed EHR extract. File name: {}, Document ID: {}, Task ID: {}, Message ID: {}",
-                 fileName, documentId, taskId, messageId);
+        LOGGER.info("Preparing to upload compressed EHR extract. File name: {}, Message ID: {}", fileName, messageId);
 
-        String data;
-
-        try {
-            data = objectMapper.writeValueAsString(
+        String data = objectMapper.writeValueAsString(
                 OutboundMessage.builder()
                     .payload(
                         ehrDocumentMapper.generateMhsPayload(
@@ -181,10 +177,6 @@ public class SendEhrExtractCoreTaskExecutor implements TaskExecutor<SendEhrExtra
                                 .payload(compressedEhrExtract)
                                 .build()
                                )).build());
-        } catch (JsonProcessingException exception) {
-            LOGGER.error("Failed to serialize OutboundMessage for document ID: {}", documentId, exception);
-            throw exception;
-        }
 
         storageConnectorService.uploadFile(
             StorageDataWrapperProvider.buildStorageDataWrapper(sendEhrExtractCoreTaskDefinition, data, taskId),
