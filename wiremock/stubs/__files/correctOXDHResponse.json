@@ -174,7 +174,8 @@
     "managingOrganization": {
       "reference": "Organization/7"
     }
-    },
+    }
+  },
     {
       "resource": {
         "resourceType": "Practitioner",
