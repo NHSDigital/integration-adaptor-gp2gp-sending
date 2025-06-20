@@ -177,6 +177,54 @@
     },
     {
       "resource": {
+        "resourceType": "Organization",
+        "id": "N82090",
+        "meta": {
+          "profile": [
+            "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Organization-1"
+          ],
+          "versionId": "a50e8cc48018ff13c53480c9e6004515"
+        },
+        "identifier": [
+          {
+            "system": "https://fhir.nhs.uk/Id/ods-organization-code",
+            "value": "N82090"
+          }
+        ],
+        "active": true,
+        "name": "Dr MA Baird's Practice",
+        "address": [
+          {
+            "use": "work",
+            "line": [
+              "1 Main St"
+            ],
+            "city": "London",
+            "postalCode": "W1A 1AA",
+            "country": "GBR"
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+442071231234",
+            "use": "work"
+          },
+          {
+            "system": "fax",
+            "value": "+442071231235",
+            "use": "work"
+          },
+          {
+            "system": "email",
+            "value": "gp.connect.test.site@medicus.health",
+            "use": "work"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
         "resourceType": "List",
         "meta": {
           "profile": [
