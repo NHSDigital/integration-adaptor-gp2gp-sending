@@ -439,6 +439,9 @@ public class EhrExtractStatusService {
         List<EhrExtractStatus.GpcDocument> docs,
         Update.AddToSetBuilder updateBuilder,
         FindAndModifyOptions returningUpdatedRecordOption) {
+
+        LOGGER.debug("Attempting to update EHR extract status. Number of documents: {}", docs.size());
+
         Update update = updateBuilder.each(docs);
 
         EhrExtractStatus ehrExtractStatus = mongoTemplate.findAndModify(query,
@@ -447,8 +450,10 @@ public class EhrExtractStatusService {
             EhrExtractStatus.class);
 
         if (ehrExtractStatus == null) {
+            LOGGER.error("Failed to update EHR extract status. No matching record found for query: {}", query);
             throw new EhrExtractException("EHR Extract Status was not updated with document URL's");
         }
+        LOGGER.info("Successfully updated EHR extract status with {} documents", docs.size());
     }
 
     public void updateEhrExtractStatusAcknowledgement(SendAcknowledgementTaskDefinition taskDefinition, String ackMessageId) {
