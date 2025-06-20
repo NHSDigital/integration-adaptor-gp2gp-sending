@@ -11,7 +11,7 @@
     {
       "resource": {
         "resourceType": "Patient",
-        "id": "3",
+        "id": "0197870a-fa12-725b-8257-de61bb45b17e",
         "meta": {
           "versionId": "1521806400000",
           "profile": [
@@ -168,7 +168,7 @@
     {{/patient}}
     "generalPractitioner": [
       {
-        "reference": "Practitioner/1"
+        "reference": "Practitioner/bb1e3008-ba45-11ec-9b67-0a58a9feac02"
       }
     ],
     "managingOrganization": {
