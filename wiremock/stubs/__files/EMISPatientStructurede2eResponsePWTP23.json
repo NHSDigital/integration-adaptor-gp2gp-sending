@@ -55,43 +55,87 @@
                                             "code": "01",
                                             "display": "Number present and verified"
                                         }
-                                    ]
+                                    ],
+                                    "text": "Number present and verified"
                                 }
                             }
                         ],
                         "system": "https://fhir.nhs.uk/Id/nhs-number",
-                        "value": "9735406098"
+                        "value": "{{jsonPath request.body '$.parameter[0].valueIdentifier.value'}}"
                     }
                 ],
-                "active": true,
+                {{^patient}}
+                {{#patient}}
                 "name": [
                     {
                         "use": "official",
-                        "family": "Tyman",
-                        "prefix": [
-                            "Mr"
-                        ],
+                        "text": "{{patient.name.0.given.0}} {{patient.name.0.family}}",
+                        "family": "{{patient.name.0.family}}",
                         "given": [
-                            "Gerald"
+                            "{{patient.name.0.given.0}}"
+                        ],
+                        "prefix": [
+                            "{{patient.name.0.prefix.0}}"
                         ]
                     }
                 ],
-                "gender": "male",
-                "birthDate": "1961-10-14",
+                "gender": "{{ patient.gender }}",
+                "birthDate": "{{ patient.birthDate }}",
                 "address": [
                     {
                         "use": "home",
+                        "type": "physical",
                         "line": [
-                            "5 Beech Close",
-                            "TREFYNWY"
+                            "{{ patient.address.0.line.0 }}",
+                            "{{ patient.address.0.line.1 }}"
                         ],
-                        "postalCode": "NP25 5AP",
-                        "country": "GBR"
+                        "postalCode": "{{ patient.address.0.postalCode }}"
+                    }
+                ],
+                {{/patient}}
+                "generalPractitioner": [
+                    {
+                        "reference": "Practitioner/2DB481A3-306A-4133-9491-1558161D6A2B"
                     }
                 ],
                 "managingOrganization": {
                     "reference": "Organization/N82090"
                 }
+            }
+        },
+        {
+            "resource": {
+                "resourceType": "Practitioner",
+                "id": "2DB481A3-306A-4133-9491-1558161D6A2B",
+                "meta": {
+                    "versionId": "4333436790463129417",
+                    "profile": [
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Practitioner-1"
+                    ]
+                },
+                "identifier": [
+                    {
+                        "system": "https://fhir.nhs.uk/Id/sds-user-id",
+                        "value": "555079033108"
+                    },
+                    {
+                        "system": "https://fhir.nhs.uk/Id/sds-role-profile-id",
+                        "value": "555079046103"
+                    }
+                ],
+                "name": [
+                    {
+                        "use": "official",
+                        "family": "TEMPLE SOWERBY",
+                        "given": [
+                            "GPONE"
+                        ],
+                        "prefix": [
+                            "Mr"
+                        ]
+                    }
+                ],
+                "gender": "male"
             }
         },
         {
