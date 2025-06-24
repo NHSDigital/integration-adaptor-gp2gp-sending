@@ -65,6 +65,33 @@
                     }
                 ],
                 {{^patient}}
+                "name": [
+                    {
+                        "use": "official",
+                        "family": "Mache",
+                        "given": [
+                            "Adam",
+                            "Roy"
+                        ],
+                        "prefix": [
+                            "Mr"
+                        ]
+                    }
+                ],
+                "gender": "male",
+                "birthDate": "2022-03-11",
+                "address": [
+                    {
+                        "use": "home",
+                        "type": "physical",
+                        "line": [
+                            "57 Louth Road"
+                        ],
+                        "city": "Grimsby",
+                        "postalCode": "DN33 2HR"
+                    }
+                ],
+                {{/patient}}
                 {{#patient}}
                 "name": [
                     {
