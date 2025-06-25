@@ -1518,9 +1518,6 @@
         "subject": {
           "reference": "Patient/0197a11f-410b-72cf-82c9-086dfdf8369f"
         },
-        "context": {
-          "reference": "Encounter/0197a120-a3e1-717e-acfc-c537a2c4b018"
-        },
         "issued": "2003-06-28T11:23:00+01:00",
         "performer": [
           {
@@ -1585,9 +1582,6 @@
         "subject": {
           "reference": "Patient/0197a11f-410b-72cf-82c9-086dfdf8369f"
         },
-        "encounter": {
-          "reference": "Encounter/0197a120-a3e1-717e-acfc-c537a2c4b018"
-        },
         "receivedTime": "2003-06-27T19:24:00+01:00",
         "collection": {
           "collectedDateTime": "2003-06-27"
@@ -1626,9 +1620,6 @@
         },
         "subject": {
           "reference": "Patient/0197a11f-410b-72cf-82c9-086dfdf8369f"
-        },
-        "encounter": {
-          "reference": "Encounter/0197a120-a3e1-717e-acfc-c537a2c4b018"
         },
         "effectiveDateTime": "2025-06-25T10:19:31+01:00",
         "issued": "2025-06-25T10:19:31+01:00",
@@ -1671,9 +1662,6 @@
         },
         "subject": {
           "reference": "Patient/0197a11f-410b-72cf-82c9-086dfdf8369f"
-        },
-        "encounter": {
-          "reference": "Encounter/0197a120-a3e1-717e-acfc-c537a2c4b018"
         },
         "issued": "2003-06-28T11:23:00+01:00",
         "performer": [
@@ -1767,9 +1755,6 @@
         },
         "subject": {
           "reference": "Patient/0197a11f-410b-72cf-82c9-086dfdf8369f"
-        },
-        "encounter": {
-          "reference": "Encounter/0197a120-a3e1-717e-acfc-c537a2c4b018"
         },
         "issued": "2003-06-28T11:23:00+01:00",
         "performer": [
