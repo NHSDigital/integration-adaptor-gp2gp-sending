@@ -60,33 +60,68 @@
               }
             ],
             "system": "https://fhir.nhs.uk/Id/nhs-number",
-            "value": "9735406098"
+            "value": "{{jsonPath request.body '$.parameter[0].valueIdentifier.value'}}"
           }
         ],
-        "active": true,
+        {{^patient}}
         "name": [
           {
             "use": "official",
-            "family": "Tyman",
+            "family": "Mache",
+            "given": [
+              "Adam",
+              "Roy"
+            ],
             "prefix": [
               "Mr"
-            ],
-            "given": [
-              "Gerald"
             ]
           }
         ],
         "gender": "male",
-        "birthDate": "1961-10-14",
+        "birthDate": "2022-03-11",
         "address": [
           {
             "use": "home",
+            "type": "physical",
             "line": [
-              "5 Beech Close",
-              "TREFYNWY"
+              "57 Louth Road"
             ],
-            "postalCode": "NP25 5AP",
-            "country": "GBR"
+            "city": "Grimsby",
+            "postalCode": "DN33 2HR"
+          }
+        ],
+        {{/patient}}
+        {{#patient}}
+        "name": [
+          {
+            "use": "official",
+            "text": "{{patient.name.0.given.0}} {{patient.name.0.family}}",
+            "family": "{{patient.name.0.family}}",
+            "given": [
+              "{{patient.name.0.given.0}}"
+            ],
+            "prefix": [
+              "{{patient.name.0.prefix.0}}"
+            ]
+          }
+        ],
+        "gender": "{{ patient.gender }}",
+        "birthDate": "{{ patient.birthDate }}",
+        "address": [
+          {
+            "use": "home",
+            "type": "physical",
+            "line": [
+              "{{ patient.address.0.line.0 }}",
+              "{{ patient.address.0.line.1 }}"
+            ],
+            "postalCode": "{{ patient.address.0.postalCode }}"
+          }
+        ],
+        {{/patient}}
+        "generalPractitioner": [
+          {
+            "reference": "Practitioner/bb1e3008-ba45-11ec-9b67-0a58a9feac02"
           }
         ],
         "managingOrganization": {
