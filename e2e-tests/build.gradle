@@ -17,13 +17,13 @@ dependencies {
     implementation "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.1.1"
     implementation 'org.mongodb:mongo-java-driver:3.12.14'
     testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.19.1'
-    testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.0'
+    testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.1'
     testImplementation 'commons-io:commons-io:2.19.0'
     testImplementation 'org.awaitility:awaitility:4.3.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
     testImplementation "org.assertj:assertj-core:3.27.3"
     testImplementation 'ch.qos.logback:logback-classic:1.5.18'
-    testImplementation 'org.xmlunit:xmlunit-assertj3:2.10.2'
+    testImplementation 'org.xmlunit:xmlunit-assertj3:2.10.3'
     testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.5'
 
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
