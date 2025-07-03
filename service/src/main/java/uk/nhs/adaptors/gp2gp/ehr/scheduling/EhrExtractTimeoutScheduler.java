@@ -45,7 +45,7 @@ public class EhrExtractTimeoutScheduler {
 
             } catch (EhrExtractException exception) {
 
-                logger().error("An error occurred when updating EHR Extract with Ack erorrs, EHR Extract Status conversation_id: {}",
+                logger().error("An error occurred when updating EHR Extract with Ack erorrs, EHR Extract Status conversationId: {}",
                                ehrExtractStatus.getConversationId(), exception);
                 throw exception;
             } catch (Exception exception) {

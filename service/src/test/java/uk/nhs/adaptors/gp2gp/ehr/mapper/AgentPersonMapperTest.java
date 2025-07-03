@@ -57,8 +57,7 @@ public class AgentPersonMapperTest {
 
     @ParameterizedTest
     @MethodSource("readPractitionerRoleTests")
-    public void When_MappingPractitionerToAgent_Expect_RepresentedAgentXml(String practitionerRoleJson, String outputXml)
-        throws IOException {
+    public void When_MappingPractitionerToAgent_Expect_RepresentedAgentXml(String practitionerRoleJson, String outputXml) {
 
         var jsonInputPractitionerRole = ResourceTestFileUtils.getFileContent(practitionerRoleJson);
         var expectedOutput = ResourceTestFileUtils.getFileContent(outputXml);

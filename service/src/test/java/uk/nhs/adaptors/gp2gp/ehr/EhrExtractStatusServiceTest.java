@@ -112,7 +112,7 @@ class EhrExtractStatusServiceTest {
         ehrExtractStatusServiceSpy.updateEhrExtractStatusAck(conversationId, ack);
 
         verify(logger, times(1))
-            .warn("Received an ACK message with conversation_id: {}, "
+            .warn("Received an ACK message with conversationId: {}, "
                   + "but it is being ignored because the EhrExtract has already been marked as failed "
                   + "from not receiving an acknowledgement from the requester in time.",
                   conversationId);
@@ -144,9 +144,9 @@ class EhrExtractStatusServiceTest {
         ehrExtractStatusServiceSpy.updateEhrExtractStatusAck(conversationId, ack);
 
         verify(logger, never())
-            .warn("Received an ACK message with a conversation_id: {}, but it will be ignored", conversationId);
+            .warn("Received an ACK message with a conversationId: {}, but it will be ignored", conversationId);
         verify(logger, times(1))
-            .warn("Received an ACK message with a conversation_id: {} that is a duplicate", conversationId);
+            .warn("Received an ACK message with a conversationId: {} that is a duplicate", conversationId);
     }
 
     @Test
@@ -166,7 +166,7 @@ class EhrExtractStatusServiceTest {
                                                                                  ERROR_MESSAGE);
 
         verify(logger).info("EHR status (EHR received acknowledgement) record successfully "
-                            + "updated in the database with error information conversation_id: {}", inProgressConversationId);
+                            + "updated in the database with error information conversationId: {}", inProgressConversationId);
         verify(mongoTemplate, times(1)).findAndModify(queryCaptor.capture(),
                                                       updateCaptor.capture(),
                                                       any(FindAndModifyOptions.class),
@@ -219,9 +219,9 @@ class EhrExtractStatusServiceTest {
         ehrExtractStatusServiceSpy.updateEhrExtractStatusAck(conversationId, ack);
 
         verify(logger, never())
-            .warn("Received an ACK message with a conversation_id: {}, but it will be ignored", conversationId);
+            .warn("Received an ACK message with a conversationId: {}, but it will be ignored", conversationId);
         verify(logger, times(1))
-            .warn("Received an ACK message with a conversation_id: {} that is a duplicate", conversationId);
+            .warn("Received an ACK message with a conversationId: {} that is a duplicate", conversationId);
     }
 
     @Test
@@ -243,9 +243,9 @@ class EhrExtractStatusServiceTest {
 
         ehrExtractStatusServiceSpy.updateEhrExtractStatusAck(conversationId, ack);
 
-        verify(logger, never()).warn("Received an ACK message with a conversation_id={} exceeded 8 days", conversationId);
+        verify(logger, never()).warn("Received an ACK message with a conversationId={} exceeded 8 days", conversationId);
         verify(logger, times(1))
-            .info("Database successfully updated with EHRAcknowledgement, conversation_id: {}", conversationId);
+            .info("Database successfully updated with EHRAcknowledgement, conversationId: {}", conversationId);
     }
 
     @Test
@@ -262,7 +262,7 @@ class EhrExtractStatusServiceTest {
         Exception exception = assertThrows(UnrecognisedInteractionIdException.class, () ->
             ehrExtractStatusServiceSpy.updateEhrExtractStatusAck(conversationId, ack));
 
-        assertEquals("Received an unrecognized ACK message with conversation_id: " + conversationId,
+        assertEquals("Received an unrecognized ACK message with conversationId: " + conversationId,
                      exception.getMessage());
 
         verify(ehrExtractStatusServiceSpy, never()).updateEhrExtractStatusError(conversationId,
@@ -404,7 +404,7 @@ class EhrExtractStatusServiceTest {
                                                                                  ERROR_MESSAGE);
 
         verify(logger).info("EHR status (EHR received acknowledgement) record successfully "
-                            + "updated in the database with error information conversation_id: {}", inProgressConversationId);
+                            + "updated in the database with error information conversationId: {}", inProgressConversationId);
     }
 
 
@@ -521,7 +521,7 @@ class EhrExtractStatusServiceTest {
         ehrExtractStatusServiceSpy.updateEhrExtractStatusAck(conversationId, ack);
 
         verify(logger, times(1))
-                                    .warn("Received an ACK message with conversation_id: {}, "
+                                    .warn("Received an ACK message with conversationId: {}, "
                                           + "but it is being ignored because the EhrExtract has already been marked as failed "
                                           + "from not receiving an acknowledgement from the requester in time.",
                                           conversationId);
