@@ -2,8 +2,6 @@ package uk.nhs.adaptors.gp2gp.ehr.mapper;
 
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.IOException;
 import java.util.stream.Stream;
 
 import org.hl7.fhir.dstu3.model.Bundle;
