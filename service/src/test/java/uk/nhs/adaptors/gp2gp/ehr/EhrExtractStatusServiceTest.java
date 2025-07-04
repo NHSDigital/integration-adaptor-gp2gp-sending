@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
+import uk.nhs.adaptors.gp2gp.ehr.exception.EhrExtractException;
 import uk.nhs.adaptors.gp2gp.ehr.model.EhrExtractStatus;
 import uk.nhs.adaptors.gp2gp.mhs.exception.UnrecognisedInteractionIdException;
 
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -305,6 +307,31 @@ class EhrExtractStatusServiceTest {
         var ehrExtractStatusResult = ehrExtractStatusServiceSpy.updateEhrExtractStatusContinue(conversationId);
 
         assertFalse(ehrExtractStatusResult.isPresent());
+    }
+
+    @Test
+    void throwsEhrExtractExceptionWhenEhrExtractStatusIsNotFound() {
+        EhrExtractStatusService ehrExtractStatusServiceSpy = spy(ehrExtractStatusService);
+        String conversationId = generateRandomUppercaseUUID();
+
+        Optional<EhrExtractStatus> ehrExtractStatus = Optional.of(EhrExtractStatus.builder()
+                                                                      .ehrExtractCorePending(
+                                                                          EhrExtractStatus
+                                                                              .EhrExtractCorePending
+                                                                              .builder()
+                                                                              .sentAt(Instant.now())
+                                                                              .taskId("22222").build())
+                                                                      .build());
+        doReturn(ehrExtractStatus).when(ehrExtractStatusRepository).findByConversationId(conversationId);
+
+        doReturn(null).when(mongoTemplate).findAndModify(any(Query.class), any(UpdateDefinition.class),
+                                                                            any(FindAndModifyOptions.class), any());
+
+        Exception exception = assertThrows(EhrExtractException.class,
+                                           () -> ehrExtractStatusServiceSpy.updateEhrExtractStatusContinue(conversationId));
+
+        assertTrue(exception.getMessage()
+                       .contains(format("Received a Continue message with a conversationId %s that is not recognised", conversationId)));
     }
 
     @Test
