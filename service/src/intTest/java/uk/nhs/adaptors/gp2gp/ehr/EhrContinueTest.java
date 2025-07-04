@@ -82,7 +82,7 @@ public class EhrContinueTest {
         Exception exception = assertThrows(UnrecognisedInteractionIdException.class,
                                            () -> ehrExtractRequestHandler.handleContinue(conversationId, CONTINUE_ACKNOWLEDGEMENT));
 
-        assertThat(exception.getMessage()).isEqualTo("Received an unrecognized Continue message with conversation_id: "
+        assertThat(exception.getMessage()).isEqualTo("Received an unrecognized Continue message with conversationId: "
             + conversationId);
         verify(taskDispatcher, never()).createTask(any());
     }
