@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
+import uk.nhs.adaptors.gp2gp.ehr.exception.EhrExtractException;
 import uk.nhs.adaptors.gp2gp.ehr.model.EhrExtractStatus;
 import uk.nhs.adaptors.gp2gp.mhs.exception.UnrecognisedInteractionIdException;
 
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -112,7 +114,7 @@ class EhrExtractStatusServiceTest {
         ehrExtractStatusServiceSpy.updateEhrExtractStatusAck(conversationId, ack);
 
         verify(logger, times(1))
-            .warn("Received an ACK message with conversation_id: {}, "
+            .warn("Received an ACK message with conversationId: {}, "
                   + "but it is being ignored because the EhrExtract has already been marked as failed "
                   + "from not receiving an acknowledgement from the requester in time.",
                   conversationId);
@@ -144,9 +146,9 @@ class EhrExtractStatusServiceTest {
         ehrExtractStatusServiceSpy.updateEhrExtractStatusAck(conversationId, ack);
 
         verify(logger, never())
-            .warn("Received an ACK message with a conversation_id: {}, but it will be ignored", conversationId);
+            .warn("Received an ACK message with a conversationId: {}, but it will be ignored", conversationId);
         verify(logger, times(1))
-            .warn("Received an ACK message with a conversation_id: {} that is a duplicate", conversationId);
+            .warn("Received an ACK message with a conversationId: {} that is a duplicate", conversationId);
     }
 
     @Test
@@ -166,7 +168,7 @@ class EhrExtractStatusServiceTest {
                                                                                  ERROR_MESSAGE);
 
         verify(logger).info("EHR status (EHR received acknowledgement) record successfully "
-                            + "updated in the database with error information conversation_id: {}", inProgressConversationId);
+                            + "updated in the database with error information conversationId: {}", inProgressConversationId);
         verify(mongoTemplate, times(1)).findAndModify(queryCaptor.capture(),
                                                       updateCaptor.capture(),
                                                       any(FindAndModifyOptions.class),
@@ -219,9 +221,32 @@ class EhrExtractStatusServiceTest {
         ehrExtractStatusServiceSpy.updateEhrExtractStatusAck(conversationId, ack);
 
         verify(logger, never())
-            .warn("Received an ACK message with a conversation_id: {}, but it will be ignored", conversationId);
+            .warn("Received an ACK message with a conversationId: {}, but it will be ignored", conversationId);
         verify(logger, times(1))
-            .warn("Received an ACK message with a conversation_id: {} that is a duplicate", conversationId);
+            .warn("Received an ACK message with a conversationId: {} that is a duplicate", conversationId);
+    }
+
+    @Test
+    void receiveExceptionWhenEhrExtractStatusIsNull() {
+
+        EhrExtractStatusService ehrExtractStatusServiceSpy = spy(ehrExtractStatusService);
+        String conversationId = generateRandomUppercaseUUID();
+        Instant currentInstant = Instant.now();
+        Optional<EhrExtractStatus> ehrExtractStatus = Optional.of(EhrExtractStatus.builder().ehrExtractCorePending(null).build());
+
+        doReturn(true).when(ehrExtractStatusServiceSpy).isEhrStatusWaitingForFinalAck(conversationId);
+        doReturn(false).when(ehrExtractStatusServiceSpy).hasFinalAckBeenReceived(conversationId);
+        doReturn(ehrExtractStatus).when(ehrExtractStatusRepository).findByConversationId(conversationId);
+        when(ack.getErrors()).thenReturn(null);
+        when(ack.getReceived()).thenReturn(currentInstant);
+        doReturn(null)
+            .when(mongoTemplate).findAndModify(any(Query.class), any(Update.class), any(FindAndModifyOptions.class), any(Class.class));
+
+        Exception ehrExtractException = assertThrows(EhrExtractException.class,
+                                           () -> ehrExtractStatusServiceSpy.updateEhrExtractStatusAck(conversationId, ack));
+
+        assertTrue(ehrExtractException.getMessage()
+                       .contains(format("Received an ACK message with a conversationId %s that is not recognised", conversationId)));
     }
 
     @Test
@@ -243,9 +268,9 @@ class EhrExtractStatusServiceTest {
 
         ehrExtractStatusServiceSpy.updateEhrExtractStatusAck(conversationId, ack);
 
-        verify(logger, never()).warn("Received an ACK message with a conversation_id={} exceeded 8 days", conversationId);
+        verify(logger, never()).warn("Received an ACK message with a conversationId={} exceeded 8 days", conversationId);
         verify(logger, times(1))
-            .info("Database successfully updated with EHRAcknowledgement, conversation_id: {}", conversationId);
+            .info("Database successfully updated with EHRAcknowledgement, conversationId: {}", conversationId);
     }
 
     @Test
@@ -262,7 +287,7 @@ class EhrExtractStatusServiceTest {
         Exception exception = assertThrows(UnrecognisedInteractionIdException.class, () ->
             ehrExtractStatusServiceSpy.updateEhrExtractStatusAck(conversationId, ack));
 
-        assertEquals("Received an unrecognized ACK message with conversation_id: " + conversationId,
+        assertEquals("Received an unrecognized ACK message with conversationId: " + conversationId,
                      exception.getMessage());
 
         verify(ehrExtractStatusServiceSpy, never()).updateEhrExtractStatusError(conversationId,
@@ -305,6 +330,31 @@ class EhrExtractStatusServiceTest {
         var ehrExtractStatusResult = ehrExtractStatusServiceSpy.updateEhrExtractStatusContinue(conversationId);
 
         assertFalse(ehrExtractStatusResult.isPresent());
+    }
+
+    @Test
+    void throwsEhrExtractExceptionWhenEhrExtractStatusIsNotFound() {
+        EhrExtractStatusService ehrExtractStatusServiceSpy = spy(ehrExtractStatusService);
+        String conversationId = generateRandomUppercaseUUID();
+
+        Optional<EhrExtractStatus> ehrExtractStatus = Optional.of(EhrExtractStatus.builder()
+                                                                      .ehrExtractCorePending(
+                                                                          EhrExtractStatus
+                                                                              .EhrExtractCorePending
+                                                                              .builder()
+                                                                              .sentAt(Instant.now())
+                                                                              .taskId("22222").build())
+                                                                      .build());
+        doReturn(ehrExtractStatus).when(ehrExtractStatusRepository).findByConversationId(conversationId);
+
+        doReturn(null).when(mongoTemplate).findAndModify(any(Query.class), any(UpdateDefinition.class),
+                                                                            any(FindAndModifyOptions.class), any());
+
+        Exception exception = assertThrows(EhrExtractException.class,
+                                           () -> ehrExtractStatusServiceSpy.updateEhrExtractStatusContinue(conversationId));
+
+        assertTrue(exception.getMessage()
+                       .contains(format("Received a Continue message with a conversationId %s that is not recognised", conversationId)));
     }
 
     @Test
@@ -404,7 +454,7 @@ class EhrExtractStatusServiceTest {
                                                                                  ERROR_MESSAGE);
 
         verify(logger).info("EHR status (EHR received acknowledgement) record successfully "
-                            + "updated in the database with error information conversation_id: {}", inProgressConversationId);
+                            + "updated in the database with error information conversationId: {}", inProgressConversationId);
     }
 
 
@@ -521,7 +571,7 @@ class EhrExtractStatusServiceTest {
         ehrExtractStatusServiceSpy.updateEhrExtractStatusAck(conversationId, ack);
 
         verify(logger, times(1))
-                                    .warn("Received an ACK message with conversation_id: {}, "
+                                    .warn("Received an ACK message with conversationId: {}, "
                                           + "but it is being ignored because the EhrExtract has already been marked as failed "
                                           + "from not receiving an acknowledgement from the requester in time.",
                                           conversationId);

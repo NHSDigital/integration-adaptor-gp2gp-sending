@@ -297,9 +297,9 @@ class EhrExtractTimeoutSchedulerTest {
 
             () -> assertEquals(
                 "Couldn't update EHR received acknowledgement with error information because EHR status doesn't exist, "
-                        + "conversation_id: " + inProgressConversationId, exception.getMessage()),
+                        + "conversationId: " + inProgressConversationId, exception.getMessage()),
             () -> verify(logger)
-                .error(eq("An error occurred when updating EHR Extract with Ack erorrs, EHR Extract Status conversation_id: {}"),
+                .error(eq("An error occurred when updating EHR Extract with Ack erorrs, EHR Extract Status conversationId: {}"),
                        eq(inProgressConversationId),
                        any(EhrExtractException.class))
         );
@@ -342,8 +342,8 @@ class EhrExtractTimeoutSchedulerTest {
         var exception = assertThrows(EhrExtractException.class, ehrExtractTimeoutSchedulerSpy::processEhrExtractAckTimeouts);
 
         assertEquals("Couldn't update EHR received acknowledgement with error information because EHR status doesn't exist, "
-                     + "conversation_id: " + inProgressConversationId, exception.getMessage());
-        verify(logger).error(eq("An error occurred when updating EHR Extract with Ack erorrs, EHR Extract Status conversation_id: {}"),
+                     + "conversationId: " + inProgressConversationId, exception.getMessage());
+        verify(logger).error(eq("An error occurred when updating EHR Extract with Ack erorrs, EHR Extract Status conversationId: {}"),
                              eq(inProgressConversationId),
                              any(EhrExtractException.class));
     }
