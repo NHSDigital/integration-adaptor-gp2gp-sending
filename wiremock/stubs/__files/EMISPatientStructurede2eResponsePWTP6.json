@@ -247,22 +247,28 @@
             }
         ],
         "generalPractitioner": {
-				"reference": "Practitioner/6c41ebfd-57c3-4162-9d7b-208c171a2fd7"
-			},
-			"managingOrganization": {
-				"reference": "Organization/db67f447-b30d-442a-8e31-6918d1367eeb"
-			}
-		}
+            "reference": "Practitioner/6c41ebfd-57c3-4162-9d7b-208c171a2fd7"
+        },
+        "managingOrganization": {
+            "reference": "Organization/db67f447-b30d-442a-8e31-6918d1367eeb"
+        }
         }
     },
         {
             "resource": {
                 "resourceType": "Condition",
                 "id": "Problem_A_Anxiety_With_Depression",
-                "meta": {
-                    "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-ProblemHeader-Condition-1"
-                    ]
+                "meta":
+                {
+                    "profile":
+                    [
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-ProblemHeader-Condition-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "clinicalStatus": "active",
                 "code": {
@@ -617,10 +623,17 @@
             "resource": {
                 "resourceType": "Condition",
                 "id": "Problem_D_URTI",
-                "meta": {
-                    "profile": [
-                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-ProblemHeader-Condition-1"
-                    ]
+                "meta":
+                {
+                    "profile":
+                    [
+                        "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-ProblemHeader-Condition-1"
+                    ],
+                    "security": [{
+                        "system":"http://hl7.org/fhir/v3/ActCode",
+                        "code":"NOPAT",
+                        "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+                    }]
                 },
                 "clinicalStatus": "active",
                 "code": {
