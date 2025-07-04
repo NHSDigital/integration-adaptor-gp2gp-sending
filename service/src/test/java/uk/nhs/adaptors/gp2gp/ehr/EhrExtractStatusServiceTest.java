@@ -227,6 +227,29 @@ class EhrExtractStatusServiceTest {
     }
 
     @Test
+    void receiveExceptionWhenEhrExtractStatusIsNull() {
+
+        EhrExtractStatusService ehrExtractStatusServiceSpy = spy(ehrExtractStatusService);
+        String conversationId = generateRandomUppercaseUUID();
+        Instant currentInstant = Instant.now();
+        Optional<EhrExtractStatus> ehrExtractStatus = Optional.of(EhrExtractStatus.builder().ehrExtractCorePending(null).build());
+
+        doReturn(true).when(ehrExtractStatusServiceSpy).isEhrStatusWaitingForFinalAck(conversationId);
+        doReturn(false).when(ehrExtractStatusServiceSpy).hasFinalAckBeenReceived(conversationId);
+        doReturn(ehrExtractStatus).when(ehrExtractStatusRepository).findByConversationId(conversationId);
+        when(ack.getErrors()).thenReturn(null);
+        when(ack.getReceived()).thenReturn(currentInstant);
+        doReturn(null)
+            .when(mongoTemplate).findAndModify(any(Query.class), any(Update.class), any(FindAndModifyOptions.class), any(Class.class));
+
+        Exception ehrExtractException = assertThrows(EhrExtractException.class,
+                                           () -> ehrExtractStatusServiceSpy.updateEhrExtractStatusAck(conversationId, ack));
+
+        assertTrue(ehrExtractException.getMessage()
+                       .contains(format("Received an ACK message with a conversationId %s that is not recognised", conversationId)));
+    }
+
+    @Test
     void updateEhrExtractStatusWhenEhrExtractCorePendingIsNull() {
 
         EhrExtractStatusService ehrExtractStatusServiceSpy = spy(ehrExtractStatusService);
