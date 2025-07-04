@@ -8926,10 +8926,17 @@
       "resource": {
         "resourceType": "Observation",
         "id": "Consultation1-Topic4-Category-History-Observation-5",
-        "meta": {
-          "profile": [
-            "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Observation-1"
-          ]
+        "meta":
+        {
+          "profile":
+          [
+            "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-ProblemHeader-Condition-1"
+          ],
+          "security": [{
+            "system":"http://hl7.org/fhir/v3/ActCode",
+            "code":"NOPAT",
+            "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
+          }]
         },
         "identifier": [
           {
@@ -12787,12 +12794,7 @@
           "profile":
           [
             "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-ProblemHeader-Condition-1"
-          ],
-          "security": [{
-            "system":"http://hl7.org/fhir/v3/ActCode",
-            "code":"NOPAT",
-            "display":"no disclosure to patient, family or caregivers without attending provider's authorization"
-          }]
+          ]
         },
         "extension": [
           {
