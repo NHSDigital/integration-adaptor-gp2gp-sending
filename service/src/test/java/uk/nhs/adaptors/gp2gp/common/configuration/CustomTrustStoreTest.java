@@ -1,9 +1,11 @@
 package uk.nhs.adaptors.gp2gp.common.configuration;
 
-import io.findify.s3mock.S3Mock;
+import com.adobe.testing.s3mock.testcontainers.S3MockContainer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -15,10 +17,12 @@ import java.io.File;
 import java.net.URI;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@Testcontainers
 class CustomTrustStoreTest {
 
-    public static final int PORT = 8001;
-    private static S3Mock s3Mock;
+    @Container
+    private static final S3MockContainer S3_MOCK = new S3MockContainer("4.7.0");
+
     private static S3Client s3Client;
     private static final String BUCKET_NAME = "test-bucket";
     private static final String TRUSTSTORE_PATH = "test.jks";
@@ -27,12 +31,8 @@ class CustomTrustStoreTest {
 
     @BeforeAll
     static void setUp() {
-        s3Mock = new S3Mock.Builder().withPort(PORT).withInMemoryBackend().build();
-        s3Mock.start();
-        System.out.println("S3Mock started at http://localhost:" + PORT);
-
         s3Client = S3Client.builder()
-            .endpointOverride(URI.create("http://localhost:" + PORT))
+            .endpointOverride(URI.create(S3_MOCK.getHttpEndpoint()))
             .credentialsProvider(StaticCredentialsProvider.create(
                 AwsBasicCredentials.create("accessKey", "secretKey")))
             .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
@@ -53,7 +53,6 @@ class CustomTrustStoreTest {
 
     @AfterAll
     static void tearDown() {
-        s3Mock.shutdown();
         customTrustStore = null;
     }
 
