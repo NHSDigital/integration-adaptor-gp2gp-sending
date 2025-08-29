@@ -38,7 +38,6 @@ jobs:
           file: docker/service/Dockerfile
           push: false
           tags: nhsdev/nia-gp2gp-adaptor:test-build
-          labels: ${{ steps.meta.outputs.labels }}
           load: true
 
       - name: Syft
@@ -49,11 +48,15 @@ jobs:
           output-file: sbom.spdx.json
 
       - name: GRYPE
+        id: grype-scan
         uses: anchore/scan-action@v3
         with:
           image: nhsdev/nia-gp2gp-adaptor:test-build
-          output-file: vulnerabilities.json
-          fail-on-severity: high
+          output-format: json
+          severity-cutoff: medium
+
+      - name: save report
+        run: echo "${{ steps.grype_scan.outputs.json }}" > vulnerabilities.json
 
       - name: Upload arti
         uses: actions/upload-artifact@v4
