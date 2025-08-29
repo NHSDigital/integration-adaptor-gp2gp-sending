@@ -50,7 +50,7 @@ jobs:
           output-file: sbom.spdx.json
 
       - name: grype
-        uses: anchore/scan-action@v0
+        uses: anchore/scan-action@v6
         with:
           image: ${{ fromJSON(steps.meta.outputs.tags)[0] }}
           output-file: vulnerabilities.json
