@@ -47,21 +47,21 @@ jobs:
           platforms: linux/arm64/v8,linux/amd64
           load: true
 
-      - name: Generate SBOM with Syft
+      - name: Syft
         uses: anchore/sbom-action@v0
         with:
           image: ${{ fromJSON(steps.meta.outputs.tags)[0] }}
           format: spdx-json
           output-file: sbom.spdx.json
 
-      - name: Scan for vulnerabilities with Grype
+      - name: GRYPE
         uses: anchore/scan-action@v3
         with:
           image: ${{ fromJSON(steps.meta.outputs.tags)[0] }}
           output-file: vulnerabilities.json
           fail-on-severity: high
 
-      - name: Upload security reports as artifacts
+      - name: Upload arti
         uses: actions/upload-artifact@v4
         with:
           name: security-reports
