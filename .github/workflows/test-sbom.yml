@@ -1,9 +1,14 @@
 name: Release adaptor container image
 
 on:
-  push:
-    branches:
-      - check-sbom
+  workflow_call:
+    inputs:
+      dockerhub_name:
+        required: true
+        type: string
+      folder:
+        required: true
+        type: string
 
 jobs:
   reusable_workflow_job:
@@ -36,21 +41,21 @@ jobs:
         with:
           context: .
           file: docker/${{ inputs.folder }}/Dockerfile
-          push: true
+          # push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/arm64/v8,linux/amd64
           load: true
 
-      - name: syft
+      - name: Generate SBOM with Syft
         uses: anchore/sbom-action@v0
         with:
           image: ${{ fromJSON(steps.meta.outputs.tags)[0] }}
           format: spdx-json
           output-file: sbom.spdx.json
 
-      - name: grype
-        uses: anchore/scan-action@v6
+      - name: Scan for vulnerabilities with Grype
+        uses: anchore/scan-action@v3
         with:
           image: ${{ fromJSON(steps.meta.outputs.tags)[0] }}
           output-file: vulnerabilities.json
