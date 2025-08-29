@@ -3,7 +3,7 @@ name: Release adaptor container image
 on:
   push:
     branches:
-      - test-sbom
+      - check-sbom
 
 jobs:
   reusable_workflow_job:
