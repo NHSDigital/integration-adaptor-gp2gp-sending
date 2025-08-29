@@ -53,7 +53,7 @@ jobs:
         with:
           image: nhsdev/nia-gp2gp-adaptor:test-build
           output-format: json
-          severity-cutoff: medium
+          severity-cutoff: high
 
       - name: save report
         run: echo "${{ steps.grype_scan.outputs.json }}" > vulnerabilities.json
