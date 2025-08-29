@@ -1,14 +1,9 @@
 name: Release adaptor container image
 
 on:
-  workflow_call:
-    inputs:
-      dockerhub_name:
-        required: true
-        type: string
-      folder:
-        required: true
-        type: string
+  push:
+    branches:
+      - check-sbom
 
 jobs:
   reusable_workflow_job:
