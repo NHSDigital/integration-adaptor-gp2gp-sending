@@ -36,10 +36,9 @@ jobs:
         with:
           context: .
           file: docker/${{ inputs.folder }}/Dockerfile
-          # push: true
+          push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/arm64/v8,linux/amd64
           load: true
 
       - name: Syft
