@@ -115,6 +115,7 @@ public class NonConsultationResourceMapperTest {
         String bundle = ResourceTestFileUtils.getFileContent(inputBundle);
         String expectedOutput = ResourceTestFileUtils.getFileContent(output);
         Bundle parsedBundle = fhirParseService.parseResource(bundle, Bundle.class);
+        messageContext.initialize(parsedBundle);
 
         var translatedOutput = nonConsultationResourceMapper.mapRemainingResourcesToEhrCompositions(parsedBundle).get(0);
         assertThat(translatedOutput).isEqualToIgnoringWhitespace(expectedOutput);
@@ -122,7 +123,7 @@ public class NonConsultationResourceMapperTest {
 
     @ParameterizedTest
     @MethodSource("endedAllergiesArgs")
-    public void When_TransformingEndedAllergyListToEhrComp_Expect_CorrectValuesToBeExtracted(String inputBundle, String output) {
+    void When_TransformingEndedAllergyListToEhrComp_Expect_CorrectValuesToBeExtracted(String inputBundle, String output) {
         setupMock(ResourceTestFileUtils.getFileContent(ALLERGY_INTOLERANCE_XML));
         String bundle = ResourceTestFileUtils.getFileContent(inputBundle);
         String expectedOutput = ResourceTestFileUtils.getFileContent(output);

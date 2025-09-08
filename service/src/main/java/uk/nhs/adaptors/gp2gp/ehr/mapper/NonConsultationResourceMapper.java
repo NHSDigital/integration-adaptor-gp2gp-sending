@@ -12,6 +12,7 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.dstu3.model.ListResource;
+import org.hl7.fhir.dstu3.model.MedicationRequest;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.Resource;
@@ -77,7 +78,25 @@ public class NonConsultationResourceMapper {
             .map(Bundle.BundleEntryComponent::getResource)
             .filter(this::isMappableNonConsultationResource)
             .sorted(this::compareProcessingOrder)
-            .filter(resource -> !hasIdBeenMapped(resource) && !isIgnoredResource(resource))
+            .filter(resource -> {
+                if (hasIdBeenMapped(resource) || isIgnoredResource(resource)) {
+                    return false;
+                }
+
+                if (resource instanceof MedicationRequest medicationRequest) {
+
+                    if (!medicationRequest.hasBasedOn() || medicationRequest.getBasedOn().isEmpty()) {
+                        return true;
+                    }
+
+                    String referenceId = medicationRequest.getBasedOn().getFirst().getReference();
+                    //String medRequestId = reference.replaceFirst("MedicationRequest/", "");
+                    var referencedResource = messageContext.getInputBundleHolder().getResource(new IdType(referenceId));
+                    return referencedResource.isEmpty() || !hasIdBeenMapped(referencedResource.get());
+                }
+                return true;
+            })
+            //.filter(resource -> !hasIdBeenMapped(resource) && !isIgnoredResource(resource))
             .map(this::mapResourceToEhrComposition)
             .flatMap(Optional::stream)
             .collect(Collectors.toList());
