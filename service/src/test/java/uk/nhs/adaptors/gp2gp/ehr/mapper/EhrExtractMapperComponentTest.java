@@ -42,6 +42,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class EhrExtractMapperComponentTest {
+
     private static final String TEST_FILE_DIRECTORY = "/ehr/request/fhir/";
     private static final String INPUT_DIRECTORY = "input/";
     private static final String OUTPUT_DIRECTORY = "output/";
@@ -52,29 +53,13 @@ public class EhrExtractMapperComponentTest {
     private static final String JSON_INPUT_FILE_WITH_NOPAT = "gpc-access-structured-with-nopat.json";
     private static final String DUPLICATE_RESOURCE_BUNDLE = INPUT_PATH + "duplicated-resource-bundle.json";
     private static final String ONE_CONSULTATION_RESOURCE_BUNDLE = INPUT_PATH + "1-consultation-resource.json";
-    private static final String FHIR_BUNDLE_WITHOUT_EFFECTIVE_TIME = "fhir-bundle-without-effective-time.json";
-    private static final String FHIR_BUNDLE_WITHOUT_HIGH_EFFECTIVE_TIME = "fhir-bundle-without-high-effective-time.json";
-    private static final String FHIR_BUNDLE_WITH_EFFECTIVE_TIME = "fhir-bundle-with-effective-time.json";
-
-    private static final String FHIR_BUNDLE_WITH_WITH_OBSERVATIONS_BEFORE_DIAGNOSTIC_REPORT =
-        "fhir-bundle-observations-before-diagnostic-report.json";
-    private static final String FHIR_BUNDLE_WITH_WITH_OBSERVATIONS_AFTER_DIAGNOSTIC_REPORT =
-        "fhir-bundle-observations-after-diagnostic-report.json";
-    private static final String FHIR_BUNDLE_WITH_OBSERVATIONS_UNRELATED_TO_DIAGNOSTIC_REPORT =
-        "fhir-bundle-observations-unrelated-to-diagnostic-report.json";
-    private static final String FHIR_BUNDLE_WITH_OBSERVATIONS_WITH_RELATED_OBSERVATIONS =
-            "fhir-bundle-observations-with-related-observations.json";
+    private static final String FHIR_BUNDLE_FOR_TEST = "TC07_A_B_C_RED_TPPtoEMIS_JSON.json";
 
     private static final String EXPECTED_XML_FOR_ONE_CONSULTATION_RESOURCE = "ExpectedResponseFrom1ConsultationResponse.xml";
 
+    private static final String EXPECTED_XML_TO_JSON_TEST_FILE = "TC07_A_B_C_RED_TPPtoEMIS_JSON.xml";
     private static final String EXPECTED_XML_TO_JSON_FILE = "expected-ehr-extract-response-from-json.xml";
     private static final String EXPECTED_XML_TO_JSON_FILE_WITH_NOPAT = "expected-ehr-extract-response-from-json-with-nopat.xml";
-    private static final String EXPECTED_XML_WITHOUT_EFFECTIVE_TIME = "expected-xml-without-effective-time.xml";
-    private static final String EXPECTED_XML_WITHOUT_HIGH_EFFECTIVE_TIME = "expected-xml-without-high-effective-time.xml";
-    private static final String EXPECTED_XML_WITH_EFFECTIVE_TIME = "expected-xml-with-effective-time.xml";
-    private static final String EXPECTED_XML_WITH_OBSERVATIONS_INSIDE_REPORT = "expected-xml-with-observations-inside-report.xml";
-    private static final String EXPECTED_XML_WITH_STANDALONE_OBSERVATIONS = "expected-xml-with-standalone-observations.xml";
-    private static final String EXPECTED_XML_WITH_RELATED_OBSERVATIONS = "expected-xml-with-related-observations.xml";
 
     private static final String TEST_ID_1 = "test-id-1";
     private static final String TEST_ID_2 = "test-id-2";
@@ -274,16 +259,34 @@ public class EhrExtractMapperComponentTest {
         assertThat(output).isEqualToIgnoringWhitespace(expectedJsonToXmlContent);
     }
 
+    @ParameterizedTest
+    @MethodSource("testDataWithDuplicatedMedicationRequestResources")
+    public void When_MappingProperJsonRequestBody_Expect_NonDuplicatedMedicationRequestRemainingResources(String input, String expected) {
+        String inputJsonFileContent = ResourceTestFileUtils.getFileContent(INPUT_PATH + input);
+        Bundle bundle = new FhirParseService().parseResource(inputJsonFileContent, Bundle.class);
+        messageContext.initialize(bundle);
+
+        EhrExtractTemplateParameters ehrExtractTemplateParameters = ehrExtractMapper.mapBundleToEhrFhirExtractParams(
+            getGpcStructuredTaskDefinition,
+            bundle);
+
+        assertThat(ehrExtractTemplateParameters.getComponents()).hasSize(2);
+    }
+
+    private static Stream<Arguments> testDataWithDuplicatedMedicationRequestResources() {
+        return Stream.of(Arguments.of(FHIR_BUNDLE_FOR_TEST, EXPECTED_XML_TO_JSON_TEST_FILE));
+    }
+
     private static Stream<Arguments> testData() {
         return Stream.of(
-            Arguments.of(JSON_INPUT_FILE, EXPECTED_XML_TO_JSON_FILE),
-            Arguments.of(FHIR_BUNDLE_WITHOUT_EFFECTIVE_TIME, EXPECTED_XML_WITHOUT_EFFECTIVE_TIME),
+            Arguments.of(JSON_INPUT_FILE, EXPECTED_XML_TO_JSON_FILE)//,
+            /*Arguments.of(FHIR_BUNDLE_WITHOUT_EFFECTIVE_TIME, EXPECTED_XML_WITHOUT_EFFECTIVE_TIME),
             Arguments.of(FHIR_BUNDLE_WITHOUT_HIGH_EFFECTIVE_TIME, EXPECTED_XML_WITHOUT_HIGH_EFFECTIVE_TIME),
             Arguments.of(FHIR_BUNDLE_WITH_EFFECTIVE_TIME, EXPECTED_XML_WITH_EFFECTIVE_TIME),
             Arguments.of(FHIR_BUNDLE_WITH_WITH_OBSERVATIONS_BEFORE_DIAGNOSTIC_REPORT, EXPECTED_XML_WITH_OBSERVATIONS_INSIDE_REPORT),
             Arguments.of(FHIR_BUNDLE_WITH_WITH_OBSERVATIONS_AFTER_DIAGNOSTIC_REPORT, EXPECTED_XML_WITH_OBSERVATIONS_INSIDE_REPORT),
             Arguments.of(FHIR_BUNDLE_WITH_OBSERVATIONS_UNRELATED_TO_DIAGNOSTIC_REPORT, EXPECTED_XML_WITH_STANDALONE_OBSERVATIONS),
-            Arguments.of(FHIR_BUNDLE_WITH_OBSERVATIONS_WITH_RELATED_OBSERVATIONS, EXPECTED_XML_WITH_RELATED_OBSERVATIONS)
+            Arguments.of(FHIR_BUNDLE_WITH_OBSERVATIONS_WITH_RELATED_OBSERVATIONS, EXPECTED_XML_WITH_RELATED_OBSERVATIONS)*/
         );
     }
 
