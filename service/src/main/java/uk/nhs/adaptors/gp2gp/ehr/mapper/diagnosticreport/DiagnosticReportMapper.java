@@ -202,7 +202,7 @@ public class DiagnosticReportMapper {
         specimen.setId(DUMMY_SPECIMEN_ID_PREFIX + randomIdGeneratorService.createNewId());
 
         return specimen
-            .setAccessionIdentifier(new Identifier().setValue("DUMMY"))
+            .setAccessionIdentifier(new Identifier().setValue("NOT PRESENT"))
             .setCollection(new Specimen.SpecimenCollectionComponent().setCollected(new DateTimeType(diagnosticReport.getIssued())))
             .setType(new CodeableConcept().setText("UNKNOWN"));
     }
