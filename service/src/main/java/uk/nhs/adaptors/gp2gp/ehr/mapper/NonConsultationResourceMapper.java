@@ -75,7 +75,6 @@ public class NonConsultationResourceMapper {
 
     public List<String> mapRemainingResourcesToEhrCompositions(Bundle bundle) {
 
-
         var mappedResources = bundle.getEntry().stream()
             .map(Bundle.BundleEntryComponent::getResource)
             .filter(this::isMappableNonConsultationResource)
@@ -122,11 +121,8 @@ public class NonConsultationResourceMapper {
         String referenceId = medicationRequest.getBasedOn().getFirst().getReference();
 
         try {
-            Optional<Resource> referencedResource =
-                messageContext.getInputBundleHolder().getResource(new IdType(referenceId));
-
+            Optional<Resource> referencedResource = messageContext.getInputBundleHolder().getResource(new IdType(referenceId));
             return referencedResource.isEmpty() || !hasIdBeenMapped(referencedResource.get());
-
         } catch (EhrMapperException e) {
             LOGGER.info("MedicationRequest {} cannot be mapped", referenceId);
             return true;

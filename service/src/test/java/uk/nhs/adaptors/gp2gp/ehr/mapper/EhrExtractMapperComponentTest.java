@@ -41,23 +41,20 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class EhrExtractMapperComponentTest {
+class EhrExtractMapperComponentTest {
 
     private static final String TEST_FILE_DIRECTORY = "/ehr/request/fhir/";
     private static final String INPUT_DIRECTORY = "input/";
     private static final String OUTPUT_DIRECTORY = "output/";
     private static final String INPUT_PATH = TEST_FILE_DIRECTORY + INPUT_DIRECTORY;
     private static final String OUTPUT_PATH = TEST_FILE_DIRECTORY + OUTPUT_DIRECTORY;
-
     private static final String JSON_INPUT_FILE = "gpc-access-structured.json";
     private static final String JSON_INPUT_FILE_WITH_NOPAT = "gpc-access-structured-with-nopat.json";
     private static final String DUPLICATE_RESOURCE_BUNDLE = INPUT_PATH + "duplicated-resource-bundle.json";
     private static final String ONE_CONSULTATION_RESOURCE_BUNDLE = INPUT_PATH + "1-consultation-resource.json";
     private static final String FHIR_BUNDLE_WITH_DUPLICATED_MEDICATION_REQUESTS = "fhir_bundle_with_duplicated_medication_requests.json";
-
     private static final String EXPECTED_XML_FOR_ONE_CONSULTATION_RESOURCE = "ExpectedResponseFrom1ConsultationResponse.xml";
 
-    private static final String EXPECTED_XML_WITHOUT_DUPLICATED_RESOURCES = "expected_xml_without_duplicated_medication_resources.xml";
     private static final String EXPECTED_XML_TO_JSON_FILE = "expected-ehr-extract-response-from-json.xml";
     private static final String EXPECTED_XML_TO_JSON_FILE_WITH_NOPAT = "expected-ehr-extract-response-from-json-with-nopat.xml";
 
@@ -235,7 +232,7 @@ public class EhrExtractMapperComponentTest {
     }
 
     @Test
-    public void When_MappingUncategorizedObservationWithNOPAT_Expect_ObservationStatementWithConfidentialityCode() {
+    void When_MappingUncategorizedObservationWithNOPAT_Expect_ObservationStatementWithConfidentialityCode() {
 
         String expectedJsonToXmlContent = ResourceTestFileUtils.getFileContent(OUTPUT_PATH + EXPECTED_XML_TO_JSON_FILE_WITH_NOPAT);
         String inputJsonFileContent = ResourceTestFileUtils.getFileContent(INPUT_PATH + JSON_INPUT_FILE_WITH_NOPAT);
@@ -263,7 +260,7 @@ public class EhrExtractMapperComponentTest {
 
     @ParameterizedTest
     @MethodSource("testData")
-    public void When_MappingProperJsonRequestBody_Expect_ProperXmlOutput(String input, String expected) {
+    void When_MappingProperJsonRequestBody_Expect_ProperXmlOutput(String input, String expected) {
         String expectedJsonToXmlContent = ResourceTestFileUtils.getFileContent(OUTPUT_PATH + expected);
         String inputJsonFileContent = ResourceTestFileUtils.getFileContent(INPUT_PATH + input);
         Bundle bundle = new FhirParseService().parseResource(inputJsonFileContent, Bundle.class);
@@ -278,10 +275,10 @@ public class EhrExtractMapperComponentTest {
         assertThat(output).isEqualToIgnoringWhitespace(expectedJsonToXmlContent);
     }
 
-    @ParameterizedTest
-    @MethodSource("testDataWithDuplicatedMedicationRequestResources")
-    public void When_MappingProperJsonRequestBody_Expect_NonDuplicatedMedicationRequestRemainingResources(String input, String expected) {
-        String inputJsonFileContent = ResourceTestFileUtils.getFileContent(INPUT_PATH + input);
+    @Test
+    void When_MappingProperJsonRequestBody_Expect_NonDuplicatedMedicationRequestRemainingResources() {
+        String inputJsonFileContent =
+            ResourceTestFileUtils.getFileContent(INPUT_PATH + FHIR_BUNDLE_WITH_DUPLICATED_MEDICATION_REQUESTS);
         Bundle bundle = new FhirParseService().parseResource(inputJsonFileContent, Bundle.class);
         messageContext.initialize(bundle);
 
@@ -290,10 +287,6 @@ public class EhrExtractMapperComponentTest {
             bundle);
 
         assertThat(ehrExtractTemplateParameters.getComponents()).hasSize(2);
-    }
-
-    private static Stream<Arguments> testDataWithDuplicatedMedicationRequestResources() {
-        return Stream.of(Arguments.of(FHIR_BUNDLE_WITH_DUPLICATED_MEDICATION_REQUESTS, EXPECTED_XML_WITHOUT_DUPLICATED_RESOURCES));
     }
 
     private static Stream<Arguments> testData() {
@@ -310,7 +303,7 @@ public class EhrExtractMapperComponentTest {
     }
 
     @Test
-    public void When_MappingJsonBody_Expect_OnlyOneConsultationResource() {
+    void When_MappingJsonBody_Expect_OnlyOneConsultationResource() {
         String expectedJsonToXmlContent = ResourceTestFileUtils.getFileContent(OUTPUT_PATH + EXPECTED_XML_FOR_ONE_CONSULTATION_RESOURCE);
         String inputJsonFileContent = ResourceTestFileUtils.getFileContent(ONE_CONSULTATION_RESOURCE_BUNDLE);
         Bundle bundle = new FhirParseService().parseResource(inputJsonFileContent, Bundle.class);
@@ -324,7 +317,7 @@ public class EhrExtractMapperComponentTest {
     }
 
     @Test
-    public void When_TransformingResourceToEhrComp_Expect_NoDuplicateMappings() {
+    void When_TransformingResourceToEhrComp_Expect_NoDuplicateMappings() {
         String bundle = ResourceTestFileUtils.getFileContent(DUPLICATE_RESOURCE_BUNDLE);
         Bundle parsedBundle = new FhirParseService().parseResource(bundle, Bundle.class);
         messageContext.initialize(parsedBundle);
