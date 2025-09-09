@@ -26,6 +26,7 @@ import com.github.mustachejava.Mustache;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
+import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.EncounterTemplateParameters;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.EncounterTemplateParameters.EncounterTemplateParametersBuilder;
 import uk.nhs.adaptors.gp2gp.ehr.utils.BloodPressureValidator;
@@ -33,6 +34,8 @@ import uk.nhs.adaptors.gp2gp.ehr.utils.CodeableConceptMappingUtils;
 import uk.nhs.adaptors.gp2gp.ehr.utils.IgnoredResourcesUtils;
 import uk.nhs.adaptors.gp2gp.ehr.utils.TemplateUtils;
 import uk.nhs.adaptors.gp2gp.ehr.utils.XpathExtractor;
+
+import javax.swing.text.html.Option;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Component
@@ -73,30 +76,13 @@ public class NonConsultationResourceMapper {
         );
 
     public List<String> mapRemainingResourcesToEhrCompositions(Bundle bundle) {
-        var mappedResources = bundle.getEntry()
-            .stream()
+
+
+        var mappedResources = bundle.getEntry().stream()
             .map(Bundle.BundleEntryComponent::getResource)
             .filter(this::isMappableNonConsultationResource)
             .sorted(this::compareProcessingOrder)
-            .filter(resource -> {
-                if (hasIdBeenMapped(resource) || isIgnoredResource(resource)) {
-                    return false;
-                }
-
-                if (resource instanceof MedicationRequest medicationRequest) {
-
-                    if (!medicationRequest.hasBasedOn() || medicationRequest.getBasedOn().isEmpty()) {
-                        return true;
-                    }
-
-                    String referenceId = medicationRequest.getBasedOn().getFirst().getReference();
-                    //String medRequestId = reference.replaceFirst("MedicationRequest/", "");
-                    var referencedResource = messageContext.getInputBundleHolder().getResource(new IdType(referenceId));
-                    return referencedResource.isEmpty() || !hasIdBeenMapped(referencedResource.get());
-                }
-                return true;
-            })
-            //.filter(resource -> !hasIdBeenMapped(resource) && !isIgnoredResource(resource))
+            .filter(this::shouldMapResource)
             .map(this::mapResourceToEhrComposition)
             .flatMap(Optional::stream)
             .collect(Collectors.toList());
@@ -118,6 +104,35 @@ public class NonConsultationResourceMapper {
 
         LOGGER.debug("Non-consultation resources mapped: {}", mappedResources.size());
         return mappedResources;
+    }
+
+    private boolean shouldMapResource(Resource resource) {
+        if (hasIdBeenMapped(resource) || isIgnoredResource(resource)) {
+            return false;
+        }
+        if (resource instanceof MedicationRequest medicationRequest) {
+            return shouldMapMedicationRequest(medicationRequest);
+        }
+        return true;
+    }
+
+    private boolean shouldMapMedicationRequest(MedicationRequest medicationRequest) {
+        if (!medicationRequest.hasBasedOn() || medicationRequest.getBasedOn().isEmpty()) {
+            return true;
+        }
+
+        String referenceId = medicationRequest.getBasedOn().getFirst().getReference();
+
+        try {
+            Optional<Resource> referencedResource =
+                messageContext.getInputBundleHolder().getResource(new IdType(referenceId));
+
+            return referencedResource.isEmpty() || !hasIdBeenMapped(referencedResource.get());
+
+        } catch (EhrMapperException e) {
+            LOGGER.info("MedicationRequest {} cannot be mapped", referenceId);
+            return true;
+        }
     }
 
     private Resource replaceId(Resource resource) {
