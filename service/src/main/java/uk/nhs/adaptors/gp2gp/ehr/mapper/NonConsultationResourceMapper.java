@@ -35,8 +35,6 @@ import uk.nhs.adaptors.gp2gp.ehr.utils.IgnoredResourcesUtils;
 import uk.nhs.adaptors.gp2gp.ehr.utils.TemplateUtils;
 import uk.nhs.adaptors.gp2gp.ehr.utils.XpathExtractor;
 
-import javax.swing.text.html.Option;
-
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Component
 @Slf4j
