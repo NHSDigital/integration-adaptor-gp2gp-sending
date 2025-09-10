@@ -103,7 +103,7 @@ public class NonConsultationResourceMapper {
         return mappedResources;
     }
 
-    private boolean shouldMapResource(Resource resource) {
+    boolean shouldMapResource(Resource resource) {
         if (hasIdBeenMapped(resource) || isIgnoredResource(resource)) {
             return false;
         }
@@ -113,7 +113,7 @@ public class NonConsultationResourceMapper {
         return true;
     }
 
-    private boolean shouldMapMedicationRequest(MedicationRequest medicationRequest) {
+    boolean shouldMapMedicationRequest(MedicationRequest medicationRequest) {
         if (!medicationRequest.hasBasedOn() || medicationRequest.getBasedOn().isEmpty()) {
             return true;
         }
