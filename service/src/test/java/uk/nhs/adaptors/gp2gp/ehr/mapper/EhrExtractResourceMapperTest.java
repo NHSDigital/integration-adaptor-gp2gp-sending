@@ -13,6 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import java.util.Optional;
+
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -70,6 +72,20 @@ class EhrExtractResourceMapperTest {
         boolean result = resourceMapper.shouldMapResource(medRequest);
 
         assertTrue(result);
+    }
+
+    @Test
+    void When_ReferencedResourceHasBeenMapped_Expect_MedicationRequestIsNotMapped() {
+
+        MedicationRequest medRequest = new MedicationRequest();
+        medRequest.setId("MedicationRequest/1");
+        medRequest.addBasedOn(new Reference("ServiceRequest/123"));
+        when(inputBundleHolder.getResource(new IdType("ServiceRequest/123"))).thenReturn(Optional.empty());
+        when(idMapper.hasIdBeenMapped(any(), any())).thenReturn(true);
+
+        boolean result = resourceMapper.shouldMapResource(medRequest);
+
+        assertFalse(result);
     }
 
 }
