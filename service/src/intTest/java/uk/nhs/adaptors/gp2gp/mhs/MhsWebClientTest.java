@@ -126,7 +126,7 @@ public class MhsWebClientTest {
 
     @Test
     public void When_SendMessageToMHS_With_HttpStatus404_Expect_IllegalStateException() {
-        var response =  new MockResponse.Builder()
+        var response = new MockResponse.Builder()
             .code(NOT_FOUND.value())
             .build();
 
@@ -141,7 +141,7 @@ public class MhsWebClientTest {
 
     @Test
     public void When_SendMessageToMHS_With_NoResponse_Expect_RetryExceptionWithTimeoutRootCause() {
-        var response =  new MockResponse.Builder()
+        var response = new MockResponse.Builder()
             .bodyDelay(1, TimeUnit.HOURS)
             .headersDelay(1, TimeUnit.HOURS)
             .build();
@@ -165,7 +165,7 @@ public class MhsWebClientTest {
 
     @Test
     public void When_SendMessageToMHS_With_ResponseOn404SecondAttempt_Expect_RetryBeforeIllegalStateException() {
-        var response1 =  new MockResponse.Builder()
+        var response1 = new MockResponse.Builder()
             .bodyDelay(1, TimeUnit.HOURS)
             .headersDelay(1, TimeUnit.HOURS)
             .build();
