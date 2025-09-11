@@ -2,6 +2,7 @@ package uk.nhs.adaptors.gp2gp.ehr.mapper;
 
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.dstu3.model.MedicationRequest;
+import org.hl7.fhir.dstu3.model.QuestionnaireResponse;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -105,15 +106,17 @@ class EhrExtractResourceMapperTest {
 
     @Test
     void When_ReferencedResourceHasBeenIgnored_Expect_MedicationRequestShouldNotBeMapped() {
+        QuestionnaireResponse questionnaireResp = new QuestionnaireResponse();
+        questionnaireResp.setId("MedicationRequest/1");
 
-        MedicationRequest medRequest = new MedicationRequest();
+        try (MockedStatic<IgnoredResourcesUtils> ignoredMock = Mockito.mockStatic(IgnoredResourcesUtils.class)) {
 
-        MockedStatic<IgnoredResourcesUtils> ignoredResourceMock = Mockito.mockStatic(IgnoredResourcesUtils.class);
-        ignoredResourceMock.when(() -> IgnoredResourcesUtils.isIgnoredResourceType(ResourceType.MedicationRequest)).thenReturn(true);
+            ignoredMock.when(() -> IgnoredResourcesUtils.isIgnoredResourceType(ResourceType.QuestionnaireResponse)).thenReturn(true);
 
-        boolean result = resourceMapper.shouldMapResource(medRequest);
+            boolean result = resourceMapper.shouldMapResource(questionnaireResp);
 
-        assertFalse(result);
+            assertFalse(result);
+        }
     }
 
 }
