@@ -8,9 +8,12 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
+import mockwebserver3.MockResponse;
+import mockwebserver3.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,9 +28,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.SocketPolicy;
 import uk.nhs.adaptors.gp2gp.common.exception.MaximumExternalAttachmentsException;
 import uk.nhs.adaptors.gp2gp.common.exception.RetryLimitReachedException;
 import uk.nhs.adaptors.gp2gp.mhs.configuration.MhsConfiguration;
@@ -83,18 +83,18 @@ public class MhsWebClientTest {
     }
 
     @AfterEach
-    public void tearDown() throws IOException {
-        mockWebServer.shutdown();
+    public void tearDown() {
+        mockWebServer.close();
     }
 
     @ParameterizedTest
     @MethodSource("maxAttachmentsValidationErrors")
     public void When_SendMessageToMHS_With_HttpStatus400AndMaxExternalAttachments_Expect_CorrectException(String body) {
-        MockResponse response = new MockResponse();
-        response
-            .addHeader("Content-Type", "text/plain")
-            .setResponseCode(BAD_REQUEST.value())
-            .setBody(body);
+        var response = new MockResponse.Builder()
+            .code(BAD_REQUEST.value())
+            .addHeader("Content-Type", "application/json")
+            .body(body)
+            .build();
 
         mockWebServer.enqueue(response);
 
@@ -108,11 +108,11 @@ public class MhsWebClientTest {
     @ParameterizedTest
     @MethodSource("otherValidationErrors")
     public void When_SendMessageToMHS_With_HttpStatus400AndOtherValidationErrors_Expect_CorrectException(String body) {
-        MockResponse response = new MockResponse();
-        response
+        var response = new MockResponse.Builder()
+            .code(BAD_REQUEST.value())
             .addHeader("Content-Type", "text/plain")
-            .setResponseCode(BAD_REQUEST.value())
-            .setBody(body);
+            .body(body)
+            .build();
 
         mockWebServer.enqueue(response);
 
@@ -126,9 +126,9 @@ public class MhsWebClientTest {
 
     @Test
     public void When_SendMessageToMHS_With_HttpStatus404_Expect_IllegalStateException() {
-        MockResponse response = new MockResponse();
-        response
-            .setResponseCode(NOT_FOUND.value());
+        var response =  new MockResponse.Builder()
+            .code(NOT_FOUND.value())
+            .build();
 
         mockWebServer.enqueue(response);
 
@@ -141,8 +141,10 @@ public class MhsWebClientTest {
 
     @Test
     public void When_SendMessageToMHS_With_NoResponse_Expect_RetryExceptionWithTimeoutRootCause() {
-        MockResponse response = new MockResponse();
-        response.setSocketPolicy(SocketPolicy.NO_RESPONSE);
+        var response =  new MockResponse.Builder()
+            .bodyDelay(1, TimeUnit.HOURS)
+            .headersDelay(1, TimeUnit.HOURS)
+            .build();
 
         for (int i = 0; i < FOUR; i++) {
             mockWebServer.enqueue(response);
@@ -163,10 +165,13 @@ public class MhsWebClientTest {
 
     @Test
     public void When_SendMessageToMHS_With_ResponseOn404SecondAttempt_Expect_RetryBeforeIllegalStateException() {
-        MockResponse response1 = new MockResponse();
-        response1.setSocketPolicy(SocketPolicy.NO_RESPONSE);
-        MockResponse response2 = new MockResponse();
-        response2.setResponseCode(NOT_FOUND.value());
+        var response1 =  new MockResponse.Builder()
+            .bodyDelay(1, TimeUnit.HOURS)
+            .headersDelay(1, TimeUnit.HOURS)
+            .build();
+        var response2 = new MockResponse.Builder()
+            .code(NOT_FOUND.value())
+            .build();
 
         mockWebServer.enqueue(response1);
         mockWebServer.enqueue(response2);
@@ -182,8 +187,9 @@ public class MhsWebClientTest {
 
     @Test
     public void When_SendMessageToMHS_With_HttpStatus5xx_Expect_RetryExceptionWithMhsServerErrorRootCause() {
-        MockResponse response = new MockResponse();
-        response.setResponseCode(INTERNAL_SERVER_ERROR.value());
+        var response = new MockResponse.Builder()
+            .code(INTERNAL_SERVER_ERROR.value())
+            .build();
 
         for (int i = 0; i < FOUR; i++) {
             mockWebServer.enqueue(response);
