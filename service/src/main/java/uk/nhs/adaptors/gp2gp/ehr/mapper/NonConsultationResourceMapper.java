@@ -114,7 +114,7 @@ public class NonConsultationResourceMapper {
     }
 
     boolean shouldMapMedicationRequest(MedicationRequest medicationRequest) {
-        if (!medicationRequest.hasBasedOn() || medicationRequest.getBasedOn().isEmpty()) {
+        if (!medicationRequest.hasBasedOn()) {
             return true;
         }
 
