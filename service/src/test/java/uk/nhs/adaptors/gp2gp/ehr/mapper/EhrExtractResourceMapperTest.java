@@ -9,9 +9,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import uk.nhs.adaptors.gp2gp.ehr.utils.IgnoredResourcesUtils;
+import org.hl7.fhir.dstu3.model.ResourceType;
 import java.util.Optional;
 
 import static org.junit.Assert.assertFalse;
@@ -97,6 +101,19 @@ class EhrExtractResourceMapperTest {
         boolean result = resourceMapper.shouldMapResource(medRequest);
 
         assertTrue(result);
+    }
+
+    @Test
+    void When_ReferencedResourceHasBeenIgnored_Expect_MedicationRequestShouldNotBeMapped() {
+
+        MedicationRequest medRequest = new MedicationRequest();
+
+        MockedStatic<IgnoredResourcesUtils> ignoredResourceMock = Mockito.mockStatic(IgnoredResourcesUtils.class);
+        ignoredResourceMock.when(() -> IgnoredResourcesUtils.isIgnoredResourceType(ResourceType.MedicationRequest)).thenReturn(true);
+
+        boolean result = resourceMapper.shouldMapResource(medRequest);
+
+        assertFalse(result);
     }
 
 }
