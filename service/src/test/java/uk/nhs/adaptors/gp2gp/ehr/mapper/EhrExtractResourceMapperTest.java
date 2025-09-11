@@ -88,4 +88,15 @@ class EhrExtractResourceMapperTest {
         assertFalse(result);
     }
 
+    @Test
+    void When_ReferencedResourceHasNoBasedOn_Expect_MedicationRequestShouldBeMapped() {
+
+        MedicationRequest medRequest = new MedicationRequest();
+        medRequest.setId("MedicationRequest/1");
+
+        boolean result = resourceMapper.shouldMapResource(medRequest);
+
+        assertTrue(result);
+    }
+
 }
