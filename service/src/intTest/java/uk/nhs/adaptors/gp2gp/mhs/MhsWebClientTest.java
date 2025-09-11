@@ -92,7 +92,7 @@ public class MhsWebClientTest {
     public void When_SendMessageToMHS_With_HttpStatus400AndMaxExternalAttachments_Expect_CorrectException(String body) {
         var response = new MockResponse.Builder()
             .code(BAD_REQUEST.value())
-            .addHeader("Content-Type", "application/json")
+            .addHeader("Content-Type", "text/plain")
             .body(body)
             .build();
 
