@@ -19,7 +19,7 @@ dependencies {
     testImplementation(platform('org.junit:junit-bom:5.13.4'))
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.19.2'
-    testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.2'
+    testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.0'
     testImplementation 'commons-io:commons-io:2.20.0'
     testImplementation 'org.awaitility:awaitility:4.3.0'
     testImplementation "org.assertj:assertj-core:3.27.4"
