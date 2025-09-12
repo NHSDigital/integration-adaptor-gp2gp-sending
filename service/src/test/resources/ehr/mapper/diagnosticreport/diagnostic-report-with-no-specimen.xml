@@ -58,7 +58,7 @@
                 <specimen typeCode="SPC">
                     <specimenRole classCode="SPEC">
                         <id root="5E496953-065B-41F2-9577-BE8F2FBD0757"/>
-                        <id root="2.16.840.1.113883.2.1.4.5.2" extension="DUMMY"/>
+                        <id root="2.16.840.1.113883.2.1.4.5.2" extension="NOT PRESENT"/>
                         <effectiveTime>
                             <center value="20010330162700"/>
                         </effectiveTime>
