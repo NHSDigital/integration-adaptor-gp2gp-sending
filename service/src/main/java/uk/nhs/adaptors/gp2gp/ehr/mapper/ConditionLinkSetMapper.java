@@ -64,6 +64,8 @@ public class ConditionLinkSetMapper {
         var builder = ConditionLinkSetMapperParameters.builder()
             .isNested(isNested)
             .linkSetId(idMapper.getOrNew(ResourceType.Condition, condition.getIdElement()));
+        
+        testForValidReferences(condition);
 
         buildEffectiveTimeLow(condition).ifPresent(builder::effectiveTimeLow);
         buildEffectiveTimeHigh(condition).ifPresent(builder::effectiveTimeHigh);
@@ -102,6 +104,20 @@ public class ConditionLinkSetMapper {
         }
 
         return TemplateUtils.fillTemplate(OBSERVATION_STATEMENT_TEMPLATE, builder.build());
+    }
+
+    public void testForValidReferences(Condition condition) {
+        for(Extension extension : condition.getExtension()) {
+            if(!(extension.getValue() instanceof Reference)) {
+                return;
+            }
+            IdType idType = (IdType) ((Reference)extension.getValue()).getReferenceElement();
+            try{
+                messageContext.getInputBundleHolder().getResource(idType);
+            }catch(Exception e){
+                throw e;
+            }
+        }
     }
 
     private void setQualifierProperties(ConditionLinkSetMapperParameters.ConditionLinkSetMapperParametersBuilder builder,
