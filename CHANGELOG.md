@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+* Prevent duplicate processing: after a medication request is processed, the system no longer pulls a subsequent non‑consultation item based on the same request.
+
 ### Added
 * The GP2GP Adaptor now adds the EhrComposition / confidentialityCode field when Encounter.meta.security contains NOPAT security entry
 * The GP2GP Adaptor now populates the ObservationStatement / confidentialityCode field when the .meta.security field of an Uncategorized Data Observation contains NOPAT
