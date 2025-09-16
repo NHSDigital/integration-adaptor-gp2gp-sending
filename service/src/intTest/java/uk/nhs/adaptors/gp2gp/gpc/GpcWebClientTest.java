@@ -13,7 +13,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import mockwebserver3.MockResponse;
+import mockwebserver3.MockWebServer;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,9 +31,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.SocketPolicy;
 import uk.nhs.adaptors.gp2gp.common.exception.RetryLimitReachedException;
 import uk.nhs.adaptors.gp2gp.gpc.builder.GpcTokenBuilder;
 import uk.nhs.adaptors.gp2gp.gpc.configuration.GpcConfiguration;
@@ -69,33 +70,30 @@ public class GpcWebClientTest {
     private GpcClient gpcWebClient;
 
     private static MockResponse initialiseOKResponse() {
-        MockResponse response = new MockResponse();
-        response.setResponseCode(OK.value())
-            .setBody(TEST_BODY);
-
-        return response;
+        return new MockResponse.Builder()
+            .code(OK.value())
+            .body(TEST_BODY)
+            .build();
     }
 
     private static MockResponse initialise500Response() {
-        MockResponse response = new MockResponse();
-        response.setResponseCode(INTERNAL_SERVER_ERROR.value());
-        response.setBody(TEST_BODY);
-
-        return response;
+        return new MockResponse.Builder()
+            .code(INTERNAL_SERVER_ERROR.value())
+            .body(TEST_BODY)
+            .build();
     }
 
     private static MockResponse initialise500ResponseNoBody() {
-        MockResponse response = new MockResponse();
-        response.setResponseCode(INTERNAL_SERVER_ERROR.value());
-
-        return response;
+        return new MockResponse.Builder()
+            .code(INTERNAL_SERVER_ERROR.value())
+            .build();
     }
 
     private static MockResponse initialiseNoResponse() {
-        MockResponse response = new MockResponse();
-        response.setSocketPolicy(SocketPolicy.NO_RESPONSE);
-
-        return response;
+        return new MockResponse.Builder()
+            .bodyDelay(1, TimeUnit.HOURS)
+            .headersDelay(1, TimeUnit.HOURS)
+            .build();
     }
 
     @BeforeEach
@@ -107,8 +105,8 @@ public class GpcWebClientTest {
     }
 
     @AfterEach
-    public void tearDown() throws IOException {
-        mockWebServer.shutdown();
+    public void tearDown() {
+        mockWebServer.close();
     }
 
     @Test
@@ -254,7 +252,7 @@ public class GpcWebClientTest {
         gpcWebClient.getStructuredRecord(taskDefinition);
         tokens.add(Objects.requireNonNull(mockWebServer
                         .takeRequest()
-                        .getHeader(HttpHeaders.AUTHORIZATION))); // Add token from Authorisation header (WebClient call).
+                        .getHeaders().get(HttpHeaders.AUTHORIZATION))); // Add token from Authorisation header (WebClient call).
 
         // then
         final long distinctTokens = tokens.stream().distinct().count();
