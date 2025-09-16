@@ -4,7 +4,7 @@ plugins {
 	id 'java'
 	id "checkstyle"
 	id "com.github.spotbugs" version "6.1.13"
-	id "io.freefair.lombok" version "8.14"
+	id "io.freefair.lombok" version "8.14.2"
 	id 'jacoco'
 	id 'org.sonarqube' version '6.2.0.5505'
 
@@ -71,8 +71,8 @@ dependencies {
 	testImplementation 'org.testcontainers:junit-jupiter:1.21.3'
 	testImplementation 'org.awaitility:awaitility:4.3.0'
 	testImplementation 'org.wiremock:wiremock-standalone:3.13.1'
-	testImplementation 'com.squareup.okhttp3:okhttp:4.12.0'
-	testImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
+	testImplementation 'com.squareup.okhttp3:okhttp:5.1.0'
+	testImplementation 'com.squareup.okhttp3:mockwebserver3:5.1.0'
 	testImplementation 'com.adobe.testing:s3mock-testcontainers:4.7.0'
 
 
