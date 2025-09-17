@@ -25,7 +25,7 @@ public class MongoTtlCreator extends TtlCreator {
                 clazz.getSimpleName(), getDuration());
             getIndexOperations().dropIndex(TTL_INDEX_NAME);
         }
-        getIndexOperations().ensureIndex(new Index()
+        getIndexOperations().createIndex(new Index()
             .expire(getDuration())
             .named(TTL_INDEX_NAME)
             .on(FIELD_KEY, Sort.Direction.ASC)
