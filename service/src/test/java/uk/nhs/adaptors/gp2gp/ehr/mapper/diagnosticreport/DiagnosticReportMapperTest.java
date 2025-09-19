@@ -54,6 +54,7 @@ import static uk.nhs.adaptors.gp2gp.utils.XmlParsingUtility.getXmlStringFromFile
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class DiagnosticReportMapperTest {
+
     private static final String TEST_FILE_DIRECTORY = "/ehr/mapper/diagnosticreport/";
 
     private static final String INPUT_JSON_BUNDLE = "fhir_bundle.json";
@@ -250,12 +251,14 @@ class DiagnosticReportMapperTest {
     }
 
     @Test
-    void When_DiagnosticReport_With_NoReferencedSpecimenAndFilingCommentWithNoComment_Expect_MatchesSnapshotXml() {
+    void When_DR_With_NoReferencedSpecimenAndFilingCommentWithNoComment_Expect_MatchesSnapshotXmlIncludesSpecimenRoleWithNotPresentTag() {
         final String diagnosticReportFileName = "diagnostic-report-with-no-specimen.json";
         final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(diagnosticReportFileName);
         final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
         final InputBundle inputBundle = new InputBundle(bundle);
         final String expectedXml = getXmlStringFromFile(TEST_FILE_DIRECTORY, "diagnostic-report-with-no-specimen.xml");
+        final List<String> expectedXPaths = Collections.singletonList(
+            "/component/CompoundStatement/component/CompoundStatement/specimen/specimenRole/id[@extension=\"NOT PRESENT\"]");
 
         when(specimenMapper.mapSpecimenToCompoundStatement(
             any(Specimen.class),
@@ -288,6 +291,7 @@ class DiagnosticReportMapperTest {
         final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
 
         assertThat(actualXml).isEqualToIgnoringWhitespace(expectedXml);
+        assertThatXml(actualXml).containsAllXPaths(expectedXPaths);
     }
 
     /**
@@ -307,7 +311,7 @@ class DiagnosticReportMapperTest {
 
         // This checks that the unlinked test result is given a dummy specimen.
         assertThat(actualXml).containsIgnoringWhitespaces(
-                "<!-- Mapped Specimen with id: DUMMY-SPECIMEN-5E496953-065B-41F2-9577-BE8F2FBD0757 "
+                "<!-- Mapped Specimen with id: NOT-PRESENT-SPECIMEN-5E496953-065B-41F2-9577-BE8F2FBD0757 "
                         + "with linked Observations: Observation/TestResult-WithoutSpecimenReference-->");
     }
 
@@ -408,7 +412,7 @@ class DiagnosticReportMapperTest {
         final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
         // This checks that the unlinked observation is given a dummy specimen.
         assertThat(actualXml).containsIgnoringWhitespaces(
-                "<!-- Mapped Specimen with id: DUMMY-SPECIMEN-5E496953-065B-41F2-9577-BE8F2FBD0757 "
+                "<!-- Mapped Specimen with id: NOT-PRESENT-SPECIMEN-5E496953-065B-41F2-9577-BE8F2FBD0757 "
                         + "with linked Observations: Observation/TestResult-WithoutSpecimenReference-->");
 
     }
