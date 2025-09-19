@@ -40,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.spy;
 import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOPAT;
 import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOPAT_HL7_CONFIDENTIALITY_CODE;
 import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOSCRUB;
@@ -126,6 +127,8 @@ class ConditionLinkSetMapperTest {
     private ArgumentCaptor<Condition> conditionArgumentCaptor;
 
     private InputBundle inputBundle;
+
+    private ConditionLinkSetMapper conditionLinkSetMapperSpy;
     private ConditionLinkSetMapper conditionLinkSetMapper;
 
     @BeforeEach
@@ -155,6 +158,10 @@ class ConditionLinkSetMapperTest {
 
         conditionLinkSetMapper = new ConditionLinkSetMapper(messageContext, randomIdGeneratorService, codeableConceptCdMapper,
             new ParticipantMapper(), confidentialityService);
+
+        conditionLinkSetMapperSpy = spy(conditionLinkSetMapper);
+
+        lenient().doNothing().when(conditionLinkSetMapperSpy).testForValidReferences(any());
     }
 
     @AfterEach
@@ -170,7 +177,7 @@ class ConditionLinkSetMapperTest {
         when(agentDirectory.getAgentId(any(Reference.class)))
             .thenThrow(propagatedException);
 
-        assertThatThrownBy(() -> conditionLinkSetMapper.mapConditionToLinkSet(condition, false))
+        assertThatThrownBy(() -> conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false))
             .isSameAs(propagatedException);
     }
 
@@ -178,7 +185,7 @@ class ConditionLinkSetMapperTest {
     void When_MappingParsedConditionWithAsserterNotPractitioner_Expect_EhrMapperException() {
         final Condition condition = getConditionResourceFromJson(INPUT_JSON_ASSERTER_NOT_PRACTITIONER);
 
-        assertThatThrownBy(() -> conditionLinkSetMapper.mapConditionToLinkSet(condition, false))
+        assertThatThrownBy(() -> conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false))
             .isExactlyInstanceOf(EhrMapperException.class)
             .hasMessage("Condition.asserter must be a Practitioner");
     }
@@ -189,7 +196,7 @@ class ConditionLinkSetMapperTest {
         final Condition condition = getConditionResourceFromJson(conditionJson);
         final String expectedXml = getXmlStringFromFile(outputXml);
 
-        final String actualXml = conditionLinkSetMapper.mapConditionToLinkSet(condition, isNested);
+        final String actualXml = conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, isNested);
 
         assertThat(actualXml).isEqualTo(expectedXml);
     }
@@ -201,7 +208,7 @@ class ConditionLinkSetMapperTest {
         final Condition condition = getConditionResourceFromJson(conditionJson);
         final String expectedXml = getXmlStringFromFile(outputXml);
 
-        final String actualXml = conditionLinkSetMapper.mapConditionToLinkSet(condition, isNested);
+        final String actualXml = conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, isNested);
 
         assertThat(actualXml).isEqualTo(expectedXml);
     }
@@ -211,7 +218,7 @@ class ConditionLinkSetMapperTest {
         final Condition condition = getConditionResourceFromJson(INPUT_JSON_NO_RELATED_CLINICAL_CONTENT);
         final String expectedXml = getXmlStringFromFile(OUTPUT_XML_WITH_NO_RELATED_CLINICAL_CONTENT);
 
-        final String actualXml = conditionLinkSetMapper.mapConditionToLinkSet(condition, false);
+        final String actualXml = conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false);
 
         assertThat(actualXml).isEqualTo(expectedXml);
     }
@@ -223,7 +230,7 @@ class ConditionLinkSetMapperTest {
         when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
 
         // TODO: workaround for NIAD-1409 should throw an exception but demonstrator include invalid references
-        assumeThatThrownBy(() -> conditionLinkSetMapper.mapConditionToLinkSet(parsedObservation, false))
+        assumeThatThrownBy(() -> conditionLinkSetMapperSpy.mapConditionToLinkSet(parsedObservation, false))
             .isExactlyInstanceOf(EhrMapperException.class)
             .hasMessage("Could not resolve Condition Related Medical Content reference");
     }
@@ -232,7 +239,7 @@ class ConditionLinkSetMapperTest {
     void When_MappingParsedConditionCodeIsMissing_Expect_MapperException() {
         final Condition condition = getConditionResourceFromJson(INPUT_JSON_MISSING_CONDITION_CODE);
 
-        assertThatThrownBy(() -> conditionLinkSetMapper.mapConditionToLinkSet(condition, false))
+        assertThatThrownBy(() -> conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false))
             .isExactlyInstanceOf(EhrMapperException.class)
             .hasMessage("Condition code not present");
     }
@@ -242,7 +249,7 @@ class ConditionLinkSetMapperTest {
         final Condition condition = getConditionResourceFromJson(INPUT_JSON_SUPPRESSED_RELATED_MEDICATION_REQUEST);
         final String expectedXml = getXmlStringFromFile(OUTPUT_XML_SUPPRESSED_RELATED_MEDICATION_REQUEST);
 
-        final String actualXml = conditionLinkSetMapper.mapConditionToLinkSet(condition, false);
+        final String actualXml = conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false);
 
         XMLAssert.assertXMLEqual(expectedXml, actualXml);
     }
@@ -258,7 +265,7 @@ class ConditionLinkSetMapperTest {
         when(confidentialityService.generateConfidentialityCode(conditionArgumentCaptor.capture()))
             .thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
 
-        final String actualXml = wrapXmlInRootElement(conditionLinkSetMapper
+        final String actualXml = wrapXmlInRootElement(conditionLinkSetMapperSpy
             .mapConditionToLinkSet(condition, false));
         final String conditionSecurityCode = ConfidentialityCodeUtility
             .getSecurityCodeFromResource(conditionArgumentCaptor.getValue());
@@ -278,7 +285,7 @@ class ConditionLinkSetMapperTest {
         when(confidentialityService.generateConfidentialityCode(conditionArgumentCaptor.capture()))
             .thenReturn(Optional.empty());
 
-        final String actualXml = conditionLinkSetMapper.mapConditionToLinkSet(condition, false);
+        final String actualXml = conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false);
         final String conditionSecurityCode = ConfidentialityCodeUtility
             .getSecurityCodeFromResource(conditionArgumentCaptor.getValue());
 

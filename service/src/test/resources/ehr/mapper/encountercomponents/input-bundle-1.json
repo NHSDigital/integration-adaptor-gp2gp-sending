@@ -823,7 +823,7 @@
                     {
                         "url": "https://fhir.hl7.org.uk/STU3/StructureDefinition/Extension-CareConnect-ActualProblem-1",
                         "valueReference": {
-                            "reference": "Observation/7E277DF1-6F1C-47CD-84F7-E9B7BF4105DB"
+                            "reference": "Observation/B7F05EA7-A1A4-48C0-9C4C-CDB5768796B2"
                         }
                     },
                     {
