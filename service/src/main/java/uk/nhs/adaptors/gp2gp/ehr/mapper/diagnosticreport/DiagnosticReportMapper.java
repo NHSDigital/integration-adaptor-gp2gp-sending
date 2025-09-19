@@ -52,7 +52,7 @@ import uk.nhs.adaptors.gp2gp.ehr.utils.TemplateUtils;
 @Slf4j
 public class DiagnosticReportMapper {
 
-    public static final String DUMMY_SPECIMEN_ID_PREFIX = "DUMMY-SPECIMEN-";
+    public static final String NOT_PRESENT_SPECIMEN_ID_PREFIX = "NOT-PRESENT-SPECIMEN-";
     public static final String DUMMY_OBSERVATION_ID_PREFIX = "DUMMY-OBSERVATION-";
 
     private static final Mustache DIAGNOSTIC_REPORT_COMPOUND_STATEMENT_TEMPLATE =
@@ -181,7 +181,7 @@ public class DiagnosticReportMapper {
 
         // The assumption was made that all test results without a specimen will have the same dummy specimen referenced
         Specimen dummySpecimen = specimens.stream()
-                .filter(specimen -> specimen.getId().contains(DUMMY_SPECIMEN_ID_PREFIX))
+                .filter(specimen -> specimen.getId().contains(NOT_PRESENT_SPECIMEN_ID_PREFIX))
                 .toList().getFirst();
 
         Reference dummySpecimenReference = new Reference(dummySpecimen.getId());
@@ -199,7 +199,7 @@ public class DiagnosticReportMapper {
     private Specimen generateDummySpecimen(DiagnosticReport diagnosticReport) {
         Specimen specimen = new Specimen();
 
-        specimen.setId(DUMMY_SPECIMEN_ID_PREFIX + randomIdGeneratorService.createNewId());
+        specimen.setId(NOT_PRESENT_SPECIMEN_ID_PREFIX + randomIdGeneratorService.createNewId());
 
         return specimen
             .setAccessionIdentifier(new Identifier().setValue("NOT PRESENT"))
@@ -247,7 +247,7 @@ public class DiagnosticReportMapper {
         List<String> nonOrphanSpecimenIDList = new ArrayList<>();
         for (Specimen specimen : specimens) {
             // Dummy Specimens should not have a dummy observation attached.
-            if (!specimen.getId().contains(DUMMY_SPECIMEN_ID_PREFIX)) {
+            if (!specimen.getId().contains(NOT_PRESENT_SPECIMEN_ID_PREFIX)) {
                 specimenIDList.add(specimen.getId());
             }
         }
