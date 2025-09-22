@@ -35,7 +35,6 @@ import org.springframework.stereotype.Component;
 
 import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
-import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.CommentType;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.IdMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.MessageContext;
@@ -169,25 +168,26 @@ public class DiagnosticReportMapper {
     /**
      * For correct display in EMIS, any observation without a specimen must be assigned a dummy specimen.
      */
-    List<Observation> assignDummySpecimensToObservationsWithNoSpecimen(
-        List<Observation> observations, List<Specimen> specimens) {
+    List<Observation> assignDummySpecimensToObservationsWithNoSpecimen(List<Observation> observations, List<Specimen> specimens) {
 
         List<Observation> filingComments = getFilingComments(observations);
         List<Observation> nonFilingObservations = new ArrayList<>(stripFilingComments(observations));
 
-        if (hasObservationsWithoutSpecimen(nonFilingObservations)) {
-            Specimen dummySpecimen = specimens.stream()
-                .filter(specimen -> specimen.getId().contains(NOT_PRESENT_SPECIMEN_ID_PREFIX))
-                .findFirst()
-                .orElseThrow(() -> new EhrMapperException(
-                    "No not present specimen found with prefix: " + NOT_PRESENT_SPECIMEN_ID_PREFIX));
-
-            Reference dummySpecimenReference = new Reference(dummySpecimen.getId());
-
-            nonFilingObservations.stream()
-                .filter(obs -> !obs.hasSpecimen())
-                .forEach(obs -> obs.setSpecimen(dummySpecimenReference));
+        if (!hasObservationsWithoutSpecimen(nonFilingObservations)) {
+            nonFilingObservations.addAll(filingComments);
+            return nonFilingObservations;
         }
+
+        // The assumption was made that all test results without a specimen will have the same dummy specimen referenced
+        Specimen dummySpecimen = specimens.stream()
+            .filter(specimen -> specimen.getId().contains(NOT_PRESENT_SPECIMEN_ID_PREFIX))
+            .toList().getFirst();
+
+        Reference dummySpecimenReference = new Reference(dummySpecimen.getId());
+
+        nonFilingObservations.stream()
+            .filter(obs -> !obs.hasSpecimen() && !isFilingComment(obs))
+            .forEach(obs -> obs.setSpecimen(dummySpecimenReference));
 
         nonFilingObservations.addAll(filingComments);
         return nonFilingObservations;

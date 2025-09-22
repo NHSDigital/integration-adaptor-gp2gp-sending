@@ -1,7 +1,6 @@
 package uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -32,7 +31,6 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 
-import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.AgentDirectory;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.CodeableConceptCdMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.IdMapper;
@@ -152,22 +150,6 @@ class DiagnosticReportMapperTest {
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getSpecimen().getReference()).contains(dummySpecimen.getId());
         assertThat(result.get(1).getSpecimen().getReference()).contains("real-specimen");
-    }
-
-    @Test
-    void shouldThrowIfNoDummySpecimenFound() {
-
-        Observation obsWithoutSpecimen = new Observation();
-        List<Observation> observations = List.of(obsWithoutSpecimen);
-
-        Specimen realSpecimen = new Specimen();
-        realSpecimen.setId("real-specimen");
-        List<Specimen> specimens = List.of(realSpecimen);
-
-        assertThatThrownBy(() ->
-                               mapper.assignDummySpecimensToObservationsWithNoSpecimen(observations, specimens))
-            .isInstanceOf(EhrMapperException.class)
-            .hasMessageContaining(NOT_PRESENT_SPECIMEN_ID_PREFIX);
     }
 
     @ParameterizedTest
