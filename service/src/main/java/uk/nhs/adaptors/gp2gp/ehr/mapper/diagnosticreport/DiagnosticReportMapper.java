@@ -168,7 +168,7 @@ public class DiagnosticReportMapper {
     /**
      * For correct display in EMIS, any observation without a specimen must be assigned a dummy specimen.
      */
-    private List<Observation> assignDummySpecimensToObservationsWithNoSpecimen(
+    protected List<Observation> assignDummySpecimensToObservationsWithNoSpecimen(
         List<Observation> observations, List<Specimen> specimens) {
 
         List<Observation> filingComments = getFilingComments(observations);

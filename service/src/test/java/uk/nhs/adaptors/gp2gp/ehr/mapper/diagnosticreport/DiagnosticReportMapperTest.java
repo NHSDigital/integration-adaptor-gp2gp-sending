@@ -1,6 +1,7 @@
 package uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -61,6 +62,7 @@ class DiagnosticReportMapperTest {
     private static final String INPUT_JSON_BUNDLE_WITH_FILING_COMMENTS = "fhir_bundle_with_filing_comments.json";
 
     private static final String TEST_ID = "5E496953-065B-41F2-9577-BE8F2FBD0757";
+    public static final String NOT_PRESENT_SPECIMEN_ID_PREFIX = "NOT-PRESENT-SPECIMEN-";
 
     private static final String INPUT_JSON_REQUIRED_DATA = "diagnostic-report-with-required-data.json";
     private static final String INPUT_JSON_EMPTY_SPECIMENS = "diagnostic-report-with-empty-specimens.json";
@@ -127,6 +129,44 @@ class DiagnosticReportMapperTest {
     @AfterEach
     public void tearDown() {
         messageContext.resetMessageContext();
+    }
+
+    @Test
+    void shouldAssignDummySpecimenToObservationsWithoutSpecimen() {
+
+        Observation obsWithoutSpecimen = new Observation();
+        Observation obsWithSpecimen = new Observation();
+        obsWithSpecimen.setSpecimen(new Reference("real-specimen"));
+
+        List<Observation> observations = List.of(obsWithoutSpecimen, obsWithSpecimen);
+
+        Specimen dummySpecimen = new Specimen();
+        dummySpecimen.setId("dummy-" + NOT_PRESENT_SPECIMEN_ID_PREFIX);
+        Specimen realSpecimen = new Specimen();
+        realSpecimen.setId("real-specimen");
+        List<Specimen> specimens = List.of(realSpecimen, dummySpecimen);
+
+        List<Observation> result = mapper.assignDummySpecimensToObservationsWithNoSpecimen(observations, specimens);
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getSpecimen().getReference()).contains(dummySpecimen.getId());
+        assertThat(result.get(1).getSpecimen().getReference()).contains("real-specimen");
+    }
+
+    @Test
+    void shouldThrowIfNoDummySpecimenFound() {
+
+        Observation obsWithoutSpecimen = new Observation();
+        List<Observation> observations = List.of(obsWithoutSpecimen);
+
+        Specimen realSpecimen = new Specimen();
+        realSpecimen.setId("real-specimen");
+        List<Specimen> specimens = List.of(realSpecimen);
+
+        assertThatThrownBy(() ->
+                               mapper.assignDummySpecimensToObservationsWithNoSpecimen(observations, specimens))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining(NOT_PRESENT_SPECIMEN_ID_PREFIX);
     }
 
     @ParameterizedTest
