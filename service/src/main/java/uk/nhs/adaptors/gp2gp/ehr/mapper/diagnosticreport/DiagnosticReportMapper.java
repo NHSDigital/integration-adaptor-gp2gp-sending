@@ -35,6 +35,7 @@ import org.springframework.stereotype.Component;
 
 import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
+import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.CommentType;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.IdMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.MessageContext;
@@ -168,7 +169,7 @@ public class DiagnosticReportMapper {
     /**
      * For correct display in EMIS, any observation without a specimen must be assigned a dummy specimen.
      */
-    protected List<Observation> assignDummySpecimensToObservationsWithNoSpecimen(
+    List<Observation> assignDummySpecimensToObservationsWithNoSpecimen(
         List<Observation> observations, List<Specimen> specimens) {
 
         List<Observation> filingComments = getFilingComments(observations);
@@ -178,8 +179,8 @@ public class DiagnosticReportMapper {
             Specimen dummySpecimen = specimens.stream()
                 .filter(specimen -> specimen.getId().contains(NOT_PRESENT_SPECIMEN_ID_PREFIX))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException(
-                    "No dummy specimen found with prefix: " + NOT_PRESENT_SPECIMEN_ID_PREFIX));
+                .orElseThrow(() -> new EhrMapperException(
+                    "No not present specimen found with prefix: " + NOT_PRESENT_SPECIMEN_ID_PREFIX));
 
             Reference dummySpecimenReference = new Reference(dummySpecimen.getId());
 

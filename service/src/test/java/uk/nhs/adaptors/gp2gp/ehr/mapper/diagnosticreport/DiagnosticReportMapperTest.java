@@ -32,6 +32,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 
+import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.AgentDirectory;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.CodeableConceptCdMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.IdMapper;
@@ -165,7 +166,7 @@ class DiagnosticReportMapperTest {
 
         assertThatThrownBy(() ->
                                mapper.assignDummySpecimensToObservationsWithNoSpecimen(observations, specimens))
-            .isInstanceOf(IllegalStateException.class)
+            .isInstanceOf(EhrMapperException.class)
             .hasMessageContaining(NOT_PRESENT_SPECIMEN_ID_PREFIX);
     }
 
