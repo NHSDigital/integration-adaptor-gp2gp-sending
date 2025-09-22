@@ -142,7 +142,7 @@ public class DiagnosticReportMapper {
 
         // At least one specimen is required to exist for any DiagnosticReport, according to the mim
         if (!diagnosticReport.hasSpecimen() || hasObservationsWithoutSpecimen(observations)) {
-            specimens.add(generateDummySpecimen(diagnosticReport));
+            specimens.add(generateNotPresentSpecimen(diagnosticReport));
         }
 
         var inputBundleHolder = messageContext.getInputBundleHolder();
@@ -179,21 +179,21 @@ public class DiagnosticReportMapper {
         }
 
         // The assumption was made that all test results without a specimen will have the same dummy specimen referenced
-        Specimen dummySpecimen = specimens.stream()
+        Specimen notPresentSpecimen = specimens.stream()
             .filter(specimen -> specimen.getId().contains(NOT_PRESENT_SPECIMEN_ID_PREFIX))
             .toList().getFirst();
 
-        Reference dummySpecimenReference = new Reference(dummySpecimen.getId());
+        Reference notPresentSpecimenReference = new Reference(notPresentSpecimen.getId());
 
         nonFilingObservations.stream()
             .filter(obs -> !obs.hasSpecimen() && !isFilingComment(obs))
-            .forEach(obs -> obs.setSpecimen(dummySpecimenReference));
+            .forEach(obs -> obs.setSpecimen(notPresentSpecimenReference));
 
         nonFilingObservations.addAll(filingComments);
         return nonFilingObservations;
     }
 
-    private Specimen generateDummySpecimen(DiagnosticReport diagnosticReport) {
+    private Specimen generateNotPresentSpecimen(DiagnosticReport diagnosticReport) {
         Specimen specimen = new Specimen();
 
         specimen.setId(NOT_PRESENT_SPECIMEN_ID_PREFIX + randomIdGeneratorService.createNewId());
