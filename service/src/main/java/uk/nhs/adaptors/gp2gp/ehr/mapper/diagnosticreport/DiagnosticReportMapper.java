@@ -169,31 +169,27 @@ public class DiagnosticReportMapper {
      * For correct display in EMIS, any observation without a specimen must be assigned a dummy specimen.
      */
     private List<Observation> assignDummySpecimensToObservationsWithNoSpecimen(
-            List<Observation> observations, List<Specimen> specimens) {
+        List<Observation> observations, List<Specimen> specimens) {
 
         List<Observation> filingComments = getFilingComments(observations);
-        observations = new ArrayList<>(stripFilingComments(observations));
+        List<Observation> nonFilingObservations = new ArrayList<>(stripFilingComments(observations));
 
-        if (!hasObservationsWithoutSpecimen(observations)) {
-            observations.addAll(filingComments);
-            return observations;
-        }
-
-        // The assumption was made that all test results without a specimen will have the same dummy specimen referenced
-        Specimen dummySpecimen = specimens.stream()
+        if (hasObservationsWithoutSpecimen(nonFilingObservations)) {
+            Specimen dummySpecimen = specimens.stream()
                 .filter(specimen -> specimen.getId().contains(NOT_PRESENT_SPECIMEN_ID_PREFIX))
-                .toList().getFirst();
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(
+                    "No dummy specimen found with prefix: " + NOT_PRESENT_SPECIMEN_ID_PREFIX));
 
-        Reference dummySpecimenReference = new Reference(dummySpecimen.getId());
+            Reference dummySpecimenReference = new Reference(dummySpecimen.getId());
 
-        for (Observation observation : observations) {
-            if (!observation.hasSpecimen() && !isFilingComment(observation)) {
-                observation.setSpecimen(dummySpecimenReference);
-            }
+            nonFilingObservations.stream()
+                .filter(obs -> !obs.hasSpecimen())
+                .forEach(obs -> obs.setSpecimen(dummySpecimenReference));
         }
 
-        observations.addAll(filingComments);
-        return observations;
+        nonFilingObservations.addAll(filingComments);
+        return nonFilingObservations;
     }
 
     private Specimen generateDummySpecimen(DiagnosticReport diagnosticReport) {
