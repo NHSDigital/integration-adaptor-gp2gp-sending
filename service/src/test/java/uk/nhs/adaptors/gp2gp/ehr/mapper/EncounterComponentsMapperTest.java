@@ -64,6 +64,7 @@ class EncounterComponentsMapperTest {
     private static final String INPUT_BUNDLE_WITH_RESOURCES_NOT_IN_BUNDLE = TEST_DIRECTORY + "input-bundle-7.json";
     private static final String INPUT_BUNDLE_WITH_NON_TOPIC_CONSULTATION_LIST_ENTRY = TEST_DIRECTORY + "input-bundle-8.json";
     private static final String INPUT_BUNDLE_WITH_UNSUPPORTED_RESOURCES = TEST_DIRECTORY + "input-bundle-9-unsupported-resource.json";
+    private static final String INPUT_BUNDLE_WITH_INVALID_REFERENCE = TEST_DIRECTORY + "input-bundle-9-missing-reference.json";
     private static final String INPUT_BUNDLE_WITH_IGNORED_RESOURCE = TEST_DIRECTORY + "input-bundle-10-ignored-resource.json";
     private static final String INPUT_BUNDLE_WITH_META_SECURITY = TEST_DIRECTORY + "input-bundle-10-with-meta.json";
     private static final String INPUT_BUNDLE_WITH_NON_CATEGORY_TOPIC_LIST_ENTRY = TEST_DIRECTORY
@@ -313,6 +314,16 @@ class EncounterComponentsMapperTest {
         assertThatThrownBy(() -> encounterComponentsMapper.mapComponents(encounter))
             .hasMessageContaining("Unsupported resource in consultation list: Flag/flagid1")
             .isInstanceOf(EhrMapperException.class);
+    }
+
+    @Test
+    void When_MappingEncounterInvalidReference_Expect_ExceptionThrown() {
+        var bundle = initializeMessageContext(INPUT_BUNDLE_WITH_INVALID_REFERENCE);
+        var encounter = extractEncounter(bundle);
+
+        assertThatThrownBy(() -> encounterComponentsMapper.mapComponents(encounter))
+                .hasMessageContaining("Resource not found: Observation/7E277DF1-6F1C-47CD-84F7-E9B7BF4105DB")
+                .isInstanceOf(EhrMapperException.class);
     }
 
     @Test

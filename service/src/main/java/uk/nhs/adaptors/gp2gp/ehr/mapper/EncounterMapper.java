@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component;
 
 import com.github.mustachejava.Mustache;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -171,8 +170,6 @@ public class EncounterMapper {
     }
 
     @SneakyThrows
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE",
-        justification = "https://github.com/spotbugs/spotbugs/issues/1338")
     private static Set<String> getEhrCompositionNameVocabularyCodes() {
         try (InputStream is = EncounterMapper.class.getClassLoader().getResourceAsStream("ehr_composition_name_vocabulary_codes.txt");
              BufferedReader reader = new BufferedReader(new InputStreamReader(is, UTF_8))) {

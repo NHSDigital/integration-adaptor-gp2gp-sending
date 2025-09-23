@@ -57,7 +57,6 @@ public class CustomTrustStore {
     }
 
     @SneakyThrows
-    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
     protected X509TrustManager getCustomDbTrustManager(S3Uri s3Uri, String trustStorePassword) {
         TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         trustManagerFactory.init((KeyStore) null);
