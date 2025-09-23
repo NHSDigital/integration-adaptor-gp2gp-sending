@@ -174,6 +174,22 @@ public class EncounterMapperTest {
     }
 
     @Test
+    public void When_MappingEncounterLocationWithNoReference_Expect_Exception() {
+        lenient().when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+        lenient().when(bundle.getEntry()).thenReturn(List.of(BUNDLE_ENTRY_WITH_CONSULTATION));
+        var sampleComponent = ResourceTestFileUtils.getFileContent(SAMPLE_EHR_COMPOSITION_COMPONENT);
+
+        var jsonInput = ResourceTestFileUtils.getFileContent(TEST_FILES_DIRECTORY
+                                                             + "input-encounter-with-location-with-no-reference.json");
+        Encounter parsedEncounter = new FhirParseService().parseResource(jsonInput, Encounter.class);
+        when(encounterComponentsMapper.mapComponents(parsedEncounter)).thenReturn(sampleComponent);
+
+        assertThatThrownBy(() -> encounterMapper.mapEncounterToEhrComposition(parsedEncounter))
+            .isExactlyInstanceOf(EhrMapperException.class)
+            .hasMessage("Resource not found: Location/EB3994A6-5A87-4B53-A414-913137072F57");
+    }
+
+    @Test
     public void When_MappingEncounterWithInvalidParticipantReferenceResourceType_Expect_Exception() {
         var sampleComponent = ResourceTestFileUtils.getFileContent(SAMPLE_EHR_COMPOSITION_COMPONENT);
 
