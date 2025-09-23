@@ -11,33 +11,21 @@
         {
             "resource": {
                 "resourceType": "Patient",
-                "id": "0198c7a5-79c9-724d-a5a3-9f2f1be9bbd7",
+                "id": "9340157B-6973-4209-9B57-BF6C64F29E46",
                 "meta": {
+                    "versionId": "8840260017698329728",
                     "profile": [
                         "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Patient-1"
-                    ],
-                    "versionId": "242f9bf749401a08c0b2e5afde27df2e"
+                    ]
                 },
                 "extension": [
                     {
                         "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-CareConnect-GPC-RegistrationDetails-1",
                         "extension": [
                             {
-                                "url": "registrationPeriod",
-                                "valuePeriod": {
-                                    "start": "2025-08-20"
-                                }
-                            },
-                            {
-                                "url": "registrationType",
-                                "valueCodeableConcept": {
-                                    "coding": [
-                                        {
-                                            "system": "https://fhir.nhs.uk/STU3/CodeSystem/CareConnect-RegistrationType-1",
-                                            "code": "R",
-                                            "display": "Regular"
-                                        }
-                                    ]
+                                "url": "preferredBranchSurgery",
+                                "valueReference": {
+                                    "reference": "Location/EB3994A6-5A87-4B53-A414-913137072F57"
                                 }
                             }
                         ]
@@ -55,50 +43,85 @@
                                             "code": "01",
                                             "display": "Number present and verified"
                                         }
-                                    ]
+                                    ],
+                                    "text": "Number present and verified"
                                 }
                             }
                         ],
                         "system": "https://fhir.nhs.uk/Id/nhs-number",
-                        "value": "9736169693"
+                        "value": "{{jsonPath request.body '$.parameter[0].valueIdentifier.value'}}"
                     }
                 ],
-                "active": true,
-                "name": [
-                    {
-                        "use": "official",
-                        "family": "Dean",
-                        "prefix": [
-                            "Miss"
-                        ],
-                        "given": [
-                            "Maggie",
-                            "Iris"
-                        ]
-                    }
+        {{^patient}}
+        "name": [
+            {
+                "use": "official",
+                "family": "Mache",
+                "given": [
+                    "Adam",
+                    "Roy"
                 ],
-                "gender": "female",
-                "birthDate": "2014-11-13",
-                "address": [
-                    {
-                        "use": "home",
-                        "line": [
-                            "216 Warley Road",
-                            "HALIFAX"
-                        ],
-                        "postalCode": "HX2 0BQ",
-                        "country": "GBR"
-                    }
-                ],
-                "managingOrganization": {
-                    "reference": "Organization/B84012"
-                }
+                "prefix": [
+                    "Mr"
+                ]
             }
-        },
+        ],
+        "gender": "male",
+        "birthDate": "2022-03-11",
+        "address": [
+            {
+                "use": "home",
+                "type": "physical",
+                "line": [
+                    "57 Louth Road"
+                ],
+                "city": "Grimsby",
+                "postalCode": "DN33 2HR"
+            }
+        ],
+        {{/patient}}
+        {{#patient}}
+        "name": [
+            {
+                "use": "official",
+                "text": "{{patient.name.0.given.0}} {{patient.name.0.family}}",
+                "family": "{{patient.name.0.family}}",
+                "given": [
+                    "{{patient.name.0.given.0}}"
+                ],
+                "prefix": [
+                    "{{patient.name.0.prefix.0}}"
+                ]
+            }
+        ],
+        "gender": "{{ patient.gender }}",
+        "birthDate": "{{ patient.birthDate }}",
+        "address": [
+            {
+                "use": "home",
+                "type": "physical",
+                "line": [
+                    "{{ patient.address.0.line.0 }}",
+                    "{{ patient.address.0.line.1 }}"
+                ],
+                "postalCode": "{{ patient.address.0.postalCode }}"
+            }
+        ],
+        {{/patient}}
+        "generalPractitioner": [
+            {
+                "reference": "Practitioner/01979be5-6c23-726d-9efa-d2998128340d"
+            }
+        ],
+        "managingOrganization": {
+            "reference": "Organization/5E496953-065B-41F2-9577-BE8F2FBD0757"
+        }
+        }
+    },
         {
             "resource": {
                 "resourceType": "Organization",
-                "id": "B84012",
+                "id": "5E496953-065B-41F2-9577-BE8F2FBD0757",
                 "meta": {
                     "profile": [
                         "https://fhir.nhs.uk/STU3/StructureDefinition/CareConnect-GPC-Organization-1"
@@ -116,7 +139,7 @@
                 "identifier": [
                     {
                         "system": "https://fhir.nhs.uk/Id/ods-organization-code",
-                        "value": "B84012"
+                        "value": "5E496953-065B-41F2-9577-BE8F2FBD0757"
                     }
                 ],
                 "active": true,
@@ -189,8 +212,8 @@
                     "postalCode": "LS19 6BA"
                 },
                 "managingOrganization": {
-                    "reference": "Organization/B84012",
-                    "display": "Spring Hall Group Practice"
+                    "reference": "Organization/5E496953-065B-41F2-9577-BE8F2FBD0757",
+                    "display": "TEMPLE SOWERBY MEDICAL PRACTICE"
                 }
             }
         },
@@ -350,7 +373,7 @@
                     "reference": "Practitioner/01979be5-6c23-726d-9efa-d2998128340d"
                 },
                 "organization": {
-                    "reference": "Organization/B84012"
+                    "reference": "Organization/5E496953-065B-41F2-9577-BE8F2FBD0757"
                 }
             }
         },
@@ -712,7 +735,7 @@
                     "reference": "Practitioner/c012a388-1ef7-11ee-a34c-0a58a9feac02"
                 },
                 "organization": {
-                    "reference": "Organization/B84012"
+                    "reference": "Organization/5E496953-065B-41F2-9577-BE8F2FBD0757"
                 }
             }
         },
@@ -792,7 +815,7 @@
                     "start": "2025-08-20T14:24:00+01:00"
                 },
                 "serviceProvider": {
-                    "reference": "Organization/B84012"
+                    "reference": "Organization/5E496953-065B-41F2-9577-BE8F2FBD0757"
                 }
             }
         },
@@ -1079,7 +1102,7 @@
                         "reference": "Practitioner/01979be5-6c23-726d-9efa-d2998128340d"
                     },
                     {
-                        "reference": "Organization/B84012"
+                        "reference": "Organization/5E496953-065B-41F2-9577-BE8F2FBD0757"
                     }
                 ],
                 "valueQuantity": {
@@ -1258,7 +1281,7 @@
                 "issued": "2025-08-20T14:46:04+01:00",
                 "performer": [
                     {
-                        "reference": "Organization/B84012"
+                        "reference": "Organization/5E496953-065B-41F2-9577-BE8F2FBD0757"
                     }
                 ]
             }
