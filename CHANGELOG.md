@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Prevent duplicate processing: after a medication request is processed, the system no longer pulls a subsequent non‑consultation item based on the same request.
 
 ### Added
+* The GP2GP Adaptor now validates references inside condition objects to test whether they actually exist. Otherwise, the bundle is rejected.
 * The GP2GP Adaptor now adds the EhrComposition / confidentialityCode field when Encounter.meta.security contains NOPAT security entry
 * The GP2GP Adaptor now populates the ObservationStatement / confidentialityCode field when the .meta.security field of an Uncategorized Data Observation contains NOPAT
 * When List.meta.security field contains NOPAT, the GP2GP Adaptor will now populate the CompoundStatement.confidentialityCode

@@ -12,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 
@@ -27,8 +26,6 @@ public class SupportedContentTypes {
     }
 
     @SneakyThrows
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE",
-        justification = "https://github.com/spotbugs/spotbugs/issues/1338")
     private static Set<String> loadSupportedContentTypes() {
         try (InputStream is = SupportedContentTypes.class.getClassLoader().getResourceAsStream(SUPPORTED_CONTENT_TYPES_PATH);
              BufferedReader reader = new BufferedReader(new InputStreamReader(is, UTF_8))) {
