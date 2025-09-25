@@ -52,7 +52,7 @@ import uk.nhs.adaptors.gp2gp.ehr.utils.TemplateUtils;
 @Slf4j
 public class DiagnosticReportMapper {
 
-    public static final String DUMMY_SPECIMEN_ID_PREFIX = "DUMMY-SPECIMEN-";
+    public static final String NOT_PRESENT_SPECIMEN_ID_PREFIX = "NOT-PRESENT-SPECIMEN-";
     public static final String DUMMY_OBSERVATION_ID_PREFIX = "DUMMY-OBSERVATION-";
 
     private static final Mustache DIAGNOSTIC_REPORT_COMPOUND_STATEMENT_TEMPLATE =
@@ -142,7 +142,7 @@ public class DiagnosticReportMapper {
 
         // At least one specimen is required to exist for any DiagnosticReport, according to the mim
         if (!diagnosticReport.hasSpecimen() || hasObservationsWithoutSpecimen(observations)) {
-            specimens.add(generateDummySpecimen(diagnosticReport));
+            specimens.add(generateNotPresentSpecimen(diagnosticReport));
         }
 
         var inputBundleHolder = messageContext.getInputBundleHolder();
@@ -168,41 +168,38 @@ public class DiagnosticReportMapper {
     /**
      * For correct display in EMIS, any observation without a specimen must be assigned a dummy specimen.
      */
-    private List<Observation> assignDummySpecimensToObservationsWithNoSpecimen(
-            List<Observation> observations, List<Specimen> specimens) {
+    List<Observation> assignDummySpecimensToObservationsWithNoSpecimen(List<Observation> observations, List<Specimen> specimens) {
 
         List<Observation> filingComments = getFilingComments(observations);
-        observations = new ArrayList<>(stripFilingComments(observations));
+        List<Observation> nonFilingObservations = new ArrayList<>(stripFilingComments(observations));
 
-        if (!hasObservationsWithoutSpecimen(observations)) {
-            observations.addAll(filingComments);
-            return observations;
+        if (!hasObservationsWithoutSpecimen(nonFilingObservations)) {
+            nonFilingObservations.addAll(filingComments);
+            return nonFilingObservations;
         }
 
         // The assumption was made that all test results without a specimen will have the same dummy specimen referenced
-        Specimen dummySpecimen = specimens.stream()
-                .filter(specimen -> specimen.getId().contains(DUMMY_SPECIMEN_ID_PREFIX))
-                .toList().getFirst();
+        Specimen notPresentSpecimen = specimens.stream()
+            .filter(specimen -> specimen.getId().contains(NOT_PRESENT_SPECIMEN_ID_PREFIX))
+            .toList().getFirst();
 
-        Reference dummySpecimenReference = new Reference(dummySpecimen.getId());
+        Reference notPresentSpecimenReference = new Reference(notPresentSpecimen.getId());
 
-        for (Observation observation : observations) {
-            if (!observation.hasSpecimen() && !isFilingComment(observation)) {
-                observation.setSpecimen(dummySpecimenReference);
-            }
-        }
+        nonFilingObservations.stream()
+            .filter(obs -> !obs.hasSpecimen() && !isFilingComment(obs))
+            .forEach(obs -> obs.setSpecimen(notPresentSpecimenReference));
 
-        observations.addAll(filingComments);
-        return observations;
+        nonFilingObservations.addAll(filingComments);
+        return nonFilingObservations;
     }
 
-    private Specimen generateDummySpecimen(DiagnosticReport diagnosticReport) {
+    private Specimen generateNotPresentSpecimen(DiagnosticReport diagnosticReport) {
         Specimen specimen = new Specimen();
 
-        specimen.setId(DUMMY_SPECIMEN_ID_PREFIX + randomIdGeneratorService.createNewId());
+        specimen.setId(NOT_PRESENT_SPECIMEN_ID_PREFIX + randomIdGeneratorService.createNewId());
 
         return specimen
-            .setAccessionIdentifier(new Identifier().setValue("DUMMY"))
+            .setAccessionIdentifier(new Identifier().setValue("NOT PRESENT"))
             .setCollection(new Specimen.SpecimenCollectionComponent().setCollected(new DateTimeType(diagnosticReport.getIssued())))
             .setType(new CodeableConcept().setText("UNKNOWN"));
     }
@@ -247,7 +244,7 @@ public class DiagnosticReportMapper {
         List<String> nonOrphanSpecimenIDList = new ArrayList<>();
         for (Specimen specimen : specimens) {
             // Dummy Specimens should not have a dummy observation attached.
-            if (!specimen.getId().contains(DUMMY_SPECIMEN_ID_PREFIX)) {
+            if (!specimen.getId().contains(NOT_PRESENT_SPECIMEN_ID_PREFIX)) {
                 specimenIDList.add(specimen.getId());
             }
         }
