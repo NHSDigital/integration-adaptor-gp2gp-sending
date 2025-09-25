@@ -2485,11 +2485,6 @@
                         }
                     }
                 ],
-                "specimen": [
-                    {
-                        "reference": "Specimen/3F23D00A-5DC8-49B8-8FEF-0C4BD4D3B4D0-SPEC-0"
-                    }
-                ],
                 "result": [
                     {
                         "reference": "Observation/3F23D00A-5DC8-49B8-8FEF-0C4BD4D3B4D0-COMM"
