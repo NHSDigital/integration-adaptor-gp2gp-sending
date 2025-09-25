@@ -1,17 +1,21 @@
 package uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.dstu3.model.Observation;
@@ -54,12 +58,15 @@ import static uk.nhs.adaptors.gp2gp.utils.XmlParsingUtility.getXmlStringFromFile
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class DiagnosticReportMapperTest {
+
     private static final String TEST_FILE_DIRECTORY = "/ehr/mapper/diagnosticreport/";
 
     private static final String INPUT_JSON_BUNDLE = "fhir_bundle.json";
     private static final String INPUT_JSON_BUNDLE_WITH_FILING_COMMENTS = "fhir_bundle_with_filing_comments.json";
 
     private static final String TEST_ID = "5E496953-065B-41F2-9577-BE8F2FBD0757";
+    public static final String NOT_PRESENT_SPECIMEN_ID_PREFIX = "NOT-PRESENT-SPECIMEN-";
+    private static final String COMMENT_NOTE = "37331000000100";
 
     private static final String INPUT_JSON_REQUIRED_DATA = "diagnostic-report-with-required-data.json";
     private static final String INPUT_JSON_EMPTY_SPECIMENS = "diagnostic-report-with-empty-specimens.json";
@@ -126,6 +133,75 @@ class DiagnosticReportMapperTest {
     @AfterEach
     public void tearDown() {
         messageContext.resetMessageContext();
+    }
+
+    @Test
+    void shouldAssignDummySpecimenOnlyToNonFilingObservationsWithoutSpecimen() {
+
+        Observation obsWithoutSpecimen = new Observation();
+        obsWithoutSpecimen.setId("obs1");
+
+        Observation obsWithSpecimen = new Observation();
+        obsWithSpecimen.setId("obs2");
+        obsWithSpecimen.setSpecimen(new Reference("real-specimen"));
+
+        Observation filingCommentObs = new Observation();
+        filingCommentObs.setId("obs3");
+        filingCommentObs.getCode().addCoding(new Coding().setCode(COMMENT_NOTE));
+
+        List<Observation> observations = List.of(obsWithoutSpecimen, obsWithSpecimen, filingCommentObs);
+
+        Specimen dummySpecimen = new Specimen();
+        dummySpecimen.setId(NOT_PRESENT_SPECIMEN_ID_PREFIX + "123");
+        List<Specimen> specimens = List.of(dummySpecimen);
+
+        List<Observation> result = mapper.assignDummySpecimensToObservationsWithNoSpecimen(observations, specimens);
+
+        assertThat(obsWithoutSpecimen.getSpecimen())
+            .isNotNull()
+            .extracting(Reference::getReference)
+            .isEqualTo(dummySpecimen.getId());
+
+        assertThat(obsWithSpecimen.getSpecimen())
+            .extracting(Reference::getReference)
+            .isEqualTo("real-specimen");
+
+        assertFalse(filingCommentObs.hasSpecimen());
+        assertThat(result).containsExactlyInAnyOrder(obsWithoutSpecimen, obsWithSpecimen, filingCommentObs);
+    }
+
+    @Test
+    void shouldThrowIfNoDummySpecimenFound() {
+
+        Observation obsWithoutSpecimen = new Observation();
+        List<Observation> observations = List.of(obsWithoutSpecimen);
+
+        List<Specimen> specimens = List.of();
+
+        assertThatThrownBy(() -> mapper.assignDummySpecimensToObservationsWithNoSpecimen(observations, specimens))
+            .isInstanceOf(NoSuchElementException.class);
+    }
+
+    @Test
+    void shouldAssignDummySpecimenToObservationsWithoutSpecimen() {
+
+        Observation obsWithoutSpecimen = new Observation();
+        Observation obsWithSpecimen = new Observation();
+        obsWithSpecimen.setSpecimen(new Reference("real-specimen"));
+
+        List<Observation> observations = List.of(obsWithoutSpecimen, obsWithSpecimen);
+
+        Specimen dummySpecimen = new Specimen();
+        dummySpecimen.setId("dummy-" + NOT_PRESENT_SPECIMEN_ID_PREFIX);
+        Specimen realSpecimen = new Specimen();
+        realSpecimen.setId("real-specimen");
+        List<Specimen> specimens = List.of(realSpecimen, dummySpecimen);
+
+        List<Observation> result = mapper.assignDummySpecimensToObservationsWithNoSpecimen(observations, specimens);
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getSpecimen().getReference()).contains(dummySpecimen.getId());
+        assertThat(result.get(1).getSpecimen().getReference()).contains("real-specimen");
     }
 
     @ParameterizedTest
@@ -250,12 +326,14 @@ class DiagnosticReportMapperTest {
     }
 
     @Test
-    void When_DiagnosticReport_With_NoReferencedSpecimenAndFilingCommentWithNoComment_Expect_MatchesSnapshotXml() {
+    void When_DR_With_NoReferencedSpecimenAndFilingCommentWithNoComment_Expect_MatchesSnapshotXmlIncludesSpecimenRoleWithNotPresentTag() {
         final String diagnosticReportFileName = "diagnostic-report-with-no-specimen.json";
         final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(diagnosticReportFileName);
         final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
         final InputBundle inputBundle = new InputBundle(bundle);
         final String expectedXml = getXmlStringFromFile(TEST_FILE_DIRECTORY, "diagnostic-report-with-no-specimen.xml");
+        final List<String> expectedXPaths = Collections.singletonList(
+            "/component/CompoundStatement/component/CompoundStatement/specimen/specimenRole/id[@extension=\"NOT PRESENT\"]");
 
         when(specimenMapper.mapSpecimenToCompoundStatement(
             any(Specimen.class),
@@ -288,6 +366,7 @@ class DiagnosticReportMapperTest {
         final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
 
         assertThat(actualXml).isEqualToIgnoringWhitespace(expectedXml);
+        assertThatXml(actualXml).containsAllXPaths(expectedXPaths);
     }
 
     /**
@@ -307,7 +386,7 @@ class DiagnosticReportMapperTest {
 
         // This checks that the unlinked test result is given a dummy specimen.
         assertThat(actualXml).containsIgnoringWhitespaces(
-                "<!-- Mapped Specimen with id: DUMMY-SPECIMEN-5E496953-065B-41F2-9577-BE8F2FBD0757 "
+                "<!-- Mapped Specimen with id: NOT-PRESENT-SPECIMEN-5E496953-065B-41F2-9577-BE8F2FBD0757 "
                         + "with linked Observations: Observation/TestResult-WithoutSpecimenReference-->");
     }
 
@@ -408,7 +487,7 @@ class DiagnosticReportMapperTest {
         final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
         // This checks that the unlinked observation is given a dummy specimen.
         assertThat(actualXml).containsIgnoringWhitespaces(
-                "<!-- Mapped Specimen with id: DUMMY-SPECIMEN-5E496953-065B-41F2-9577-BE8F2FBD0757 "
+                "<!-- Mapped Specimen with id: NOT-PRESENT-SPECIMEN-5E496953-065B-41F2-9577-BE8F2FBD0757 "
                         + "with linked Observations: Observation/TestResult-WithoutSpecimenReference-->");
 
     }
