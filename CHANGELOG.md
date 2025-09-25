@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The GP2GP Adaptor now populates the ObservationStatement / confidentialityCode field when the .meta.security field of an Uncategorized Data Observation contains NOPAT
 * When List.meta.security field contains NOPAT, the GP2GP Adaptor will now populate the CompoundStatement.confidentialityCode
 
+### Fixed
+* When DiagnosticReport doesn't contain a Specimen reference, instead of "DUMMY" "NOT-PRESENT" value is used
+
 ### Update
 
 * [GP Connect 1.6.1] The GP2GP Adaptor is now able to identify e-referrals by using either `https://fhir.nhs.uk/Id/ubr-number` or `https://fhir.nhs.uk/Id/UBRN` when provided as an identifier system URL.
