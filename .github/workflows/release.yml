@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         config:
-          - folder: service
+          - folder: docker/service
             dockerhub_name: nia-gp2gp-adaptor
             upload_url: ${{ github.event.release.upload_url }}
     uses: NHSDigital/integration-adaptor-actions/.github/workflows/release-adaptor-container-image.yml@main
