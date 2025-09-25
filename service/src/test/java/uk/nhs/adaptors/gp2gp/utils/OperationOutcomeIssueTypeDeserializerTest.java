@@ -10,10 +10,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOf
 
 import uk.nhs.adaptors.gp2gp.common.utils.OperationOutcomeIssueTypeDeserializer;
 
-public class OperationOutcomeIssueTypeDeserializerTest {
+class OperationOutcomeIssueTypeDeserializerTest {
 
     @Test
-    public void When_DeserializingIssueTypeCodeWithHyphenWhichIsAValidCode_Expect_ThatMemberToBeReturned() {
+    void When_DeserializingIssueTypeCodeWithHyphenWhichIsAValidCode_Expect_ThatMemberToBeReturned() {
         var module = new SimpleModule();
         module.addDeserializer(OperationOutcome.IssueType.class, new OperationOutcomeIssueTypeDeserializer());
 
@@ -26,7 +26,7 @@ public class OperationOutcomeIssueTypeDeserializerTest {
     }
 
     @Test
-    public void When_DeserializingIssueTypeCodeWithoutHyphenWhichIsAValidCode_Expect_ThatMemberToBeReturned() {
+    void When_DeserializingIssueTypeCodeWithoutHyphenWhichIsAValidCode_Expect_ThatMemberToBeReturned() {
         var module = new SimpleModule();
         module.addDeserializer(OperationOutcome.IssueType.class, new OperationOutcomeIssueTypeDeserializer());
 
@@ -39,7 +39,7 @@ public class OperationOutcomeIssueTypeDeserializerTest {
     }
 
     @Test
-    public void When_DeserializingIssueTypeCodeWhichIsNotAValidCode_Expect_ExceptionThrown() {
+    void When_DeserializingIssueTypeCodeWhichIsNotAValidCode_Expect_ExceptionThrown() {
         var module = new SimpleModule();
         module.addDeserializer(OperationOutcome.IssueType.class, new OperationOutcomeIssueTypeDeserializer());
 

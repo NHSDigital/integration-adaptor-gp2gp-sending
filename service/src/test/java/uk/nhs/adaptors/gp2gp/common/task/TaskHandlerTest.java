@@ -33,7 +33,7 @@ import uk.nhs.adaptors.gp2gp.mhs.exception.MhsConnectionException;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 @ExtendWith(MockitoExtension.class)
-public class TaskHandlerTest {
+class TaskHandlerTest {
 
     private static final String CONVERSATION_ID = "conversationId1";
     private static final String TEST_EXCEPTION_MESSAGE = "Test exception";
@@ -67,7 +67,7 @@ public class TaskHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_TaskHandled_Expect_TaskExecuted() {
+    void When_TaskHandled_Expect_TaskExecuted() {
         setUpContinueMessage();
 
         var result = taskHandler.handle(message);
@@ -78,7 +78,7 @@ public class TaskHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_MessageIsUnreadable_Expect_MessageProcessingToBeAborted() {
+    void When_MessageIsUnreadable_Expect_MessageProcessingToBeAborted() {
         doThrow(JMSException.class).when(message).getStringProperty(TASK_TYPE_HEADER_NAME);
 
         var result = taskHandler.handle(message);
@@ -95,7 +95,7 @@ public class TaskHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_AnyExceptionIsThrownWhenReadingMessage_Expect_MessageProcessingToBeAborted() {
+    void When_AnyExceptionIsThrownWhenReadingMessage_Expect_MessageProcessingToBeAborted() {
         doThrow(RuntimeException.class).when(message).getStringProperty(TASK_TYPE_HEADER_NAME);
 
         var result = taskHandler.handle(message);
@@ -111,7 +111,7 @@ public class TaskHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_CannotRetrieveTaskDefinition_Expect_MessageProcessingToBeAborted() {
+    void When_CannotRetrieveTaskDefinition_Expect_MessageProcessingToBeAborted() {
         var taskType = "taskType1";
         var messageBody = "body1";
         when(message.getStringProperty(any())).thenReturn(taskType);
@@ -128,7 +128,7 @@ public class TaskHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_NackTaskFails_Expect_ProcessNotToBeFailed() {
+    void When_NackTaskFails_Expect_ProcessNotToBeFailed() {
         setupAckMessage(SendAcknowledgementTaskDefinition.NACK_TYPE_CODE);
         Exception exception = new RuntimeException(TEST_EXCEPTION_MESSAGE);
         doThrow(exception).when(taskExecutor).execute(any());
@@ -143,7 +143,7 @@ public class TaskHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_NonNackTaskFails_Expect_ProcessToBeFailed() {
+    void When_NonNackTaskFails_Expect_ProcessToBeFailed() {
         setUpContinueMessage();
         Exception exception = new RuntimeException(TEST_EXCEPTION_MESSAGE);
         doThrow(exception).when(taskExecutor).execute(any());
@@ -156,7 +156,7 @@ public class TaskHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_OtherTaskFails_Expect_ResultFromErrorHandlerToBeReturned() {
+    void When_OtherTaskFails_Expect_ResultFromErrorHandlerToBeReturned() {
         setUpContinueMessage();
         Exception exception = new RuntimeException(TEST_EXCEPTION_MESSAGE);
         doThrow(exception).when(taskExecutor).execute(any());
@@ -170,7 +170,7 @@ public class TaskHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_NonAckTaskFails_Expect_ResultFromErrorHandlerToBeReturned() {
+    void When_NonAckTaskFails_Expect_ResultFromErrorHandlerToBeReturned() {
         setupAckMessage(SendAcknowledgementTaskDefinition.ACK_TYPE_CODE);
         Exception exception = new RuntimeException(TEST_EXCEPTION_MESSAGE);
         doThrow(exception).when(taskExecutor).execute(any());
@@ -185,7 +185,7 @@ public class TaskHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_ErrorHandlerThrowsException_Expect_ExceptionToBeRethrown() {
+    void When_ErrorHandlerThrowsException_Expect_ExceptionToBeRethrown() {
         setUpContinueMessage();
         Exception taskException = new RuntimeException("task executor exception");
         doThrow(taskException).when(taskExecutor).execute(any());
@@ -200,7 +200,7 @@ public class TaskHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_ProcessHasAlreadyFailed_Expect_NonNackTaskNotToBeExecuted() {
+    void When_ProcessHasAlreadyFailed_Expect_NonNackTaskNotToBeExecuted() {
         setUpContinueMessage();
         when(processFailureHandlingService.hasProcessFailed(any())).thenReturn(true);
 
@@ -213,7 +213,7 @@ public class TaskHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_ProcessHasAlreadyFailed_Expect_NackTaskToStillBeExecuted() {
+    void When_ProcessHasAlreadyFailed_Expect_NackTaskToStillBeExecuted() {
         setupAckMessage(SendAcknowledgementTaskDefinition.NACK_TYPE_CODE);
         when(processFailureHandlingService.hasProcessFailed(any())).thenReturn(true);
 
@@ -226,7 +226,7 @@ public class TaskHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_Handle_WithExecuteThrows_MhsConnectionException_Expect_ExceptionThrown() {
+    void When_Handle_WithExecuteThrows_MhsConnectionException_Expect_ExceptionThrown() {
         setUpContinueMessage();
         doThrow(new MhsConnectionException("test exception")).when(taskExecutor).execute(any());
 
@@ -235,7 +235,7 @@ public class TaskHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_Handle_WithDataAccessResourceFailureException_Expect_ExceptionThrown() {
+    void When_Handle_WithDataAccessResourceFailureException_Expect_ExceptionThrown() {
         setUpContinueMessage();
         doThrow(new DataAccessResourceFailureException("test exception")).when(processFailureHandlingService).hasProcessFailed(any());
 
@@ -244,7 +244,7 @@ public class TaskHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_Handle_WithOtherRuntimeException_Expect_ProcessFailed() {
+    void When_Handle_WithOtherRuntimeException_Expect_ProcessFailed() {
         setUpContinueMessage();
         Exception exception = new RuntimeException(TEST_EXCEPTION_MESSAGE);
         doThrow(exception).when(taskExecutor).execute(any());

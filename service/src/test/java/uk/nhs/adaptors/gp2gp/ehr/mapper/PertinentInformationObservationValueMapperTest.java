@@ -13,7 +13,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 
-public class PertinentInformationObservationValueMapperTest {
+class PertinentInformationObservationValueMapperTest {
     private static final String TEST_FILES_DIRECTORY = "/ehr/mapper/observation/pertinent/";
     private static final String INPUT_JSON_WITH_CODEABLE_CONCEPT = TEST_FILES_DIRECTORY
         + "example-observation-resource-with-pert-info-1.json";
@@ -55,7 +55,7 @@ public class PertinentInformationObservationValueMapperTest {
 
     @ParameterizedTest
     @MethodSource("testValueFilePaths")
-    public void When_MappingParsedObservationValueJson_Expect_CorrectXmlOutput(String input, String output) {
+    void When_MappingParsedObservationValueJson_Expect_CorrectXmlOutput(String input, String output) {
         var jsonInput = ResourceTestFileUtils.getFileContent(input);
         Observation observation = new FhirParseService().parseResource(jsonInput, Observation.class);
 
@@ -70,7 +70,7 @@ public class PertinentInformationObservationValueMapperTest {
 
     @ParameterizedTest
     @MethodSource("testReferenceRangeFilePaths")
-    public void When_MappingParsedObservationJsonWithReferenceRange_Expect_CorrectXmlOutput(String input, String output)  {
+    void When_MappingParsedObservationJsonWithReferenceRange_Expect_CorrectXmlOutput(String input, String output)  {
         var jsonInput = ResourceTestFileUtils.getFileContent(input);
         Observation observation = new FhirParseService().parseResource(jsonInput, Observation.class);
 
@@ -80,7 +80,7 @@ public class PertinentInformationObservationValueMapperTest {
     }
 
     @Test
-    public void When_MappingParsedObservationInvalidValueJson_Expect_IllegalArgumentException() {
+    void When_MappingParsedObservationInvalidValueJson_Expect_IllegalArgumentException() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_INVALID_VALUE);
         Observation observation = new FhirParseService().parseResource(jsonInput, Observation.class);
 

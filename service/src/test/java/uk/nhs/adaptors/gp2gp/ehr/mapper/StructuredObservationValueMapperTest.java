@@ -13,7 +13,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 
-public class StructuredObservationValueMapperTest {
+class StructuredObservationValueMapperTest {
     private static final String TEST_FILES_DIRECTORY = "/ehr/mapper/observation/value/";
     private static final String INPUT_JSON_WITH_STRING_TYPE = TEST_FILES_DIRECTORY
         + "example-observation-resource-with-value-1.json";
@@ -45,7 +45,7 @@ public class StructuredObservationValueMapperTest {
     private static final StructuredObservationValueMapper XML_OBSERVATION_VALUE_MAPPER = new StructuredObservationValueMapper();
 
     @Test
-    public void When_MappingParsedObservationStringValueJson_Expect_CorrectXmlOutput() {
+    void When_MappingParsedObservationStringValueJson_Expect_CorrectXmlOutput() {
         String expectedOutputMessage = ResourceTestFileUtils.getFileContent(OUTPUT_XML_WITH_STRING_TYPE);
 
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_STRING_TYPE);
@@ -60,7 +60,7 @@ public class StructuredObservationValueMapperTest {
 
     @ParameterizedTest
     @MethodSource("referenceRangeTestParams")
-    public void When_MappingParsedObservationReferenceRangeJson_Expect_CorrectXmlOutput(
+    void When_MappingParsedObservationReferenceRangeJson_Expect_CorrectXmlOutput(
         String inputJsonPath,
         String expectedOutputXmlPath) {
         String expectedOutputMessage = ResourceTestFileUtils.getFileContent(expectedOutputXmlPath);
@@ -73,7 +73,7 @@ public class StructuredObservationValueMapperTest {
     }
 
     @Test
-    public void When_MappingParsedObservationInterpretationJson_Expect_CorrectXmlOutput() {
+    void When_MappingParsedObservationInterpretationJson_Expect_CorrectXmlOutput() {
         String expectedOutputMessage = ResourceTestFileUtils.getFileContent(OUTPUT_XML_WITH_INTERPRETATION);
 
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_INTERPRETATION);
@@ -85,7 +85,7 @@ public class StructuredObservationValueMapperTest {
     }
 
     @Test
-    public void When_MappingParsedObservationInvalidValueJson_Expect_IllegalArgumentException() {
+    void When_MappingParsedObservationInvalidValueJson_Expect_IllegalArgumentException() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_INVALID_VALUE);
         Observation observation = new FhirParseService().parseResource(jsonInput, Observation.class);
 

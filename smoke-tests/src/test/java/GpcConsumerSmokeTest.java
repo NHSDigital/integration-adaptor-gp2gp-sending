@@ -36,7 +36,7 @@ public class GpcConsumerSmokeTest {
     }
 
     @Test
-    public void expect_GpcConsumerIsAvailable() {
+    void expect_GpcConsumerIsAvailable() {
 
         Optional<String> responseBody = Optional.empty();
 

@@ -57,12 +57,12 @@ public class SupportingInfoResourceExtractorTest {
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
     }
 
     @Test
-    public void When_ExtractDocumentReferenceAndMessageContextDoesNotContainDocumentReference_Expect_StringIsEmpty() {
+    void When_ExtractDocumentReferenceAndMessageContextDoesNotContainDocumentReference_Expect_StringIsEmpty() {
         when(inputBundle.getResource(REFERENCE_ID)).thenReturn(Optional.empty());
 
         final var supportingInfo = SupportingInfoResourceExtractor.extractDocumentReference(messageContext, REFERENCE);
@@ -71,7 +71,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractDocumentReferenceAndDocumentReferenceHasCreated_Expect_StringContainsCreated() {
+    void When_ExtractDocumentReferenceAndDocumentReferenceHasCreated_Expect_StringContainsCreated() {
         final var resource = (Resource) new DocumentReference()
             .setCreated(getDate("2010-01-01"))
             .setIndexed(getDate("2020-02-02"));
@@ -83,7 +83,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractDocumentReferenceAndDocumentReferenceHasIndexedWithNoCreated_Expect_StringContainsCreated() {
+    void When_ExtractDocumentReferenceAndDocumentReferenceHasIndexedWithNoCreated_Expect_StringContainsCreated() {
         final var resource = (Resource) new DocumentReference()
             .setIndexed(getDate("2020-02-02"));
         when(inputBundle.getResource(REFERENCE_ID)).thenReturn(Optional.of(resource));
@@ -94,7 +94,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractDocumentReferenceAndDocumentReferenceHasTypeText_Expect_StringContainsText() {
+    void When_ExtractDocumentReferenceAndDocumentReferenceHasTypeText_Expect_StringContainsText() {
         final var resource = (Resource) new DocumentReference()
             .setCreated(getDate("2010-01-01"))
             .setType(CODEABLE_CONCEPT_WITH_TEXT_AND_CODING_DISPLAY);
@@ -107,7 +107,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractDocumentReferenceAndDocumentReferenceHasTypeWithDisplayOnly_Expect_StringContainsDisplay() {
+    void When_ExtractDocumentReferenceAndDocumentReferenceHasTypeWithDisplayOnly_Expect_StringContainsDisplay() {
         final var resource = (Resource) new DocumentReference()
             .setCreated(getDate("2010-01-01"))
             .setType(CODEABLE_CONCEPT_WITH_CODING_DISPLAY_ONLY);
@@ -120,7 +120,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractDocumentReferenceAndDocumentReferenceHasDescription_Expect_StringContainsDescription() {
+    void When_ExtractDocumentReferenceAndDocumentReferenceHasDescription_Expect_StringContainsDescription() {
         final var resource = (Resource) new DocumentReference()
             .setCreated(getDate("2010-01-01"))
             .setType(new CodeableConcept().setText("TypeText"))
@@ -134,7 +134,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractObservationAndMessageContextDoesNotContainObservation_Expect_StringIsEmpty() {
+    void When_ExtractObservationAndMessageContextDoesNotContainObservation_Expect_StringIsEmpty() {
         when(inputBundle.getResource(REFERENCE_ID)).thenReturn(Optional.empty());
 
         final var supportingInfo = SupportingInfoResourceExtractor.extractObservation(messageContext, REFERENCE);
@@ -143,7 +143,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractObservationAndObservationHasEffectiveDateTimeType_Expect_StringContainsEffectiveDate() {
+    void When_ExtractObservationAndObservationHasEffectiveDateTimeType_Expect_StringContainsEffectiveDate() {
         final var resource = (Resource) new Observation()
             .setEffective(new DateTimeType("2010-01-01"));
         when(inputBundle.getResource(REFERENCE_ID)).thenReturn(Optional.of(resource));
@@ -154,7 +154,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractObservationAndObservationHasEffectivePeriodWithStart_Expect_StringContainsStartDate() {
+    void When_ExtractObservationAndObservationHasEffectivePeriodWithStart_Expect_StringContainsStartDate() {
         final var resource = (Resource) new Observation()
             .setEffective(new Period().setStart(getDate("2020-02-02")));
         when(inputBundle.getResource(REFERENCE_ID)).thenReturn(Optional.of(resource));
@@ -165,7 +165,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractObservationAndObservationHasCodeText_Expect_StringContainsCodeText() {
+    void When_ExtractObservationAndObservationHasCodeText_Expect_StringContainsCodeText() {
         final var resource = (Resource) new Observation()
             .setEffective(new DateTimeType("2010-01-01"))
             .setCode(CODEABLE_CONCEPT_WITH_TEXT_AND_CODING_DISPLAY);
@@ -178,7 +178,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractObservationAndObservationHasCodeWithDisplayOnly_Expect_StringContainsDisplay() {
+    void When_ExtractObservationAndObservationHasCodeWithDisplayOnly_Expect_StringContainsDisplay() {
         final var resource = (Resource) new Observation()
             .setEffective(new DateTimeType("2010-01-01"))
             .setCode(CODEABLE_CONCEPT_WITH_CODING_DISPLAY_ONLY);
@@ -191,7 +191,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractReferralRequestAndMessageContextDoesNotContainReferralRequest_Expect_StringIsEmpty() {
+    void When_ExtractReferralRequestAndMessageContextDoesNotContainReferralRequest_Expect_StringIsEmpty() {
         when(inputBundle.getResource(REFERENCE_ID)).thenReturn(Optional.empty());
 
         final var supportingInfo = SupportingInfoResourceExtractor.extractReferralRequest(messageContext, REFERENCE);
@@ -200,7 +200,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractReferralRequestAndReferralHasAuthoredOn_Expect_StringContainsAuthoredOnDate() {
+    void When_ExtractReferralRequestAndReferralHasAuthoredOn_Expect_StringContainsAuthoredOnDate() {
         final var resource = (Resource) new ReferralRequest()
             .setAuthoredOn(getDate("2010-01-01"));
         when(inputBundle.getResource(REFERENCE_ID)).thenReturn(Optional.of(resource));
@@ -211,7 +211,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractReferralRequestAndReferralHasReasonCodeText_Expect_StringContainsCodeText() {
+    void When_ExtractReferralRequestAndReferralHasReasonCodeText_Expect_StringContainsCodeText() {
         final var resource = (Resource) new ReferralRequest()
             .setAuthoredOn(getDate("2010-01-01"))
             .addReasonCode(CODEABLE_CONCEPT_WITH_TEXT_AND_CODING_DISPLAY);
@@ -223,7 +223,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractReferralRequestAndReferralHasReasonCodeWithDisplayOnly_Expect_StringContainsDisplay() {
+    void When_ExtractReferralRequestAndReferralHasReasonCodeWithDisplayOnly_Expect_StringContainsDisplay() {
         final var resource = (Resource) new ReferralRequest()
             .setAuthoredOn(getDate("2010-01-01"))
             .addReasonCode(CODEABLE_CONCEPT_WITH_CODING_DISPLAY_ONLY);
@@ -235,7 +235,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractDiagnosticReportAndMessageContextDoesNotContainDiagnosticReport_Expect_StringIsEmpty() {
+    void When_ExtractDiagnosticReportAndMessageContextDoesNotContainDiagnosticReport_Expect_StringIsEmpty() {
         when(inputBundle.getResource(REFERENCE_ID)).thenReturn(Optional.empty());
 
         final var supportingInfo = SupportingInfoResourceExtractor.extractDiagnosticReport(messageContext, REFERENCE);
@@ -244,7 +244,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractDiagnosticReportAndReportHasIssued_Expect_StringContainsIssued() {
+    void When_ExtractDiagnosticReportAndReportHasIssued_Expect_StringContainsIssued() {
         final var resource = (Resource) new DiagnosticReport()
             .setIssued(getDate("2010-01-01"));
         when(inputBundle.getResource(REFERENCE_ID)).thenReturn(Optional.of(resource));
@@ -255,7 +255,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractDiagnosticReportAndReportHasPMIPIdentifierSystem_Expect_StringContainsIdentifierValue() {
+    void When_ExtractDiagnosticReportAndReportHasPMIPIdentifierSystem_Expect_StringContainsIdentifierValue() {
         final var resource = (Resource) new DiagnosticReport()
             .setIssued(getDate("2010-01-01"))
             .setIdentifier(
@@ -273,7 +273,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractDiagnosticReportAndReportHasPMIPIdentifierSystemWithOID_Expect_StringContainsIdentifierValue() {
+    void When_ExtractDiagnosticReportAndReportHasPMIPIdentifierSystemWithOID_Expect_StringContainsIdentifierValue() {
         final var resource = (Resource) new DiagnosticReport()
             .setIssued(getDate("2010-01-01"))
             .setIdentifier(
@@ -291,7 +291,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractDiagnosticReportAndReportHasNonPMIPIdentifierSystem_Expect_StringDoesNotContainIdentifierValue() {
+    void When_ExtractDiagnosticReportAndReportHasNonPMIPIdentifierSystem_Expect_StringDoesNotContainIdentifierValue() {
         final var resource = (Resource) new DiagnosticReport()
             .setIssued(getDate("2010-01-01"))
             .setIdentifier(
@@ -309,7 +309,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractMedicationRequestAndMessageContextDoesNotContainMedicationRequest_Expect_StringIsEmpty() {
+    void When_ExtractMedicationRequestAndMessageContextDoesNotContainMedicationRequest_Expect_StringIsEmpty() {
         when(inputBundle.getResource(REFERENCE_ID)).thenReturn(Optional.empty());
 
         final var supportingInfo = SupportingInfoResourceExtractor.extractMedicationRequest(messageContext, REFERENCE);
@@ -318,7 +318,7 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    public void When_ExtractMedicationRequestAndRequestHasDispenseValidityPeriodStart_Expect_StringContainsStartDate() {
+    void When_ExtractMedicationRequestAndRequestHasDispenseValidityPeriodStart_Expect_StringContainsStartDate() {
         final var resource = (Resource) new MedicationRequest()
             .setDispenseRequest(
                 new MedicationRequest.MedicationRequestDispenseRequestComponent()
@@ -333,7 +333,7 @@ public class SupportingInfoResourceExtractorTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void When_ExtractMedicationRequestAndRequestHasMedicationReferenceWithCodeText_Expect_StringContainsCodeText() {
+    void When_ExtractMedicationRequestAndRequestHasMedicationReferenceWithCodeText_Expect_StringContainsCodeText() {
         final var dispenseRequest = new MedicationRequest.MedicationRequestDispenseRequestComponent()
             .setValidityPeriod(
                 new Period()
@@ -354,7 +354,7 @@ public class SupportingInfoResourceExtractorTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void When_ExtractMedicationRequestAndRequestHasMedicationReferenceWithCodeDisplayOnly_Expect_StringContainsDisplay() {
+    void When_ExtractMedicationRequestAndRequestHasMedicationReferenceWithCodeDisplayOnly_Expect_StringContainsDisplay() {
         final var dispenseRequest = new MedicationRequest.MedicationRequestDispenseRequestComponent()
             .setValidityPeriod(
                 new Period()

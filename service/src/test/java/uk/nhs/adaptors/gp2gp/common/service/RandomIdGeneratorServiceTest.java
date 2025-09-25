@@ -7,12 +7,12 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-public class RandomIdGeneratorServiceTest {
+class RandomIdGeneratorServiceTest {
 
     private static final String UUID_UPPERCASE_REGEXP = "[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}";
 
     @Test
-    public void When_CreatingNewId_Expect_GeneratedIdIsRandomUUID() {
+    void When_CreatingNewId_Expect_GeneratedIdIsRandomUUID() {
         String id1 = new RandomIdGeneratorService().createNewId();
         String id2 = new RandomIdGeneratorService().createNewId();
 
@@ -24,7 +24,7 @@ public class RandomIdGeneratorServiceTest {
     }
 
     @Test
-    public void When_GeneratingIdFromExistingId_And_IdIsAValidUUID_Expect_ThatUUIDIsUsed() {
+    void When_GeneratingIdFromExistingId_And_IdIsAValidUUID_Expect_ThatUUIDIsUsed() {
         var uuidString = UUID.randomUUID().toString();
 
         var generatedUUID = new RandomIdGeneratorService().createNewOrUseExistingUUID(uuidString);
@@ -33,7 +33,7 @@ public class RandomIdGeneratorServiceTest {
     }
 
     @Test
-    public void When_GeneratingIdFromExistingId_And_IdIsNotAValidUUID_Expect_NewUUIDIsGenerated() {
+    void When_GeneratingIdFromExistingId_And_IdIsNotAValidUUID_Expect_NewUUIDIsGenerated() {
         var idString = "THIS-IS-NOT-A-VALID-GUID";
 
         var generatedUUID = new RandomIdGeneratorService().createNewOrUseExistingUUID(idString);

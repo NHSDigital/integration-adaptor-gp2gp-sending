@@ -12,7 +12,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 
-public class EhrFolderEffectiveTimeTest {
+class EhrFolderEffectiveTimeTest {
 
     private static final FhirParseService FHIR_PARSER = new FhirParseService();
 
@@ -34,7 +34,7 @@ public class EhrFolderEffectiveTimeTest {
     private static final String ENCOUNTER_WITH_END_DATE_ONLY = "{\"resourceType\": \"Encounter\", \"period\": {\"end\": \"%s\"}}";
 
     @Test
-    public void When_UpdatingEffectiveTimePeriodWithStartAndEndDateForFirstTime_Expect_BothSet() {
+    void When_UpdatingEffectiveTimePeriodWithStartAndEndDateForFirstTime_Expect_BothSet() {
         Period initialPeriod = getPeriod(String.format(ENCOUNTER_WITH_FULL_DATES, INITIAL_START, INITIAL_END));
 
         EhrFolderEffectiveTime ehrFolderEffectiveTime = new EhrFolderEffectiveTime();
@@ -47,7 +47,7 @@ public class EhrFolderEffectiveTimeTest {
     }
 
     @Test
-    public void When_UpdatingEffectiveTimePeriodWithStartOnlyFirstTime_Expect_OnlyStartSet() {
+    void When_UpdatingEffectiveTimePeriodWithStartOnlyFirstTime_Expect_OnlyStartSet() {
         Period onlyStartPeriod = getPeriod(String.format(ENCOUNTER_WITH_START_DATE_ONLY, INITIAL_START));
 
         EhrFolderEffectiveTime ehrFolderEffectiveTime = new EhrFolderEffectiveTime();
@@ -60,7 +60,7 @@ public class EhrFolderEffectiveTimeTest {
     }
 
     @Test
-    public void When_UpdatingEffectiveTimePeriodWithEndOnlyFirstTime_Expect_NothingSet() {
+    void When_UpdatingEffectiveTimePeriodWithEndOnlyFirstTime_Expect_NothingSet() {
         Period onlyEndPeriod = getPeriod(String.format(ENCOUNTER_WITH_END_DATE_ONLY, INITIAL_END));
 
         EhrFolderEffectiveTime ehrFolderEffectiveTime = new EhrFolderEffectiveTime();
@@ -73,7 +73,7 @@ public class EhrFolderEffectiveTimeTest {
     }
 
     @Test
-    public void When_UpdatingEffectiveTimePeriodWithStartEarlier_Expect_StartUpdated() {
+    void When_UpdatingEffectiveTimePeriodWithStartEarlier_Expect_StartUpdated() {
         Period initialPeriod = getPeriod(String.format(ENCOUNTER_WITH_FULL_DATES, INITIAL_START, INITIAL_END));
         Period newPeriod = getPeriod(String.format(ENCOUNTER_WITH_FULL_DATES, EARLIER_START, EARLIER_END));
 
@@ -88,7 +88,7 @@ public class EhrFolderEffectiveTimeTest {
     }
 
     @Test
-    public void When_UpdatingEffectiveTimePeriodWithEndLater_Expect_EndUpdated() {
+    void When_UpdatingEffectiveTimePeriodWithEndLater_Expect_EndUpdated() {
         Period initialPeriod = getPeriod(String.format(ENCOUNTER_WITH_FULL_DATES, INITIAL_START, INITIAL_END));
         Period newPeriod = getPeriod(String.format(ENCOUNTER_WITH_FULL_DATES, LATER_START, LATER_END));
 
@@ -103,7 +103,7 @@ public class EhrFolderEffectiveTimeTest {
     }
 
     @Test
-    public void When_UpdatingEffectiveTimePeriodWithStartLaterInHl7Format_Expect_NoneUpdated() {
+    void When_UpdatingEffectiveTimePeriodWithStartLaterInHl7Format_Expect_NoneUpdated() {
         Period initialPeriod = getPeriod(String.format(ENCOUNTER_WITH_FULL_DATES, INITIAL_START, INITIAL_END));
         Period newPeriod = getPeriod(String.format(ENCOUNTER_WITH_FULL_DATES, LATER_START, EARLIER_END));
 
@@ -119,7 +119,7 @@ public class EhrFolderEffectiveTimeTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"20180828103005", "20180828", "201808", "2018"})
-    public void When_UpdatingEffectiveTimeWithStartEarlierInHl7Format_Expect_Updated(String earlierDatePartHl7Format) {
+    void When_UpdatingEffectiveTimeWithStartEarlierInHl7Format_Expect_Updated(String earlierDatePartHl7Format) {
         Period initialPeriod = getPeriod(String.format(ENCOUNTER_WITH_FULL_DATES, INITIAL_START, INITIAL_END));
 
         EhrFolderEffectiveTime ehrFolderEffectiveTime = new EhrFolderEffectiveTime();
@@ -134,7 +134,7 @@ public class EhrFolderEffectiveTimeTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"20190828103005", "20190828", "201908", "2019"})
-    public void When_UpdatingEffectiveTimePeriodWithStartLaterParsedFromHl7DateFormat_Expect_NoneUpdated(String laterDatePartHl7Format) {
+    void When_UpdatingEffectiveTimePeriodWithStartLaterParsedFromHl7DateFormat_Expect_NoneUpdated(String laterDatePartHl7Format) {
         Period initialPeriod = getPeriod(String.format(ENCOUNTER_WITH_FULL_DATES, EARLIER_START, INITIAL_END));
 
         EhrFolderEffectiveTime ehrFolderEffectiveTime = new EhrFolderEffectiveTime();
@@ -148,7 +148,7 @@ public class EhrFolderEffectiveTimeTest {
     }
 
     @Test
-    public void When_UpdatingEffectiveTimePeriodWithEmptyStart_Expect_NoneUpdated() {
+    void When_UpdatingEffectiveTimePeriodWithEmptyStart_Expect_NoneUpdated() {
         Period initialPeriod = getPeriod(String.format(ENCOUNTER_WITH_FULL_DATES, EARLIER_START, INITIAL_END));
 
         EhrFolderEffectiveTime ehrFolderEffectiveTime = new EhrFolderEffectiveTime();

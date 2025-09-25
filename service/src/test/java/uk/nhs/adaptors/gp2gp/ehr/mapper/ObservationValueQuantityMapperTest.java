@@ -41,7 +41,7 @@ public class ObservationValueQuantityMapperTest {
     public static final String STRING_WITH_XML_TO_BE_ESCAPED = "\" ' & < >";
 
     @Test
-    public void When_MappingQuantityWithUncertaintyExtension_Expect_XmlContainsUncertaintyCode() {
+    void When_MappingQuantityWithUncertaintyExtension_Expect_XmlContainsUncertaintyCode() {
         var quantity = (Quantity) new Quantity()
             .setValue(VALUE_37_1)
             .setExtension(List.of(UNCERTAINTY_EXTENSION));
@@ -56,7 +56,7 @@ public class ObservationValueQuantityMapperTest {
     }
 
     @Test
-    public void When_MappingIntervalWithUncertaintyExtension_Expect_XmlContainsUncertaintyCode() {
+    void When_MappingIntervalWithUncertaintyExtension_Expect_XmlContainsUncertaintyCode() {
         var quantity = (Quantity) new Quantity()
             .setValue(VALUE_37_1)
             .setComparator(GREATER_THAN)
@@ -74,7 +74,7 @@ public class ObservationValueQuantityMapperTest {
     }
 
     @Test
-    public void When_MappingQuantityWithNoValue_Expect_EmptyString() {
+    void When_MappingQuantityWithNoValue_Expect_EmptyString() {
         var quantity = (Quantity) new Quantity()
             .setSystem(UOM_SYSTEM)
             .setCode(CODE_CEL);
@@ -84,7 +84,7 @@ public class ObservationValueQuantityMapperTest {
     }
 
     @Test
-    public void When_MappingQuantityWithUOMSystemAndCode_Expect_PQWithValueAndUnitSet() {
+    void When_MappingQuantityWithUOMSystemAndCode_Expect_PQWithValueAndUnitSet() {
         var quantity = new Quantity()
             .setSystem(UOM_SYSTEM)
             .setValue(VALUE_37_1)
@@ -101,7 +101,7 @@ public class ObservationValueQuantityMapperTest {
 
     @ParameterizedTest
     @MethodSource("provideComparatorsParameters")
-    public void When_MappingIntervalWithUOMSystemAndCode_Expect_IVQPQWithValueAndUnitSet(
+    void When_MappingIntervalWithUOMSystemAndCode_Expect_IVQPQWithValueAndUnitSet(
         QuantityComparator comparator,
         String label,
         boolean inclusive
@@ -124,7 +124,7 @@ public class ObservationValueQuantityMapperTest {
     }
 
     @Test
-    public void When_MappingQuantityWithUOMSystemAndUnit_Expect_PQWithValueAndTranslationWithOriginalTextSet() {
+    void When_MappingQuantityWithUOMSystemAndUnit_Expect_PQWithValueAndTranslationWithOriginalTextSet() {
         var quantity = new Quantity()
             .setSystem(UOM_SYSTEM)
             .setValue(VALUE_37_1)
@@ -143,7 +143,7 @@ public class ObservationValueQuantityMapperTest {
 
     @ParameterizedTest
     @MethodSource("provideComparatorsParameters")
-    public void When_MappingIntervalWithUOMSystemAndUnit_Expect_IVLPQWithWithValueAndTranslationWithOriginalTextSet(
+    void When_MappingIntervalWithUOMSystemAndUnit_Expect_IVLPQWithWithValueAndTranslationWithOriginalTextSet(
         QuantityComparator comparator,
         String label,
         boolean inclusive
@@ -169,7 +169,7 @@ public class ObservationValueQuantityMapperTest {
     }
 
     @Test
-    public void When_MappingQuantityWithUOMSystemWithoutUnitOrCode_Expect_PQWithValueSetAndUnitSetToOne() {
+    void When_MappingQuantityWithUOMSystemWithoutUnitOrCode_Expect_PQWithValueSetAndUnitSetToOne() {
         var quantity = new Quantity()
             .setSystem(UOM_SYSTEM)
             .setValue(VALUE_37_1);
@@ -184,7 +184,7 @@ public class ObservationValueQuantityMapperTest {
 
     @ParameterizedTest
     @MethodSource("provideComparatorsParameters")
-    public void When_MappingIntervalWithUOMSystemWithoutUnitOrCode_Expect_IVLPQWithValueSetAndUnitSetToOne(
+    void When_MappingIntervalWithUOMSystemWithoutUnitOrCode_Expect_IVLPQWithValueSetAndUnitSetToOne(
         QuantityComparator comparator,
         String label,
         boolean inclusive
@@ -206,7 +206,7 @@ public class ObservationValueQuantityMapperTest {
     }
 
     @Test
-    public void When_MappingQuantityWithInvalidSystemAndWithCodeAndUnit_Expect_PQWithTranslationAndDisplayName() {
+    void When_MappingQuantityWithInvalidSystemAndWithCodeAndUnit_Expect_PQWithTranslationAndDisplayName() {
         var quantity = new Quantity()
             .setSystem(INVALID_SYSTEM)
             .setValue(VALUE_37_1)
@@ -227,7 +227,7 @@ public class ObservationValueQuantityMapperTest {
 
     @ParameterizedTest
     @MethodSource("provideComparatorsParameters")
-    public void When_MappingIntervalWithInvalidSystemAndWithCodeAndUnit_Expect_IVLPQWithTranslationAndDisplayName(
+    void When_MappingIntervalWithInvalidSystemAndWithCodeAndUnit_Expect_IVLPQWithTranslationAndDisplayName(
         QuantityComparator comparator,
         String label,
         boolean inclusive
@@ -261,7 +261,7 @@ public class ObservationValueQuantityMapperTest {
         SYSTEM_UUID + "," + SYSTEM_UUID,
         SYSTEM_UUID_WITH_PREFIX + "," + SYSTEM_UUID
     })
-    public void When_MappingQuantityWithValidNonUOMSystemAndCodeAndUnit_Expect_PQWithTranslationAndDisplayName(
+    void When_MappingQuantityWithValidNonUOMSystemAndCodeAndUnit_Expect_PQWithTranslationAndDisplayName(
         String system,
         String expected
     ) {
@@ -290,7 +290,7 @@ public class ObservationValueQuantityMapperTest {
         SYSTEM_UUID + "," + SYSTEM_UUID,
         SYSTEM_UUID_WITH_PREFIX + "," + SYSTEM_UUID
     })
-    public void When_MappingIntervalWithValidNonUOMSystemAndCodeAndUnit_Expect_IVLPQWithTranslationAndDisplayName(
+    void When_MappingIntervalWithValidNonUOMSystemAndCodeAndUnit_Expect_IVLPQWithTranslationAndDisplayName(
         String system,
         String expected
     ) {
@@ -315,7 +315,7 @@ public class ObservationValueQuantityMapperTest {
     }
 
     @Test
-    public void When_MappingQuantityWithInvalidSystemAndCode_Expect_PQValueAndWithUnitSetToOne() {
+    void When_MappingQuantityWithInvalidSystemAndCode_Expect_PQValueAndWithUnitSetToOne() {
         var quantity = new Quantity()
             .setSystem(INVALID_SYSTEM)
             .setValue(VALUE_37_1)
@@ -331,7 +331,7 @@ public class ObservationValueQuantityMapperTest {
 
     @ParameterizedTest
     @MethodSource("provideComparatorsParameters")
-    public void When_MappingIntervalWithInvalidSystemAndCode_Expect_IVLPQValueAndWithUnitSetToOne(
+    void When_MappingIntervalWithInvalidSystemAndCode_Expect_IVLPQValueAndWithUnitSetToOne(
         QuantityComparator comparator,
         String label,
         boolean inclusive
@@ -361,7 +361,7 @@ public class ObservationValueQuantityMapperTest {
         SYSTEM_UUID + "," + SYSTEM_UUID,
         SYSTEM_UUID_WITH_PREFIX + "," + SYSTEM_UUID
     })
-    public void When_MappingQuantityWithValidNonUOMSystemAndCode_Expect_PQXmlWithTranslation(
+    void When_MappingQuantityWithValidNonUOMSystemAndCode_Expect_PQXmlWithTranslation(
         String system,
         String expected
     ) {
@@ -388,7 +388,7 @@ public class ObservationValueQuantityMapperTest {
         SYSTEM_UUID + "," + SYSTEM_UUID,
         SYSTEM_UUID_WITH_PREFIX + "," + SYSTEM_UUID
     })
-    public void When_MappingIntervalWithValidNonUOMSystemAndCode_Expect_IVLPQWithTranslation(
+    void When_MappingIntervalWithValidNonUOMSystemAndCode_Expect_IVLPQWithTranslation(
         String system,
         String expected
     ) {
@@ -421,7 +421,7 @@ public class ObservationValueQuantityMapperTest {
         INVALID_SYSTEM
     })
     @NullAndEmptySource
-    public void When_MappingQuantityWithAnyOrInvalidOrNoSystemAndHasUnit_Expect_PQWithTranslationAndOriginalText(
+    void When_MappingQuantityWithAnyOrInvalidOrNoSystemAndHasUnit_Expect_PQWithTranslationAndOriginalText(
         String system
     ) {
         var quantity = new Quantity()
@@ -450,7 +450,7 @@ public class ObservationValueQuantityMapperTest {
         INVALID_SYSTEM
     })
     @NullAndEmptySource
-    public void When_MappingIntervalWithAnyOrInvalidOrNoSystemAndHasUnit_Expect_IVLPQWithTranslationAndOriginalText(
+    void When_MappingIntervalWithAnyOrInvalidOrNoSystemAndHasUnit_Expect_IVLPQWithTranslationAndOriginalText(
         String system
     ) {
         var quantity = new Quantity()
@@ -482,7 +482,7 @@ public class ObservationValueQuantityMapperTest {
         INVALID_SYSTEM
     })
     @NullAndEmptySource
-    public void When_MappingQuantityWithAnyOrInvalidOrNoSystemWithoutUnitOrCode_Expect_PQWithValueSetAndUnitSetToOne(
+    void When_MappingQuantityWithAnyOrInvalidOrNoSystemWithoutUnitOrCode_Expect_PQWithValueSetAndUnitSetToOne(
         String system
     ) {
         var quantity = new Quantity()
@@ -506,7 +506,7 @@ public class ObservationValueQuantityMapperTest {
         INVALID_SYSTEM
     })
     @NullAndEmptySource
-    public void When_MappingIntervalWithAnyOrInvalidOrNoSystemWithoutUnitOrCode_Expect_IVLPQWithValueSetAndUnitSetToOne(
+    void When_MappingIntervalWithAnyOrInvalidOrNoSystemWithoutUnitOrCode_Expect_IVLPQWithValueSetAndUnitSetToOne(
         String system
     ) {
         var quantity = new Quantity()
@@ -525,7 +525,7 @@ public class ObservationValueQuantityMapperTest {
     }
 
     @Test
-    public void When_MappingWithXmlCharactersInCode_Expect_XmlCharactersAreEscaped() {
+    void When_MappingWithXmlCharactersInCode_Expect_XmlCharactersAreEscaped() {
         var quantity = new Quantity()
             .setSystem(UOM_SYSTEM)
             .setValue(VALUE_37_1)
@@ -540,7 +540,7 @@ public class ObservationValueQuantityMapperTest {
     }
 
     @Test
-    public void When_MappingWithXmlCharactersInUnit_Expect_XmlCharactersAreEscaped() {
+    void When_MappingWithXmlCharactersInUnit_Expect_XmlCharactersAreEscaped() {
         var quantity = new Quantity()
             .setSystem(UOM_SYSTEM)
             .setValue(VALUE_37_1)

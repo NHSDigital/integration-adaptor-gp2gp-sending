@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 
 @ExtendWith(MockitoExtension.class)
-public class StorageConnectorServiceTest {
+class StorageConnectorServiceTest {
     private static final String TEST_ID = "SOME_ID";
     private static final long EXPECTED_STREAM_LENGTH = 8;
 
@@ -40,7 +40,7 @@ public class StorageConnectorServiceTest {
 
     @Test
     @SneakyThrows
-    public void When_ValidStorageDataWrapperIsPass_Expect_UploadStorageParamsHaveCorrectValues() {
+    void When_ValidStorageDataWrapperIsPass_Expect_UploadStorageParamsHaveCorrectValues() {
         when(objectMapper.writeValueAsString(anyStorageDataWrapper)).thenReturn("response");
 
         String filename = TEST_ID.concat("/").concat(TEST_ID).concat("_gpc_structured.json");

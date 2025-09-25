@@ -129,7 +129,7 @@ class StructuredRecordMappingServiceTest {
     }
 
     @Test
-    public void When_GettingExternalAttachment_WithTitleAndNoUrl_Expect_AbsentAttachmentMapped() {
+    void When_GettingExternalAttachment_WithTitleAndNoUrl_Expect_AbsentAttachmentMapped() {
         when(randomIdGeneratorService.createNewId()).thenReturn(NEW_DOC_MANIFEST_ID_1);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(NEW_DOC_MANIFEST_ID_1);
         when(gp2gpConfiguration.getLargeAttachmentThreshold()).thenReturn(LARGE_MESSAGE_THRESHOLD);
@@ -169,7 +169,7 @@ class StructuredRecordMappingServiceTest {
     }
 
     @Test
-    public void When_MapStructuredRecordToXml_Expect_EhrExtractMessageIdIsSaved() {
+    void When_MapStructuredRecordToXml_Expect_EhrExtractMessageIdIsSaved() {
         var ehrExtractTemplateParameters = mock(EhrExtractTemplateParameters.class);
         var structuredTaskDefinition = mock(GetGpcStructuredTaskDefinition.class);
         var bundle = mock(Bundle.class);
@@ -203,7 +203,7 @@ class StructuredRecordMappingServiceTest {
 
     @Test
     @SneakyThrows
-    public void When_BuildingSkeletonForEhrExtract_Expect_XmlWithSingleComponent() {
+    void When_BuildingSkeletonForEhrExtract_Expect_XmlWithSingleComponent() {
         var documentId = "DocumentId";
         var skeletonComponent = "<component>This is the newly added skeleton component</component>";
 
@@ -243,7 +243,7 @@ class StructuredRecordMappingServiceTest {
     }
 
     @Test
-    public void When_BuildingSkeletonForEhrExtractWithoutChildComponentNodesToReplace_Expect_XMLWithSingleComponent() throws Exception {
+    void When_BuildingSkeletonForEhrExtractWithoutChildComponentNodesToReplace_Expect_XMLWithSingleComponent() throws Exception {
         var documentId = "DocumentId";
         var skeletonComponent = "<component>This is the newly added skeleton component</component>";
 

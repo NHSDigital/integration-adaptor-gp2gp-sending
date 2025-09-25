@@ -24,7 +24,7 @@ import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 
 @ExtendWith(MockitoExtension.class)
-public class AgentDirectoryMapperTest {
+class AgentDirectoryMapperTest {
 
     private static final String TEST_ID = "5E496953-065B-41F2-9577-BE8F2FBD0757";
     private static final String NHS_NUMBER = "9465701459";
@@ -67,7 +67,7 @@ public class AgentDirectoryMapperTest {
     }
 
     @Test
-    public void When_MappingAgentDirectory_Expect_CorrectOutputFromMapper() {
+    void When_MappingAgentDirectory_Expect_CorrectOutputFromMapper() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_AGENT_DIRECTORY);
         Bundle bundle = fhirParseService.parseResource(jsonInput, Bundle.class);
         initializeMessageContextWithAgentKeys(bundle);
@@ -79,7 +79,7 @@ public class AgentDirectoryMapperTest {
     }
 
     @Test
-    public void When_MappingAgentDirectoryWithoutPatientManagingOrganizationReference_Expect_Exception() {
+    void When_MappingAgentDirectoryWithoutPatientManagingOrganizationReference_Expect_Exception() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_AGENT_DIRECTORY_WITHOUT_MANAGING_ORGANIZATION_REFERENCE);
         Bundle bundle = fhirParseService.parseResource(jsonInput, Bundle.class);
         initializeMessageContextWithAgentKeys(bundle);
@@ -90,7 +90,7 @@ public class AgentDirectoryMapperTest {
     }
 
     @Test
-    public void When_MappingAgentDirectoryWithoutPatientManagingOrganizationResource_Expect_Exception() {
+    void When_MappingAgentDirectoryWithoutPatientManagingOrganizationResource_Expect_Exception() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_AGENT_DIRECTORY_WITHOUT_MANAGING_ORGANIZATION_RESOURCE);
         Bundle bundle = fhirParseService.parseResource(jsonInput, Bundle.class);
         initializeMessageContextWithAgentKeys(bundle);
@@ -101,7 +101,7 @@ public class AgentDirectoryMapperTest {
     }
 
     @Test
-    public void When_MappingAgentDirectoryWithPatientManagingOrganizationInAgentKeys_Expect_AgentPersonNotDuplicated() {
+    void When_MappingAgentDirectoryWithPatientManagingOrganizationInAgentKeys_Expect_AgentPersonNotDuplicated() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_AGENT_DIRECTORY);
         Bundle bundle = fhirParseService.parseResource(jsonInput, Bundle.class);
         initializeMessageContextWithAgentKeys(bundle);
@@ -115,7 +115,7 @@ public class AgentDirectoryMapperTest {
     }
 
     @Test
-    public void When_MappingAgentKeysWithoutAgentKeys_Expect_CorrectOutputFromMapper() {
+    void When_MappingAgentKeysWithoutAgentKeys_Expect_CorrectOutputFromMapper() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_AGENT_DIRECTORY);
         Bundle bundle = fhirParseService.parseResource(jsonInput, Bundle.class);
         messageContext.initialize(bundle);

@@ -21,7 +21,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
-public class ProcessFailureHandlingServiceTest {
+class ProcessFailureHandlingServiceTest {
 
     @Mock
     private EhrExtractStatusRepository ehrExtractStatusRepository;
@@ -42,7 +42,7 @@ public class ProcessFailureHandlingServiceTest {
     private ProcessFailureHandlingService processFailureHandlingService;
 
     @Test
-    public void When_EhrExtractStatusExistsInDB_Expect_FailProcessToReturnTrue() {
+    void When_EhrExtractStatusExistsInDB_Expect_FailProcessToReturnTrue() {
         var conversationId = "conversationId1";
         var errorCode = "errorCode1";
         var errorMessage = "errorMessage1";
@@ -59,7 +59,7 @@ public class ProcessFailureHandlingServiceTest {
     }
 
     @Test
-    public void When_EhrExtractStatusNotInDB_Expect_FailProcessToReturnFalse() {
+    void When_EhrExtractStatusNotInDB_Expect_FailProcessToReturnFalse() {
         doReturn(Optional.empty()).when(ehrExtractStatusRepository).findByConversationId(any());
 
         var result = processFailureHandlingService.failProcess("convId1", "errorCode1", "errorMsg1", "taskType1");
@@ -69,7 +69,7 @@ public class ProcessFailureHandlingServiceTest {
     }
 
     @Test
-    public void When_ExceptionIsThrown_Expect_FailProcessToReturnFalse() {
+    void When_ExceptionIsThrown_Expect_FailProcessToReturnFalse() {
         doThrow(new RuntimeException("test exception")).when(ehrExtractStatusRepository).findByConversationId(any());
 
         var result = processFailureHandlingService.failProcess("convId1", "errorCode1", "errorMsg1", "taskType1");
@@ -78,7 +78,7 @@ public class ProcessFailureHandlingServiceTest {
     }
 
     @Test
-    public void When_EhrExtractStatusNotInDB_Expect_HasProcessFailedToReturnFalse() {
+    void When_EhrExtractStatusNotInDB_Expect_HasProcessFailedToReturnFalse() {
         doReturn(Optional.of(ehrExtractStatus)).when(ehrExtractStatusRepository).findByConversationId(any());
 
         var result = processFailureHandlingService.hasProcessFailed("conversationId1");
@@ -87,7 +87,7 @@ public class ProcessFailureHandlingServiceTest {
     }
 
     @Test
-    public void When_ErrorInEhrExtractStatusIsMissing_Expect_HasProcessFailedToReturnFalse() {
+    void When_ErrorInEhrExtractStatusIsMissing_Expect_HasProcessFailedToReturnFalse() {
         doReturn(null).when(ehrExtractStatus).getError();
         doReturn(Optional.of(ehrExtractStatus)).when(ehrExtractStatusRepository).findByConversationId(any());
 
@@ -97,7 +97,7 @@ public class ProcessFailureHandlingServiceTest {
     }
 
     @Test
-    public void When_ErrorInEhrExtractStatusIsPresent_Expect_HasProcessFailedToReturnTrue() {
+    void When_ErrorInEhrExtractStatusIsPresent_Expect_HasProcessFailedToReturnTrue() {
         doReturn(ehrExtractStatusError).when(ehrExtractStatus).getError();
         doReturn(Optional.of(ehrExtractStatus)).when(ehrExtractStatusRepository).findByConversationId(any());
 
@@ -107,7 +107,7 @@ public class ProcessFailureHandlingServiceTest {
     }
 
     @Test
-    public void When_EhrExtractStatusRepositoryFails_Expect_HasProcessFailedToThrowException() {
+    void When_EhrExtractStatusRepositoryFails_Expect_HasProcessFailedToThrowException() {
         var expectedException = new RuntimeException("test exception");
         doThrow(expectedException).when(ehrExtractStatusRepository).findByConversationId(any());
 

@@ -24,7 +24,7 @@ import uk.nhs.adaptors.gp2gp.ehr.status.model.EhrStatusRequestQuery;
 import uk.nhs.adaptors.gp2gp.ehr.status.model.MigrationStatus;
 
 @ExtendWith(MockitoExtension.class)
-public class EhrStatusRequestServiceTest {
+class EhrStatusRequestServiceTest {
 
     private static final String TO_ASID_CODE = "test-to-asid";
     private static final String FROM_ASID_CODE = "test-from-asid";
@@ -57,7 +57,7 @@ public class EhrStatusRequestServiceTest {
     private EhrStatusRequestsService ehrStatusRequestsService;
 
     @Test
-    public void When_GetEhrStatusRequests_WithNoFoundRecordsInMongoDb_Expect_EmptyArrayListResponse() {
+    void When_GetEhrStatusRequests_WithNoFoundRecordsInMongoDb_Expect_EmptyArrayListResponse() {
 
         var query = new EhrStatusRequestQuery();
         when(mongoTemplate.find(any(), any())).thenReturn(null);
@@ -68,7 +68,7 @@ public class EhrStatusRequestServiceTest {
     }
 
     @Test
-    public void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_SingleResponse() {
+    void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_SingleResponse() {
 
         var query = new EhrStatusRequestQuery();
         when(mongoTemplate.find(any(), any())).thenReturn(Collections.singletonList(EHR_EXTRACT_FOUND_COMPLETED_RECORD));
@@ -79,7 +79,7 @@ public class EhrStatusRequestServiceTest {
     }
 
     @Test
-    public void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_ResponseMapsInitialRequestTimestampCorrectly() {
+    void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_ResponseMapsInitialRequestTimestampCorrectly() {
 
         var query = new EhrStatusRequestQuery();
         when(mongoTemplate.find(any(), any())).thenReturn(Collections.singletonList(EHR_EXTRACT_FOUND_COMPLETED_RECORD));
@@ -90,7 +90,7 @@ public class EhrStatusRequestServiceTest {
     }
 
     @Test
-    public void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_ResponseMapsActionCompletedTimestampCorrectly() {
+    void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_ResponseMapsActionCompletedTimestampCorrectly() {
 
         var query = new EhrStatusRequestQuery();
         when(mongoTemplate.find(any(), any())).thenReturn(Collections.singletonList(EHR_EXTRACT_FOUND_COMPLETED_RECORD));
@@ -101,7 +101,7 @@ public class EhrStatusRequestServiceTest {
     }
 
     @Test
-    public void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_ResponseMapsActionConversationIdCorrectly() {
+    void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_ResponseMapsActionConversationIdCorrectly() {
 
         var query = new EhrStatusRequestQuery();
         when(mongoTemplate.find(any(), any())).thenReturn(Collections.singletonList(EHR_EXTRACT_FOUND_COMPLETED_RECORD));
@@ -112,7 +112,7 @@ public class EhrStatusRequestServiceTest {
     }
 
     @Test
-    public void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_ResponseMapsActionNHSNumberCorrectly() {
+    void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_ResponseMapsActionNHSNumberCorrectly() {
 
         var query = new EhrStatusRequestQuery();
         when(mongoTemplate.find(any(), any())).thenReturn(Collections.singletonList(EHR_EXTRACT_FOUND_COMPLETED_RECORD));
@@ -123,7 +123,7 @@ public class EhrStatusRequestServiceTest {
     }
 
     @Test
-    public void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_ResponseMapsActionMigrationStatusCorrectly() {
+    void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_ResponseMapsActionMigrationStatusCorrectly() {
 
         var query = new EhrStatusRequestQuery();
         when(mongoTemplate.find(any(), any())).thenReturn(Collections.singletonList(EHR_EXTRACT_FOUND_COMPLETED_RECORD));
@@ -134,7 +134,7 @@ public class EhrStatusRequestServiceTest {
     }
 
     @Test
-    public void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_ResponseMapsFromASIDCorrectly() {
+    void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_ResponseMapsFromASIDCorrectly() {
 
         var query = new EhrStatusRequestQuery();
         when(mongoTemplate.find(any(), any())).thenReturn(Collections.singletonList(EHR_EXTRACT_FOUND_COMPLETED_RECORD));
@@ -145,7 +145,7 @@ public class EhrStatusRequestServiceTest {
     }
 
     @Test
-    public void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_ResponseMapsToASIDCorrectly() {
+    void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_ResponseMapsToASIDCorrectly() {
 
         var query = new EhrStatusRequestQuery();
         when(mongoTemplate.find(any(), any())).thenReturn(Collections.singletonList(EHR_EXTRACT_FOUND_COMPLETED_RECORD));
@@ -156,7 +156,7 @@ public class EhrStatusRequestServiceTest {
     }
 
     @Test
-    public void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_ResponseMapsFromODSCorrectly() {
+    void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_ResponseMapsFromODSCorrectly() {
 
         var query = new EhrStatusRequestQuery();
         when(mongoTemplate.find(any(), any())).thenReturn(Collections.singletonList(EHR_EXTRACT_FOUND_COMPLETED_RECORD));
@@ -167,7 +167,7 @@ public class EhrStatusRequestServiceTest {
     }
 
     @Test
-    public void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_ResponseMapsToOdsCorrectly() {
+    void When_GetEhrStatusRequests_WithOneFoundRecordInMongoDb_Expect_ResponseMapsToOdsCorrectly() {
 
         var query = new EhrStatusRequestQuery();
         when(mongoTemplate.find(any(), any())).thenReturn(Collections.singletonList(EHR_EXTRACT_FOUND_COMPLETED_RECORD));

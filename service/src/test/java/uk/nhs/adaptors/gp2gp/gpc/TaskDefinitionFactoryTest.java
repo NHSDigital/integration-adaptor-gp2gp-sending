@@ -22,7 +22,7 @@ import uk.nhs.adaptors.gp2gp.common.task.TaskDefinitionFactory;
 import uk.nhs.adaptors.gp2gp.common.task.TaskHandlerException;
 
 @ExtendWith(MockitoExtension.class)
-public class TaskDefinitionFactoryTest {
+class TaskDefinitionFactoryTest {
     private static final String DOCUMENT_ID_VALUE = "document_id_example";
     private static final String NHS_NUMBER_VALUE = "nhs_number_example";
     private static final String CONVERSATION_ID_VALUE = "conversation_id_example";
@@ -57,7 +57,7 @@ public class TaskDefinitionFactoryTest {
     }
 
     @Test
-    public void When_GettingValidDocumentTaskDefinition_Expect_TaskDefinitionFactoryReturnsDocumentTaskDefinition()
+    void When_GettingValidDocumentTaskDefinition_Expect_TaskDefinitionFactoryReturnsDocumentTaskDefinition()
         throws JsonProcessingException, TaskHandlerException {
         when(objectMapper.readValue(DOCUMENT_BODY, GetGpcDocumentTaskDefinition.class)).thenReturn(
             GetGpcDocumentTaskDefinition.builder()
@@ -75,7 +75,7 @@ public class TaskDefinitionFactoryTest {
     }
 
     @Test
-    public void When_GettingValidStructureTaskDefinition_Expect_TaskDefinitionFactoryReturnsStructureTaskDefinition()
+    void When_GettingValidStructureTaskDefinition_Expect_TaskDefinitionFactoryReturnsStructureTaskDefinition()
         throws JsonProcessingException, TaskHandlerException {
         when(objectMapper.readValue(STRUCTURE_BODY, GetGpcStructuredTaskDefinition.class)).thenReturn(
             GetGpcStructuredTaskDefinition.builder()
@@ -94,7 +94,7 @@ public class TaskDefinitionFactoryTest {
     }
 
     @Test
-    public void When_GettingInvalidTaskDefinition_Expect_TaskDefinitionFactoryReturnsOptionalEmpty() {
+    void When_GettingInvalidTaskDefinition_Expect_TaskDefinitionFactoryReturnsOptionalEmpty() {
         assertThatThrownBy(() -> taskDefinitionFactory.getTaskDefinition(UNKNOWN_TASK_TYPE, "body"))
             .isInstanceOf(TaskHandlerException.class)
             .hasMessageContaining(UNKNOWN_TASK_TYPE);

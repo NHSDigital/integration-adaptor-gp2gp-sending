@@ -17,7 +17,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class SendAcknowledgementTaskDispatcherTest {
+class SendAcknowledgementTaskDispatcherTest {
 
     private static final String CONVERSATION_ID = "bc96655f-1b24-4772-ace6-c31f4d80ff58";
     private static final String REQUEST_ID = "0c812331-fb6e-4c67-b6d5-9d99022e559f";
@@ -47,7 +47,7 @@ public class SendAcknowledgementTaskDispatcherTest {
     }
 
     @Test
-    public void When_Called_Expect_TaskTriggeredWithCorrectDefinitionProvided() {
+    void When_Called_Expect_TaskTriggeredWithCorrectDefinitionProvided() {
         // ARRANGE
         var reasonCode = "reasonCode1";
         var reasonMessage = "reasonMessage1";

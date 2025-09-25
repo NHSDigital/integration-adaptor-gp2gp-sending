@@ -42,7 +42,7 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class SendDocumentTaskExecutorTest {
+class SendDocumentTaskExecutorTest {
     private static final int SIZE_THRESHOLD_FOUR = 4;
     @Mock private EhrExtractStatusService ehrExtractStatusService;
     @Mock private DetectDocumentsSentService detectDocumentsSentService;
@@ -61,7 +61,7 @@ public class SendDocumentTaskExecutorTest {
 
     @SneakyThrows
     @Test
-    public void When_DocumentNeedsToBeSplitIntoFiveChunks_Expect_FiveMhsRequestsWithAttachmentsOfContentTypeOctetStream() {
+    void When_DocumentNeedsToBeSplitIntoFiveChunks_Expect_FiveMhsRequestsWithAttachmentsOfContentTypeOctetStream() {
         final int SIZE_OF_EACH_CHUNK = 1;
         final int NUMBER_OF_CHUNKS = 5;
         final String storageFileName = "large_file_which_will_be_split.txt";
@@ -93,7 +93,7 @@ public class SendDocumentTaskExecutorTest {
     @DisplayName("When_DocumentNeedsToBeSplitInto5Chunks_Expect_"
             + "MhsMessageWith5ExternalAttachmentWithDescriptionContentTypeHeaderFromTaskDefinition")
     @Test
-    public void When_DocumentNeedsToBeSplitInto5Chunks_Expect_MhsMessageWith5ExternalAttachmentCorrectlySet() {
+    void When_DocumentNeedsToBeSplitInto5Chunks_Expect_MhsMessageWith5ExternalAttachmentCorrectlySet() {
         final int SIZE_OF_EACH_CHUNK = 1;
         final int NUMBER_OF_CHUNKS = 5;
         final String storageFileName = "large_file_which_will_be_split.txt";
@@ -190,7 +190,7 @@ public class SendDocumentTaskExecutorTest {
     }
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         this.storageConnector = createLocalStorageConnector();
         gp2gpConfiguration = new Gp2gpConfiguration();
         this.sendDocumentTaskExecutor = new SendDocumentTaskExecutor(

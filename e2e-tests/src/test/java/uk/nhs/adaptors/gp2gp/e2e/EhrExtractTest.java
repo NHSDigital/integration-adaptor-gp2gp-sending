@@ -43,7 +43,7 @@ import uk.nhs.adaptors.gp2gp.Mongo;
 import uk.nhs.adaptors.gp2gp.e2e.model.EhrStatus;
 
 @ExtendWith(SoftAssertionsExtension.class)
-public class EhrExtractTest {
+class EhrExtractTest {
     @InjectSoftAssertions
     private SoftAssertions softly;
 
@@ -144,7 +144,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestWithoutNhsNumberReceived_Expect_Nack() throws Exception {
+    void When_ExtractRequestWithoutNhsNumberReceived_Expect_Nack() throws Exception {
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequestWithoutNhsNumber(conversationId, FROM_ODS_CODE_1);
         MessageQueue.sendToMhsInboundQueue(ehrExtractRequest);
@@ -165,57 +165,57 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_GPCRespondsWithNoRelationship_Expect_NackWithCode19() throws Exception {
+    void When_GPCRespondsWithNoRelationship_Expect_NackWithCode19() throws Exception {
         checkNhsNumberTriggersNackWithCode(NACK_CODE_NO_RELATIONSHIP, NHS_NUMBER_NO_RELATIONSHIP);
     }
 
     @Test
-    public void When_GPCRespondsWithPatientNotFound_Expect_NackWithCode6() throws Exception {
+    void When_GPCRespondsWithPatientNotFound_Expect_NackWithCode6() throws Exception {
         checkNhsNumberTriggersNackWithCode(NACK_CODE_PATIENT_NOT_FOUND, NHS_NUMBER_PATIENT_NOT_FOUND);
     }
 
     @Test
-    public void When_GPCRespondsWithInvalidNhsNumber_Expect_NackWithCode19() throws Exception {
+    void When_GPCRespondsWithInvalidNhsNumber_Expect_NackWithCode19() throws Exception {
         checkNhsNumberTriggersNackWithCode(NACK_CODE_INVALID, NHS_NUMBER_INVALID_NHS_NUMBER);
     }
 
     @Test
-    public void When_GPCRespondsWithInvalidDemographic_Expect_NackWithCode20() throws Exception {
+    void When_GPCRespondsWithInvalidDemographic_Expect_NackWithCode20() throws Exception {
         checkNhsNumberTriggersNackWithCode(NACK_CODE_GP_CONNECT_ERROR, NHS_NUMBER_INVALID_DEMOGRAPHIC);
     }
 
     @Test
-    public void When_GPCRespondsWithInvalidResource_Expect_NackWithCode18() throws Exception {
+    void When_GPCRespondsWithInvalidResource_Expect_NackWithCode18() throws Exception {
         checkNhsNumberTriggersNackWithCode(NACK_CODE_REQUEST_NOT_WELL_FORMED, NHS_NUMBER_INVALID_RESOURCE);
     }
 
     @Test
-    public void When_GPCRespondsWithInvalidParameter_Expect_NackWithCode18() throws Exception {
+    void When_GPCRespondsWithInvalidParameter_Expect_NackWithCode18() throws Exception {
         checkNhsNumberTriggersNackWithCode(NACK_CODE_REQUEST_NOT_WELL_FORMED, NHS_NUMBER_INVALID_PARAMETER);
     }
 
     @Test
-    public void When_GPCRespondsWithBadRequest_Expect_NackWithCode18() throws Exception {
+    void When_GPCRespondsWithBadRequest_Expect_NackWithCode18() throws Exception {
         checkNhsNumberTriggersNackWithCode(NACK_CODE_REQUEST_NOT_WELL_FORMED, NHS_NUMBER_BAD_REQUEST);
     }
 
     @Test
-    public void When_GPCRespondsWithInternalServerError_Expect_NackWithCode20() throws Exception {
+    void When_GPCRespondsWithInternalServerError_Expect_NackWithCode20() throws Exception {
         checkNhsNumberTriggersNackWithCode(NACK_CODE_GP_CONNECT_ERROR, NHS_NUMBER_INTERNAL_SERVER_ERROR);
     }
 
     @Test
-    public void When_GpcResponseCannotBeParsed_Expect_NackWithCode10() throws Exception {
+    void When_GpcResponseCannotBeParsed_Expect_NackWithCode10() throws Exception {
         checkNhsNumberTriggersNackWithCode(NACK_CODE_FAILED_TO_GENERATE_EHR, NHS_NUMBER_RESPONSE_HAS_MALFORMED_DATE);
     }
 
     @Test
-    public void When_GpcResponseMissingResource_Expect_NackWithCode10() throws Exception {
+    void When_GpcResponseMissingResource_Expect_NackWithCode10() throws Exception {
         checkNhsNumberTriggersNackWithCode(NACK_CODE_FAILED_TO_GENERATE_EHR, NHS_NUMBER_RESPONSE_MISSING_PATIENT_RESOURCE);
     }
 
     @Test
-    public void When_ExtractRequestReceivedForPatientWithNormalEhrExtract_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws Exception {
+    void When_ExtractRequestReceivedForPatientWithNormalEhrExtract_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws Exception {
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_WITH_NORMAL_DR, FROM_ODS_CODE_1);
         MessageQueue.sendToMhsInboundQueue(ehrExtractRequest);
@@ -224,7 +224,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForPatientWithLargeExtractEhrExtract_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws Exception {
+    void When_ExtractRequestReceivedForPatientWithLargeExtractEhrExtract_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws Exception {
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_LARGE_PAYLOAD, FROM_ODS_CODE_1);
         MessageQueue.sendToMhsInboundQueue(ehrExtractRequest);
@@ -233,7 +233,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForPatientWithLargeAttachment_Expect_LargeDocumentIsSplit() throws Exception {
+    void When_ExtractRequestReceivedForPatientWithLargeAttachment_Expect_LargeDocumentIsSplit() throws Exception {
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_LARGE_ATTACHMENT_DOCX, FROM_ODS_CODE_1);
 
@@ -243,7 +243,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceived_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws Exception {
+    void When_ExtractRequestReceived_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws Exception {
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_WITH_AA_DR, FROM_ODS_CODE_1);
         MessageQueue.sendToMhsInboundQueue(ehrExtractRequest);
@@ -258,7 +258,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForPatientWithLargeEhrExtractAnd2AbsentAttachments_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws Exception {
+    void When_ExtractRequestReceivedForPatientWithLargeEhrExtractAnd2AbsentAttachments_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws Exception {
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_TWO_DOCUMENTS, FROM_ODS_CODE_1);
         MessageQueue.sendToMhsInboundQueue(ehrExtractRequest);
@@ -268,7 +268,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForPatientWith3NormalDocs_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws Exception {
+    void When_ExtractRequestReceivedForPatientWith3NormalDocs_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws Exception {
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_THREE_SMALL_NORMAL_DOCUMENTS, FROM_ODS_CODE_1);
         MessageQueue.sendToMhsInboundQueue(ehrExtractRequest);
@@ -278,7 +278,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForPatientWith3AbsentAttachmentDocs_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws Exception {
+    void When_ExtractRequestReceivedForPatientWith3AbsentAttachmentDocs_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws Exception {
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_THREE_SMALL_AA_DOCUMENTS, FROM_ODS_CODE_1);
         MessageQueue.sendToMhsInboundQueue(ehrExtractRequest);
@@ -288,7 +288,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForPatientWithLargeEhrExtract_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws Exception {
+    void When_ExtractRequestReceivedForPatientWithLargeEhrExtract_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws Exception {
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_WITH_AA_DR, FROM_ODS_CODE_1);
         MessageQueue.sendToMhsInboundQueue(ehrExtractRequest);
@@ -297,7 +297,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForPatientWithNoDocs_Expect_DatabaseToBeUpdatedAccordingly() throws Exception {
+    void When_ExtractRequestReceivedForPatientWithNoDocs_Expect_DatabaseToBeUpdatedAccordingly() throws Exception {
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = IOUtils.toString(
             Objects.requireNonNull(getClass().getResourceAsStream(EHR_EXTRACT_REQUEST_NO_DOCUMENTS)), StandardCharsets.UTF_8)
@@ -349,7 +349,7 @@ public class EhrExtractTest {
 
 
     @Test
-    public void When_ExtractRequest_ContainsObservationWithBodySite_ExpectBodySiteValueInPertinentInformationText() throws Exception {
+    void When_ExtractRequest_ContainsObservationWithBodySite_ExpectBodySiteValueInPertinentInformationText() throws Exception {
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_BODY_SITE, FROM_ODS_CODE_2);
         MessageQueue.sendToMhsInboundQueue(ehrExtractRequest);
@@ -396,7 +396,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForNonExistingPatient_Expect_ErrorUpdatedInDatabase() throws Exception {
+    void When_ExtractRequestReceivedForNonExistingPatient_Expect_ErrorUpdatedInDatabase() throws Exception {
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_NOT_EXISTING_PATIENT, FROM_ODS_CODE_1);
 
@@ -411,7 +411,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForPatientWithDocumentSizeEqualThreshold_Expect_LargeDocumentIsSentAsOne() throws Exception {
+    void When_ExtractRequestReceivedForPatientWithDocumentSizeEqualThreshold_Expect_LargeDocumentIsSentAsOne() throws Exception {
         // file size: 31216
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_LARGE_DOCUMENTS_1, FROM_ODS_CODE_1);
@@ -422,7 +422,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForPatientWithSmallEhrExtractAndLargeDocument_Expect_LargeDocumentIsSplit() throws Exception {
+    void When_ExtractRequestReceivedForPatientWithSmallEhrExtractAndLargeDocument_Expect_LargeDocumentIsSplit() throws Exception {
         // file size: 62428
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_LARGE_DOCUMENTS_2, FROM_ODS_CODE_1);
@@ -433,7 +433,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForMedicusPatientWithBasedOn_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForMedicusPatientWithBasedOn_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_MEDICUS_BASED_ON, FROM_ODS_CODE_1);
         MessageQueue.sendToMhsInboundQueue(ehrExtractRequest);
@@ -443,7 +443,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForEMISPWTP2_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForEMISPWTP2_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = emisPatientsNhsNumbers.get("PWTP2");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -453,7 +453,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForEMISPWTP3_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForEMISPWTP3_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = emisPatientsNhsNumbers.get("PWTP3");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -463,7 +463,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForEMISPWTP4_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForEMISPWTP4_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = emisPatientsNhsNumbers.get("PWTP4");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -473,7 +473,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForEMISPWTP5_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForEMISPWTP5_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = emisPatientsNhsNumbers.get("PWTP5");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -483,7 +483,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForEMISPWTP6_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForEMISPWTP6_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = emisPatientsNhsNumbers.get("PWTP6");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -493,7 +493,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForEMISPWTP7_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForEMISPWTP7_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = emisPatientsNhsNumbers.get("PWTP7");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -503,7 +503,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForEMISPWTP9_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForEMISPWTP9_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = emisPatientsNhsNumbers.get("PWTP9");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -513,7 +513,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForEMISPWTP10_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForEMISPWTP10_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = emisPatientsNhsNumbers.get("PWTP10");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -523,7 +523,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForEMISPWTP11_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForEMISPWTP11_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = emisPatientsNhsNumbers.get("PWTP11");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -533,7 +533,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForTPPPWTP2_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForTPPPWTP2_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = tppPatientsNhsNumbers.get("PWTP2");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -543,7 +543,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForTPPPWTP3_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForTPPPWTP3_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = tppPatientsNhsNumbers.get("PWTP3");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -553,7 +553,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForTPPPWTP4_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForTPPPWTP4_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = tppPatientsNhsNumbers.get("PWTP4");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -563,7 +563,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForTPPPWTP5_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForTPPPWTP5_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = tppPatientsNhsNumbers.get("PWTP5");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -574,7 +574,7 @@ public class EhrExtractTest {
 
 //    @Disabled("disabled as there is an invalid date in TPPPatientStructuredRecordE2EPWTP6.json")
     @Test
-    public void When_ExtractRequestReceivedForTPPPWTP6_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForTPPPWTP6_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = tppPatientsNhsNumbers.get("PWTP6");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -584,7 +584,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForTPPPWTP7_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForTPPPWTP7_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = tppPatientsNhsNumbers.get("PWTP7");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -594,7 +594,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForTPPPWTP9_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForTPPPWTP9_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = tppPatientsNhsNumbers.get("PWTP9");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -604,7 +604,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForTPPPWTP10_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForTPPPWTP10_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = tppPatientsNhsNumbers.get("PWTP10");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -614,7 +614,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceivedForTPPPWTP11_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceivedForTPPPWTP11_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = tppPatientsNhsNumbers.get("PWTP11");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -624,7 +624,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceived_WithAttachmentNotFound_Expect_ApiHasPlaceholders() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceived_WithAttachmentNotFound_Expect_ApiHasPlaceholders() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String nhsNumber = emisPatientsNhsNumbers.get("PWTP7");
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, nhsNumber, FROM_ODS_CODE_1);
@@ -638,7 +638,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceived_WithMissingUrl_Expect_ApiHasPlaceholders() throws IOException, NamingException, JMSException {
+    void When_ExtractRequestReceived_WithMissingUrl_Expect_ApiHasPlaceholders() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_THREE_SMALL_AA_DOCUMENTS, FROM_ODS_CODE_1);
         MessageQueue.sendToMhsInboundQueue(ehrExtractRequest);
@@ -651,7 +651,7 @@ public class EhrExtractTest {
     }
 
     @Test
-    public void When_ExtractRequestReceived_WithInvalidContentType_Expect_ApiHasPlaceholders() throws IOException, NamingException,
+    void When_ExtractRequestReceived_WithInvalidContentType_Expect_ApiHasPlaceholders() throws IOException, NamingException,
         JMSException {
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_INVALID_CONTENT_TYPE_DOC, FROM_ODS_CODE_1);

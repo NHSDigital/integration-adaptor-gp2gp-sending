@@ -22,7 +22,7 @@ import uk.nhs.adaptors.gp2gp.common.service.MDCService;
 import uk.nhs.adaptors.gp2gp.mhs.exception.MhsConnectionException;
 
 @ExtendWith(MockitoExtension.class)
-public class TaskConsumerTest {
+class TaskConsumerTest {
 
     @Mock
     private TaskHandler taskHandler;
@@ -41,7 +41,7 @@ public class TaskConsumerTest {
 
     @Test
     @SneakyThrows
-    public void When_TaskHandlerReturnsTrue_Expect_MessageAcknowledged() {
+    void When_TaskHandlerReturnsTrue_Expect_MessageAcknowledged() {
         when(taskHandler.handle(any())).thenReturn(true);
 
         taskConsumer.receive(message, session);
@@ -52,7 +52,7 @@ public class TaskConsumerTest {
 
     @Test
     @SneakyThrows
-    public void When_TaskHandlerReturnsFalse_Expect_MessageNotAcknowledged() {
+    void When_TaskHandlerReturnsFalse_Expect_MessageNotAcknowledged() {
         when(taskHandler.handle(any())).thenReturn(false);
 
         taskConsumer.receive(message, session);
@@ -63,7 +63,7 @@ public class TaskConsumerTest {
 
     @Test
     @SneakyThrows
-    public void When_TaskHandlerReturnsFalse_Expect_SessionRolledBack() {
+    void When_TaskHandlerReturnsFalse_Expect_SessionRolledBack() {
         when(taskHandler.handle(any())).thenReturn(false);
 
         taskConsumer.receive(message, session);
@@ -74,7 +74,7 @@ public class TaskConsumerTest {
 
     @Test
     @SneakyThrows
-    public void When_TaskHandlerThrowsException_Expect_MessageNotAcknowledged() {
+    void When_TaskHandlerThrowsException_Expect_MessageNotAcknowledged() {
         doThrow(RuntimeException.class).when(taskHandler).handle(message);
 
         taskConsumer.receive(message, session);
@@ -85,7 +85,7 @@ public class TaskConsumerTest {
 
     @Test
     @SneakyThrows
-    public void When_TaskHandlerThrowsException_Expect_SessionRolledBack() {
+    void When_TaskHandlerThrowsException_Expect_SessionRolledBack() {
         doThrow(RuntimeException.class).when(taskHandler).handle(message);
 
         taskConsumer.receive(message, session);
@@ -96,7 +96,7 @@ public class TaskConsumerTest {
 
     @Test
     @SneakyThrows
-    public void When_TaskHandlerThrowsDataResourceAccessFailureException_Expect_ExceptionIsThrown() {
+    void When_TaskHandlerThrowsDataResourceAccessFailureException_Expect_ExceptionIsThrown() {
         doThrow(DataAccessResourceFailureException.class).when(taskHandler).handle(message);
 
         assertThatExceptionOfType(DataAccessResourceFailureException.class)
@@ -108,7 +108,7 @@ public class TaskConsumerTest {
 
     @Test
     @SneakyThrows
-    public void When_TaskHandlerThrowsMhsConnectionException_Expect_ExceptionIsThrown() {
+    void When_TaskHandlerThrowsMhsConnectionException_Expect_ExceptionIsThrown() {
         doThrow(MhsConnectionException.class).when(taskHandler).handle(message);
 
         assertThatExceptionOfType(MhsConnectionException.class)

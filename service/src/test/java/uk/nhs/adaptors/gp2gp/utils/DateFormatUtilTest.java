@@ -24,7 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 
 @ExtendWith(MockitoExtension.class)
-public class DateFormatUtilTest {
+class DateFormatUtilTest {
     private static final FhirParseService FHIR_PARSER = new FhirParseService();
     private static final String INSTANT_OBSERVATION_TEMPLATE = "{\"resourceType\": \"Observation\", \"issued\": \"%s\"}";
     private static final String DATETYPE_IMMUNIZATION_TEMPLATE = "{\"resourceType\": \"Immunization\", \"expirationDate\": \"%s\"}";
@@ -33,7 +33,7 @@ public class DateFormatUtilTest {
 
     @ParameterizedTest
     @MethodSource("instantParams")
-    public void When_FormattingInstantToHl7_Expect_Hl7InUkZone(String input, String expected) {
+    void When_FormattingInstantToHl7_Expect_Hl7InUkZone(String input, String expected) {
         String observationJson = String.format(INSTANT_OBSERVATION_TEMPLATE, input);
         Observation observation = FHIR_PARSER.parseResource(observationJson, Observation.class);
 
@@ -43,7 +43,7 @@ public class DateFormatUtilTest {
 
     @ParameterizedTest
     @MethodSource("dateParams")
-    public void When_FormattingDateTypeToHl7_Expect_Hl7InUkZone(String input, String expected) {
+    void When_FormattingDateTypeToHl7_Expect_Hl7InUkZone(String input, String expected) {
         String observationJson = String.format(DATETYPE_IMMUNIZATION_TEMPLATE, input);
         Immunization immunization = FHIR_PARSER.parseResource(observationJson, Immunization.class);
 
@@ -53,7 +53,7 @@ public class DateFormatUtilTest {
 
     @ParameterizedTest
     @MethodSource("dateParams")
-    public void When_FormattingDateTimeTypeToHl7_Expect_Hl7InUkZone(String input, String expected) {
+    void When_FormattingDateTimeTypeToHl7_Expect_Hl7InUkZone(String input, String expected) {
         String observationJson = String.format(DATETIME_OBSERVATION_TEMPLATE, input);
         Observation observation = FHIR_PARSER.parseResource(observationJson, Observation.class);
 
@@ -63,7 +63,7 @@ public class DateFormatUtilTest {
 
     @ParameterizedTest
     @MethodSource("dateTextParams")
-    public void When_FormattingDateTimeTypeToText_Expect_Hl7InUkZone(String input, String expected) {
+    void When_FormattingDateTimeTypeToText_Expect_Hl7InUkZone(String input, String expected) {
         String observationJson = String.format(DATETIME_OBSERVATION_TEMPLATE, input);
         Observation observation = FHIR_PARSER.parseResource(observationJson, Observation.class);
 
@@ -72,7 +72,7 @@ public class DateFormatUtilTest {
     }
 
     @Test
-    public void When_FormattingDateToText_Expect_StringWithDateHoursMinutes() {
+    void When_FormattingDateToText_Expect_StringWithDateHoursMinutes() {
         final String expected = "2005-05-02 21:37";
         String specimenJson = String.format(DATETIME_SPECIMEN_TEMPLATE, "2005-05-02T21:37:05+00:00");
         Specimen specimen = FHIR_PARSER.parseResource(specimenJson, Specimen.class);
@@ -83,7 +83,7 @@ public class DateFormatUtilTest {
 
     @ParameterizedTest
     @CsvSource({"20190328103005,20190328103005", "1973,19730101000000", "200808,20080801000000", "20190728,20190728000000"})
-    public void When_FormattingDateTimeTypeFromHl7FormatTextBackToDate_Expect_Hl7InUkZone(String firstParsedDate,
+    void When_FormattingDateTimeTypeFromHl7FormatTextBackToDate_Expect_Hl7InUkZone(String firstParsedDate,
         String expectedConvertedBackDateTimeTypeString) {
         BaseDateTimeType convertedBackToDateTimeType = toDateTypeTime(firstParsedDate);
 

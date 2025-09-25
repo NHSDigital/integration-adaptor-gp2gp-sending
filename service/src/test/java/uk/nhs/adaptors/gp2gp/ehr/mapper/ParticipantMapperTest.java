@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-public class ParticipantMapperTest {
+class ParticipantMapperTest {
     private static final String TEST_FILE_DIRECTORY = "/ehr/mapper/participant/";
 
     private ParticipantMapper participantMapper;
@@ -22,7 +22,7 @@ public class ParticipantMapperTest {
 
     @ParameterizedTest
     @MethodSource("getTestArguments")
-    public void When_MappingParticipantData_Expect_ParticipantXml(String reference, ParticipantType type, String expectedOutputFile) {
+    void When_MappingParticipantData_Expect_ParticipantXml(String reference, ParticipantType type, String expectedOutputFile) {
         var expectedOutput = ResourceTestFileUtils.getFileContent(expectedOutputFile);
 
         var actual = participantMapper.mapToParticipant(reference, type);

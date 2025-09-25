@@ -19,7 +19,7 @@ import uk.nhs.adaptors.gp2gp.ehr.SendEhrExtractCoreTaskDispatcher;
 import uk.nhs.adaptors.gp2gp.ehr.model.EhrExtractStatus;
 
 @ExtendWith(MockitoExtension.class)
-public class SendEhrExtractCoreTaskDispatcherTest {
+class SendEhrExtractCoreTaskDispatcherTest {
 
     private static final String CONVERSATION_ID = "bc96655f-1b24-4772-ace6-c31f4d80ff58";
     private static final String TASK_ID = "3a5009e0-55a1-4eac-9436-894494fa2589";
@@ -46,7 +46,7 @@ public class SendEhrExtractCoreTaskDispatcherTest {
     }
 
     @Test
-    public void When_SendEhrExtractCoreTaskIsCreated_Expect_CorrectDefinitionProvided() {
+    void When_SendEhrExtractCoreTaskIsCreated_Expect_CorrectDefinitionProvided() {
         sendEhrExtractCoreTaskDispatcher.send(EhrExtractStatus.builder()
             .conversationId(CONVERSATION_ID)
             .ehrRequest(EhrExtractStatus.EhrRequest.builder()

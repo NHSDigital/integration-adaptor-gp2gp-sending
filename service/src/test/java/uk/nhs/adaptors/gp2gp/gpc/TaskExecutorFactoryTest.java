@@ -25,7 +25,7 @@ import uk.nhs.adaptors.gp2gp.ehr.SendEhrExtractCoreTaskDefinition;
 import uk.nhs.adaptors.gp2gp.ehr.SendEhrExtractCoreTaskExecutor;
 
 @ExtendWith(MockitoExtension.class)
-public class TaskExecutorFactoryTest {
+class TaskExecutorFactoryTest {
     @Spy
     @InjectMocks
     private GetGpcStructuredTaskExecutor getGpcStructuredTaskExecutor;
@@ -43,7 +43,7 @@ public class TaskExecutorFactoryTest {
     private SendDocumentTaskExecutor sendDocumentTaskExecutor;
 
     @Test
-    public void When_GettingValidTask_Expect_TaskDefinitionFactoryReturnsCorrectTask() throws TaskHandlerException {
+    void When_GettingValidTask_Expect_TaskDefinitionFactoryReturnsCorrectTask() throws TaskHandlerException {
         List<TaskExecutor> executors = List.of(
             getGpcDocumentTaskExecutor,
             getGpcStructuredTaskExecutor,

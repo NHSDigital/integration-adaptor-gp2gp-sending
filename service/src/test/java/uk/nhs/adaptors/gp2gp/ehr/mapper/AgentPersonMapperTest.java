@@ -28,7 +28,7 @@ import uk.nhs.adaptors.gp2gp.utils.TestArgumentsLoaderUtil;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class AgentPersonMapperTest {
+class AgentPersonMapperTest {
 
     private static final String TEST_ID = "6D340A1B-BC15-4D4E-93CF-BBCB5B74DF73";
     private static final String PRACTITIONER_FILE_LOCATION = "/ehr/mapper/practitioner/";
@@ -55,7 +55,7 @@ public class AgentPersonMapperTest {
 
     @ParameterizedTest
     @MethodSource("readPractitionerRoleTests")
-    public void When_MappingPractitionerToAgent_Expect_RepresentedAgentXml(String practitionerRoleJson, String outputXml) {
+    void When_MappingPractitionerToAgent_Expect_RepresentedAgentXml(String practitionerRoleJson, String outputXml) {
 
         var jsonInputPractitionerRole = ResourceTestFileUtils.getFileContent(practitionerRoleJson);
         var expectedOutput = ResourceTestFileUtils.getFileContent(outputXml);
@@ -70,7 +70,7 @@ public class AgentPersonMapperTest {
 
     @ParameterizedTest
     @MethodSource("readPractitionerOnlyTests")
-    public void When_MappingPractitionerOnlyToAgent_Expect_NoRepresentedOrganization(String inputJson, String outputXml) {
+    void When_MappingPractitionerOnlyToAgent_Expect_NoRepresentedOrganization(String inputJson, String outputXml) {
         var jsonInputPractitioner = ResourceTestFileUtils.getFileContent(inputJson);
         var expectedOutput = ResourceTestFileUtils.getFileContent(outputXml);
 
@@ -85,7 +85,7 @@ public class AgentPersonMapperTest {
     }
 
     @Test
-    public void When_MappingOrganizationOnlyToAgent_Expect_NoPractitionerData() {
+    void When_MappingOrganizationOnlyToAgent_Expect_NoPractitionerData() {
         var expectedOutput = ResourceTestFileUtils.getFileContent(EXPECTED_AGENT_PERSON_WITH_ORGANIZATION);
         AgentDirectory.AgentKey agentKey = setUpDataWithOrganization();
 

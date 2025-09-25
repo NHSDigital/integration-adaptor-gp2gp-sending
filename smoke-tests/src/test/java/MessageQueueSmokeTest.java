@@ -38,7 +38,7 @@ public class MessageQueueSmokeTest {
     }
 
     @Test
-    public void expect_ActiveMQIsAvailable() {
+    void expect_ActiveMQIsAvailable() {
 
         JmsConnectionFactory connectionFactory = new JmsConnectionFactory();
 
