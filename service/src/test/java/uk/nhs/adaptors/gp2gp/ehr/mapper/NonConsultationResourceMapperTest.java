@@ -33,7 +33,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class NonConsultationResourceMapperTest {
+class NonConsultationResourceMapperTest {
     private static final String FILES_DIRECTORY = "/ehr/mapper/non_consultation_bundles/";
     private static final String UNCATAGORISED_OBSERVATION_XML = FILES_DIRECTORY + "uncatagorised-observation-stub.xml";
     private static final String UNCATAGORISED_OBSERVATION_BUNDLE = FILES_DIRECTORY + "uncatagorised-observation-bundle.json";
@@ -96,20 +96,20 @@ public class NonConsultationResourceMapperTest {
     private EncounterComponentsMapper encounterComponentsMapper;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         lenient().when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         messageContext = new MessageContext(randomIdGeneratorService);
         fhirParseService = new FhirParseService();
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         messageContext.resetMessageContext();
     }
 
     @ParameterizedTest
     @MethodSource("testArgs")
-    public void When_TransformingResourceToEhrComp_Expect_CorrectValuesToBeExtracted(String stubEhrComponentMapperXml, String inputBundle,
+    void When_TransformingResourceToEhrComp_Expect_CorrectValuesToBeExtracted(String stubEhrComponentMapperXml, String inputBundle,
         String output) {
         setupMock(ResourceTestFileUtils.getFileContent(stubEhrComponentMapperXml));
         String bundle = ResourceTestFileUtils.getFileContent(inputBundle);
@@ -138,7 +138,7 @@ public class NonConsultationResourceMapperTest {
     }
 
     @Test
-    public void When_TransformingContainedResourceToEhrComp_WithSupportedComponent_Expect_CorrectValuesExtracted() {
+    void When_TransformingContainedResourceToEhrComp_WithSupportedComponent_Expect_CorrectValuesExtracted() {
         setupMock(ResourceTestFileUtils.getFileContent(OBSERVATION_STATEMENT_XML));
         String bundle = ResourceTestFileUtils.getFileContent(CONTAINED_MISCELLANEOUS_RECORDS_BUNDLE);
         String expectedOutput = ResourceTestFileUtils.getFileContent(EXPECTED_MISCELLANEOUS_RECORDS_OUTPUT);
@@ -153,7 +153,7 @@ public class NonConsultationResourceMapperTest {
     }
 
     @Test
-    public void When_TransformingContainedResourceToEhrComp_WithUnsupportedComponent_Expect_ComponentNotMapped() {
+    void When_TransformingContainedResourceToEhrComp_WithUnsupportedComponent_Expect_ComponentNotMapped() {
         nonConsultationResourceMapper = new NonConsultationResourceMapper(
             messageContext,
             randomIdGeneratorService,
@@ -175,7 +175,7 @@ public class NonConsultationResourceMapperTest {
     }
 
     @Test
-    public void When_TransformingResourceToEhrComp_Expect_IgnoredResourceToBeIgnored() {
+    void When_TransformingResourceToEhrComp_Expect_IgnoredResourceToBeIgnored() {
         setupMock(ResourceTestFileUtils.getFileContent("")); // empty filePath provided as this isn't expected to return anything
         String bundle = ResourceTestFileUtils.getFileContent(UNCATAGORISED_IGNORED_RESOURCE_BUNDLE);
         Bundle parsedBundle = fhirParseService.parseResource(bundle, Bundle.class);
@@ -185,7 +185,7 @@ public class NonConsultationResourceMapperTest {
     }
 
     @Test
-    public void When_TransformingResourcesToEhrComp_Expect_ObservationToBeProcessedLast() {
+    void When_TransformingResourcesToEhrComp_Expect_ObservationToBeProcessedLast() {
         // ARRANGE
         setupMock("<MappedResourceStub/>");
         String bundle = ResourceTestFileUtils.getFileContent(DIAGNOSTIC_REPORT_AFTER_OBSERVATION_BUNDLE);

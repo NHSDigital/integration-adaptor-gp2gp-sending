@@ -94,7 +94,7 @@ public class DiaryPlanStatementMapperTest {
     }
 
     @Test
-    public void When_MappingProcedureRequestWithNopat_Expect_ResourceMappedWithConfidentialityCode() {
+    void When_MappingProcedureRequestWithNopat_Expect_ResourceMappedWithConfidentialityCode() {
         String inputJson = ResourceTestFileUtils.getFileContent(INPUT_PROCEDURE_REQUEST_WITH_ALL_DATA);
         ProcedureRequest inputProcedureRequest = new FhirParseService().parseResource(inputJson, ProcedureRequest.class);
 
@@ -106,7 +106,7 @@ public class DiaryPlanStatementMapperTest {
 
 
     @Test
-    public void When_MappingProcedureRequestIsNested_Expect_ResourceMappedWithIsNestedFlag() {
+    void When_MappingProcedureRequestIsNested_Expect_ResourceMappedWithIsNestedFlag() {
         String expectedXml = ResourceTestFileUtils.getFileContent(EXPECTED_PLAN_STATEMENT_WITH_IS_NESTED);
 
         String inputJson = ResourceTestFileUtils.getFileContent(INPUT_PROCEDURE_REQUEST_WITH_ALL_DATA);
@@ -117,7 +117,7 @@ public class DiaryPlanStatementMapperTest {
     }
 
     @Test
-    public void When_MappingProcedureRequestThatIsNotPlan_Expect_ResourceNotMapped() {
+    void When_MappingProcedureRequestThatIsNotPlan_Expect_ResourceNotMapped() {
         String inputJson = ResourceTestFileUtils.getFileContent(INPUT_PROCEDURE_REQUEST_IS_NOT_PLAN);
         ProcedureRequest inputProcedureRequest = new FhirParseService().parseResource(inputJson, ProcedureRequest.class);
 
@@ -126,7 +126,7 @@ public class DiaryPlanStatementMapperTest {
     }
 
     @Test
-    public void When_MappingProcedureRequestWithoutRequiredAuthoredOn_Expect_MapperException() {
+    void When_MappingProcedureRequestWithoutRequiredAuthoredOn_Expect_MapperException() {
         String inputJson = ResourceTestFileUtils.getFileContent(INPUT_PROCEDURE_REQUEST_WITHOUT_REQUIRED_AUTHORED_ON);
         ProcedureRequest inputProcedureRequest = new FhirParseService().parseResource(inputJson, ProcedureRequest.class);
 
@@ -135,7 +135,7 @@ public class DiaryPlanStatementMapperTest {
     }
 
     @Test
-    public void When_MappingWithOccurrenceWithStartAndEnd_Expect_TextContainsEarliestRecallDateOfStartAndEffectiveTimeOfEnd() {
+    void When_MappingWithOccurrenceWithStartAndEnd_Expect_TextContainsEarliestRecallDateOfStartAndEffectiveTimeOfEnd() {
         var inputJson = """
             {
                 "resourceType": "ProcedureRequest",
@@ -175,7 +175,7 @@ public class DiaryPlanStatementMapperTest {
     }
 
     @Test
-    public void When_MappingWithOccurrenceWithOnlyStart_Expect_TextDoesNotContainEarliestRecallDateAndEffectiveTimeOfStart() {
+    void When_MappingWithOccurrenceWithOnlyStart_Expect_TextDoesNotContainEarliestRecallDateAndEffectiveTimeOfStart() {
         var inputJson = """
             {
                 "resourceType": "ProcedureRequest",
@@ -211,7 +211,7 @@ public class DiaryPlanStatementMapperTest {
     }
 
     @Test
-    public void When_MappingWithDeviceReferenceWhereDeviceHasManufacturer_Expect_TextContainsDeviceTypeTextAndManufacturer() {
+    void When_MappingWithDeviceReferenceWhereDeviceHasManufacturer_Expect_TextContainsDeviceTypeTextAndManufacturer() {
         var inputJson = """
             {
                 "resourceType": "ProcedureRequest",
@@ -252,7 +252,7 @@ public class DiaryPlanStatementMapperTest {
     }
 
     @Test
-    public void When_MappingWithDeviceReferenceWhereDeviceHasNoManufacturer_Expect_TextOnlyContainsDeviceTypeText() {
+    void When_MappingWithDeviceReferenceWhereDeviceHasNoManufacturer_Expect_TextOnlyContainsDeviceTypeText() {
         var inputJson = """
             {
                 "resourceType": "ProcedureRequest",
@@ -294,7 +294,7 @@ public class DiaryPlanStatementMapperTest {
 
     @ParameterizedTest
     @MethodSource("testData")
-    public void When_MappingProcedureRequest_Expect_ResourceMapped(String inputJsonPath, String expectedXmlPath) {
+    void When_MappingProcedureRequest_Expect_ResourceMapped(String inputJsonPath, String expectedXmlPath) {
         String expectedXml = ResourceTestFileUtils.getFileContent(expectedXmlPath);
 
         String inputJson = ResourceTestFileUtils.getFileContent(inputJsonPath);

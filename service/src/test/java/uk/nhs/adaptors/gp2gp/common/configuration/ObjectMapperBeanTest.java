@@ -6,10 +6,10 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ObjectMapperBeanTest {
+class ObjectMapperBeanTest {
 
     @Test
-    public void createsObjectMapperWithUnlimitedStringLengthConstraint() {
+    void createsObjectMapperWithUnlimitedStringLengthConstraint() {
         // The way we use JSON to store serialized XML and base64 encoded attachments means that the size of individual
         // strings can get very large. We've set the max string size below to be 2GB.
         // Ideal solution would be to avoid using JSON to store very large strings of data in the first place,

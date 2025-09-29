@@ -19,7 +19,7 @@ import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 import uk.nhs.adaptors.gp2gp.utils.TestArgumentsLoaderUtil;
 
-public class CodeableConceptCdMapperTest {
+class CodeableConceptCdMapperTest {
     private static final String TEST_FILE_DIRECTORY = "/ehr/mapper/codeableconcept/";
     private static final String TEST_FILE_DIRECTORY_ACTUAL_PROBLEM = "/ehr/mapper/codeableconcept/actualProblem/";
     private static final String TEST_FILE_DIRECTORY_ALLERGY_RESOLVED = "/ehr/mapper/codeableconcept/allergyResolved/";
@@ -73,7 +73,7 @@ public class CodeableConceptCdMapperTest {
 
     @ParameterizedTest
     @MethodSource("getTestArguments")
-    public void When_MappingStubbedCodeableConcept_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
+    void When_MappingStubbedCodeableConcept_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
         var observationCodeableConcept = ResourceTestFileUtils.getFileContent(inputJson);
         var expectedOutput = ResourceTestFileUtils.getFileContent(outputXml);
         var codeableConcept = fhirParseService.parseResource(observationCodeableConcept, Observation.class).getCode();
@@ -195,7 +195,7 @@ public class CodeableConceptCdMapperTest {
 
     @ParameterizedTest
     @MethodSource("getTestArgumentsActualProblem")
-    public void When_MappingStubbedCodeableConceptForActualProblemHeader_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
+    void When_MappingStubbedCodeableConceptForActualProblemHeader_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
         var observationCodeableConcept = ResourceTestFileUtils.getFileContent(inputJson);
         var expectedOutput = ResourceTestFileUtils.getFileContent(outputXml);
         var codeableConcept = fhirParseService.parseResource(observationCodeableConcept, Observation.class).getCode();
@@ -858,7 +858,7 @@ public class CodeableConceptCdMapperTest {
     @ParameterizedTest
     @MethodSource("getTestArgumentsForTopicRelatedProblem")
     @SneakyThrows
-    public void When_MappingCdForTopic_With_RelatedProblem_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
+    void When_MappingCdForTopic_With_RelatedProblem_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
         var condition = ResourceTestFileUtils.getFileContent(inputJson);
         var codeableConcept = fhirParseService.parseResource(condition, Condition.class).getCode();
         var expectedOutput = ResourceTestFileUtils.getFileContent(outputXml);
@@ -872,7 +872,7 @@ public class CodeableConceptCdMapperTest {
     @ParameterizedTest
     @MethodSource("getTestArgumentsMedication")
     @SneakyThrows
-    public void When_MappingCdForMedication_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
+    void When_MappingCdForMedication_Expect_HL7CdObjectXml(String inputJson, String outputXml) {
         var medication = ResourceTestFileUtils.getFileContent(inputJson);
         var codeableConcept = fhirParseService.parseResource(medication, Medication.class).getCode();
         var expectedOutput = ResourceTestFileUtils.getFileContent(outputXml);
@@ -885,7 +885,7 @@ public class CodeableConceptCdMapperTest {
 
     @Test
     @SneakyThrows
-    public void When_MapToCdForTopic_With_RelatedProblemAndTitle_Expect_ProblemCodeAndTitleAreUsed() {
+    void When_MapToCdForTopic_With_RelatedProblemAndTitle_Expect_ProblemCodeAndTitleAreUsed() {
         var relatedProblem = ResourceTestFileUtils.getFileContent(TEST_FILE_TOPIC_RELATED_CONDITION);
         var codeableConcept = fhirParseService.parseResource(relatedProblem, Condition.class).getCode();
         var expectedOutput = ResourceTestFileUtils.getFileContent(CD_FOR_TOPIC_RELATED_PROBLEM_AND_TITLE);
@@ -896,7 +896,7 @@ public class CodeableConceptCdMapperTest {
 
     @Test
     @SneakyThrows
-    public void When_MapToCdForTopic_With_TitleOnly_Expect_UnspecifiedProblemAndTitle() {
+    void When_MapToCdForTopic_With_TitleOnly_Expect_UnspecifiedProblemAndTitle() {
         var expectedOutput = ResourceTestFileUtils.getFileContent(CD_FOR_TOPIC_TITLE);
         var outputString = codeableConceptCdMapper.mapToCdForTopic(TEST_TITLE);
 
@@ -906,7 +906,7 @@ public class CodeableConceptCdMapperTest {
 
     @Test
     @SneakyThrows
-    public void When_MapToCdForTopic_Without_RelatedProblemOrTile_Expect_UnspecifiedProblem() {
+    void When_MapToCdForTopic_Without_RelatedProblemOrTile_Expect_UnspecifiedProblem() {
         var expectedOutput = ResourceTestFileUtils.getFileContent(CD_FOR_TOPIC_UNSPECIFIED);
         var outputString = codeableConceptCdMapper.getCdForTopic();
 
@@ -915,7 +915,7 @@ public class CodeableConceptCdMapperTest {
 
     @Test
     @SneakyThrows
-    public void When_MapToCdForCategory_With_Title_Expect_OtherCategoryAndOriginalText() {
+    void When_MapToCdForCategory_With_Title_Expect_OtherCategoryAndOriginalText() {
         var expectedOutput = ResourceTestFileUtils.getFileContent(CD_FOR_CATEGORY_TITLE);
         var outputString = codeableConceptCdMapper.mapToCdForCategory(TEST_TITLE);
 
@@ -924,7 +924,7 @@ public class CodeableConceptCdMapperTest {
 
     @Test
     @SneakyThrows
-    public void When_GetCdForCategory_Expect_OtherCategory() {
+    void When_GetCdForCategory_Expect_OtherCategory() {
         var expectedOutput = ResourceTestFileUtils.getFileContent(CD_FOR_CATEGORY_NO_TITLE);
         var outputString = codeableConceptCdMapper.getCdForCategory();
 
@@ -933,7 +933,7 @@ public class CodeableConceptCdMapperTest {
 
     @Test
     @SneakyThrows
-    public void When_MapToCdForMedication_With_RelatedProblemAndTitle_Expect_ConceptIdAndTitle() {
+    void When_MapToCdForMedication_With_RelatedProblemAndTitle_Expect_ConceptIdAndTitle() {
         var relatedProblem = ResourceTestFileUtils.getFileContent(TEST_FILE_TOPIC_RELATED_CONDITION);
         var codeableConcept = fhirParseService.parseResource(relatedProblem, Condition.class).getCode();
         var expectedOutput = ResourceTestFileUtils.getFileContent(CD_FOR_TOPIC_RELATED_PROBLEM_AND_TITLE);

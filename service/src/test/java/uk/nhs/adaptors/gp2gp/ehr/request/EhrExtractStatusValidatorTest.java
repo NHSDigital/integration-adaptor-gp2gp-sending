@@ -12,13 +12,13 @@ import org.junit.jupiter.api.Test;
 import uk.nhs.adaptors.gp2gp.ehr.EhrExtractStatusValidator;
 import uk.nhs.adaptors.gp2gp.ehr.model.EhrExtractStatus;
 
-public class EhrExtractStatusValidatorTest {
+class EhrExtractStatusValidatorTest {
 
     private static final String OBJECT_NAME = "some-file-name";
     private static final String PATIENT_ID = "3";
 
     @Test
-    public void When_AllPreparingDataStepsAreFinished_Expect_ReturnTrue() {
+    void When_AllPreparingDataStepsAreFinished_Expect_ReturnTrue() {
         EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
 
         EhrExtractStatus.GpcAccessDocument gpcAccessDocument = new EhrExtractStatus.GpcAccessDocument(
@@ -51,7 +51,7 @@ public class EhrExtractStatusValidatorTest {
     }
 
     @Test
-    public void When_AllPreparingDataStepsAreFinishedAndDocumentsListIsEmpty_Expect_ReturnTrue() {
+    void When_AllPreparingDataStepsAreFinishedAndDocumentsListIsEmpty_Expect_ReturnTrue() {
         EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
 
         EhrExtractStatus.GpcAccessDocument gpcAccessDocument = new EhrExtractStatus.GpcAccessDocument(
@@ -64,7 +64,7 @@ public class EhrExtractStatusValidatorTest {
     }
 
     @Test
-    public void When_AllPreparingDataStepsNotFinished_Expect_ReturnFalse() {
+    void When_AllPreparingDataStepsNotFinished_Expect_ReturnFalse() {
         EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
 
         EhrExtractStatus.GpcAccessDocument gpcAccessDocument = new EhrExtractStatus.GpcAccessDocument(
@@ -85,7 +85,7 @@ public class EhrExtractStatusValidatorTest {
     }
 
     @Test
-    public void When_DocumentAccessStepIsNotFinished_Expect_ReturnFalse() {
+    void When_DocumentAccessStepIsNotFinished_Expect_ReturnFalse() {
         EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
 
         EhrExtractStatus.GpcAccessDocument gpcAccessDocument = new EhrExtractStatus.GpcAccessDocument(
@@ -98,7 +98,7 @@ public class EhrExtractStatusValidatorTest {
     }
 
     @Test
-    public void When_OnlyOneDocumentAccessStepIsFinished_Expect_ReturnFalse() {
+    void When_OnlyOneDocumentAccessStepIsFinished_Expect_ReturnFalse() {
         EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
 
         EhrExtractStatus.GpcAccessDocument gpcAccessDocument = new EhrExtractStatus.GpcAccessDocument(
@@ -111,7 +111,7 @@ public class EhrExtractStatusValidatorTest {
     }
 
     @Test
-    public void When_AccessStructuredStepIsNotFinished_Expect_ReturnFalse() {
+    void When_AccessStructuredStepIsNotFinished_Expect_ReturnFalse() {
         EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
 
         EhrExtractStatus.GpcAccessDocument gpcAccessDocument = new EhrExtractStatus.GpcAccessDocument(
@@ -124,14 +124,14 @@ public class EhrExtractStatusValidatorTest {
     }
 
     @Test
-    public void When_AllPreparingDataStepsWereNotStarted_Expect_ReturnFalse() {
+    void When_AllPreparingDataStepsWereNotStarted_Expect_ReturnFalse() {
         EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
 
         assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus)).isFalse();
     }
 
     @Test
-    public void When_AccessStructuredStepIsNotStarted_Expect_ReturnFalse() {
+    void When_AccessStructuredStepIsNotStarted_Expect_ReturnFalse() {
         EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
 
         EhrExtractStatus.GpcAccessDocument gpcAccessDocument = new EhrExtractStatus.GpcAccessDocument(
@@ -143,7 +143,7 @@ public class EhrExtractStatusValidatorTest {
     }
 
     @Test
-    public void When_AccessDocumentStepIsNotStarted_Expect_ReturnFalse() {
+    void When_AccessDocumentStepIsNotStarted_Expect_ReturnFalse() {
         EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
         ehrExtractStatus.setGpcAccessStructured(getFinishedGpcAccessStructured());
 
@@ -151,7 +151,7 @@ public class EhrExtractStatusValidatorTest {
     }
 
     @Test
-    public void When_AllDocumentsInEhrExtractStatusAreSent_Expect_True() {
+    void When_AllDocumentsInEhrExtractStatusAreSent_Expect_True() {
         EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
         List<EhrExtractStatus.GpcDocument> documentList = new ArrayList<>();
         documentList.add(getFinishedGpcDocumentSent());
@@ -166,7 +166,7 @@ public class EhrExtractStatusValidatorTest {
     }
 
     @Test
-    public void When_OneDocumentIsSentAndOneDocumentNotSent_Expect_False() {
+    void When_OneDocumentIsSentAndOneDocumentNotSent_Expect_False() {
         EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
         List<EhrExtractStatus.GpcDocument> documentList = new ArrayList<>();
         documentList.add(getFinishedGpcDocumentSent());
@@ -176,7 +176,7 @@ public class EhrExtractStatusValidatorTest {
     }
 
     @Test
-    public void When_NoDocumentsInEhrExtractStatus_Expect_False() {
+    void When_NoDocumentsInEhrExtractStatus_Expect_False() {
         EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
         List<EhrExtractStatus.GpcDocument> documentList = new ArrayList<>();
         documentList.add(getFinishedGpcDocument());

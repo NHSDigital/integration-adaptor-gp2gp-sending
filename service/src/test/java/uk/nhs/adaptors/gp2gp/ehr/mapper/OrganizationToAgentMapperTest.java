@@ -14,7 +14,7 @@ import uk.nhs.adaptors.gp2gp.utils.TestArgumentsLoaderUtil;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class OrganizationToAgentMapperTest {
+class OrganizationToAgentMapperTest {
 
     private static final String TEST_ID = "5E496953-065B-41F2-9577-BE8F2FBD0757";
     private static final String ORGANIZATION_FILE_LOCATION = "/ehr/mapper/organization/";
@@ -25,7 +25,7 @@ public class OrganizationToAgentMapperTest {
         + "output_organization_1.xml";
 
     @Test
-    public void When_MappingOrganization_Expect_AgentResourceXml() {
+    void When_MappingOrganization_Expect_AgentResourceXml() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_ORGANIZATION_JSON);
         var expectedOutput = ResourceTestFileUtils.getFileContent(OUTPUT_ORGANIZATION_AS_AGENT_PERSON_JSON);
 

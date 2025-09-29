@@ -17,7 +17,7 @@ import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
 import uk.nhs.adaptors.gp2gp.gpc.configuration.GpcConfiguration;
 
 @ExtendWith(MockitoExtension.class)
-public class GpcTokenBuilderTest {
+class GpcTokenBuilderTest {
     private static final int EXPIRY_TIME_ADDITION = 300;
     private static final long EPOCH_SECOND = 1613734770L;
 
@@ -31,7 +31,7 @@ public class GpcTokenBuilderTest {
     private GpcTokenBuilder gpcTokenBuilder;
 
     @Test
-    public void When_GpcJwtTokenIsCreated_Expect_IatAndExpAreIntegerSeconds() {
+    void When_GpcJwtTokenIsCreated_Expect_IatAndExpAreIntegerSeconds() {
         Instant timestamp = Instant.ofEpochSecond(EPOCH_SECOND);
         when(timestampService.now()).thenReturn(timestamp);
         when(gpcConfiguration.getUrl()).thenReturn("http://aud");
@@ -45,7 +45,7 @@ public class GpcTokenBuilderTest {
         assertThat(payloadJson).contains(expectedExp, expectedIat);
     }
     @Test
-    public void When_GpcJwtTokenIsCreated_Expect_RequestingPractitionerElements() {
+    void When_GpcJwtTokenIsCreated_Expect_RequestingPractitionerElements() {
         Instant timestamp = Instant.ofEpochSecond(EPOCH_SECOND);
         when(timestampService.now()).thenReturn(timestamp);
         when(gpcConfiguration.getUrl()).thenReturn("http://aud");

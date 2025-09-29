@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import org.hl7.fhir.dstu3.model.Condition;
 import org.junit.jupiter.api.Test;
 
-public class RelatedProblemWrapperTest extends ConditionWrapperTestBase {
+class RelatedProblemWrapperTest extends ConditionWrapperTestBase {
 
     private static final String PARENT = "parent";
     private static final String SIBLING = "sibling";
@@ -16,7 +16,7 @@ public class RelatedProblemWrapperTest extends ConditionWrapperTestBase {
     private static final int SIBLING_INDEX = 1;
 
     @Test
-    public void When_RelatedProblem_IsCreated_FromRelatedProblemHeader_Expect_ItsAttributesAreSet() {
+    void When_RelatedProblem_IsCreated_FromRelatedProblemHeader_Expect_ItsAttributesAreSet() {
         Condition conditionWithRelationships = getTestConditionFromBundle(CONDITION_WITH_RELATIONSHIP_FHIR_ID);
 
         var relatedConditions = conditionWithRelationships.getExtension().stream()

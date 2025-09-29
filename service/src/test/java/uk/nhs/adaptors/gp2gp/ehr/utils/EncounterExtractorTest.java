@@ -46,7 +46,7 @@ public class EncounterExtractorTest {
     }
 
     @Test
-    public void When_ExtractingEncounters_Expect_EncountersExtractedByReferences() {
+    void When_ExtractingEncounters_Expect_EncountersExtractedByReferences() {
         List<Encounter> encounters = EncounterExtractor.extractEncounterReferencesFromEncounterList(fullBundle);
 
         assertThat(encounters).hasSize(EXPECTED_ENCOUNTER_NUMBER);
@@ -57,7 +57,7 @@ public class EncounterExtractorTest {
     }
 
     @Test
-    public void When_ExtractingEncountersFromEntriesWithEmptyConsultationList_Expect_NoEncountersExtracted() {
+    void When_ExtractingEncountersFromEntriesWithEmptyConsultationList_Expect_NoEncountersExtracted() {
         List<Encounter> encounters = EncounterExtractor.extractEncounterReferencesFromEncounterList(
             bundleWithEmptyConsultationList);
 
@@ -65,7 +65,7 @@ public class EncounterExtractorTest {
     }
 
     @Test
-    public void When_ExtractingEncountersFromEntriesWithNoConsultationList_Expect_NoEncountersExtracted() {
+    void When_ExtractingEncountersFromEntriesWithNoConsultationList_Expect_NoEncountersExtracted() {
         List<Encounter> encounters = EncounterExtractor.extractEncounterReferencesFromEncounterList(
             bundleWithNoConsultationList);
 

@@ -7,17 +7,17 @@ import org.junit.jupiter.api.Test;
 
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 
-public class MedicationRequestIdMapperTest {
+class MedicationRequestIdMapperTest {
     private final RandomIdGeneratorService randomIdGeneratorService = new RandomIdGeneratorService();
     private MedicationRequestIdMapper medicationRequestIdMapper;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         medicationRequestIdMapper = new MedicationRequestIdMapper(randomIdGeneratorService);
     }
 
     @Test
-    public void When_FetchingSameIdTwice_Expect_SameMappedIdReturned() {
+    void When_FetchingSameIdTwice_Expect_SameMappedIdReturned() {
         String medicationRequestId = "MedicationRequest/123";
         String mappedId = medicationRequestIdMapper.getOrNew(medicationRequestId);
 
@@ -25,7 +25,7 @@ public class MedicationRequestIdMapperTest {
     }
 
     @Test
-    public void When_FetchingTwoDifferentIds_Expect_NewMappedIdsReturned() {
+    void When_FetchingTwoDifferentIds_Expect_NewMappedIdsReturned() {
         String medicationRequestId1 = "MedicationRequest/123";
         String medicationRequestId2 = "MedicationRequest/456";
 

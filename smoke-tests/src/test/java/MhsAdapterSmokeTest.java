@@ -40,7 +40,7 @@ public class MhsAdapterSmokeTest {
     }
 
     @Test
-    public void expect_MhsAdapterIsAvailable() {
+    void expect_MhsAdapterIsAvailable() {
 
         int statusCode = 0;
 

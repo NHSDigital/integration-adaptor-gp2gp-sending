@@ -37,7 +37,7 @@ import uk.nhs.adaptors.gp2gp.gpc.exception.GpConnectNotFoundException;
 import uk.nhs.adaptors.gp2gp.gpc.exception.GpcServerErrorException;
 
 @ExtendWith(MockitoExtension.class)
-public class TaskErrorHandlerTest {
+class TaskErrorHandlerTest {
     private static final String TEST_EXCEPTION_MESSAGE = "Test Exception";
 
     @Mock
@@ -50,12 +50,12 @@ public class TaskErrorHandlerTest {
     private TaskErrorHandler taskErrorHandler;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
     }
 
     @Test
-    public void When_HandleProcessingError_WithEhrRequestException_Expect_ProcessToBeFailedWithCorrectCode() {
+    void When_HandleProcessingError_WithEhrRequestException_Expect_ProcessToBeFailedWithCorrectCode() {
         taskErrorHandler.handleProcessingError(new EhrRequestException(TEST_EXCEPTION_MESSAGE), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -66,7 +66,7 @@ public class TaskErrorHandlerTest {
     }
 
     @Test
-    public void When_HandleProcessingError_WithEhrRequestException_Expect_ReturnValueOfFailService() {
+    void When_HandleProcessingError_WithEhrRequestException_Expect_ReturnValueOfFailService() {
         when(processFailureHandlingService.failProcess(any(), any(), any(), any()))
             .thenReturn(true, false);
 
@@ -75,7 +75,7 @@ public class TaskErrorHandlerTest {
     }
 
     @Test
-    public void When_HandleProcessingError_With_EhrExtractException_Expect_ProcessToBeFailedWithCorrectCode() {
+    void When_HandleProcessingError_With_EhrExtractException_Expect_ProcessToBeFailedWithCorrectCode() {
         taskErrorHandler.handleProcessingError(new EhrExtractException("Test Exception"), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -86,7 +86,7 @@ public class TaskErrorHandlerTest {
     }
 
     @Test
-    public void When_HandleProcessingError_WithEhrExtractException_Expect_ReturnValueOfFailService() {
+    void When_HandleProcessingError_WithEhrExtractException_Expect_ReturnValueOfFailService() {
         when(processFailureHandlingService.failProcess(any(), any(), any(), any()))
             .thenReturn(true, false);
 
@@ -95,7 +95,7 @@ public class TaskErrorHandlerTest {
     }
 
     @Test
-    public void When_HandleProcessingError_WithEhrMapperException_Expect_ProcessToBeFailedWithCorrectCode() {
+    void When_HandleProcessingError_WithEhrMapperException_Expect_ProcessToBeFailedWithCorrectCode() {
         taskErrorHandler.handleProcessingError(new EhrMapperException(TEST_EXCEPTION_MESSAGE), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -106,7 +106,7 @@ public class TaskErrorHandlerTest {
     }
 
     @Test
-    public void When_HandleProcessingError_WithEhrMapperException_Expect_ReturnValueOfFailService() {
+    void When_HandleProcessingError_WithEhrMapperException_Expect_ReturnValueOfFailService() {
         when(processFailureHandlingService.failProcess(any(), any(), any(), any()))
             .thenReturn(true, false);
 
@@ -115,7 +115,7 @@ public class TaskErrorHandlerTest {
     }
 
     @Test
-    public void When_HandleProcessingError_WithFhirValidationException_Expect_ProcessToBeFailedWithCorrectCode() {
+    void When_HandleProcessingError_WithFhirValidationException_Expect_ProcessToBeFailedWithCorrectCode() {
         taskErrorHandler.handleProcessingError(new FhirValidationException(TEST_EXCEPTION_MESSAGE), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -126,7 +126,7 @@ public class TaskErrorHandlerTest {
     }
 
     @Test
-    public void When_HandleProcessingError_WithFhirValidationException_Expect_ReturnValueOfFailService() {
+    void When_HandleProcessingError_WithFhirValidationException_Expect_ReturnValueOfFailService() {
         when(processFailureHandlingService.failProcess(any(), any(), any(), any()))
             .thenReturn(true, false);
 
@@ -135,7 +135,7 @@ public class TaskErrorHandlerTest {
     }
 
     @Test
-    public void When_HandleProcessingError_WithOtherException_Expect_ProcessToBeFailedWithCorrectCode() {
+    void When_HandleProcessingError_WithOtherException_Expect_ProcessToBeFailedWithCorrectCode() {
         taskErrorHandler.handleProcessingError(new Exception(), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -146,7 +146,7 @@ public class TaskErrorHandlerTest {
     }
 
     @Test
-    public void When_HandleProcessingError_WithOtherException_Expect_ReturnValueOfFailService() {
+    void When_HandleProcessingError_WithOtherException_Expect_ReturnValueOfFailService() {
         when(processFailureHandlingService.failProcess(any(), any(), any(), any()))
             .thenReturn(true, false);
 
@@ -155,7 +155,7 @@ public class TaskErrorHandlerTest {
     }
 
     @Test
-    public void When_HandleProcessingError_WithGpConnectException_Expect_ProcessToBeFailedWithCorrectCode() {
+    void When_HandleProcessingError_WithGpConnectException_Expect_ProcessToBeFailedWithCorrectCode() {
         taskErrorHandler.handleProcessingError(new GpConnectException(TEST_EXCEPTION_MESSAGE), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -166,7 +166,7 @@ public class TaskErrorHandlerTest {
     }
 
     @Test
-    public void When_HandleProcessingError_WithGpConnectException_Expect_ReturnValueOfFailService() {
+    void When_HandleProcessingError_WithGpConnectException_Expect_ReturnValueOfFailService() {
         when(processFailureHandlingService.failProcess(any(), any(), any(), any()))
             .thenReturn(true, false);
 
@@ -175,7 +175,7 @@ public class TaskErrorHandlerTest {
     }
 
     @Test
-    public void When_HandleProcessingError_WithGpConnectInvalidException_Expect_ProcessToBeFailedWithCorrectCode() {
+    void When_HandleProcessingError_WithGpConnectInvalidException_Expect_ProcessToBeFailedWithCorrectCode() {
         taskErrorHandler.handleProcessingError(new GpConnectInvalidException(TEST_EXCEPTION_MESSAGE), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -186,7 +186,7 @@ public class TaskErrorHandlerTest {
     }
 
     @Test
-    public void When_HandleProcessingError_WithGpConnectInvalidException_Expect_ReturnValueOfFailService() {
+    void When_HandleProcessingError_WithGpConnectInvalidException_Expect_ReturnValueOfFailService() {
         when(processFailureHandlingService.failProcess(any(), any(), any(), any()))
             .thenReturn(true, false);
 
@@ -195,7 +195,7 @@ public class TaskErrorHandlerTest {
     }
 
     @Test
-    public void When_HandleProcessingError_WithGpConnectGpConnectNotFoundException_Expect_ProcessToBeFailedWithCorrectCode() {
+    void When_HandleProcessingError_WithGpConnectGpConnectNotFoundException_Expect_ProcessToBeFailedWithCorrectCode() {
         taskErrorHandler.handleProcessingError(new GpConnectNotFoundException(TEST_EXCEPTION_MESSAGE), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -206,7 +206,7 @@ public class TaskErrorHandlerTest {
     }
 
     @Test
-    public void When_HandleProcessingError_WithGpConnectNotFoundException_Expect_ReturnValueOfFailService() {
+    void When_HandleProcessingError_WithGpConnectNotFoundException_Expect_ReturnValueOfFailService() {
         when(processFailureHandlingService.failProcess(any(), any(), any(), any()))
             .thenReturn(true, false);
 
@@ -215,7 +215,7 @@ public class TaskErrorHandlerTest {
     }
 
     @Test
-    public void When_HandleProcessingError_WithMaximumExternalAttachmentsException_Expect_ProcessToBeFailedWithCorrectCode() {
+    void When_HandleProcessingError_WithMaximumExternalAttachmentsException_Expect_ProcessToBeFailedWithCorrectCode() {
         taskErrorHandler.handleProcessingError(new MaximumExternalAttachmentsException(TEST_EXCEPTION_MESSAGE), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -226,7 +226,7 @@ public class TaskErrorHandlerTest {
     }
 
     @Test
-    public void When_HandleProcessingError_WithMaximumExternalAttachmentsException_Expect_ReturnValueOfFailService() {
+    void When_HandleProcessingError_WithMaximumExternalAttachmentsException_Expect_ReturnValueOfFailService() {
         when(processFailureHandlingService.failProcess(any(), any(), any(), any()))
             .thenReturn(true, false);
 
@@ -240,14 +240,14 @@ public class TaskErrorHandlerTest {
 
     @Test
     @MockitoSettings(strictness = Strictness.LENIENT)
-    public void When_HandleGeneralProcessingError_WithNullParameter_Expect_ProcessIsNotFailed() {
+    void When_HandleGeneralProcessingError_WithNullParameter_Expect_ProcessIsNotFailed() {
         taskErrorHandler.handleProcessingError(new RuntimeException(), null);
 
         verifyNoInteractions(processFailureHandlingService);
     }
     @Test
     @SneakyThrows
-    public void When_FailProcessThrowsException_Expect_ExceptionToBeRethrown() {
+    void When_FailProcessThrowsException_Expect_ExceptionToBeRethrown() {
         var failureHandlingException = new RuntimeException("failure handler exception");
         doThrow(failureHandlingException).when(processFailureHandlingService).failProcess(
             any(), any(), any(), any());
@@ -259,7 +259,7 @@ public class TaskErrorHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_HandleProcessingError_WithGpcServerErrorExceptionAsRootCause_Expect_FailedWithCorrectCode() {
+    void When_HandleProcessingError_WithGpcServerErrorExceptionAsRootCause_Expect_FailedWithCorrectCode() {
         Throwable testException = new RetryLimitReachedException("test", new GpcServerErrorException("exception"));
 
         taskErrorHandler.handleProcessingError(testException, taskDefinition);
@@ -273,7 +273,7 @@ public class TaskErrorHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_HandleProcessingError_WithTimeoutExceptionAsRootCause_Expect_FailedWithCorrectCode() {
+    void When_HandleProcessingError_WithTimeoutExceptionAsRootCause_Expect_FailedWithCorrectCode() {
         Throwable testException = new RetryLimitReachedException("test", new TimeoutException("exception"));
 
         taskErrorHandler.handleProcessingError(testException, taskDefinition);

@@ -105,7 +105,7 @@ class SpecimenMapperTest {
     }
 
     @Test
-    public void When_MappingDefaultSpecimenWithDefaultObservation_Expect_DefaultXmlOutput() {
+    void When_MappingDefaultSpecimenWithDefaultObservation_Expect_DefaultXmlOutput() {
         final Specimen specimen = getDefaultSpecimen();
         final Observation observation = getDefaultObservation();
         final String expectedXml = ResourceTestFileUtils.getFileContent(

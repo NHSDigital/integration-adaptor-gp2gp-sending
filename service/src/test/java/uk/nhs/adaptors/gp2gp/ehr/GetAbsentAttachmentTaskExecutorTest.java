@@ -18,7 +18,7 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class GetAbsentAttachmentTaskExecutorTest {
+class GetAbsentAttachmentTaskExecutorTest {
     @Mock private EhrExtractStatusService ehrExtractStatusService;
     @Mock private DocumentToMHSTranslator documentToMHSTranslator;
     @Mock private DetectTranslationCompleteService detectTranslationCompleteService;
@@ -28,7 +28,7 @@ public class GetAbsentAttachmentTaskExecutorTest {
     private GetAbsentAttachmentTaskExecutor getAbsentAttachmentTaskExecutor;
 
     @Test
-    public void When_HandleAbsentAttachmentWithNoError_Expect_DefaultValueIsUsedAsError() {
+    void When_HandleAbsentAttachmentWithNoError_Expect_DefaultValueIsUsedAsError() {
         var taskDefinition = buildAbsentAttachment(null);
 
         getAbsentAttachmentTaskExecutor.handleAbsentAttachment(
@@ -45,7 +45,7 @@ public class GetAbsentAttachmentTaskExecutorTest {
     }
 
     @Test
-    public void When_HandleAbsentAttachmentWithJustTaskDefinitionTitle_Expect_TitleIsUsedAsError() {
+    void When_HandleAbsentAttachmentWithJustTaskDefinitionTitle_Expect_TitleIsUsedAsError() {
         var taskDefinition = buildAbsentAttachment("This-is-the-task-definition-title");
 
         getAbsentAttachmentTaskExecutor.handleAbsentAttachment(
@@ -62,7 +62,7 @@ public class GetAbsentAttachmentTaskExecutorTest {
     }
 
     @Test
-    public void When_HandleAbsentAttachmentWithJustGpcResponseError_Expect_GpcResponseErrorIsUsedAsError() {
+    void When_HandleAbsentAttachmentWithJustGpcResponseError_Expect_GpcResponseErrorIsUsedAsError() {
         var taskDefinition = buildAbsentAttachment(null);
 
         getAbsentAttachmentTaskExecutor.handleAbsentAttachment(
@@ -79,7 +79,7 @@ public class GetAbsentAttachmentTaskExecutorTest {
     }
 
     @Test
-    public void When_HandleAbsentAttachmentWithGpcResponseErrorAndTitle_Expect_GpcResponseErrorIsUsedAsError() {
+    void When_HandleAbsentAttachmentWithGpcResponseErrorAndTitle_Expect_GpcResponseErrorIsUsedAsError() {
         var taskDefinition = buildAbsentAttachment("This-is-the-task-definition-title");
 
         getAbsentAttachmentTaskExecutor.handleAbsentAttachment(
@@ -96,7 +96,7 @@ public class GetAbsentAttachmentTaskExecutorTest {
     }
 
     @Test
-    public void When_HandleAbsentAttachment_Expect_AbsentAttachmentFilenameIsUsed() {
+    void When_HandleAbsentAttachment_Expect_AbsentAttachmentFilenameIsUsed() {
         var taskDefinition = buildAbsentAttachment(null);
 
         getAbsentAttachmentTaskExecutor.handleAbsentAttachment(taskDefinition, Optional.empty());

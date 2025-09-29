@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 
 @ExtendWith(MockitoExtension.class)
-public class TaskDispatcherTest {
+class TaskDispatcherTest {
 
     @Mock
     private JmsTemplate jmsTemplate;
@@ -47,7 +47,7 @@ public class TaskDispatcherTest {
 
     @Test
     @SneakyThrows
-    public void When_CreateTask_Expect_TaskPublishedToQueue() {
+    void When_CreateTask_Expect_TaskPublishedToQueue() {
         TaskDefinition taskDefinition = mock(TaskDefinition.class);
         when(taskDefinition.getTaskType()).thenReturn(TaskType.GET_GPC_DOCUMENT);
         when(objectMapper.writeValueAsString(taskDefinition)).thenReturn("payload");
@@ -66,7 +66,7 @@ public class TaskDispatcherTest {
 
     @Test
     @SneakyThrows
-    public void When_TaskNotParsed_Expect_ExceptionThrown() {
+    void When_TaskNotParsed_Expect_ExceptionThrown() {
         TaskDefinition taskDefinition = mock(TaskDefinition.class);
         doThrow(JsonProcessingException.class)
             .when(objectMapper).writeValueAsString(taskDefinition);

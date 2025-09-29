@@ -34,7 +34,7 @@ import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class ObservationToNarrativeStatementMapperTest {
+class ObservationToNarrativeStatementMapperTest {
     private static final String TEST_ID = "394559384658936";
     private static final String TEST_FILE_DIRECTORY = "/ehr/mapper/observation/";
     private static final String INPUT_JSON_WITH_EFFECTIVE_DATE_TIME = TEST_FILE_DIRECTORY + "example-observation-resource-1.json";
@@ -67,7 +67,7 @@ public class ObservationToNarrativeStatementMapperTest {
     private MessageContext messageContext;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(TEST_ID);
 
@@ -79,13 +79,13 @@ public class ObservationToNarrativeStatementMapperTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         messageContext.resetMessageContext();
     }
 
     @ParameterizedTest
     @MethodSource("resourceFileParams")
-    public void When_MappingObservationJson_Expect_NarrativeStatementXmlOutput(String inputJson, String outputXml) {
+    void When_MappingObservationJson_Expect_NarrativeStatementXmlOutput(String inputJson, String outputXml) {
         messageContext.getAgentDirectory().getAgentId(buildReference(ResourceType.Practitioner, "something"));
         messageContext.getAgentDirectory().getAgentId(buildReference(ResourceType.Organization, "something"));
 
@@ -112,7 +112,7 @@ public class ObservationToNarrativeStatementMapperTest {
     }
 
     @Test
-    public void When_MappingObservationJsonWithNestedTrue_Expect_NarrativeStatementXmlOutput() {
+    void When_MappingObservationJsonWithNestedTrue_Expect_NarrativeStatementXmlOutput() {
         expectedOutputMessage = ResourceTestFileUtils.getFileContent(OUTPUT_XML_USES_NESTED_COMPONENT);
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_EFFECTIVE_DATE_TIME);
         Observation parsedObservation = new FhirParseService().parseResource(jsonInput, Observation.class);
@@ -123,7 +123,7 @@ public class ObservationToNarrativeStatementMapperTest {
     }
 
     @Test
-    public void When_MappingParsedObservationJsonWithNoDates_Expect_MapperException() {
+    void When_MappingParsedObservationJsonWithNoDates_Expect_MapperException() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_NO_DATES);
         Observation parsedObservation = new FhirParseService().parseResource(jsonInput, Observation.class);
 
@@ -132,7 +132,7 @@ public class ObservationToNarrativeStatementMapperTest {
     }
 
     @Test
-    public void When_MappingObservationWithInvalidParticipantResourceType_Expect_MapperException() {
+    void When_MappingObservationWithInvalidParticipantResourceType_Expect_MapperException() {
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_PERFORMER_INVALID_REFERENCE_RESOURCE_TYPE);
         Observation parsedObservation = new FhirParseService().parseResource(jsonInput, Observation.class);
 
@@ -143,7 +143,7 @@ public class ObservationToNarrativeStatementMapperTest {
 
     @ParameterizedTest
     @MethodSource("resourceFileParamsThrowError")
-    public void When_MappingObservationWithAttachmentAndSampleData_Expect_MapperException(String inputJson, Class expectedClass) {
+    void When_MappingObservationWithAttachmentAndSampleData_Expect_MapperException(String inputJson, Class expectedClass) {
         var jsonInput = ResourceTestFileUtils.getFileContent(inputJson);
         Observation parsedObservation = new FhirParseService().parseResource(jsonInput, Observation.class);
 

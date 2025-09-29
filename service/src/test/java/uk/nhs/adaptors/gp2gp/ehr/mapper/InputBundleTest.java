@@ -21,7 +21,7 @@ import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 
 @ExtendWith(MockitoExtension.class)
-public class InputBundleTest {
+class InputBundleTest {
 
     private static final String INPUT_BUNDLE_PATH = "/ehr/mapper/input-bundle.json";
     private static final String EXISTING_REFERENCE = "Appointment/1234";
@@ -38,13 +38,13 @@ public class InputBundleTest {
     private Bundle bundle;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         String inputJson = ResourceTestFileUtils.getFileContent(INPUT_BUNDLE_PATH);
         bundle = new FhirParseService().parseResource(inputJson, Bundle.class);
     }
 
     @Test
-    public void When_GettingListOfResourcesOfType_Expect_ListReturned() {
+    void When_GettingListOfResourcesOfType_Expect_ListReturned() {
         final var className = DiagnosticReport.class;
         final var resourcesList = new InputBundle(bundle).getResourcesOfType(className);
 
@@ -54,7 +54,7 @@ public class InputBundleTest {
     }
 
     @Test
-    public void When_GettingResourceFromBundle_Expect_ResourceReturned() {
+    void When_GettingResourceFromBundle_Expect_ResourceReturned() {
         Optional<Resource> resource = new InputBundle(bundle).getResource(new IdType(EXISTING_REFERENCE));
 
         assertThat(resource).isPresent();
@@ -63,35 +63,35 @@ public class InputBundleTest {
     }
 
     @Test
-    public void When_GettingIgnoredResourceFromBundle_Expect_ResourceIgnored() {
+    void When_GettingIgnoredResourceFromBundle_Expect_ResourceIgnored() {
         Optional<Resource> resource = new InputBundle(bundle).getResource(new IdType(IGNORED_REFERENCE));
 
         assertThat(resource).isNotPresent();
     }
 
     @Test
-    public void When_GettingResourceFromEmptyBundle_Expect_EhrMapperExceptionThrown() {
+    void When_GettingResourceFromEmptyBundle_Expect_EhrMapperExceptionThrown() {
         assertThatThrownBy(() -> new InputBundle(new Bundle()).getResource(new IdType(EXISTING_REFERENCE)))
             .isExactlyInstanceOf(EhrMapperException.class)
             .hasMessage("Resource not found: " + EXISTING_REFERENCE);
     }
 
     @Test
-    public void When_GettingNotInBundleResource_Expect_EhrMapperExceptionThrown() {
+    void When_GettingNotInBundleResource_Expect_EhrMapperExceptionThrown() {
         assertThatThrownBy(() -> new InputBundle(new Bundle()).getResource(new IdType(NO_EXISTING_REFERENCE)))
             .isExactlyInstanceOf(EhrMapperException.class)
             .hasMessage("Resource not found: " + NO_EXISTING_REFERENCE);
     }
 
     @Test
-    public void When_RetrievingUnmappableResource_Expect_ErrorThrown() {
+    void When_RetrievingUnmappableResource_Expect_ErrorThrown() {
         assertThatThrownBy(() -> new InputBundle(bundle).getResource(new IdType(UNSUPPORTED_RESOURCE_REFERENCE)))
             .isExactlyInstanceOf(EhrMapperException.class)
             .hasMessage("Reference not supported resource type: " + UNSUPPORTED_RESOURCE_REFERENCE);
     }
 
     @Test
-    public void When_GettingListReferencedToEncounter_Expect_ValidListResourceReturned() {
+    void When_GettingListReferencedToEncounter_Expect_ValidListResourceReturned() {
         Optional<ListResource> listReferencedToEncounter =
             new InputBundle(bundle).getListReferencedToEncounter(new IdType(ENCOUNTER_LIST_EXISTING_REFERENCE), VALID_CODE);
 
@@ -101,31 +101,31 @@ public class InputBundleTest {
     }
 
     @Test
-    public void When_GettingListReferencedWithNotExistingCode_Expect_NoneListResourceReturned() {
+    void When_GettingListReferencedWithNotExistingCode_Expect_NoneListResourceReturned() {
         Optional<ListResource> listReferencedToEncounter =
             new InputBundle(bundle).getListReferencedToEncounter(new IdType(ENCOUNTER_LIST_EXISTING_REFERENCE), INVALID_CODE);
         assertThat(listReferencedToEncounter).isNotPresent();
     }
 
     @Test
-    public void When_GettingListNoReferencedToValidEncounter_Expect_NoneListResourceReturned() {
+    void When_GettingListNoReferencedToValidEncounter_Expect_NoneListResourceReturned() {
         Optional<ListResource> listReferencedToEncounter =
             new InputBundle(bundle).getListReferencedToEncounter(new IdType(ENCOUNTER_LIST_NOT_EXISTING_REFERENCE), VALID_CODE);
         assertThat(listReferencedToEncounter).isNotPresent();
     }
 
     @Test
-    public void When_GettingListWithEmptyReference_Expect_NoneListResourceReturned() {
+    void When_GettingListWithEmptyReference_Expect_NoneListResourceReturned() {
         assertThat(new InputBundle(bundle).getListReferencedToEncounter(new IdType(), VALID_CODE)).isNotPresent();
     }
 
     @Test
-    public void When_GettingListWithNullReference_Expect_NoneListResourceReturned() {
+    void When_GettingListWithNullReference_Expect_NoneListResourceReturned() {
         assertThat(new InputBundle(bundle).getListReferencedToEncounter(null, VALID_CODE)).isNotPresent();
     }
 
     @Test
-    public void When_GettingPractitionerRoleForPractitionerAndOrganization_Expect_PractitionerRoleReturned() {
+    void When_GettingPractitionerRoleForPractitionerAndOrganization_Expect_PractitionerRoleReturned() {
         InputBundle inputBundle = new InputBundle(bundle);
         Optional<PractitionerRole> practitionerRoleFor = inputBundle.getPractitionerRoleFor(
             "Practitioner/1", "Organization/2");
@@ -133,7 +133,7 @@ public class InputBundleTest {
     }
 
     @Test
-    public void When_GettingPractitionerRoleForPractitionerAndOrganizationThatDoesNotMatch_Expect_EmptyReturned() {
+    void When_GettingPractitionerRoleForPractitionerAndOrganizationThatDoesNotMatch_Expect_EmptyReturned() {
         InputBundle inputBundle = new InputBundle(bundle);
         Optional<PractitionerRole> practitionerRoleFor = inputBundle.getPractitionerRoleFor(
             "Practitioner/not-match", "Organization/not-match");
@@ -141,7 +141,7 @@ public class InputBundleTest {
     }
 
     @Test
-    public void When_GettingPractitionerRoleWithoutPractitionerAndOrganization_Expect_EmptyReturned() {
+    void When_GettingPractitionerRoleWithoutPractitionerAndOrganization_Expect_EmptyReturned() {
         Bundle bundle = new Bundle();
         bundle.addEntry().setResource(new PractitionerRole());
         InputBundle inputBundle = new InputBundle(bundle);
@@ -151,7 +151,7 @@ public class InputBundleTest {
     }
 
     @Test
-    public void When_GettingPractitionerRoleWhereOnlyOrganizationMatch_Expect_EmptyReturned() {
+    void When_GettingPractitionerRoleWhereOnlyOrganizationMatch_Expect_EmptyReturned() {
         InputBundle inputBundle = new InputBundle(bundle);
         Optional<PractitionerRole> practitionerRoleFor = inputBundle.getPractitionerRoleFor(
             "Practitioner/not-match", "Organization/2");
@@ -159,7 +159,7 @@ public class InputBundleTest {
     }
 
     @Test
-    public void When_GettingPractitionerRoleWhereOnlyPractitionerMatch_Expect_EmptyReturned() {
+    void When_GettingPractitionerRoleWhereOnlyPractitionerMatch_Expect_EmptyReturned() {
         InputBundle inputBundle = new InputBundle(bundle);
         Optional<PractitionerRole> practitionerRoleFor = inputBundle.getPractitionerRoleFor(
             "Practitioner/1", "Organization/not-match");

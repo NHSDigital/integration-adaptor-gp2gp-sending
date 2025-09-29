@@ -22,7 +22,7 @@ import uk.nhs.adaptors.gp2gp.ehr.mapper.IdMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.MessageContext;
 
 @ExtendWith(MockitoExtension.class)
-public class MultiStatementObservationHolderTest {
+class MultiStatementObservationHolderTest {
     private static final String MAPPED_ID = "mapped-id";
     private static final String RANDOM_ID = "random-id";
 
@@ -37,7 +37,7 @@ public class MultiStatementObservationHolderTest {
     private MultiStatementObservationHolder multiStatementObservationHolder;
 
     @BeforeEach
-    public void before() {
+    void before() {
         when(messageContext.getIdMapper()).thenReturn(idMapper);
         when(idMapper.getOrNew(eq(ResourceType.Observation), any(IdType.class)))
             .thenReturn(MAPPED_ID);
@@ -50,7 +50,7 @@ public class MultiStatementObservationHolderTest {
     }
 
     @Test
-    public void When_NextHl7InstanceIdentifier_Expect_FirstIsMappedSecondIsRandomAndVerifies() {
+    void When_NextHl7InstanceIdentifier_Expect_FirstIsMappedSecondIsRandomAndVerifies() {
         assertThat(multiStatementObservationHolder.nextHl7InstanceIdentifier())
             .isEqualTo(MAPPED_ID);
         assertThatCode(() -> multiStatementObservationHolder.verifyObservationWasMapped())
@@ -63,13 +63,13 @@ public class MultiStatementObservationHolderTest {
     }
 
     @Test
-    public void When_GetObservation_Expect_HeldObservationIsReturned() {
+    void When_GetObservation_Expect_HeldObservationIsReturned() {
         assertThat(multiStatementObservationHolder.getObservation())
             .isSameAs(observation);
     }
 
     @Test
-    public void When_NoInstanceIdentifierProduced_Expect_VerifyThrowsException() {
+    void When_NoInstanceIdentifierProduced_Expect_VerifyThrowsException() {
         assertThatCode(() -> multiStatementObservationHolder.verifyObservationWasMapped())
             .isInstanceOf(EhrMapperException.class)
             .hasMessageContaining("was not mapped to a statement");

@@ -37,7 +37,7 @@ import uk.nhs.adaptors.gp2gp.utils.CodeableConceptMapperMockUtil;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 
 @ExtendWith(MockitoExtension.class)
-public class RequestStatementMapperTest {
+class RequestStatementMapperTest {
     private static final String TEST_FILE_DIRECTORY = "/ehr/mapper/referral/";
 
     // INPUT FILES
@@ -287,7 +287,7 @@ public class RequestStatementMapperTest {
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
         Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
         var inputBundle = new InputBundle(bundle);
@@ -330,13 +330,13 @@ public class RequestStatementMapperTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         messageContext.resetMessageContext();
     }
 
     @ParameterizedTest
     @MethodSource("resourceFileParams")
-    public void When_MappingObservationJson_Expect_NarrativeStatementXmlOutput(String inputJson, String outputXml) {
+    void When_MappingObservationJson_Expect_NarrativeStatementXmlOutput(String inputJson, String outputXml) {
         assertThatInputMapsToExpectedOutput(inputJson, outputXml);
     }
 
@@ -353,14 +353,14 @@ public class RequestStatementMapperTest {
 
     @ParameterizedTest
     @MethodSource("resourceFileParamsReasonCodes")
-    public void When_MappingObservationJsonWithReason_Expect_NarrativeStatementXmlOutput(String inputJson, String outputXml) {
+    void When_MappingObservationJsonWithReason_Expect_NarrativeStatementXmlOutput(String inputJson, String outputXml) {
         when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
             .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
         assertThatInputMapsToExpectedOutput(inputJson, outputXml);
     }
 
     @Test
-    public void When_MappingReferralRequestJsonWithNestedTrue_Expect_RequestStatementXmlOutput() {
+    void When_MappingReferralRequestJsonWithNestedTrue_Expect_RequestStatementXmlOutput() {
         String expectedOutputMessage = ResourceTestFileUtils.getFileContent(OUTPUT_XML_USES_NO_OPTIONAL_FIELDS_NESTED);
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_NO_OPTIONAL_FIELDS);
         ReferralRequest parsedReferralRequest = new FhirParseService().parseResource(jsonInput, ReferralRequest.class);
@@ -371,7 +371,7 @@ public class RequestStatementMapperTest {
     }
 
     @Test
-    public void When_MappingReferralRequestWithNoPat_Expect_RequestStatementWithConfidentialityCode() {
+    void When_MappingReferralRequestWithNoPat_Expect_RequestStatementWithConfidentialityCode() {
         when(confidentialityService.generateConfidentialityCode(any(ReferralRequest.class)))
             .thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_NOPAT);
@@ -384,7 +384,7 @@ public class RequestStatementMapperTest {
 
     @ParameterizedTest
     @MethodSource("resourceFileParamsWithInvalidData")
-    public void When_MappingReferralRequestJsonWithInvalidData_Expect_Exception(String inputJson, String exceptionMessage) {
+    void When_MappingReferralRequestJsonWithInvalidData_Expect_Exception(String inputJson, String exceptionMessage) {
         var jsonInput = ResourceTestFileUtils.getFileContent(inputJson);
         ReferralRequest parsedReferralRequest = new FhirParseService().parseResource(jsonInput, ReferralRequest.class);
 
