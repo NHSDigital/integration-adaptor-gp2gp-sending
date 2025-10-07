@@ -30,6 +30,7 @@ import uk.nhs.adaptors.gp2gp.common.exception.RetryLimitReachedException;
 import uk.nhs.adaptors.gp2gp.common.service.ProcessFailureHandlingService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrExtractException;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
+import uk.nhs.adaptors.gp2gp.ehr.exception.EhrValidationException;
 import uk.nhs.adaptors.gp2gp.gpc.exception.EhrRequestException;
 import uk.nhs.adaptors.gp2gp.gpc.exception.GpConnectException;
 import uk.nhs.adaptors.gp2gp.gpc.exception.GpConnectInvalidException;
@@ -63,6 +64,17 @@ class TaskErrorHandlerTest {
             eq("18"),
             eq("Request message not well-formed or not able to be processed"),
             any());
+    }
+
+    @Test
+    void When_HandleProcessingError_WithEhrValidationException_Expect_ProcessToBeFailedWithCorrectCode() {
+        taskErrorHandler.handleProcessingError(new EhrValidationException(TEST_EXCEPTION_MESSAGE), taskDefinition);
+
+        verify(processFailureHandlingService).failProcess(
+                any(),
+                eq("10"),
+                eq("Failed to successfully generate EHR Extract."),
+                any());
     }
 
     @Test
