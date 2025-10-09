@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.lenient;
+
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -97,7 +97,7 @@ class EhrExtractMapperTest {
                 .build();
         var bundle = mock(Bundle.class);
 
-        lenient().when(nonConsultationResourceMapper.mapRemainingResourcesToEhrCompositions(any(Bundle.class)))
+        when(nonConsultationResourceMapper.mapRemainingResourcesToEhrCompositions(any(Bundle.class)))
                 .thenReturn(Collections.emptyList());
 
         EhrValidationException thrown = assertThrows(EhrValidationException.class, () ->

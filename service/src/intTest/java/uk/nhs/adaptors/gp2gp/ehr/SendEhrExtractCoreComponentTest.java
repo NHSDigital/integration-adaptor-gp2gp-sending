@@ -52,6 +52,7 @@ import uk.nhs.adaptors.gp2gp.mhs.MhsClient;
 import uk.nhs.adaptors.gp2gp.mhs.MhsRequestBuilder;
 import uk.nhs.adaptors.gp2gp.mhs.exception.MhsConnectionException;
 import uk.nhs.adaptors.gp2gp.mhs.exception.MhsServerErrorException;
+import uk.nhs.adaptors.gp2gp.ehr.exception.EhrValidationException;
 import uk.nhs.adaptors.gp2gp.mhs.model.OutboundMessage;
 import uk.nhs.adaptors.gp2gp.testcontainers.ActiveMQExtension;
 import uk.nhs.adaptors.gp2gp.testcontainers.MongoDBExtension;
@@ -354,6 +355,20 @@ public class SendEhrExtractCoreComponentTest extends BaseTaskTest {
         var ehrExtractStatusUpdated = reloadEhrStatus();
 
         assertThat(ehrExtractStatusUpdated.getEhrExtractCore()).isNull();
+    }
+
+    @Test
+    public void When_EhrExtractMapperFailsWithEhrValidationException_Expect_ExceptionThrownAndDbNotUpdated() {
+        doThrow(EhrValidationException.class)
+                .when(ehrDocumentMapper).generateMhsPayload(any(), anyString(), anyString(), anyString());
+
+        assertThatExceptionOfType(EhrValidationException.class)
+                .isThrownBy(() -> sendEhrExtractCoreTaskExecutor.execute(sendEhrExtractCoreTaskDefinition));
+
+        var ehrExtractStatusUpdated = reloadEhrStatus();
+
+        assertThat(ehrExtractStatusUpdated.getEhrExtractCore()).isNull();
+
     }
 
     @BeforeEach
