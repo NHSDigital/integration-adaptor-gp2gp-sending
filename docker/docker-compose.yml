@@ -62,7 +62,7 @@ services:
   mongodb:
     networks:
       - commonforgp2gp
-    image: mongo:4.0.28
+    image: mongo:4.2.0
     ports:
       - "27017:27017"
 
