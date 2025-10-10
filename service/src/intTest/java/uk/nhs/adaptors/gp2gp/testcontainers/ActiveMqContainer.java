@@ -6,10 +6,9 @@ public final class ActiveMqContainer extends GenericContainer<ActiveMqContainer>
 
     public static final int ACTIVEMQ_PORT = 5672;
     private static ActiveMqContainer container;
-    public static final String ACTIVEMQ_VERSION = "8.0.15";
 
     private ActiveMqContainer() {
-        super("docker-activemq:" + ACTIVEMQ_VERSION);
+        super("docker-activemq:latest");
         addExposedPort(ACTIVEMQ_PORT);
     }
 
