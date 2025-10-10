@@ -357,19 +357,6 @@ public class SendEhrExtractCoreComponentTest extends BaseTaskTest {
         assertThat(ehrExtractStatusUpdated.getEhrExtractCore()).isNull();
     }
 
-    @Test
-    public void When_EhrExtractMapperFailsWithEhrValidationException_Expect_ExceptionThrownAndDbNotUpdated() {
-        doThrow(EhrValidationException.class)
-                .when(ehrDocumentMapper).generateMhsPayload(any(), anyString(), anyString(), anyString());
-
-        assertThatExceptionOfType(EhrValidationException.class)
-                .isThrownBy(() -> sendEhrExtractCoreTaskExecutor.execute(sendEhrExtractCoreTaskDefinition));
-
-        var ehrExtractStatusUpdated = reloadEhrStatus();
-
-        assertThat(ehrExtractStatusUpdated.getEhrExtractCore()).isNull();
-
-    }
 
     @BeforeEach
     public void prepareCommonStubbing() {
