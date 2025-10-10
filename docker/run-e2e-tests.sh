@@ -2,8 +2,8 @@
 
 set -e
 
-if [ -f "vars.sh" ]; then
-    source vars.sh
+if [ -f "vars.local.e2e.sh" ]; then
+    source vars.local.e2e.sh
 else
   echo "No vars.sh defined. Using docker-compose defaults."
 fi
