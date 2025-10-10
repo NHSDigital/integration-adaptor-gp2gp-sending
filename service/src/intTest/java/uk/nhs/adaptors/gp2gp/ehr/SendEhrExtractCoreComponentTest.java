@@ -64,6 +64,7 @@ import java.util.List;
 @ExtendWith({SpringExtension.class, MongoDBExtension.class, ActiveMQExtension.class, MockitoExtension.class})
 @SpringBootTest
 @DirtiesContext
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class SendEhrExtractCoreComponentTest extends BaseTaskTest {
     private static final String OUTBOUND_MESSAGE = serializeOutboundMessage("payload");
     public static final String OUTBOUND_MESSAGE_WITH_PLACEHOLDER =
