@@ -22,7 +22,7 @@ public final class ActiveMqContainer extends GenericContainer<ActiveMqContainer>
     @Override
     public void start() {
         super.start();
-        var containerBrokerUri = "amqp://" + getContainerIpAddress() + ":" + getMappedPort(ACTIVEMQ_PORT);
+        var containerBrokerUri = "amqp://" + getHost() + ":" + getMappedPort(ACTIVEMQ_PORT);
         System.setProperty("GP2GP_AMQP_BROKERS", containerBrokerUri);
     }
 }
