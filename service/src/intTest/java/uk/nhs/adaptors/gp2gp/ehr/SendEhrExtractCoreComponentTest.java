@@ -52,7 +52,6 @@ import uk.nhs.adaptors.gp2gp.mhs.MhsClient;
 import uk.nhs.adaptors.gp2gp.mhs.MhsRequestBuilder;
 import uk.nhs.adaptors.gp2gp.mhs.exception.MhsConnectionException;
 import uk.nhs.adaptors.gp2gp.mhs.exception.MhsServerErrorException;
-import uk.nhs.adaptors.gp2gp.ehr.exception.EhrValidationException;
 import uk.nhs.adaptors.gp2gp.mhs.model.OutboundMessage;
 import uk.nhs.adaptors.gp2gp.testcontainers.ActiveMQExtension;
 import uk.nhs.adaptors.gp2gp.testcontainers.MongoDBExtension;
@@ -65,6 +64,7 @@ import java.util.List;
 @ExtendWith({SpringExtension.class, MongoDBExtension.class, ActiveMQExtension.class, MockitoExtension.class})
 @SpringBootTest
 @DirtiesContext
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class SendEhrExtractCoreComponentTest extends BaseTaskTest {
     private static final String OUTBOUND_MESSAGE = serializeOutboundMessage("payload");
     public static final String OUTBOUND_MESSAGE_WITH_PLACEHOLDER =
@@ -356,7 +356,6 @@ public class SendEhrExtractCoreComponentTest extends BaseTaskTest {
 
         assertThat(ehrExtractStatusUpdated.getEhrExtractCore()).isNull();
     }
-
 
     @BeforeEach
     public void prepareCommonStubbing() {
