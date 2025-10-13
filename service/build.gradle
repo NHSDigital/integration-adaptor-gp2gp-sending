@@ -84,7 +84,7 @@ dependencies {
 	testImplementation 'org.wiremock:wiremock-standalone:3.13.1'
 	testImplementation 'com.squareup.okhttp3:okhttp:5.1.0'
 	testImplementation 'com.squareup.okhttp3:mockwebserver3:5.1.0'
-	testImplementation 'com.adobe.testing:s3mock-testcontainers:4.7.0'
+	testImplementation 'com.adobe.testing:s3mock-testcontainers:4.9.1'
 
     spotbugs 'com.github.spotbugs:spotbugs:4.9.5'
     spotbugs 'com.github.spotbugs:spotbugs-annotations:4.9.5'
