@@ -39,7 +39,7 @@ import uk.nhs.adaptors.gp2gp.ehr.model.EhrExtractStatus;
 import uk.nhs.adaptors.gp2gp.mhs.InvalidInboundMessageException;
 
 @ExtendWith(MockitoExtension.class)
-public class EhrExtractAckHandlerTest {
+class EhrExtractAckHandlerTest {
 
     private static final String ACK_TYPE_CODE_XPATH = "//MCCI_IN010000UK13/acknowledgement/@typeCode";
     private static final String MESSAGE_REF_XPATH = "//MCCI_IN010000UK13/acknowledgement/messageRef/id/@root";
@@ -73,7 +73,7 @@ public class EhrExtractAckHandlerTest {
     private EhrExtractAckHandler ehrExtractAckHandler;
 
     @Test
-    public void When_HandleUnsupportedAckTypeCode_Expect_ExceptionThrown() {
+    void When_HandleUnsupportedAckTypeCode_Expect_ExceptionThrown() {
         var document = mock(Document.class);
         var messageRef = "mock-message-ref";
         when(xPathService.getNodeValue(document, ACK_TYPE_CODE_XPATH)).thenReturn("CE");
@@ -85,7 +85,7 @@ public class EhrExtractAckHandlerTest {
     }
 
     @Test
-    public void When_Handle_WithAckAndMessageRefEqualsEhrExtractMessageId_Expect_ConversationIsClosed() {
+    void When_Handle_WithAckAndMessageRefEqualsEhrExtractMessageId_Expect_ConversationIsClosed() {
 
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_OK_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
@@ -101,7 +101,7 @@ public class EhrExtractAckHandlerTest {
     }
 
     @Test
-    public void When_Handle_WithAckAndMessageRefEqualsEhrExtractMessageId_Expect_AckSaved() {
+    void When_Handle_WithAckAndMessageRefEqualsEhrExtractMessageId_Expect_AckSaved() {
 
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_OK_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
@@ -113,7 +113,7 @@ public class EhrExtractAckHandlerTest {
     }
 
     @Test
-    public void When_Handle_WithAckDoesNotReferenceEhrExtract_Expect_ReceivedAckFieldNotUpdated() {
+    void When_Handle_WithAckDoesNotReferenceEhrExtract_Expect_ReceivedAckFieldNotUpdated() {
 
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_OK_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(RANDOM_MESSAGE_REF);
@@ -125,7 +125,7 @@ public class EhrExtractAckHandlerTest {
     }
 
     @Test
-    public void When_Handle_WithAckDoesNotReferenceEhrExtract_Expect_AckSaved() {
+    void When_Handle_WithAckDoesNotReferenceEhrExtract_Expect_AckSaved() {
 
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_OK_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(RANDOM_MESSAGE_REF);
@@ -137,7 +137,7 @@ public class EhrExtractAckHandlerTest {
     }
 
     @Test
-    public void When_Handle_WithAckAndNoEhrExtractMessageIdForConversation_Expect_EhrExtractException() {
+    void When_Handle_WithAckAndNoEhrExtractMessageIdForConversation_Expect_EhrExtractException() {
 
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_OK_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
@@ -149,7 +149,7 @@ public class EhrExtractAckHandlerTest {
     }
 
     @Test
-    public void When_Handle_WithNackReferencesEhrExtract_Expect_ConversationClosed() throws XPathExpressionException,
+    void When_Handle_WithNackReferencesEhrExtract_Expect_ConversationClosed() throws XPathExpressionException,
         ParserConfigurationException, IOException, SAXException {
 
         NodeList codeNodeList = codeElementToNodeList(ERROR_CODE_ELEMENT_99);
@@ -168,7 +168,7 @@ public class EhrExtractAckHandlerTest {
     }
 
     @Test
-    public void When_Handle_WithNackReferencesEhrExtract_Expect_AckSaved() throws XPathExpressionException,
+    void When_Handle_WithNackReferencesEhrExtract_Expect_AckSaved() throws XPathExpressionException,
         ParserConfigurationException, IOException, SAXException {
 
         NodeList codeNodeList = codeElementToNodeList(ERROR_CODE_ELEMENT_99);
@@ -185,7 +185,7 @@ public class EhrExtractAckHandlerTest {
     }
 
     @Test
-    public void When_Handle_WithNackDoesNotReferenceExtract_Expect_ReceivedAckFieldNotUpdated() throws XPathExpressionException,
+    void When_Handle_WithNackDoesNotReferenceExtract_Expect_ReceivedAckFieldNotUpdated() throws XPathExpressionException,
         ParserConfigurationException, IOException, SAXException {
 
         NodeList codeNodeList = codeElementToNodeList(ERROR_CODE_ELEMENT_99);
@@ -203,7 +203,7 @@ public class EhrExtractAckHandlerTest {
     }
 
     @Test
-    public void When_Handle_WithNackDoesNotReferenceExtract_Expect_AckSaved() throws XPathExpressionException,
+    void When_Handle_WithNackDoesNotReferenceExtract_Expect_AckSaved() throws XPathExpressionException,
         ParserConfigurationException, IOException, SAXException {
 
         NodeList codeNodeList = codeElementToNodeList(ERROR_CODE_ELEMENT_99);
@@ -221,7 +221,7 @@ public class EhrExtractAckHandlerTest {
     }
 
     @Test
-    public void When_Handle_WithRejectedReferencesEhrExtract_Expect_ConversationClosed() throws XPathExpressionException,
+    void When_Handle_WithRejectedReferencesEhrExtract_Expect_ConversationClosed() throws XPathExpressionException,
         ParserConfigurationException, IOException, SAXException {
 
         NodeList codeNodeList = codeElementToNodeList(ERROR_CODE_ELEMENT_18);
@@ -241,7 +241,7 @@ public class EhrExtractAckHandlerTest {
     }
 
     @Test
-    public void When_Handle_WithRejectedDoesNotReferenceExtract_Expect_ReceivedAckFieldNotUpdated() throws XPathExpressionException,
+    void When_Handle_WithRejectedDoesNotReferenceExtract_Expect_ReceivedAckFieldNotUpdated() throws XPathExpressionException,
         ParserConfigurationException, IOException, SAXException {
 
         NodeList codeNodeList = codeElementToNodeList(ERROR_CODE_ELEMENT_18);
@@ -258,7 +258,7 @@ public class EhrExtractAckHandlerTest {
     }
 
     @Test
-    public void When_Handle_WithRejectedReferencesEhrExtract_Expect_AckSaved() throws XPathExpressionException,
+    void When_Handle_WithRejectedReferencesEhrExtract_Expect_AckSaved() throws XPathExpressionException,
         ParserConfigurationException, IOException, SAXException {
 
         NodeList codeNodeList = codeElementToNodeList(ERROR_CODE_ELEMENT_18);
@@ -276,7 +276,7 @@ public class EhrExtractAckHandlerTest {
     }
 
     @Test
-    public void When_Handle_WithRejectedDoesNotReferenceExtract_Expect_AckSaved() throws XPathExpressionException,
+    void When_Handle_WithRejectedDoesNotReferenceExtract_Expect_AckSaved() throws XPathExpressionException,
         ParserConfigurationException, IOException, SAXException {
 
         NodeList codeNodeList = codeElementToNodeList(ERROR_CODE_ELEMENT_18);

@@ -43,7 +43,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class EhrExtractRequestHandlerTest {
+class EhrExtractRequestHandlerTest {
     private static final String REQUEST_ID = "041CA2AE-3EC6-4AC9-942F-0F6621CC0BFC";
     private static final String CONVERSATION_ID = "DFF5321C-C6EA-468E-BBC2-B0E48000E071";
     private static final String NHS_NUMBER = "9692294935";
@@ -74,7 +74,7 @@ public class EhrExtractRequestHandlerTest {
     private EhrExtractRequestHandler ehrExtractRequestHandler;
 
     @Test
-    public void When_ValidEhrRequestReceived_Expect_EhrExtractStatusIsCreated() {
+    void When_ValidEhrRequestReceived_Expect_EhrExtractStatusIsCreated() {
         Document soapHeader = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
         Document soapBody = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_body.xml");
         Instant now = Instant.now();
@@ -94,7 +94,7 @@ public class EhrExtractRequestHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_DuplicateEhrExtractRequestReceived_Expect_NoTasksAreCreated() {
+    void When_DuplicateEhrExtractRequestReceived_Expect_NoTasksAreCreated() {
         Document soapHeader = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
         Document soapBody = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_body.xml");
         Instant now = Instant.now();
@@ -154,7 +154,7 @@ public class EhrExtractRequestHandlerTest {
     @SneakyThrows
     @ParameterizedTest
     @MethodSource("pathsToBodyValues")
-    public void When_RequiredElementMissingFromBody_Expect_HandlerThrowsException(String xpath) {
+    void When_RequiredElementMissingFromBody_Expect_HandlerThrowsException(String xpath) {
         Document header = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
         Document body = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_body.xml");
 
@@ -172,7 +172,7 @@ public class EhrExtractRequestHandlerTest {
     @SneakyThrows
     @ParameterizedTest
     @MethodSource("pathsToBodyValues")
-    public void When_RequiredValueIsBlankInBody_Expect_HandlerThrowsException(String xpath) {
+    void When_RequiredValueIsBlankInBody_Expect_HandlerThrowsException(String xpath) {
         Document header = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
         Document body = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_body.xml");
 
@@ -197,7 +197,7 @@ public class EhrExtractRequestHandlerTest {
     @SneakyThrows
     @ParameterizedTest
     @MethodSource("pathsToHeaderValues")
-    public void When_RequiredElementMissingFromHeader_Expect_HandlerThrowsException(String xpath) {
+    void When_RequiredElementMissingFromHeader_Expect_HandlerThrowsException(String xpath) {
         Document header = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
         Document body = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_body.xml");
 
@@ -215,7 +215,7 @@ public class EhrExtractRequestHandlerTest {
     @SneakyThrows
     @ParameterizedTest
     @MethodSource("pathsToHeaderValues")
-    public void When_RequiredValueIsBlankInHeader_Expect_HandlerThrowsException(String xpath) {
+    void When_RequiredValueIsBlankInHeader_Expect_HandlerThrowsException(String xpath) {
         Document header = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
         Document body = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_body.xml");
 

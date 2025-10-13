@@ -15,7 +15,7 @@ import uk.nhs.adaptors.gp2gp.ehr.SendEhrExtractCoreTaskDispatcher;
 import uk.nhs.adaptors.gp2gp.ehr.model.EhrExtractStatus;
 
 @ExtendWith(MockitoExtension.class)
-public class DetectTranslationCompleteServiceTest {
+class DetectTranslationCompleteServiceTest {
 
     @Mock
     private SendEhrExtractCoreTaskDispatcher sendEhrExtractCoreTaskDispatcher;
@@ -28,7 +28,7 @@ public class DetectTranslationCompleteServiceTest {
     }
 
     @Test
-    public void When_AllPreparingDataStepsAreFinished_Expect_SendEhrExtractTaskCreated() {
+    void When_AllPreparingDataStepsAreFinished_Expect_SendEhrExtractTaskCreated() {
         EhrExtractStatus ehrExtractStatus = buildEhrExtractStatus("object_name");
 
         detectTranslationCompleteService.beginSendingCompleteExtract(ehrExtractStatus);
@@ -37,7 +37,7 @@ public class DetectTranslationCompleteServiceTest {
     }
 
     @Test
-    public void When_AllPreparingDataStepsAreNotFinished_Expect_SendEhrExtractTaskNotCreated() {
+    void When_AllPreparingDataStepsAreNotFinished_Expect_SendEhrExtractTaskNotCreated() {
         EhrExtractStatus ehrExtractStatus = buildEhrExtractStatus(null);
 
         detectTranslationCompleteService.beginSendingCompleteExtract(ehrExtractStatus);

@@ -22,7 +22,7 @@ import lombok.SneakyThrows;
 import uk.nhs.adaptors.gp2gp.common.service.MDCService;
 
 @ExtendWith(MockitoExtension.class)
-public class InboundMessageConsumerTest {
+class InboundMessageConsumerTest {
     @Mock
     private InboundMessageHandler inboundMessageHandler;
     @Mock
@@ -36,7 +36,7 @@ public class InboundMessageConsumerTest {
 
     @Test
     @SneakyThrows
-    public void When_MessageHandlerReturnsTrue_Expect_MessageIsAcknowledged() {
+    void When_MessageHandlerReturnsTrue_Expect_MessageIsAcknowledged() {
         when(inboundMessageHandler.handle(any())).thenReturn(true);
         inboundMessageConsumer.receive(mockMessage, mockSession);
 
@@ -46,7 +46,7 @@ public class InboundMessageConsumerTest {
 
     @Test
     @SneakyThrows
-    public void When_MessageHandlerReturnsFalse_Expect_MessageIsNotAcknowledged() {
+    void When_MessageHandlerReturnsFalse_Expect_MessageIsNotAcknowledged() {
         when(inboundMessageHandler.handle(any())).thenReturn(false);
 
         inboundMessageConsumer.receive(mockMessage, mockSession);
@@ -57,7 +57,7 @@ public class InboundMessageConsumerTest {
 
     @Test
     @SneakyThrows
-    public void When_MessageHandlerReturnsFalse_Expect_SessionToBeRolledBack() {
+    void When_MessageHandlerReturnsFalse_Expect_SessionToBeRolledBack() {
         when(inboundMessageHandler.handle(any())).thenReturn(false);
 
         inboundMessageConsumer.receive(mockMessage, mockSession);
@@ -67,7 +67,7 @@ public class InboundMessageConsumerTest {
 
     @Test
     @SneakyThrows
-    public void When_MessageHandlerThrowsException_Expect_MessageIsNotAcknowledged() {
+    void When_MessageHandlerThrowsException_Expect_MessageIsNotAcknowledged() {
         doThrow(new RuntimeException()).when(inboundMessageHandler).handle(mockMessage);
 
         inboundMessageConsumer.receive(mockMessage, mockSession);
@@ -78,7 +78,7 @@ public class InboundMessageConsumerTest {
 
     @Test
     @SneakyThrows
-    public void When_MessageHandlerThrowsJMSException_Expect_SessionIsRolledBack() {
+    void When_MessageHandlerThrowsJMSException_Expect_SessionIsRolledBack() {
         doThrow(new JMSRuntimeException("Test")).when(inboundMessageHandler).handle(mockMessage);
 
         inboundMessageConsumer.receive(mockMessage, mockSession);
@@ -89,7 +89,7 @@ public class InboundMessageConsumerTest {
 
     @Test
     @SneakyThrows
-    public void When_MessageHandlerThrowsDataAccessResourceFailure_Expect_ExceptionIsThrown() {
+    void When_MessageHandlerThrowsDataAccessResourceFailure_Expect_ExceptionIsThrown() {
         doThrow(new DataAccessResourceFailureException("Test exception")).when(inboundMessageHandler).handle(mockMessage);
 
         assertThatExceptionOfType(DataAccessResourceFailureException.class)

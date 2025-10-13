@@ -13,7 +13,7 @@ import lombok.SneakyThrows;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 
-public class MedicationRequestUtilsTest {
+class MedicationRequestUtilsTest {
 
     private final FhirParseService fhirParseService = new FhirParseService();
 
@@ -22,7 +22,7 @@ public class MedicationRequestUtilsTest {
         + "condition_with_medication_request_reference.json";
 
     @Test
-    public void When_MedicationRequestHasStatusOfStoppedAndIntentOfOrder_Expect_IsStoppedMedicationOrder() {
+    void When_MedicationRequestHasStatusOfStoppedAndIntentOfOrder_Expect_IsStoppedMedicationOrder() {
         var medicationRequest = new MedicationRequest();
         medicationRequest.setStatus(MedicationRequest.MedicationRequestStatus.STOPPED);
         medicationRequest.setIntent(MedicationRequest.MedicationRequestIntent.ORDER);
@@ -31,7 +31,7 @@ public class MedicationRequestUtilsTest {
     }
 
     @Test
-    public void When_MedicationRequestHasStatusOfActiveAndIntentOfOrder_Expect_IsNotStoppedMedicationOrder() {
+    void When_MedicationRequestHasStatusOfActiveAndIntentOfOrder_Expect_IsNotStoppedMedicationOrder() {
         var medicationRequest = new MedicationRequest();
         medicationRequest.setStatus(MedicationRequest.MedicationRequestStatus.ACTIVE);
         medicationRequest.setIntent(MedicationRequest.MedicationRequestIntent.ORDER);
@@ -40,7 +40,7 @@ public class MedicationRequestUtilsTest {
     }
 
     @Test
-    public void When_MedicationRequestHasStatusOfStoppedAndIntentOfPlan_Expect_IsNotStoppedMedicationOrder() {
+    void When_MedicationRequestHasStatusOfStoppedAndIntentOfPlan_Expect_IsNotStoppedMedicationOrder() {
         var medicationRequest = new MedicationRequest();
         medicationRequest.setStatus(MedicationRequest.MedicationRequestStatus.ACTIVE);
         medicationRequest.setIntent(MedicationRequest.MedicationRequestIntent.PLAN);
@@ -50,7 +50,7 @@ public class MedicationRequestUtilsTest {
 
     @SneakyThrows
     @Test
-    public void When_AskingIfMedRequestReference_IsOfTypeMedicationRequest_Expect_Ture() {
+    void When_AskingIfMedRequestReference_IsOfTypeMedicationRequest_Expect_Ture() {
         var jsonInput = ResourceTestFileUtils.getFileContent(JSON_CONDITION_WITH_MEDICATION_REQUEST_REF);
         var condition = fhirParseService.parseResource(jsonInput, Condition.class);
         var reference = (Reference) condition.getExtension()
@@ -63,7 +63,7 @@ public class MedicationRequestUtilsTest {
 
     @SneakyThrows
     @Test
-    public void When_AskingIfNonMedRequestReference_IsOfTypeMedicationRequest_Expect_False() {
+    void When_AskingIfNonMedRequestReference_IsOfTypeMedicationRequest_Expect_False() {
         var jsonInput = ResourceTestFileUtils.getFileContent(JSON_CONDITION_WITH_MEDICATION_REQUEST_REF);
         var condition = fhirParseService.parseResource(jsonInput, Condition.class);
         var reference = (Reference) condition.getExtension()

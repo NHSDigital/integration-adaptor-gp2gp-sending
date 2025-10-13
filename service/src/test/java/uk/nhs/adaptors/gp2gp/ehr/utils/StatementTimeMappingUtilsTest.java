@@ -12,7 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 
-public class StatementTimeMappingUtilsTest {
+class StatementTimeMappingUtilsTest {
 
     private static final String MEDICATION_REQUEST_ID = "00000000-0000-4000-8000-000000000001";
     private MedicationRequest medicationRequest;

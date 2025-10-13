@@ -7,12 +7,12 @@ import java.time.temporal.ChronoField;
 
 import org.junit.jupiter.api.Test;
 
-public class TimestampServiceTest {
+class TimestampServiceTest {
 
     private static final int MILLIS_PER_MICRO = 1000;
 
     @Test
-    public void When_TimestampIsCreated_Expect_TruncatedToMilliseconds() {
+    void When_TimestampIsCreated_Expect_TruncatedToMilliseconds() {
         Instant now = new TimestampService().now();
         assertThat(now.getLong(ChronoField.MICRO_OF_SECOND) % MILLIS_PER_MICRO).isZero();
     }

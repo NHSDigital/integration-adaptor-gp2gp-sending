@@ -34,7 +34,7 @@ import static uk.nhs.adaptors.gp2gp.utils.XmlAssertion.assertThatXml;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class ImmunizationObservationStatementMapperTest {
+class ImmunizationObservationStatementMapperTest {
     private static final String TEST_ID = "test-id";
     private static final String IMMUNIZATION_FILE_LOCATIONS = "/ehr/mapper/immunization/";
     private static final String OBSERVATION_STATEMENT_CONFIDENTIALITY_CODE_XPATH =

@@ -78,7 +78,7 @@ public class DocumentToMHSTranslatorTest {
     }
 
     @Test
-    public void When_TranslatingDocumentData_Expect_ProperMhsOutboundRequestPayload() {
+    void When_TranslatingDocumentData_Expect_ProperMhsOutboundRequestPayload() {
         GetGpcDocumentTaskDefinition taskDefinition = GetGpcDocumentTaskDefinition.builder()
             .messageId(MESSAGE_ID)
             .documentId(TEST_DOCUMENT_ID)
@@ -91,7 +91,7 @@ public class DocumentToMHSTranslatorTest {
     }
 
     @Test
-    public void When_TranslatingFileContentData_Expect_ProperMhsOutboundRequestPayload() {
+    void When_TranslatingFileContentData_Expect_ProperMhsOutboundRequestPayload() {
         final GetAbsentAttachmentTaskDefinition taskDefinition = GetAbsentAttachmentTaskDefinition.builder()
             .title(TEST_TITLE)
             .messageId(MESSAGE_ID)

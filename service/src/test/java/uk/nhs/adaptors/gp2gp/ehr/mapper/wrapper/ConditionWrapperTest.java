@@ -13,7 +13,7 @@ import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.CodeableConceptCdMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.MessageContext;
 
-public class ConditionWrapperTest extends ConditionWrapperTestBase {
+class ConditionWrapperTest extends ConditionWrapperTestBase {
 
     private static final String EXPECTED_PROBLEM_WITH_PARENT_AND_SIBLING_INFO =
         "Problem Info: Related Problem: Child of Pneumonia "
@@ -39,7 +39,7 @@ public class ConditionWrapperTest extends ConditionWrapperTestBase {
     }
 
     @Test
-    public void When_RequestingInfoForConditionWithParentAndSibling_Expect_ToListNotesAndRelatedConditions() {
+    void When_RequestingInfoForConditionWithParentAndSibling_Expect_ToListNotesAndRelatedConditions() {
         Optional<String> problemInfo = getProblemInfo(CONDITION_WITH_RELATIONSHIP_FHIR_ID);
 
         assertThat(problemInfo).isNotEmpty();
@@ -47,7 +47,7 @@ public class ConditionWrapperTest extends ConditionWrapperTestBase {
     }
 
     @Test
-    public void When_RequestingInfoForConditionWithChildren_Expect_ToListNotesAndRelatedChildConditions() {
+    void When_RequestingInfoForConditionWithChildren_Expect_ToListNotesAndRelatedChildConditions() {
         Optional<String> problemInfo = getProblemInfo(PARENT_CONDITION_FHIR_ID);
 
         assertThat(problemInfo).isNotEmpty();

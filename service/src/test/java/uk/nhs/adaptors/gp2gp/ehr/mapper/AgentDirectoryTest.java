@@ -21,7 +21,7 @@ import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 
 @ExtendWith(MockitoExtension.class)
-public class AgentDirectoryTest {
+class AgentDirectoryTest {
 
     private static final String INPUT_BUNDLE = "/ehr/mapper/agent-directory/input-bundle-with-practitioner-roles.json";
     private static final String GENERATED_ID_1 = "GENERATED_ID_1";
@@ -47,7 +47,7 @@ public class AgentDirectoryTest {
     }
 
     @Test
-    public void When_GettingPractitionerReference_Expect_ReferenceMappedToId() {
+    void When_GettingPractitionerReference_Expect_ReferenceMappedToId() {
         AgentDirectory agentDirectory = new AgentDirectory(randomIdGeneratorService, inputBundle);
 
         agentDirectory.getAgentId(buildReference(ResourceType.Practitioner, PRACTITIONER_ID_NOT_IN_PRACTITIONER_ROLE));
@@ -56,7 +56,7 @@ public class AgentDirectoryTest {
     }
 
     @Test
-    public void When_GettingAlreadyMappedPractitionerReference_Expect_NoReferenceDuplicated() {
+    void When_GettingAlreadyMappedPractitionerReference_Expect_NoReferenceDuplicated() {
         AgentDirectory agentDirectory = new AgentDirectory(randomIdGeneratorService, inputBundle);
 
         agentDirectory.getAgentId(buildReference(ResourceType.Practitioner, PRACTITIONER_ID_NOT_IN_PRACTITIONER_ROLE));
@@ -67,7 +67,7 @@ public class AgentDirectoryTest {
     }
 
     @Test
-    public void When_GettingPractitionerReferenceThatIsInPractitionerRole_Expect_ReferenceMappedToId() {
+    void When_GettingPractitionerReferenceThatIsInPractitionerRole_Expect_ReferenceMappedToId() {
         AgentDirectory agentDirectory = new AgentDirectory(randomIdGeneratorService, inputBundle);
 
         agentDirectory.getAgentId(buildReference(ResourceType.Practitioner, PRACTITIONER_ID_IN_PRACTITIONER_ROLE));
@@ -76,7 +76,7 @@ public class AgentDirectoryTest {
     }
 
     @Test
-    public void When_GettingAlreadyMappedPractitionerReferenceThatIsInPractitionerRole_Expect_NoReferenceDuplicated() {
+    void When_GettingAlreadyMappedPractitionerReferenceThatIsInPractitionerRole_Expect_NoReferenceDuplicated() {
         AgentDirectory agentDirectory = new AgentDirectory(randomIdGeneratorService, inputBundle);
 
         agentDirectory.getAgentId(buildReference(ResourceType.Practitioner, PRACTITIONER_ID_IN_PRACTITIONER_ROLE));
@@ -87,7 +87,7 @@ public class AgentDirectoryTest {
     }
 
     @Test
-    public void When_GettingOrganizationReference_Expect_ReferenceMappedToId() {
+    void When_GettingOrganizationReference_Expect_ReferenceMappedToId() {
         AgentDirectory agentDirectory = new AgentDirectory(randomIdGeneratorService, inputBundle);
 
         agentDirectory.getAgentId(buildReference(ResourceType.Organization, ORGANIZATION_ID));
@@ -96,7 +96,7 @@ public class AgentDirectoryTest {
     }
 
     @Test
-    public void When_GettingAlreadyMappedOrganizationReference_Expect_NoReferenceDuplicated() {
+    void When_GettingAlreadyMappedOrganizationReference_Expect_NoReferenceDuplicated() {
         AgentDirectory agentDirectory = new AgentDirectory(randomIdGeneratorService, inputBundle);
 
         agentDirectory.getAgentId(buildReference(ResourceType.Organization, ORGANIZATION_ID));
@@ -107,7 +107,7 @@ public class AgentDirectoryTest {
     }
 
     @Test
-    public void When_GettingReferenceToPractitionerAndOrganization_Expect_ReferencesMappedToId() {
+    void When_GettingReferenceToPractitionerAndOrganization_Expect_ReferencesMappedToId() {
         AgentDirectory agentDirectory = new AgentDirectory(randomIdGeneratorService, inputBundle);
 
         agentDirectory.getAgentRef(
@@ -118,7 +118,7 @@ public class AgentDirectoryTest {
     }
 
     @Test
-    public void When_GettingAlreadyMappedReferenceToPractitionerAndOrganization_Expect_NoReferenceDuplicated() {
+    void When_GettingAlreadyMappedReferenceToPractitionerAndOrganization_Expect_NoReferenceDuplicated() {
         AgentDirectory agentDirectory = new AgentDirectory(randomIdGeneratorService, inputBundle);
 
         agentDirectory.getAgentRef(
@@ -135,7 +135,7 @@ public class AgentDirectoryTest {
     }
 
     @Test
-    public void When_GettingReferenceToPractitionerAndOrganizationAndSingleOrganizationIsAlreadyMapped_Expect_ReferencesMappedToId() {
+    void When_GettingReferenceToPractitionerAndOrganizationAndSingleOrganizationIsAlreadyMapped_Expect_ReferencesMappedToId() {
         AgentDirectory agentDirectory = new AgentDirectory(randomIdGeneratorService, inputBundle);
 
         agentDirectory.getAgentId(

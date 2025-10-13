@@ -38,7 +38,7 @@ import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 
 @ExtendWith(MockitoExtension.class)
-public class MedicationStatementMapperTest {
+class MedicationStatementMapperTest {
     private static final String TEST_ID = "394559384658936";
     private static final String TEST_FILE_DIRECTORY = "/ehr/mapper/medication_request/";
     private static final String INPUT_JSON_BUNDLE = TEST_FILE_DIRECTORY + "fhir-bundle.json";
@@ -72,7 +72,7 @@ public class MedicationStatementMapperTest {
     private MedicationStatementMapper medicationStatementMapper;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         when(mockRandomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         when(mockRandomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(TEST_ID);
 
@@ -94,13 +94,13 @@ public class MedicationStatementMapperTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         messageContext.resetMessageContext();
     }
 
     @ParameterizedTest
     @MethodSource("resourceFileParams")
-    public void When_MappingObservationJson_Expect_NarrativeStatementXmlOutput(String inputJson, String outputXml) {
+    void When_MappingObservationJson_Expect_NarrativeStatementXmlOutput(String inputJson, String outputXml) {
         assertThatInputMapsToExpectedOutput(TEST_FILE_DIRECTORY + inputJson, TEST_FILE_DIRECTORY + outputXml);
     }
 
@@ -152,7 +152,7 @@ public class MedicationStatementMapperTest {
 
     @SneakyThrows
     @Test
-    public void When_MappingBasedOnField_Expect_CorrectReferences() {
+    void When_MappingBasedOnField_Expect_CorrectReferences() {
         var expected = ResourceTestFileUtils.getFileContent(OUTPUT_XML_WITH_PRESCRIBE_BASED_ON);
 
         when(mockRandomIdGeneratorService.createNewId()).thenReturn("123");
@@ -179,7 +179,7 @@ public class MedicationStatementMapperTest {
 
     @ParameterizedTest
     @MethodSource("resourceFileExpectException")
-    public void When_MappingMedicationRequestWithInvalidResource_Expect_Exception(String inputJson) {
+    void When_MappingMedicationRequestWithInvalidResource_Expect_Exception(String inputJson) {
         var jsonInput = ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + inputJson);
         MedicationRequest parsedMedicationRequest = new FhirParseService().parseResource(jsonInput, MedicationRequest.class);
 
@@ -203,7 +203,7 @@ public class MedicationStatementMapperTest {
     }
 
     @Test
-    public void When_MappingMedicationRequestWithRequesterWithOnBehalfOf_Expect_ParticipantMappedToAgent() {
+    void When_MappingMedicationRequestWithRequesterWithOnBehalfOf_Expect_ParticipantMappedToAgent() {
         when(mockRandomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         codeableConceptCdMapper = new CodeableConceptCdMapper();
         var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
@@ -250,7 +250,7 @@ public class MedicationStatementMapperTest {
 
     @ParameterizedTest
     @MethodSource("resourceFilesWithParticipant")
-    public void When_MappingMedicationRequestWithParticipant_Expect_ParticipantMappedToAgent(
+    void When_MappingMedicationRequestWithParticipant_Expect_ParticipantMappedToAgent(
         String inputJson, String agentId) {
         when(mockRandomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         codeableConceptCdMapper = new CodeableConceptCdMapper();
@@ -297,7 +297,7 @@ public class MedicationStatementMapperTest {
 
     @ParameterizedTest
     @MethodSource("resourceFilesWithMedicationStatement")
-    public void When_MappingMedicationRequest_WithMedicationStatement_Expect_PrescribingAgencyMappedToSupplyType(
+    void When_MappingMedicationRequest_WithMedicationStatement_Expect_PrescribingAgencyMappedToSupplyType(
         String inputJson, String outputXml) {
 
         var expected = ResourceTestFileUtils.getFileContent(outputXml);
@@ -338,7 +338,7 @@ public class MedicationStatementMapperTest {
         "mr-with-plan-no-optional-fields.json",
         "mr-with-order-no-optional-fields.json"
     })
-    public void When_ConfidentialityServiceReturnsConfidentialityCode_Expect_MessageContainsConfidentialityCode(
+    void When_ConfidentialityServiceReturnsConfidentialityCode_Expect_MessageContainsConfidentialityCode(
         String inputJson
     ) {
         final var jsonInput = ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + inputJson);
@@ -360,7 +360,7 @@ public class MedicationStatementMapperTest {
         "mr-with-plan-no-optional-fields.json",
         "mr-with-order-no-optional-fields.json"
     })
-    public void When_ConfidentialityServiceReturnsEmptyOptional_Expect_MessageDoesNotContainConfidentialityCode(
+    void When_ConfidentialityServiceReturnsEmptyOptional_Expect_MessageDoesNotContainConfidentialityCode(
         String inputJson
     ) {
         final var jsonInput = ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + inputJson);

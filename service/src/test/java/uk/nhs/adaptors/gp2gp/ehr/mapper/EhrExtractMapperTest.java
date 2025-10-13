@@ -22,7 +22,7 @@ import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
 import uk.nhs.adaptors.gp2gp.gpc.GetGpcStructuredTaskDefinition;
 
 @ExtendWith(MockitoExtension.class)
-public class EhrExtractMapperTest {
+class EhrExtractMapperTest {
     private static final String NHS_NUMBER = "1234567890";
     private static final String OVERRIDE_NHS_NUMBER = "overrideNhsNumber";
     private static final String OVERRIDE_NHS_NUMBER_VALUE = "123123123";
@@ -49,7 +49,7 @@ public class EhrExtractMapperTest {
     private EhrExtractMapper ehrExtractMapper;
 
     @Test
-    public void When_NhsOverrideNumberProvided_Expect_OverrideToBeUsed()  {
+    void When_NhsOverrideNumberProvided_Expect_OverrideToBeUsed()  {
         ReflectionTestUtils.setField(ehrExtractMapper, OVERRIDE_NHS_NUMBER, OVERRIDE_NHS_NUMBER_VALUE);
         when(agentDirectoryMapper.mapEHRFolderToAgentDirectory(any(Bundle.class), eq(OVERRIDE_NHS_NUMBER_VALUE)))
             .thenReturn(OVERRIDE_NHS_NUMBER_VALUE);
@@ -65,7 +65,7 @@ public class EhrExtractMapperTest {
     }
 
     @Test
-    public void When_NhsOverrideNumberIsBlank_Expect_ActualNhsNumberIsUsed()  {
+    void When_NhsOverrideNumberIsBlank_Expect_ActualNhsNumberIsUsed()  {
         when(agentDirectoryMapper.mapEHRFolderToAgentDirectory(any(Bundle.class), eq(NHS_NUMBER)))
             .thenReturn(NHS_NUMBER);
         when(timestampService.now()).thenReturn(Instant.now().truncatedTo(ChronoUnit.MILLIS));
@@ -80,7 +80,7 @@ public class EhrExtractMapperTest {
     }
 
     @Test
-    public void When_BuildEhrCompositionForSkeletonEhrExtract_Expect_ExpectedComponentBuilt() {
+    void When_BuildEhrCompositionForSkeletonEhrExtract_Expect_ExpectedComponentBuilt() {
         var documentId = "documentId";
 
         when(timestampService.now()).thenReturn(Instant.parse("2024-01-01T01:01:01.000Z"));

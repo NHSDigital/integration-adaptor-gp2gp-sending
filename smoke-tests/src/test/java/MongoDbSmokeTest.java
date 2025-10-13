@@ -82,7 +82,7 @@ public class MongoDbSmokeTest {
     }
 
     @Test
-    public void when_HostEnvIsPresent_Expect_PortEnvIsPresent() {
+    void when_HostEnvIsPresent_Expect_PortEnvIsPresent() {
 
         // test skipped if host environment variable is not set
         assumeThat(envVars.containsKey(HOST_ENV_VARIABLE)).isTrue();
@@ -94,7 +94,7 @@ public class MongoDbSmokeTest {
     }
 
     @Test
-    public void when_UsernameEnvIsPresent_Expect_PasswordEnvIsPresent() {
+    void when_UsernameEnvIsPresent_Expect_PasswordEnvIsPresent() {
 
         // test skipped if the host and username environment variables are not set
         assumeThat(envVars.containsKey(HOST_ENV_VARIABLE)).isTrue();
@@ -107,7 +107,7 @@ public class MongoDbSmokeTest {
     }
 
     @Test
-    public void when_PasswordEnvIsPresent_Expect_UsernameEnvIsPresent() {
+    void when_PasswordEnvIsPresent_Expect_UsernameEnvIsPresent() {
 
         // test skipped if the host and password environment variables are not set
         assumeThat(envVars.containsKey(HOST_ENV_VARIABLE)).isTrue();
@@ -120,7 +120,7 @@ public class MongoDbSmokeTest {
     }
 
     @Test
-    public void expect_mongoDbConnectionIsAvailable() {
+    void expect_mongoDbConnectionIsAvailable() {
 
         // test skipped if cosmos is active
         assumeThat(isCosmosEnabled).isFalse();

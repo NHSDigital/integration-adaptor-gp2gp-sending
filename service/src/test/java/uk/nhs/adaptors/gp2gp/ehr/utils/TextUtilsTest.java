@@ -8,7 +8,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
-public class TextUtilsTest {
+class TextUtilsTest {
     @Test
     void When_JoiningElementsWithNewLine_Expect_CorrectStringReturned() {
         assertThat(TextUtils.newLine("first line", "second line", "third line"))

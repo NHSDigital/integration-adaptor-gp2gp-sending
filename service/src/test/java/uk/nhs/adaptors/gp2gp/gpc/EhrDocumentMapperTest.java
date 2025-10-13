@@ -17,7 +17,7 @@ import uk.nhs.adaptors.gp2gp.ehr.EhrDocumentMapper;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 
 @ExtendWith(MockitoExtension.class)
-public class EhrDocumentMapperTest {
+class EhrDocumentMapperTest {
     private static final String TEST_FILE_DIRECTORY = "/gpc/output/";
     private static final String EXPECTED_XML_TO_JSON_FILE = "ExpectedEhrDocument.xml";
     private static final String TEST_MESSAGE_ID = "test-message-id";
@@ -60,7 +60,7 @@ public class EhrDocumentMapperTest {
     }
 
     @Test
-    public void When_MappingJsonRequestBody_WithDocumentId_Expect_XmlOutput() {
+    void When_MappingJsonRequestBody_WithDocumentId_Expect_XmlOutput() {
         assertThat(ehrDocumentMapper.generateMhsPayload(
             getGpcDocumentTaskDefinition,
             TEST_MESSAGE_ID,
@@ -70,7 +70,7 @@ public class EhrDocumentMapperTest {
     }
 
     @Test
-    public void When_MappingJsonRequestBody_WithFilename_Expect_XmlOutput() {
+    void When_MappingJsonRequestBody_WithFilename_Expect_XmlOutput() {
         assertThat(ehrDocumentMapper.generateMhsPayload(
                 getGpcDocumentTaskDefinition,
                 TEST_MESSAGE_ID,

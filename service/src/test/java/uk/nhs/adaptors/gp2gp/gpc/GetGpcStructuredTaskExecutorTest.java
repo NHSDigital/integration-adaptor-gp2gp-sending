@@ -30,7 +30,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class GetGpcStructuredTaskExecutorTest {
+class GetGpcStructuredTaskExecutorTest {
     @Mock private TimestampService timestampService;
     @Mock private GpcClient gpcClient;
     @Mock private StorageConnectorService storageConnectorService;
@@ -44,7 +44,7 @@ public class GetGpcStructuredTaskExecutorTest {
     @Mock private RandomIdGeneratorService randomIdGeneratorService;
 
     @Test
-    public void When_BundleContainsExternalDocumentReference_Expect_DocumentAddedToEhrExtractStatusService() {
+    void When_BundleContainsExternalDocumentReference_Expect_DocumentAddedToEhrExtractStatusService() {
         when(this.structuredRecordMappingService.getExternalAttachments(any())).thenReturn(
             List.of(
                 OutboundMessage.ExternalAttachment.builder()
@@ -90,7 +90,7 @@ public class GetGpcStructuredTaskExecutorTest {
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"", " "})
-    public void When_BundleContainsAttachmentMissingAUrl_Expect_DocumentAddedToEhrExtractStatusServiceAsAbsent(String url) {
+    void When_BundleContainsAttachmentMissingAUrl_Expect_DocumentAddedToEhrExtractStatusServiceAsAbsent(String url) {
         // Arrange
         when(this.structuredRecordMappingService.getAbsentAttachments(any())).thenReturn(List.of());
         when(this.structuredRecordMappingService.getExternalAttachments(any())).thenReturn(
@@ -138,7 +138,7 @@ public class GetGpcStructuredTaskExecutorTest {
     }
 
     @Test
-    public void When_BundleContainsAbsentAttachment_Expect_DocumentAddedToEhrExtractStatusService() {
+    void When_BundleContainsAbsentAttachment_Expect_DocumentAddedToEhrExtractStatusService() {
         when(this.structuredRecordMappingService.getAbsentAttachments(any())).thenReturn(
             List.of(
                 OutboundMessage.ExternalAttachment.builder()
@@ -181,7 +181,7 @@ public class GetGpcStructuredTaskExecutorTest {
         );
     }
 
-    @BeforeEach public void setup() {
+    @BeforeEach void setup() {
         stubTimestampService();
         stubEhrExtractXml();
         setupIt();

@@ -25,7 +25,7 @@ import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
-public class IdMapperTest {
+class IdMapperTest {
     private IdMapper idMapper;
 
     @Mock
@@ -34,12 +34,12 @@ public class IdMapperTest {
     private static final String NON_UUID_ID = "THIS-IS-NOT-A-UUID";
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         idMapper = new IdMapper(mockRandomIdGeneratorService);
     }
 
     @Test
-    public void When_FetchingSameIdTwiceForTheSameResourceAndIdIsUUID_Expect_SameMappedIdReturned() {
+    void When_FetchingSameIdTwiceForTheSameResourceAndIdIsUUID_Expect_SameMappedIdReturned() {
         String id = UUID.randomUUID().toString().toUpperCase();
 
         when(mockRandomIdGeneratorService.createNewOrUseExistingUUID(id)).thenReturn(id);
@@ -58,7 +58,7 @@ public class IdMapperTest {
     }
 
     @Test
-    public void When_FetchingSameIdTwiceForTheSameResourceAndIdIsNotUUID_Expect_SameMappedIdReturned() {
+    void When_FetchingSameIdTwiceForTheSameResourceAndIdIsNotUUID_Expect_SameMappedIdReturned() {
         when(mockRandomIdGeneratorService.createNewOrUseExistingUUID(NON_UUID_ID))
             .thenReturn(UUID.randomUUID().toString().toUpperCase());
 
@@ -76,7 +76,7 @@ public class IdMapperTest {
     }
 
     @Test
-    public void When_FetchingTwoDifferentIdsForTheSameResourceAndIdIsUUID_Expect_NewMappedIdsReturned() {
+    void When_FetchingTwoDifferentIdsForTheSameResourceAndIdIsUUID_Expect_NewMappedIdsReturned() {
         String firstId = UUID.randomUUID().toString().toUpperCase();
         String secondId = UUID.randomUUID().toString().toUpperCase();
 
@@ -101,7 +101,7 @@ public class IdMapperTest {
     }
 
     @Test
-    public void When_FetchingTwoDifferentIdsForTheSameResourceAndIdIsNotUUID_Expect_NewMappedIdsReturned() {
+    void When_FetchingTwoDifferentIdsForTheSameResourceAndIdIsNotUUID_Expect_NewMappedIdsReturned() {
         String firstId = UUID.randomUUID().toString().toUpperCase();
         String secondId = UUID.randomUUID().toString().toUpperCase();
 
@@ -126,7 +126,7 @@ public class IdMapperTest {
     }
 
     @Test
-    public void When_FetchingSameIdForDifferentResources_Expect_NewMappedIdsReturned() {
+    void When_FetchingSameIdForDifferentResources_Expect_NewMappedIdsReturned() {
         var firstId = UUID.randomUUID().toString().toUpperCase();
         var secondId = UUID.randomUUID().toString().toUpperCase();
 
@@ -153,7 +153,7 @@ public class IdMapperTest {
     }
 
     @Test
-    public void When_FetchingSameIdTwiceForTheSameUUIDResourceReference_Expect_SameMappedIdReturned() {
+    void When_FetchingSameIdTwiceForTheSameUUIDResourceReference_Expect_SameMappedIdReturned() {
         var id = UUID.randomUUID().toString().toUpperCase();
         var reference = new Reference(buildIdType(ResourceType.Appointment, id));
 
@@ -167,7 +167,7 @@ public class IdMapperTest {
     }
 
     @Test
-    public void When_FetchingSameIdTwiceForTheSameNonUUIDResourceReference_Expect_SameMappedIdReturned() {
+    void When_FetchingSameIdTwiceForTheSameNonUUIDResourceReference_Expect_SameMappedIdReturned() {
         var firstId = UUID.randomUUID().toString().toUpperCase();
         var secondId = UUID.randomUUID().toString().toUpperCase();
         var reference = new Reference(buildIdType(ResourceType.Appointment, NON_UUID_ID));
@@ -190,7 +190,7 @@ public class IdMapperTest {
 
 
     @Test
-    public void When_FetchingTwoDifferentIdsForTheSameUUIDResourceReference_Expect_NewMappedIdsReturned() {
+    void When_FetchingTwoDifferentIdsForTheSameUUIDResourceReference_Expect_NewMappedIdsReturned() {
         String firstId = UUID.randomUUID().toString().toUpperCase();
         String secondId = UUID.randomUUID().toString().toUpperCase();
         Reference firstReference = new Reference(buildIdType(ResourceType.Appointment, firstId));
@@ -211,7 +211,7 @@ public class IdMapperTest {
     }
 
     @Test
-    public void When_FetchingTwoDifferentIdsForTheSameNonUUIDResourceReference_Expect_NewMappedIdsReturned() {
+    void When_FetchingTwoDifferentIdsForTheSameNonUUIDResourceReference_Expect_NewMappedIdsReturned() {
         String firstId = UUID.randomUUID().toString().toUpperCase();
         String secondId = UUID.randomUUID().toString().toUpperCase();
         Reference firstReference = new Reference(buildIdType(ResourceType.Appointment, NON_UUID_ID));
@@ -232,7 +232,7 @@ public class IdMapperTest {
     }
 
     @Test
-    public void When_FetchingSameIdForDifferentNonUUIDResourcesReference_Expect_NewMappedIdsReturned() {
+    void When_FetchingSameIdForDifferentNonUUIDResourcesReference_Expect_NewMappedIdsReturned() {
         String firstId = UUID.randomUUID().toString().toUpperCase();
         String secondId = UUID.randomUUID().toString().toUpperCase();
         Reference firstReference = new Reference(buildIdType(ResourceType.Appointment, NON_UUID_ID));
@@ -253,7 +253,7 @@ public class IdMapperTest {
     }
 
     @Test
-    public void When_GettingExistingId_Expect_ExistingIdReturned() {
+    void When_GettingExistingId_Expect_ExistingIdReturned() {
         var id = UUID.randomUUID().toString().toUpperCase();
 
         when(mockRandomIdGeneratorService.createNewOrUseExistingUUID(anyString()))
@@ -273,7 +273,7 @@ public class IdMapperTest {
     }
 
     @Test
-    public void When_GettingMissingResourceType_Expect_Exception() {
+    void When_GettingMissingResourceType_Expect_Exception() {
         var id = UUID.randomUUID().toString().toUpperCase();
 
         assertThrows(
@@ -282,7 +282,7 @@ public class IdMapperTest {
     }
 
     @Test
-    public void When_GettingIdForResourceMapping_Expect_HasBeenMappedReturnedTrue() {
+    void When_GettingIdForResourceMapping_Expect_HasBeenMappedReturnedTrue() {
         var id = UUID.randomUUID().toString().toUpperCase();
         var reference = new Reference(buildIdType(ResourceType.Person, id));
 
@@ -297,7 +297,7 @@ public class IdMapperTest {
     }
 
     @Test
-    public void When_GettingIdForReferenceMapping_Expect_HasBeenMappedReturnedFalse() {
+    void When_GettingIdForReferenceMapping_Expect_HasBeenMappedReturnedFalse() {
         var id = UUID.randomUUID().toString().toUpperCase();
         var reference = new Reference(buildIdType(ResourceType.Person, id));
 

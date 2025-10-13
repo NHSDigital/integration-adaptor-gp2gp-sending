@@ -22,7 +22,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import uk.nhs.adaptors.gp2gp.ehr.mapper.AllergyStructureExtractor;
 
-public class AllergyStructureExtractorTest {
+class AllergyStructureExtractorTest {
     private static final String REASON_END_URL = "reasonEnded";
     private static final String ALLERGY_END_DATE_URL = "endDate";
     private static final String INVALID_URL = "invalid";
@@ -80,7 +80,7 @@ public class AllergyStructureExtractorTest {
 
     @ParameterizedTest
     @MethodSource("reasonEndTextParams")
-    public void When_ExtractingReasonEnd_Expect_ReasonOutput(String reasonEndUrl, String reasonEndText, String expectedReasonEnd) {
+    void When_ExtractingReasonEnd_Expect_ReasonOutput(String reasonEndUrl, String reasonEndText, String expectedReasonEnd) {
         nestedExtension.setUrl(reasonEndUrl);
         nestedExtension.setValue(new StringType(reasonEndText));
         extensionList.add(nestedExtension);
@@ -93,7 +93,7 @@ public class AllergyStructureExtractorTest {
 
     @ParameterizedTest
     @MethodSource("reasonEndDateHL7Params")
-    public void When_ExtractingReasonEndDate_Expect_EndDateOutput(String reasonEndDateUrl, String reasonEndDate, String expectedEndDate) {
+    void When_ExtractingReasonEndDate_Expect_EndDateOutput(String reasonEndDateUrl, String reasonEndDate, String expectedEndDate) {
         nestedExtension.setUrl(reasonEndDateUrl);
         nestedExtension.setValue(new DateTimeType(reasonEndDate));
         extensionList.add(nestedExtension);
@@ -106,7 +106,7 @@ public class AllergyStructureExtractorTest {
 
     @ParameterizedTest
     @MethodSource("reasonEndDateHumanReadableParams")
-    public void When_ExtractingReasonEndDateHumanReadable_Expect_EndDateOutput(String reasonEndDateUrl, String reasonEndDate,
+    void When_ExtractingReasonEndDateHumanReadable_Expect_EndDateOutput(String reasonEndDateUrl, String reasonEndDate,
         String expectedEndDate) {
         nestedExtension.setUrl(reasonEndDateUrl);
         nestedExtension.setValue(new DateTimeType(reasonEndDate));
@@ -120,7 +120,7 @@ public class AllergyStructureExtractorTest {
 
     @ParameterizedTest
     @MethodSource("onsetDateParams")
-    public void When_ExtractingOnsetDate_Expect_OnsetDateOutput(String onsetDate, String expectedOnsetDate) {
+    void When_ExtractingOnsetDate_Expect_OnsetDateOutput(String onsetDate, String expectedOnsetDate) {
         AllergyIntolerance allergyIntolerance = new AllergyIntolerance();
         allergyIntolerance.setOnset(new DateTimeType(onsetDate));
 
@@ -130,7 +130,7 @@ public class AllergyStructureExtractorTest {
     }
 
     @Test
-    public void When_ExtractingNoOnsetDate_Expect_EmptyOutput() {
+    void When_ExtractingNoOnsetDate_Expect_EmptyOutput() {
         AllergyIntolerance allergyIntolerance = new AllergyIntolerance();
 
         String outputOnsetDate = AllergyStructureExtractor.extractOnsetDate(allergyIntolerance);
@@ -139,7 +139,7 @@ public class AllergyStructureExtractorTest {
     }
 
     @Test
-    public void When_ExtractingFullReaction_Expect_Output() {
+    void When_ExtractingFullReaction_Expect_Output() {
         AtomicInteger atomicInteger = new AtomicInteger(1);
         AllergyIntolerance.AllergyIntoleranceReactionComponent reactionComponent
             = new AllergyIntolerance.AllergyIntoleranceReactionComponent();
@@ -168,7 +168,7 @@ public class AllergyStructureExtractorTest {
     }
 
     @Test
-    public void When_ExtractingEmptyReaction_Expect_Output() {
+    void When_ExtractingEmptyReaction_Expect_Output() {
         AtomicInteger atomicInteger = new AtomicInteger(1);
         AllergyIntolerance.AllergyIntoleranceReactionComponent reactionComponent =
             new AllergyIntolerance.AllergyIntoleranceReactionComponent();

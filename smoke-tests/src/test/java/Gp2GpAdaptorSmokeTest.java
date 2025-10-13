@@ -36,7 +36,7 @@ public class Gp2GpAdaptorSmokeTest {
     }
 
     @Test
-    public void expect_Gp2gpAdaptorIsAvailable() {
+    void expect_Gp2gpAdaptorIsAvailable() {
 
         Optional<String> responseBody = Optional.empty();
 

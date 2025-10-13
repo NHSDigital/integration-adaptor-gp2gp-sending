@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id "io.freefair.lombok" version "8.14.2"
+    id "io.freefair.lombok" version "9.0.0"
 }
 
 apply plugin: 'java'
@@ -22,10 +22,10 @@ dependencies {
     testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.0'
     testImplementation 'commons-io:commons-io:2.20.0'
     testImplementation 'org.awaitility:awaitility:4.3.0'
-    testImplementation "org.assertj:assertj-core:3.27.5"
+    testImplementation "org.assertj:assertj-core:3.27.6"
     testImplementation 'ch.qos.logback:logback-classic:1.5.18'
     testImplementation 'org.xmlunit:xmlunit-assertj3:2.10.4'
-    testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.5'
+    testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.5.1'
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

@@ -28,7 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class GetGpcDocumentTaskExecutorTest {
+class GetGpcDocumentTaskExecutorTest {
 
     @Mock private StorageConnectorService storageConnectorService;
     @Mock private EhrExtractStatusService ehrExtractStatusService;
@@ -63,7 +63,7 @@ public class GetGpcDocumentTaskExecutorTest {
     }
 
     @Test
-    public void When_ExecuteWithGpcClientExceptionNoOperationOutcome_Expect_HandleAbsentAttachmentToUseEmptyOptional() {
+    void When_ExecuteWithGpcClientExceptionNoOperationOutcome_Expect_HandleAbsentAttachmentToUseEmptyOptional() {
         when(gpcClient.getDocumentRecord(getGpcDocumentTaskDefinition)).thenThrow(new GpConnectException(""));
 
         getGpcDocumentTaskExecutor.execute(getGpcDocumentTaskDefinition);
@@ -75,7 +75,7 @@ public class GetGpcDocumentTaskExecutorTest {
     }
 
     @Test
-    public void When_ExecuteWithGpcClientExceptionHasNoOperationOutcomeIssue_Expect_HandleAbsentAttachmentToUseEmptyOptional() {
+    void When_ExecuteWithGpcClientExceptionHasNoOperationOutcomeIssue_Expect_HandleAbsentAttachmentToUseEmptyOptional() {
         var operationOutcome = new OperationOutcome();
 
         when(gpcClient.getDocumentRecord(getGpcDocumentTaskDefinition))
@@ -90,7 +90,7 @@ public class GetGpcDocumentTaskExecutorTest {
     }
 
     @Test
-    public void When_ExecuteWithGpcClientExceptionHasEmptyOperationOutcomeIssue_Expect_HandleAbsentAttachmentToUseEmptyOptional() {
+    void When_ExecuteWithGpcClientExceptionHasEmptyOperationOutcomeIssue_Expect_HandleAbsentAttachmentToUseEmptyOptional() {
         var operationOutcome = new OperationOutcome()
             .setIssue(
                 List.of()
@@ -108,7 +108,7 @@ public class GetGpcDocumentTaskExecutorTest {
     }
 
     @Test
-    public void When_ExecuteWithGpcClientExceptionHasOperationOutcomeIssueHasNoDetail_Expect_HandleAbsentAttachmentToUseEmptyOptional() {
+    void When_ExecuteWithGpcClientExceptionHasOperationOutcomeIssueHasNoDetail_Expect_HandleAbsentAttachmentToUseEmptyOptional() {
         var operationOutcome = new OperationOutcome()
             .setIssue(
                 List.of(
@@ -128,7 +128,7 @@ public class GetGpcDocumentTaskExecutorTest {
     }
 
     @Test
-    public void When_ExecuteWithOperationOutcomeIssueDetailHasNoCoding_Expect_HandleAbsentAttachmentToUseEmptyOptional() {
+    void When_ExecuteWithOperationOutcomeIssueDetailHasNoCoding_Expect_HandleAbsentAttachmentToUseEmptyOptional() {
         var operationOutcome = new OperationOutcome()
             .setIssue(
                 List.of(new OperationOutcome.OperationOutcomeIssueComponent()
@@ -151,7 +151,7 @@ public class GetGpcDocumentTaskExecutorTest {
     }
 
     @Test
-    public void When_ExecuteWithOperationOutcomeIssueDetailHasEmptyCoding_Expect_HandleAbsentAttachmentToUseEmptyOptional() {
+    void When_ExecuteWithOperationOutcomeIssueDetailHasEmptyCoding_Expect_HandleAbsentAttachmentToUseEmptyOptional() {
         var operationOutcome = new OperationOutcome()
             .setIssue(
                 List.of(
@@ -173,7 +173,7 @@ public class GetGpcDocumentTaskExecutorTest {
     }
 
     @Test
-    public void When_ExecuteWithOperationOutcomeIssueDetailCodingDisplay_Expect_HandleAbsentAttachmentToUseEmptyOptional() {
+    void When_ExecuteWithOperationOutcomeIssueDetailCodingDisplay_Expect_HandleAbsentAttachmentToUseEmptyOptional() {
         var operationOutcome = new OperationOutcome()
             .setIssue(
                 List.of(
@@ -197,7 +197,7 @@ public class GetGpcDocumentTaskExecutorTest {
     }
 
     @Test
-    public void When_ExecuteWithOperationOutcomeIssueDetailCodingDisplayIsEmptyString_Expect_HandleAbsentAttachmentToUseEmptyOptional() {
+    void When_ExecuteWithOperationOutcomeIssueDetailCodingDisplayIsEmptyString_Expect_HandleAbsentAttachmentToUseEmptyOptional() {
         var operationOutcome = new OperationOutcome()
             .setIssue(
                 List.of(
@@ -221,7 +221,7 @@ public class GetGpcDocumentTaskExecutorTest {
     }
 
     @Test
-    public void When_ExecuteWithValidOperationOutcomeIssueDetailCodingDisplay_Expect_HandleAbsentAttachmentToUseOptionalOfThis() {
+    void When_ExecuteWithValidOperationOutcomeIssueDetailCodingDisplay_Expect_HandleAbsentAttachmentToUseOptionalOfThis() {
         var operationOutcome = new OperationOutcome()
             .setIssue(
                 List.of(

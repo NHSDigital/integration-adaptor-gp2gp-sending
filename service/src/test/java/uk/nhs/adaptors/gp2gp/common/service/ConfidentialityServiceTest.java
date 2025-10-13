@@ -23,7 +23,7 @@ import static uk.nhs.adaptors.gp2gp.common.configuration.RedactionsContext.NON_R
 import static uk.nhs.adaptors.gp2gp.common.configuration.RedactionsContext.REDACTION_INTERACTION_ID;
 
 @ExtendWith(MockitoExtension.class)
-public class ConfidentialityServiceTest {
+class ConfidentialityServiceTest {
     private static final Meta META_WITH_NO_SECURITY = new Meta();
     private static final Meta META_WITH_NOPAT_SECURITY = new Meta()
         .addSecurity(
@@ -49,7 +49,7 @@ public class ConfidentialityServiceTest {
     @ParameterizedTest
     @MethodSource
     @NullSource
-    public void When_GenerateAndIsNotRedactionMessage_Expect_EmptyOptional(Meta meta) {
+    void When_GenerateAndIsNotRedactionMessage_Expect_EmptyOptional(Meta meta) {
         var confidentialityService = new ConfidentialityService(
             new RedactionsContext(NON_REDACTION_INTERACTION_ID)
         );
@@ -62,7 +62,7 @@ public class ConfidentialityServiceTest {
     }
 
     @Test
-    public void When_GenerateAndIsRedactionMessageAndNoMetaSecurityIsPresent_Expect_EmptyOptional() {
+    void When_GenerateAndIsRedactionMessageAndNoMetaSecurityIsPresent_Expect_EmptyOptional() {
         var confidentialityService = new ConfidentialityService(
             new RedactionsContext(REDACTION_INTERACTION_ID)
         );
@@ -75,7 +75,7 @@ public class ConfidentialityServiceTest {
     }
 
     @Test
-    public void When_GenerateAndIsRedactionMessageAndNonNOPATMetaSecurityIsPresent_Expect_EmptyOptional() {
+    void When_GenerateAndIsRedactionMessageAndNonNOPATMetaSecurityIsPresent_Expect_EmptyOptional() {
         var confidentialityService = new ConfidentialityService(
             new RedactionsContext(REDACTION_INTERACTION_ID)
         );
@@ -88,7 +88,7 @@ public class ConfidentialityServiceTest {
     }
 
     @Test
-    public void When_GenerateAndIsRedactionMessageAndNOPATMetaSecurityIsPresent_Expect_ConfidentialityCode() {
+    void When_GenerateAndIsRedactionMessageAndNOPATMetaSecurityIsPresent_Expect_ConfidentialityCode() {
         var confidentialityService = new ConfidentialityService(
             new RedactionsContext(REDACTION_INTERACTION_ID)
         );

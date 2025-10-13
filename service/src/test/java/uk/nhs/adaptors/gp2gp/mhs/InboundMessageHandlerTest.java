@@ -38,7 +38,7 @@ import uk.nhs.adaptors.gp2gp.common.service.XPathService;
 import uk.nhs.adaptors.gp2gp.ehr.request.EhrExtractRequestHandler;
 
 @ExtendWith(MockitoExtension.class)
-public class InboundMessageHandlerTest {
+class InboundMessageHandlerTest {
     private static final String BODY_NOT_JSON = "notJson";
     private static final String EBXML_CONTENT = "ebxml";
     private static final String PAYLOAD_CONTENT = "payload";
@@ -67,7 +67,7 @@ public class InboundMessageHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_MessageIsUnreadable_Expect_MessageProcessingToBeAborted() {
+    void When_MessageIsUnreadable_Expect_MessageProcessingToBeAborted() {
         doThrow(mock(JMSException.class)).when(message).getBody(String.class);
 
         var result = inboundMessageHandler.handle(message);
@@ -78,7 +78,7 @@ public class InboundMessageHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_MessageIsNotJson_Expect_MessageProcessingToBeAborted() {
+    void When_MessageIsNotJson_Expect_MessageProcessingToBeAborted() {
         when(message.getBody(String.class)).thenReturn(BODY_NOT_JSON);
         doThrow(mock(JsonProcessingException.class)).when(objectMapper).readValue(BODY_NOT_JSON, InboundMessage.class);
 
@@ -90,7 +90,7 @@ public class InboundMessageHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_ExceptionIsThrownWhenParsingTheMessage_Expect_MessageProcessingToBeAborted() {
+    void When_ExceptionIsThrownWhenParsingTheMessage_Expect_MessageProcessingToBeAborted() {
         setUpEhrExtract(EBXML_CONTENT);
         doThrow(RuntimeException.class).when(xPathService).parseDocumentFromXml(any());
 
@@ -102,7 +102,7 @@ public class InboundMessageHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_MessageIsEhrExtractRequest_Expect_RequestHandlerCalled() {
+    void When_MessageIsEhrExtractRequest_Expect_RequestHandlerCalled() {
         setUpEhrExtract(EBXML_CONTENT);
         Document header = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
         Document payload = mock(Document.class);
@@ -117,7 +117,7 @@ public class InboundMessageHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_MessageIsEhrExtractRequestAck_Expect_RequestAckHandlerCalled() {
+    void When_MessageIsEhrExtractRequestAck_Expect_RequestAckHandlerCalled() {
         setUpEhrExtract(EBXML_CONTENT);
         Document header = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/MCCI_IN010000UK13_header.xml");
         Document payload = mock(Document.class);
@@ -132,7 +132,7 @@ public class InboundMessageHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_MessageIsForUnknownInteraction_Expect_ExceptionIsThrown() {
+    void When_MessageIsForUnknownInteraction_Expect_ExceptionIsThrown() {
         setUpEhrExtract(EBXML_CONTENT);
         Document header = mock(Document.class);
         Document payload = mock(Document.class);
@@ -147,7 +147,7 @@ public class InboundMessageHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_MessageHeaderCannotBeParsed_Expect_FalseToBeReturned() {
+    void When_MessageHeaderCannotBeParsed_Expect_FalseToBeReturned() {
         setUpEhrExtract(INVALID_EBXML_CONTENT);
         doCallRealMethod().when(xPathService).parseDocumentFromXml(INVALID_EBXML_CONTENT);
 
@@ -157,7 +157,7 @@ public class InboundMessageHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_MessagePayloadCannotBeParsed_Expect_FalseToBeReturned() {
+    void When_MessagePayloadCannotBeParsed_Expect_FalseToBeReturned() {
         setUpEhrExtract(EBXML_CONTENT);
         Document header = mock(Document.class);
         doReturn(header).when(xPathService).parseDocumentFromXml(EBXML_CONTENT);
@@ -169,7 +169,7 @@ public class InboundMessageHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_MessageHandlingFails_Expect_ProcessToBeFailed() {
+    void When_MessageHandlingFails_Expect_ProcessToBeFailed() {
         setupValidMessage();
 
         doThrow(new RuntimeException("test exception")).when(ehrExtractRequestHandler).handleStart(any(), any(), any());
@@ -188,7 +188,7 @@ public class InboundMessageHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_MessageProcessingFails_Expect_ResultFromFailureHandlerToBeReturned() {
+    void When_MessageProcessingFails_Expect_ResultFromFailureHandlerToBeReturned() {
         setupValidMessage();
 
         doThrow(new RuntimeException("test exception")).when(ehrExtractRequestHandler).handleStart(any(), any(), any());
@@ -201,7 +201,7 @@ public class InboundMessageHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_ErrorHandlingFails_Expect_ExceptionThrown() {
+    void When_ErrorHandlingFails_Expect_ExceptionThrown() {
         setupValidMessage();
 
         doThrow(new RuntimeException("message handling exception")).when(ehrExtractRequestHandler).handleStart(any(), any(), any());
@@ -214,7 +214,7 @@ public class InboundMessageHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_DatabaseAccessFailure_Expect_ExceptionThrown() {
+    void When_DatabaseAccessFailure_Expect_ExceptionThrown() {
         setupValidMessage();
 
         var testException = new DataAccessResourceFailureException("Test Exception");
@@ -227,7 +227,7 @@ public class InboundMessageHandlerTest {
 
     @Test
     @SneakyThrows
-    public void When_ProcessHasAlreadyFailed_Expect_TaskNotExecuted() {
+    void When_ProcessHasAlreadyFailed_Expect_TaskNotExecuted() {
         setupValidMessage();
         doReturn(true).when(processFailureHandlingService).hasProcessFailed(any());
 
