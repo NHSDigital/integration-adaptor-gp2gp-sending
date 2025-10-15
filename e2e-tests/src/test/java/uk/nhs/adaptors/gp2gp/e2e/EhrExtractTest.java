@@ -72,8 +72,8 @@ class EhrExtractTest {
     private static final String NHS_NUMBER_RESPONSE_MISSING_PATIENT_RESOURCE = "2906543841";
     private static final String NHS_NUMBER_MEDICUS_BASED_ON = "9302014592";
     private static final String NHS_NUMBER_INVALID_CONTENT_TYPE_DOC = "9817280691";
-    private static final String NHS_NUMBER_BODY_SITE = "1239577290";
     private static final String NHS_NUMBER_NO_CLINICAL_CONTENT_STRUCTURE = "9736435687";
+    private static final String NHS_NUMBER_BODY_SITE = "1239577290";
     private static final String EHR_EXTRACT_REQUEST_TEST_FILE = "/ehrExtractRequest.json";
     private static final String EHR_EXTRACT_REQUEST_WITHOUT_NHS_NUMBER_TEST_FILE = "/ehrExtractRequestWithoutNhsNumber.json";
     private static final String EHR_EXTRACT_REQUEST_NO_DOCUMENTS = "/ehrExtractRequestWithNoDocuments.json";
@@ -113,31 +113,31 @@ class EhrExtractTest {
     private static final String BODY_SITE_REFERENCE_XPATH_TEMPLATE = "/RCMR_IN030000UK06/ControlActEvent/subject/EhrExtract/component/ehrFolder/component/ehrComposition/component/ObservationStatement/pertinentInformation/pertinentAnnotation/text[contains(text(), 'BodySite: Rib cage')]";
 
     private final MhsMockRequestsJournal mhsMockRequestsJournal =
-            new MhsMockRequestsJournal(getEnvVar("GP2GP_MHS_MOCK_BASE_URL", "http://localhost:8081"));
+        new MhsMockRequestsJournal(getEnvVar("GP2GP_MHS_MOCK_BASE_URL", "http://localhost:8081"));
 
     private final String gp2gpBaseUrl = getEnvVar("GP2GP_BASE_URL", "http://localhost:8080");
 
     private static final Map<String, String> emisPatientsNhsNumbers = Map.of(
-            "PWTP2", "9726908671",
-            "PWTP3", "9726908698",
-            "PWTP4", "9726908701",
-            "PWTP5", "9726908728",
-            "PWTP6", "9726908736",
-            "PWTP7", "9726908744",
-            "PWTP9", "9726908752",
-            "PWTP10", "9726908760",
-            "PWTP11", "9726908779");
+        "PWTP2", "9726908671",
+        "PWTP3", "9726908698",
+        "PWTP4", "9726908701",
+        "PWTP5", "9726908728",
+        "PWTP6", "9726908736",
+        "PWTP7", "9726908744",
+        "PWTP9", "9726908752",
+        "PWTP10", "9726908760",
+        "PWTP11", "9726908779");
 
     private static final Map<String, String> tppPatientsNhsNumbers = Map.of(
-            "PWTP2", "9726908787",
-            "PWTP3", "9726908795",
-            "PWTP4", "9726908809",
-            "PWTP5", "9726908817",
-            "PWTP6", "9726908825",
-            "PWTP7", "9726908833",
-            "PWTP9", "9726908841",
-            "PWTP10", "9726908868",
-            "PWTP11", "9726908876");
+        "PWTP2", "9726908787",
+        "PWTP3", "9726908795",
+        "PWTP4", "9726908809",
+        "PWTP5", "9726908817",
+        "PWTP6", "9726908825",
+        "PWTP7", "9726908833",
+        "PWTP9", "9726908841",
+        "PWTP10", "9726908868",
+        "PWTP11", "9726908876");
 
     @BeforeEach
     void setUp() {
@@ -160,9 +160,9 @@ class EhrExtractTest {
         assertThat(requestJournal).hasSize(1);
 
         XmlAssert.assertThat(requestJournal.get(0).getPayload())
-                .hasXPath("/MCCI_IN010000UK13/acknowledgement[@type='Acknowledgement' and @typeCode='AE']/acknowledgementDetail[@type='AcknowledgementDetail' and @typeCode='ER']/code[@code='18']".replace("/", XML_NAMESPACE));
+            .hasXPath("/MCCI_IN010000UK13/acknowledgement[@type='Acknowledgement' and @typeCode='AE']/acknowledgementDetail[@type='AcknowledgementDetail' and @typeCode='ER']/code[@code='18']".replace("/", XML_NAMESPACE));
         XmlAssert.assertThat(requestJournal.get(0).getPayload())
-                .hasXPath("/MCCI_IN010000UK13/ControlActEvent/reason/justifyingDetectedIssueEvent/code[@code='18']".replace("/", XML_NAMESPACE));
+            .hasXPath("/MCCI_IN010000UK13/ControlActEvent/reason/justifyingDetectedIssueEvent/code[@code='18']".replace("/", XML_NAMESPACE));
     }
 
     @Test
@@ -301,8 +301,8 @@ class EhrExtractTest {
     void When_ExtractRequestReceivedForPatientWithNoDocs_Expect_DatabaseToBeUpdatedAccordingly() throws Exception {
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = IOUtils.toString(
-                        Objects.requireNonNull(getClass().getResourceAsStream(EHR_EXTRACT_REQUEST_NO_DOCUMENTS)), StandardCharsets.UTF_8)
-                .replace(CONVERSATION_ID_PLACEHOLDER, conversationId);
+            Objects.requireNonNull(getClass().getResourceAsStream(EHR_EXTRACT_REQUEST_NO_DOCUMENTS)), StandardCharsets.UTF_8)
+            .replace(CONVERSATION_ID_PLACEHOLDER, conversationId);
         MessageQueue.sendToMhsInboundQueue(ehrExtractRequest);
 
         var ehrExtractStatus = waitFor(() -> getFinishedEhrExtractStatus(conversationId));
@@ -334,17 +334,17 @@ class EhrExtractTest {
         var filename = documentId + ".gzip";
 
         assertThat(externalAttachment.getDescription()).contains(
-                String.format("Filename=\"%s\"", filename),
-                "ContentType=text/xml",
-                "Compressed=Yes",
-                "LargeAttachment=No",
-                "OriginalBase64=No",
-                "Length=",
-                "DomainData=\"X-GP2GP-Skeleton: Yes\"");
+            String.format("Filename=\"%s\"", filename),
+            "ContentType=text/xml",
+            "Compressed=Yes",
+            "LargeAttachment=No",
+            "OriginalBase64=No",
+            "Length=",
+            "DomainData=\"X-GP2GP-Skeleton: Yes\"");
 
         var documentReferenceXPath = String
-                .format(DOCUMENT_REFERENCE_XPATH_TEMPLATE, documentId)
-                .replace("/", XML_NAMESPACE);
+            .format(DOCUMENT_REFERENCE_XPATH_TEMPLATE, documentId)
+            .replace("/", XML_NAMESPACE);
         XmlAssert.assertThat(ehrExtractMhsRequest.getPayload()).hasXPath(documentReferenceXPath);
     }
 
@@ -597,7 +597,7 @@ class EhrExtractTest {
         assertHappyPathWithDocs(conversationId, FROM_ODS_CODE_1, nhsNumber);
     }
 
-    //    @Disabled("disabled as there is an invalid date in TPPPatientStructuredRecordE2EPWTP6.json")
+//    @Disabled("disabled as there is an invalid date in TPPPatientStructuredRecordE2EPWTP6.json")
     @Test
     void When_ExtractRequestReceivedForTPPPWTP6_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
         String conversationId = UUID.randomUUID().toString();
@@ -677,7 +677,7 @@ class EhrExtractTest {
 
     @Test
     void When_ExtractRequestReceived_WithInvalidContentType_Expect_ApiHasPlaceholders() throws IOException, NamingException,
-            JMSException {
+        JMSException {
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_INVALID_CONTENT_TYPE_DOC, FROM_ODS_CODE_1);
         MessageQueue.sendToMhsInboundQueue(ehrExtractRequest);
@@ -691,21 +691,21 @@ class EhrExtractTest {
 
     private void assertEhrStatusHasPlaceholders(EhrStatus ehrStatus) {
         List<EhrStatus.AttachmentStatus> placeholders = ehrStatus.getAttachmentStatus().stream()
-                .filter(status -> status.getFileStatus().equals(PLACEHOLDER))
-                .collect(Collectors.toList());
+            .filter(status -> status.getFileStatus().equals(PLACEHOLDER))
+            .collect(Collectors.toList());
 
         assertThat(placeholders).isNotEmpty()
-                .as("Migration should have placeholders");
+            .as("Migration should have placeholders");
 
         // TODO: NIAD-2394 - These assertions can be used to ensure AbsentAttachment is appended to a placeholders filename and there is a plain text suffix
 
 //        assertThat(hasAbsentAttachmentInFilename)
 //            .as("A placeholder's filename should be prepended with AbsentAttachment")
 //            .isTrue();
+//
 //        assertThat(hasPlainTextSuffix)
 //            .as("A placeholder should have a plain text suffix")
 //            .isTrue();
-
     }
 
     private EhrStatus getEhrStatusForConversation(String conversationId) throws IOException {
@@ -726,7 +726,7 @@ class EhrExtractTest {
             });
 
             ObjectMapper objectMapper = new ObjectMapper()
-                    .registerModule(new JavaTimeModule());
+                .registerModule(new JavaTimeModule());
 
             return objectMapper.readValue(response, EhrStatus.class);
         }
@@ -735,7 +735,7 @@ class EhrExtractTest {
     private void assertMultipleDocumentsRetrieved(String conversationId, int documentCount) {
         var documentList = waitFor(() -> {
             var extractStatus = ((Document) Mongo.findEhrExtractStatus(conversationId)
-                    .get(GPC_ACCESS_DOCUMENT));
+                .get(GPC_ACCESS_DOCUMENT));
             if (extractStatus == null) {
                 return null;
             }
@@ -753,7 +753,7 @@ class EhrExtractTest {
         assertThatAccessStructuredWasFetched(conversationId, gpcAccessStructured);
 
         theDocumentTaskUpdatesTheRecord(ehrExtractStatus)
-                .forEach(this::assertThatAccessDocumentWasFetched);
+            .forEach(this::assertThatAccessDocumentWasFetched);
 
         var messageIds = getTheSplitDocumentIds(ehrExtractStatus).get(0);
         softly.assertThat(messageIds).hasSize(arraySize);
@@ -798,39 +798,39 @@ class EhrExtractTest {
 
     private String buildEhrExtractRequest(String conversationId, String notExistingPatientNhsNumber, String fromODSCode) throws IOException {
         return IOUtils.toString(
-                        Objects.requireNonNull(getClass().getResourceAsStream(EHR_EXTRACT_REQUEST_TEST_FILE)), StandardCharsets.UTF_8)
-                .replace(CONVERSATION_ID_PLACEHOLDER, conversationId)
-                .replace(NHS_NUMBER_PLACEHOLDER, notExistingPatientNhsNumber)
-                .replace(FROM_ODS_CODE_PLACEHOLDER, fromODSCode);
+            Objects.requireNonNull(getClass().getResourceAsStream(EHR_EXTRACT_REQUEST_TEST_FILE)), StandardCharsets.UTF_8)
+            .replace(CONVERSATION_ID_PLACEHOLDER, conversationId)
+            .replace(NHS_NUMBER_PLACEHOLDER, notExistingPatientNhsNumber)
+            .replace(FROM_ODS_CODE_PLACEHOLDER, fromODSCode);
     }
 
     private String buildEhrExtractRequestWithoutNhsNumber(String conversationId, String fromODSCode) throws IOException {
         return IOUtils.toString(
-                        Objects.requireNonNull(getClass().getResourceAsStream(EHR_EXTRACT_REQUEST_WITHOUT_NHS_NUMBER_TEST_FILE)), StandardCharsets.UTF_8)
-                .replace(CONVERSATION_ID_PLACEHOLDER, conversationId)
-                .replace(FROM_ODS_CODE_PLACEHOLDER, fromODSCode);
+                Objects.requireNonNull(getClass().getResourceAsStream(EHR_EXTRACT_REQUEST_WITHOUT_NHS_NUMBER_TEST_FILE)), StandardCharsets.UTF_8)
+            .replace(CONVERSATION_ID_PLACEHOLDER, conversationId)
+            .replace(FROM_ODS_CODE_PLACEHOLDER, fromODSCode);
     }
 
     private List<Document> theDocumentTaskUpdatesTheRecord(Document ehrExtractStatus) {
         var gpcAccessDocument = ehrExtractStatus.get(GPC_ACCESS_DOCUMENT, Document.class);
         return gpcAccessDocument.get("documents", Collections.emptyList())
-                .stream()
-                .map(Document.class::cast)
-                .filter(document -> document.get("objectName") != null)
-                .collect(Collectors.toList());
+            .stream()
+            .map(Document.class::cast)
+            .filter(document -> document.get("objectName") != null)
+            .collect(Collectors.toList());
     }
 
     private List<List<Object>> getTheSplitDocumentIds(Document ehrExtractStatus) {
         return theDocumentTaskUpdatesTheRecord(ehrExtractStatus).stream()
-                .map(Document.class::cast)
-                .map(document -> {
-                    var sentToMhs = document.get(SENT_TO_MHS);
-                    if (sentToMhs != null) {
-                        return ((Document) sentToMhs).get(MESSAGE_ID, Collections.emptyList());
-                    }
-                    return Collections.emptyList();
-                })
-                .collect(Collectors.toList());
+            .map(Document.class::cast)
+            .map(document -> {
+                var sentToMhs = document.get(SENT_TO_MHS);
+                if (sentToMhs != null) {
+                    return ((Document) sentToMhs).get(MESSAGE_ID, Collections.emptyList());
+                }
+                return Collections.emptyList();
+            })
+            .collect(Collectors.toList());
     }
 
     private void assertThatAcknowledgementPending(Document ackToRequester, String typeCode) {
@@ -872,7 +872,7 @@ class EhrExtractTest {
         assertThatAccessStructuredWasFetched(conversationId, gpcAccessStructured);
 
         theDocumentTaskUpdatesTheRecord(ehrExtractStatus)
-                .forEach(this::assertThatAccessDocumentWasFetched);
+            .forEach(this::assertThatAccessDocumentWasFetched);
 
         var ehrExtractCore = ehrExtractStatus.get(EHR_EXTRACT_CORE, Document.class);
         assertThatExtractCoreMessageWasSent(ehrExtractCore);
@@ -907,7 +907,7 @@ class EhrExtractTest {
 
     private void assertThatAccessStructuredWasFetched(String conversationId, Document accessStructured) {
         softly.assertThat(accessStructured.get("objectName")).isEqualTo(
-                conversationId.concat("/").concat(conversationId).concat("_gpc_structured.json")
+            conversationId.concat("/").concat(conversationId).concat("_gpc_structured.json")
         );
         softly.assertThat(accessStructured.get("accessedAt")).isNotNull();
         softly.assertThat(accessStructured.get("taskId")).isNotNull();
@@ -940,7 +940,7 @@ class EhrExtractTest {
 
     private boolean nameStartsEndsWith(Object name, String startingValue, String endingValue){
         return nameStartsWith(name.toString(), startingValue)
-                && nameEndsWith(name.toString(), endingValue);
+            && nameEndsWith(name.toString(), endingValue);
     }
 
     private boolean nameStartsWith(String name, String startingValue) {
@@ -965,10 +965,10 @@ class EhrExtractTest {
         });
         assertThat(requestJournal).hasSize(1);
         XmlAssert.assertThat(requestJournal.get(0).getPayload())
-                .hasXPath("/MCCI_IN010000UK13/acknowledgement[@type='Acknowledgement' and @typeCode='AE']/acknowledgementDetail[@type='AcknowledgementDetail' and @typeCode='ER']/code[@code='%nackCode%']"
-                        .replace("/", XML_NAMESPACE).replace("%nackCode%", nackCode));
+            .hasXPath("/MCCI_IN010000UK13/acknowledgement[@type='Acknowledgement' and @typeCode='AE']/acknowledgementDetail[@type='AcknowledgementDetail' and @typeCode='ER']/code[@code='%nackCode%']"
+                .replace("/", XML_NAMESPACE).replace("%nackCode%", nackCode));
         XmlAssert.assertThat(requestJournal.get(0).getPayload())
-                .hasXPath("/MCCI_IN010000UK13/ControlActEvent/reason/justifyingDetectedIssueEvent/code[@code='%nackCode%']"
-                        .replace("/", XML_NAMESPACE).replace("%nackCode%", nackCode));
+            .hasXPath("/MCCI_IN010000UK13/ControlActEvent/reason/justifyingDetectedIssueEvent/code[@code='%nackCode%']"
+                .replace("/", XML_NAMESPACE).replace("%nackCode%", nackCode));
     }
 }
