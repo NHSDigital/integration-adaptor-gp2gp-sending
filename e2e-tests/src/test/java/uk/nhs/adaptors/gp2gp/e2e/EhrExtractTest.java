@@ -702,7 +702,6 @@ class EhrExtractTest {
 //        assertThat(hasAbsentAttachmentInFilename)
 //            .as("A placeholder's filename should be prepended with AbsentAttachment")
 //            .isTrue();
-//
 //        assertThat(hasPlainTextSuffix)
 //            .as("A placeholder should have a plain text suffix")
 //            .isTrue();
