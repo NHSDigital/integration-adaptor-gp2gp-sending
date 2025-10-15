@@ -3,11 +3,15 @@ package uk.nhs.adaptors.gp2gp.ehr.mapper;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
+
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Collections;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.junit.jupiter.api.Test;
@@ -19,6 +23,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
+import uk.nhs.adaptors.gp2gp.ehr.exception.EhrValidationException;
 import uk.nhs.adaptors.gp2gp.gpc.GetGpcStructuredTaskDefinition;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,15 +55,17 @@ class EhrExtractMapperTest {
 
     @Test
     void When_NhsOverrideNumberProvided_Expect_OverrideToBeUsed()  {
+        when(nonConsultationResourceMapper.mapRemainingResourcesToEhrCompositions(any()))
+                .thenReturn(Arrays.asList("not", "empty"));
         ReflectionTestUtils.setField(ehrExtractMapper, OVERRIDE_NHS_NUMBER, OVERRIDE_NHS_NUMBER_VALUE);
         when(agentDirectoryMapper.mapEHRFolderToAgentDirectory(any(Bundle.class), eq(OVERRIDE_NHS_NUMBER_VALUE)))
-            .thenReturn(OVERRIDE_NHS_NUMBER_VALUE);
+                .thenReturn(OVERRIDE_NHS_NUMBER_VALUE);
         when(timestampService.now()).thenReturn(Instant.now().truncatedTo(ChronoUnit.MILLIS));
         when(messageContext.getEffectiveTime()).thenReturn(ehrFolderEffectiveTime);
 
         var taskDef = GetGpcStructuredTaskDefinition.builder()
-            .nhsNumber(NHS_NUMBER)
-            .build();
+                .nhsNumber(NHS_NUMBER)
+                .build();
         var bundle = mock(Bundle.class);
         var parameters = ehrExtractMapper.mapBundleToEhrFhirExtractParams(taskDef, bundle);
         assertThat(parameters.getAgentDirectory()).isEqualTo(OVERRIDE_NHS_NUMBER_VALUE);
@@ -66,18 +73,41 @@ class EhrExtractMapperTest {
 
     @Test
     void When_NhsOverrideNumberIsBlank_Expect_ActualNhsNumberIsUsed()  {
+        when(nonConsultationResourceMapper.mapRemainingResourcesToEhrCompositions(any()))
+                .thenReturn(Arrays.asList("not", "empty"));
         when(agentDirectoryMapper.mapEHRFolderToAgentDirectory(any(Bundle.class), eq(NHS_NUMBER)))
-            .thenReturn(NHS_NUMBER);
+                .thenReturn(NHS_NUMBER);
         when(timestampService.now()).thenReturn(Instant.now().truncatedTo(ChronoUnit.MILLIS));
         when(messageContext.getEffectiveTime()).thenReturn(ehrFolderEffectiveTime);
 
         var taskDef = GetGpcStructuredTaskDefinition.builder()
-            .nhsNumber(NHS_NUMBER)
-            .build();
+                .nhsNumber(NHS_NUMBER)
+                .build();
         var bundle = mock(Bundle.class);
         var parameters = ehrExtractMapper.mapBundleToEhrFhirExtractParams(taskDef, bundle);
         assertThat(parameters.getAgentDirectory()).isEqualTo(NHS_NUMBER);
     }
+
+    @Test
+    void When_BundleHasNoMappableContent_Expect_EhrValidationExceptionIsThrown() {
+        when(timestampService.now()).thenReturn(Instant.now().truncatedTo(ChronoUnit.MILLIS));
+
+        var taskDef = GetGpcStructuredTaskDefinition.builder()
+                .nhsNumber(NHS_NUMBER)
+                .build();
+        var bundle = mock(Bundle.class);
+
+        when(nonConsultationResourceMapper.mapRemainingResourcesToEhrCompositions(any(Bundle.class)))
+                .thenReturn(Collections.emptyList());
+
+        EhrValidationException thrown = assertThrows(EhrValidationException.class, () ->
+                ehrExtractMapper.mapBundleToEhrFhirExtractParams(taskDef, bundle)
+        );
+
+        assertThat(thrown.getMessage()).isEqualTo("could not extract EHR Extract: empty structured access record.");
+    }
+
+
 
     @Test
     void When_BuildEhrCompositionForSkeletonEhrExtract_Expect_ExpectedComponentBuilt() {
