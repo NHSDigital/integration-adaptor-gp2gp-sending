@@ -16,6 +16,7 @@ import uk.nhs.adaptors.gp2gp.ehr.SendAcknowledgementTaskDefinition;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrExtractException;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.gpc.exception.EhrRequestException;
+import uk.nhs.adaptors.gp2gp.ehr.exception.EhrValidationException;
 import uk.nhs.adaptors.gp2gp.gpc.exception.GpConnectException;
 import uk.nhs.adaptors.gp2gp.gpc.exception.GpConnectInvalidException;
 import uk.nhs.adaptors.gp2gp.gpc.exception.GpConnectNotFoundException;
@@ -31,6 +32,7 @@ public class TaskErrorHandler {
         EhrExtractException.class, this::handleTranslationError,
         EhrMapperException.class, this::handleTranslationError,
         FhirValidationException.class, this::handleTranslationError,
+        EhrValidationException.class, this::handleTranslationError,
         GpConnectException.class, this::handleGpConnectError,
         GpConnectInvalidException.class, this::handleInvalidNotAuthError,
         GpConnectNotFoundException.class, this::handleNotFoundError,
