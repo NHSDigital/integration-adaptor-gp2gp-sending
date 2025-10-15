@@ -14,6 +14,7 @@ The "National Integration Adaptor - GP2GP" implements a GP2GP 2.2b producer usin
 Provider implementation to extract the Electronic Health Record. Suppliers that have not already implemented a
 GP2GP 2.2b producer, or those wishing to decommission their existing producer, may deploy the GP2GP adaptor in its place.
 
+
 ## Table of contents
 
 1. [Guidance for setting up the GP2GP adaptors in INT](https://github.com/NHSDigital/nia-patient-switching-standard-adaptor/blob/main/getting-started-instructions.md)
