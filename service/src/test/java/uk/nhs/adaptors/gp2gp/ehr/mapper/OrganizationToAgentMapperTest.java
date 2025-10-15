@@ -33,6 +33,6 @@ class OrganizationToAgentMapperTest {
         var outputMessage = OrganizationToAgentMapper.mapOrganizationToAgent(organization, TEST_ID);
         assertThat(outputMessage)
             .describedAs(TestArgumentsLoaderUtil.FAIL_MESSAGE, INPUT_ORGANIZATION_JSON, OUTPUT_ORGANIZATION_AS_AGENT_PERSON_JSON)
-            .isEqualToIgnoringWhitespace(expectedOutput);
+            .isEqualTo(expectedOutput);
     }
 }
