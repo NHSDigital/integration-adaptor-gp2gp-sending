@@ -706,6 +706,7 @@ class EhrExtractTest {
 //        assertThat(hasPlainTextSuffix)
 //            .as("A placeholder should have a plain text suffix")
 //            .isTrue();
+
     }
 
     private EhrStatus getEhrStatusForConversation(String conversationId) throws IOException {
