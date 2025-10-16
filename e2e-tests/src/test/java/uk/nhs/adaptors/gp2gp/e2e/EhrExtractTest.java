@@ -446,9 +446,11 @@ class EhrExtractTest {
 
     @Test
     void When_ExtractRequestReceivedForPatientWithoutClinicalContent_Expect_ExtractStatusAndDocumentDataAddedToDbAndReturnCode10() throws Exception {
+        Mongo.clearEhrExtractStatusCollection();
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_NO_CLINICAL_CONTENT_STRUCTURE, FROM_ODS_CODE_1);
         MessageQueue.sendToMhsInboundQueue(ehrExtractRequest);
+//        Mongo.clearEhrExtractStatusCollection();
 
         var requestJournal = waitFor(() -> {
             try {
