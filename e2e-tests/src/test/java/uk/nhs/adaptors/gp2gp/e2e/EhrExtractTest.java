@@ -217,6 +217,63 @@ class EhrExtractTest {
     }
 
     @Test
+    void When_ExtractRequestReceivedForPatientWithoutClinicalContent_Expect_ExtractStatusAndDocumentDataAddedToDbAndReturnCode10() throws Exception {
+        System.out.println("Clearing EhrExtractStatus collection...");
+        Mongo.clearEhrExtractStatusCollection();
+
+        String conversationId = UUID.randomUUID().toString();
+        System.out.println("Generated conversationId: " + conversationId);
+
+        String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_NO_CLINICAL_CONTENT_STRUCTURE, FROM_ODS_CODE_1);
+        System.out.println("Sending EHR Extract Request to MHS Inbound Queue...");
+        MessageQueue.sendToMhsInboundQueue(ehrExtractRequest);
+
+        System.out.println("Waiting for request journal for conversationId: " + conversationId);
+        var requestJournal = waitFor(() -> {
+            try {
+                return mhsMockRequestsJournal.getRequestsJournal(conversationId);
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        System.out.println("Request journal size: " + (requestJournal != null ? requestJournal.size() : "null"));
+        if (requestJournal != null && !requestJournal.isEmpty()) {
+            System.out.println("Request journal first payload: " + requestJournal.get(0).getPayload());
+        }
+
+        assertThat(requestJournal).hasSize(1);
+
+        System.out.println("Waiting for EhrExtractStatus from Mongo...");
+        var ehrExtractStatus = waitFor(() -> {
+            var status = Mongo.findEhrExtractStatus(conversationId);
+            if (status != null) {
+                System.out.println("Intermediate EhrExtractStatus from Mongo: " + status.toJson());
+                var error = status.get("error");
+                if (error != null) {
+                    System.out.println("Found error field: " + error.toString());
+                    return status;
+                }
+            }
+            return null;
+        });
+
+        System.out.println("Final EhrExtractStatus retrieved: " + ehrExtractStatus.toJson());
+
+        assertThatInitialRecordWasCreated(conversationId, ehrExtractStatus, NHS_NUMBER_NO_CLINICAL_CONTENT_STRUCTURE, FROM_ODS_CODE_1);
+
+        var error = (Document) ehrExtractStatus.get("error");
+        System.out.println("Error document contents: " + error.toJson());
+
+        assertThat(error).isNotEmpty();
+
+        softly.assertThat(error.get("code")).isEqualTo(NACK_CODE_FAILED_TO_GENERATE_EHR);
+
+        System.out.println("Test completed for conversationId: " + conversationId);
+    }
+
+
+    @Test
     void When_ExtractRequestReceivedForPatientWithNormalEhrExtract_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws Exception {
         String conversationId = UUID.randomUUID().toString();
         String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_WITH_NORMAL_DR, FROM_ODS_CODE_1);
@@ -444,32 +501,7 @@ class EhrExtractTest {
 
     }
 
-    @Test
-    void When_ExtractRequestReceivedForPatientWithoutClinicalContent_Expect_ExtractStatusAndDocumentDataAddedToDbAndReturnCode10() throws Exception {
-        Mongo.clearEhrExtractStatusCollection();
-        String conversationId = UUID.randomUUID().toString();
-        String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_NO_CLINICAL_CONTENT_STRUCTURE, FROM_ODS_CODE_1);
-        MessageQueue.sendToMhsInboundQueue(ehrExtractRequest);
-//        Mongo.clearEhrExtractStatusCollection();
 
-        var requestJournal = waitFor(() -> {
-            try {
-                return mhsMockRequestsJournal.getRequestsJournal(conversationId);
-            } catch (IOException | InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        assertThat(requestJournal).hasSize(1);
-        Thread.sleep(1000);
-
-        var ehrExtractStatus = waitFor(() -> Mongo.findEhrExtractStatus(conversationId));
-        assertThatInitialRecordWasCreated(conversationId, ehrExtractStatus, NHS_NUMBER_NO_CLINICAL_CONTENT_STRUCTURE, FROM_ODS_CODE_1);
-
-        var error = (Document) ehrExtractStatus.get("error");
-        assertThat(error).isNotEmpty();
-        softly.assertThat(error.get("code")).isEqualTo(NACK_CODE_FAILED_TO_GENERATE_EHR);
-    }
 
     @Test
     void When_ExtractRequestReceivedForEMISPWTP2_Expect_ExtractStatusAndDocumentDataAddedToDatabase() throws IOException, NamingException, JMSException {
