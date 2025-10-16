@@ -459,6 +459,7 @@ class EhrExtractTest {
         });
 
         assertThat(requestJournal).hasSize(1);
+        Thread.sleep(1000);
 
         var ehrExtractStatus = waitFor(() -> Mongo.findEhrExtractStatus(conversationId));
         assertThatInitialRecordWasCreated(conversationId, ehrExtractStatus, NHS_NUMBER_NO_CLINICAL_CONTENT_STRUCTURE, FROM_ODS_CODE_1);
