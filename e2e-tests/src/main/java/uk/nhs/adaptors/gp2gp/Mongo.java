@@ -39,4 +39,8 @@ public class Mongo {
     public static void clearEhrExtractStatusCollection() {
         getCollection().deleteMany(new Document());
     }
+
+    public static boolean isEhrExtractStatusCollectionEmpty() {
+        return getCollection().countDocuments() == 0;
+    }
 }
