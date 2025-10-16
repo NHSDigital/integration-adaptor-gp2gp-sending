@@ -35,4 +35,8 @@ public class Mongo {
         }
         return sharedDatabaseConnection;
     }
+
+    public static void clearEhrExtractStatusCollection() {
+        getCollection().deleteMany(new Document());
+    }
 }

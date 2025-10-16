@@ -142,6 +142,7 @@ class EhrExtractTest {
     @BeforeEach
     void setUp() {
         mhsMockRequestsJournal.deleteRequestsJournal();
+        Mongo.clearEhrExtractStatusCollection();
     }
 
     @Test
