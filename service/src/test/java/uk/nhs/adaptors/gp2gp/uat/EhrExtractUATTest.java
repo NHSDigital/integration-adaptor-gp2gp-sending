@@ -50,6 +50,7 @@ import uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport.SpecimenMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.EhrExtractTemplateParameters;
 import uk.nhs.adaptors.gp2gp.ehr.utils.BloodPressureValidator;
 import uk.nhs.adaptors.gp2gp.gpc.GetGpcStructuredTaskDefinition;
+import uk.nhs.adaptors.gp2gp.transformjsontoxmltool.XmlSchemaValidator;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 import wiremock.org.custommonkey.xmlunit.XMLAssert;
 
@@ -139,6 +140,8 @@ public class EhrExtractUATTest {
             .build();
 
         final RandomIdGeneratorService randomIdGeneratorService = new RandomIdGeneratorServiceStub();
+        final XmlSchemaValidator xmlSchemaValidator = new XmlSchemaValidator(redactionsContext);
+
         when(timestampService.now()).thenReturn(Instant.parse("2020-01-01T01:01:01.01Z"));
 
         outputMessageWrapperMapper = new OutputMessageWrapperMapper(randomIdGeneratorService, timestampService, redactionsContext);
@@ -158,7 +161,7 @@ public class EhrExtractUATTest {
             new NonConsultationResourceMapper(messageContext, randomIdGeneratorService, encounterComponentsMapper,
                 new BloodPressureValidator());
         ehrExtractMapper = new EhrExtractMapper(randomIdGeneratorService, timestampService, encounterMapper,
-            nonConsultationResourceMapper, agentDirectoryMapper, messageContext);
+            nonConsultationResourceMapper, agentDirectoryMapper, messageContext, xmlSchemaValidator);
         lenient().when(confidentialityService.generateConfidentialityCode(any()))
             .thenReturn(Optional.empty());
     }

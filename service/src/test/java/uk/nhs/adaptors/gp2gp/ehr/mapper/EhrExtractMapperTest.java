@@ -4,8 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 
 import java.time.Instant;
@@ -25,6 +24,7 @@ import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrValidationException;
 import uk.nhs.adaptors.gp2gp.gpc.GetGpcStructuredTaskDefinition;
+import uk.nhs.adaptors.gp2gp.transformjsontoxmltool.XmlSchemaValidator;
 
 @ExtendWith(MockitoExtension.class)
 class EhrExtractMapperTest {
@@ -52,6 +52,9 @@ class EhrExtractMapperTest {
     private EhrFolderEffectiveTime ehrFolderEffectiveTime;
     @InjectMocks
     private EhrExtractMapper ehrExtractMapper;
+
+    @Mock
+    private XmlSchemaValidator xmlSchemaValidator;
 
     @Test
     void When_NhsOverrideNumberProvided_Expect_OverrideToBeUsed()  {
@@ -155,4 +158,27 @@ class EhrExtractMapperTest {
 
         assertThat(actual).isEqualTo(expected);
     }
+
+    @Test
+    void When_XmlFailsValidation_Expect_XmlSchemaValidationErrorIsThrown() {
+        when(timestampService.now()).thenReturn(Instant.now().truncatedTo(ChronoUnit.MILLIS));
+        String invalidXml = "<invalidXml />";
+        var taskDef = GetGpcStructuredTaskDefinition.builder()
+                .nhsNumber(NHS_NUMBER)
+                .build();
+        var bundle = mock(Bundle.class);
+
+
+        when(nonConsultationResourceMapper.mapRemainingResourcesToEhrCompositions(any()))
+                .thenReturn(Collections.singletonList(invalidXml));
+
+
+        RuntimeException thrown = assertThrows(RuntimeException.class, () ->
+                ehrExtractMapper.mapBundleToEhrFhirExtractParams(taskDef, bundle)
+        );
+        assertThat(thrown.getMessage()).isEqualTo("XML Schema validation failed");
+    }
+
+
+
 }

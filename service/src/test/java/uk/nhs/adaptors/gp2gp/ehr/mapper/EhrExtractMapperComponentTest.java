@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import uk.nhs.adaptors.gp2gp.common.configuration.RedactionsContext;
 import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
@@ -26,6 +27,7 @@ import uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport.SpecimenMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.EhrExtractTemplateParameters;
 import uk.nhs.adaptors.gp2gp.ehr.utils.BloodPressureValidator;
 import uk.nhs.adaptors.gp2gp.gpc.GetGpcStructuredTaskDefinition;
+import uk.nhs.adaptors.gp2gp.transformjsontoxmltool.XmlSchemaValidator;
 import uk.nhs.adaptors.gp2gp.utils.CodeableConceptMapperMockUtil;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 
@@ -36,8 +38,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -109,122 +110,99 @@ class EhrExtractMapperComponentTest {
     @BeforeEach
     public void setUp() {
         getGpcStructuredTaskDefinition = GetGpcStructuredTaskDefinition.builder()
-            .nhsNumber(TEST_NHS_NUMBER)
-            .conversationId(TEST_CONVERSATION_ID)
-            .requestId(TEST_REQUEST_ID)
-            .fromOdsCode(TEST_FROM_ODS_CODE)
-            .toOdsCode(TEST_TO_ODS_CODE)
-            .build();
+                .nhsNumber(TEST_NHS_NUMBER)
+                .conversationId(TEST_CONVERSATION_ID)
+                .requestId(TEST_REQUEST_ID)
+                .fromOdsCode(TEST_FROM_ODS_CODE)
+                .toOdsCode(TEST_TO_ODS_CODE)
+                .build();
 
         when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID_1, TEST_ID_2, TEST_ID_3);
         lenient().when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString()))
-            .thenReturn(TEST_ID_3);
+                .thenReturn(TEST_ID_3);
 
         when(timestampService.now()).thenReturn(Instant.parse(TEST_DATE_TIME));
-        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.mapCodeableConceptForMedication(any(CodeableConcept.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.mapCodeableConceptToCdForTransformedActualProblemHeader(any(CodeableConcept.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.ACTUAL_PROBLEM_CODE);
-        when(codeableConceptCdMapper.mapToNullFlavorCodeableConcept(any(CodeableConcept.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.mapCodeableConceptToCdForAllergy(any(CodeableConcept.class),
-            any(AllergyIntolerance.AllergyIntoleranceClinicalStatus.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.mapToNullFlavorCodeableConceptForAllergy(any(CodeableConcept.class),
-            any(AllergyIntolerance.AllergyIntoleranceClinicalStatus.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.getDisplayFromCodeableConcept(any(CodeableConcept.class)))
-            .thenCallRealMethod();
-        when(codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(any(CodeableConcept.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.mapToCdForTopic(any(CodeableConcept.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.mapToCdForTopic(any(CodeableConcept.class), any(String.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.mapToCdForTopic(any(String.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.getCdForTopic())
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.mapToCdForCategory(any(String.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.getCdForCategory())
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-
 
         messageContext = new MessageContext(randomIdGeneratorService);
+
+        RedactionsContext redactionsContext = mock(RedactionsContext.class);  // mock if necessary
+
+        XmlSchemaValidator xmlSchemaValidator = new XmlSchemaValidator(redactionsContext);
 
         ParticipantMapper participantMapper = new ParticipantMapper();
         StructuredObservationValueMapper structuredObservationValueMapper = new StructuredObservationValueMapper();
         ObservationMapper specimenObservationMapper = new ObservationMapper(
-            messageContext, structuredObservationValueMapper, codeableConceptCdMapper,
-            participantMapper, randomIdGeneratorService, confidentialityService);
+                messageContext, structuredObservationValueMapper, codeableConceptCdMapper,
+                participantMapper, randomIdGeneratorService, confidentialityService);
         SpecimenMapper specimenMapper = new SpecimenMapper(messageContext, specimenObservationMapper,
-            randomIdGeneratorService, confidentialityService);
+                randomIdGeneratorService, confidentialityService);
         DocumentReferenceToNarrativeStatementMapper documentReferenceToNarrativeStatementMapper
-            = new DocumentReferenceToNarrativeStatementMapper(
+                = new DocumentReferenceToNarrativeStatementMapper(
                 messageContext, new SupportedContentTypes(), participantMapper, confidentialityService);
 
         EncounterComponentsMapper encounterComponentsMapper = new EncounterComponentsMapper(
-            messageContext,
-            new AllergyStructureMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService),
-            new BloodPressureMapper(
-                messageContext, randomIdGeneratorService, new StructuredObservationValueMapper(),
-                codeableConceptCdMapper, new ParticipantMapper(), confidentialityService),
-            new ConditionLinkSetMapper(
-                messageContext, randomIdGeneratorService, codeableConceptCdMapper, participantMapper, confidentialityService),
-            new DiaryPlanStatementMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService),
-            documentReferenceToNarrativeStatementMapper,
-            new ImmunizationObservationStatementMapper(
                 messageContext,
+                new AllergyStructureMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService),
+                new BloodPressureMapper(
+                        messageContext, randomIdGeneratorService, new StructuredObservationValueMapper(),
+                        codeableConceptCdMapper, new ParticipantMapper(), confidentialityService),
+                new ConditionLinkSetMapper(
+                        messageContext, randomIdGeneratorService, codeableConceptCdMapper, participantMapper, confidentialityService),
+                new DiaryPlanStatementMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService),
+                documentReferenceToNarrativeStatementMapper,
+                new ImmunizationObservationStatementMapper(
+                        messageContext,
+                        codeableConceptCdMapper,
+                        participantMapper,
+                        confidentialityService
+                ),
+                new MedicationStatementMapper(
+                        messageContext,
+                        codeableConceptCdMapper,
+                        participantMapper,
+                        randomIdGeneratorService,
+                        confidentialityService
+                ),
+                new ObservationToNarrativeStatementMapper(messageContext, participantMapper, confidentialityService),
+                new ObservationStatementMapper(
+                        messageContext,
+                        new StructuredObservationValueMapper(),
+                        new PertinentInformationObservationValueMapper(),
+                        codeableConceptCdMapper,
+                        participantMapper,
+                        confidentialityService
+                ),
+                new RequestStatementMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService),
+                new DiagnosticReportMapper(
+                        messageContext, specimenMapper, participantMapper, randomIdGeneratorService, confidentialityService
+                ),
+                new BloodPressureValidator(),
                 codeableConceptCdMapper,
-                participantMapper,
                 confidentialityService
-            ),
-            new MedicationStatementMapper(
-                messageContext,
-                codeableConceptCdMapper,
-                participantMapper,
-                randomIdGeneratorService,
-                confidentialityService
-            ),
-            new ObservationToNarrativeStatementMapper(messageContext, participantMapper, confidentialityService),
-            new ObservationStatementMapper(
-                messageContext,
-                new StructuredObservationValueMapper(),
-                new PertinentInformationObservationValueMapper(),
-                codeableConceptCdMapper,
-                participantMapper,
-                confidentialityService
-            ),
-            new RequestStatementMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService),
-            new DiagnosticReportMapper(
-                messageContext, specimenMapper, participantMapper, randomIdGeneratorService, confidentialityService
-            ),
-            new BloodPressureValidator(),
-            codeableConceptCdMapper,
-            confidentialityService
         );
 
         AgentDirectoryMapper agentDirectoryMapper = new AgentDirectoryMapper(
-            messageContext,
-            new AgentPersonMapper(messageContext)
+                messageContext,
+                new AgentPersonMapper(messageContext)
         );
 
         nonConsultationResourceMapper = new NonConsultationResourceMapper(messageContext,
-            randomIdGeneratorService,
-            encounterComponentsMapper,
-            new BloodPressureValidator()
+                randomIdGeneratorService,
+                encounterComponentsMapper,
+                new BloodPressureValidator()
         );
 
-        ehrExtractMapper = new EhrExtractMapper(randomIdGeneratorService,
-            timestampService,
-            new EncounterMapper(messageContext, encounterComponentsMapper, confidentialityService),
-            nonConsultationResourceMapper,
-            agentDirectoryMapper,
-            messageContext);
+        ehrExtractMapper = new EhrExtractMapper(
+                randomIdGeneratorService,
+                timestampService,
+                new EncounterMapper(messageContext, encounterComponentsMapper, confidentialityService),
+                nonConsultationResourceMapper,
+                agentDirectoryMapper,
+                messageContext,
+                xmlSchemaValidator
+        );
     }
+
 
     @AfterEach
     public void tearDown() {

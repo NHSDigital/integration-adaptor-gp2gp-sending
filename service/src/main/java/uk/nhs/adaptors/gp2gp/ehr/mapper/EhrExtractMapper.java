@@ -22,6 +22,7 @@ import uk.nhs.adaptors.gp2gp.ehr.utils.TemplateUtils;
 import uk.nhs.adaptors.gp2gp.gpc.GetGpcStructuredTaskDefinition;
 
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrValidationException;
+import uk.nhs.adaptors.gp2gp.transformjsontoxmltool.XmlSchemaValidator;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +42,7 @@ public class EhrExtractMapper {
     private final NonConsultationResourceMapper nonConsultationResourceMapper;
     private final AgentDirectoryMapper agentDirectoryMapper;
     private final MessageContext messageContext;
+    private final XmlSchemaValidator xmlSchemaValidator;
 
     @Value("${gp2gp.gpc.overrideNhsNumber}")
     private String overrideNhsNumber;
@@ -55,6 +57,18 @@ public class EhrExtractMapper {
 
         var encounters = EncounterExtractor.extractEncounterReferencesFromEncounterList(bundle);
         var mappedComponents = mapEncounterToEhrComponents(encounters);
+
+        String ehrExtractXml = mapEhrExtractToXml(ehrExtractTemplateParameters);
+
+        try {
+            xmlSchemaValidator.validateOutputToXmlSchema(bundle.getId(), ehrExtractXml);
+        } catch (RuntimeException e) {
+            final String message = "XML Schema validation failed";
+            LOGGER.error(message, e);
+            throw new RuntimeException(message, e);
+        }
+
+
         mappedComponents.addAll(nonConsultationResourceMapper.mapRemainingResourcesToEhrCompositions(bundle));
         ehrExtractTemplateParameters.setComponents(mappedComponents);
 
