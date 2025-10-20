@@ -38,7 +38,9 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -106,6 +108,8 @@ class EhrExtractMapperComponentTest {
     private NonConsultationResourceMapper nonConsultationResourceMapper;
     private EhrExtractMapper ehrExtractMapper;
     private MessageContext messageContext;
+    @Mock
+    private XmlSchemaValidator xmlSchemaValidator;
 
     @BeforeEach
     public void setUp() {
@@ -198,11 +202,8 @@ class EhrExtractMapperComponentTest {
                 new EncounterMapper(messageContext, encounterComponentsMapper, confidentialityService),
                 nonConsultationResourceMapper,
                 agentDirectoryMapper,
-                messageContext,
-                xmlSchemaValidator
-        );
+                messageContext,xmlSchemaValidator);
     }
-
 
     @AfterEach
     public void tearDown() {
