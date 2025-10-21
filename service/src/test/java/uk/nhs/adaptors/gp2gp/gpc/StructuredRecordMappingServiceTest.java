@@ -37,6 +37,7 @@ import uk.nhs.adaptors.gp2gp.ehr.mapper.OutputMessageWrapperMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.SupportedContentTypes;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.EhrExtractTemplateParameters;
 import uk.nhs.adaptors.gp2gp.mhs.model.OutboundMessage;
+import uk.nhs.adaptors.gp2gp.transformjsontoxmltool.XmlSchemaValidator;
 import wiremock.org.custommonkey.xmlunit.DetailedDiff;
 import wiremock.org.custommonkey.xmlunit.XMLUnit;
 
@@ -68,6 +69,8 @@ class StructuredRecordMappingServiceTest {
     private SupportedContentTypes supportedContentTypes;
     @Mock
     private EhrExtractStatusService ehrExtractStatusService;
+    @Mock
+    private XmlSchemaValidator xmlSchemaValidator;
 
     @InjectMocks
     private StructuredRecordMappingService structuredRecordMappingService;
@@ -279,6 +282,31 @@ class StructuredRecordMappingServiceTest {
 
         assertXMLEquals(skeletonEhrExtract, expectedSkeletonEhrExtract);
     }
+
+    @Test
+    void When_MapStructuredRecordToEhrExtractXml_Expect_XmlValidatedAndReturned() {
+        var structuredTaskDefinition = mock(GetGpcStructuredTaskDefinition.class);
+        var bundle = mock(Bundle.class);
+        var ehrExtractTemplateParameters = mock(EhrExtractTemplateParameters.class);
+        var ehrExtractContent = "ehrExtractXmlContent";
+        var expectedOutput = "wrappedEhrExtractXml";
+        var conversationId = "conversationId123";
+
+        when(ehrExtractMapper.mapBundleToEhrFhirExtractParams(structuredTaskDefinition, bundle))
+                .thenReturn(ehrExtractTemplateParameters);
+        when(ehrExtractMapper.mapEhrExtractToXml(ehrExtractTemplateParameters))
+                .thenReturn(ehrExtractContent);
+        when(structuredTaskDefinition.getConversationId())
+                .thenReturn(conversationId);
+        when(outputMessageWrapperMapper.map(structuredTaskDefinition, ehrExtractContent))
+                .thenReturn(expectedOutput);
+
+        var actualOutput = structuredRecordMappingService.mapStructuredRecordToEhrExtractXml(structuredTaskDefinition, bundle);
+
+        verify(xmlSchemaValidator).validateOutputToXmlSchema("conversationId123", ehrExtractContent);
+        assertThat(actualOutput).isEqualTo(expectedOutput);
+    }
+
 
     public static void assertXMLEquals(String actualXML, String expectedXML) throws Exception {
         XMLUnit.setIgnoreWhitespace(true);

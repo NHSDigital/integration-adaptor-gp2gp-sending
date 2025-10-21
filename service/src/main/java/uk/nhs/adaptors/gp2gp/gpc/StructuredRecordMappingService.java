@@ -28,6 +28,7 @@ import uk.nhs.adaptors.gp2gp.ehr.utils.DocumentReferenceUtils;
 import uk.nhs.adaptors.gp2gp.ehr.utils.ResourceExtractor;
 import uk.nhs.adaptors.gp2gp.mhs.model.Identifier;
 import uk.nhs.adaptors.gp2gp.mhs.model.OutboundMessage;
+import uk.nhs.adaptors.gp2gp.transformjsontoxmltool.XmlSchemaValidator;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -57,6 +58,7 @@ public class StructuredRecordMappingService {
     private final RandomIdGeneratorService randomIdGeneratorService;
     private final SupportedContentTypes supportedContentTypes;
     private final EhrExtractStatusService ehrExtractStatusService;
+    private final XmlSchemaValidator xmlSchemaValidator;
 
     private DocumentBuilder documentBuilder;
 
@@ -150,6 +152,8 @@ public class StructuredRecordMappingService {
         var ehrExtractTemplateParameters = ehrExtractMapper
                 .mapBundleToEhrFhirExtractParams(structuredTaskDefinition, bundle);
         String ehrExtractContent = ehrExtractMapper.mapEhrExtractToXml(ehrExtractTemplateParameters);
+
+        xmlSchemaValidator.validateOutputToXmlSchema(structuredTaskDefinition.getConversationId(), ehrExtractContent);
 
         ehrExtractStatusService.saveEhrExtractMessageId(structuredTaskDefinition.getConversationId(),
                 ehrExtractTemplateParameters.getEhrExtractId());
