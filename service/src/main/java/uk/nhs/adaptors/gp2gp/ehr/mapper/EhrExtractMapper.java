@@ -21,6 +21,8 @@ import uk.nhs.adaptors.gp2gp.ehr.utils.StatementTimeMappingUtils;
 import uk.nhs.adaptors.gp2gp.ehr.utils.TemplateUtils;
 import uk.nhs.adaptors.gp2gp.gpc.GetGpcStructuredTaskDefinition;
 
+import uk.nhs.adaptors.gp2gp.ehr.exception.EhrValidationException;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -55,6 +57,12 @@ public class EhrExtractMapper {
         var mappedComponents = mapEncounterToEhrComponents(encounters);
         mappedComponents.addAll(nonConsultationResourceMapper.mapRemainingResourcesToEhrCompositions(bundle));
         ehrExtractTemplateParameters.setComponents(mappedComponents);
+
+        if (mappedComponents.isEmpty()) {
+            final String message = "could not extract EHR Extract: empty structured access record.";
+            LOGGER.error(message);
+            throw new EhrValidationException(message);
+        }
 
         ehrExtractTemplateParameters.setAgentDirectory(
             agentDirectoryMapper.mapEHRFolderToAgentDirectory(bundle, getPatientNhsNumber(getGpcStructuredTaskDefinition))

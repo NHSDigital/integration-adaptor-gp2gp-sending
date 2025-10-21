@@ -81,7 +81,7 @@ class CodeableConceptCdMapperTest {
         var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCd(codeableConcept);
         assertThat(outputMessage)
             .describedAs(TestArgumentsLoaderUtil.FAIL_MESSAGE, inputJson, outputXml)
-            .isEqualToIgnoringWhitespace(expectedOutput);
+            .isEqualTo(expectedOutput);
     }
 
     @Test
@@ -118,7 +118,7 @@ class CodeableConceptCdMapperTest {
 
         var outputMessageXml = codeableConceptCdMapper.mapCodeableConceptToCd(codeableConcept);
 
-        assertThat(outputMessageXml).isEqualToIgnoringWhitespace(expectedOutputXml);
+        assertThat(outputMessageXml).isEqualTo(expectedOutputXml);
     }
 
     @Test
@@ -148,7 +148,7 @@ class CodeableConceptCdMapperTest {
 
         var outputMessageXml = codeableConceptCdMapper.mapCodeableConceptToCd(codeableConcept);
 
-        assertThat(outputMessageXml).isEqualToIgnoringWhitespace(expectedOutputXml);
+        assertThat(outputMessageXml).isEqualTo(expectedOutputXml);
     }
 
     @Test
@@ -181,8 +181,7 @@ class CodeableConceptCdMapperTest {
             }""";
         var expectedOutputXML = """
             <code nullFlavor="UNK">
-            </code>
-            """;
+            </code>""";
         var codeableConcept = fhirParseService.parseResource(inputJson, AllergyIntolerance.class).getCode();
 
         var outputXml = codeableConceptCdMapper.mapToNullFlavorCodeableConceptForAllergy(
@@ -190,7 +189,7 @@ class CodeableConceptCdMapperTest {
             AllergyIntolerance.AllergyIntoleranceClinicalStatus.ACTIVE
         );
 
-        assertThat(outputXml).isEqualToIgnoringWhitespace(expectedOutputXML);
+        assertThat(outputXml).isEqualTo(expectedOutputXML);
     }
 
     @ParameterizedTest
@@ -203,7 +202,7 @@ class CodeableConceptCdMapperTest {
         var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForTransformedActualProblemHeader(codeableConcept);
         assertThat(outputMessage)
             .describedAs(TestArgumentsLoaderUtil.FAIL_MESSAGE, inputJson, outputXml)
-            .isEqualToIgnoringWhitespace(expectedOutput);
+            .isEqualTo(expectedOutput);
     }
 
     @ParameterizedTest
@@ -218,7 +217,7 @@ class CodeableConceptCdMapperTest {
 
         assertThat(outputMessage)
             .describedAs(TestArgumentsLoaderUtil.FAIL_MESSAGE, inputJson, outputXml)
-            .isEqualToIgnoringWhitespace(expectedOutput);
+            .isEqualTo(expectedOutput);
     }
 
     @ParameterizedTest
@@ -233,7 +232,7 @@ class CodeableConceptCdMapperTest {
 
         assertThat(outputMessage)
             .describedAs(TestArgumentsLoaderUtil.FAIL_MESSAGE, inputJson, outputXml)
-            .isEqualToIgnoringWhitespace(expectedOutput);
+            .isEqualTo(expectedOutput);
     }
 
     @Nested
@@ -251,7 +250,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
         @Test
@@ -277,7 +276,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
         @Test
@@ -312,7 +311,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
         @Test
@@ -348,7 +347,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
         @Test
@@ -386,7 +385,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
         @Test
@@ -413,7 +412,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
         @Test
@@ -440,7 +439,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
         @Test
@@ -477,7 +476,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
         @Test
@@ -514,7 +513,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
         @Test
@@ -545,7 +544,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
     }
 
@@ -585,7 +584,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
         @Test
@@ -621,7 +620,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
         @Test
@@ -649,7 +648,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
         @Test
@@ -687,7 +686,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
         @Test
@@ -723,7 +722,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
         @Test
@@ -761,7 +760,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
         @Test
@@ -799,7 +798,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
         @Test
@@ -826,7 +825,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
         @Test
@@ -851,7 +850,7 @@ class CodeableConceptCdMapperTest {
 
             var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
 
-            assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+            assertThat(outputMessage).isEqualTo(expectedOutput);
         }
     }
 
@@ -866,7 +865,7 @@ class CodeableConceptCdMapperTest {
 
         assertThat(outputString)
             .describedAs(TestArgumentsLoaderUtil.FAIL_MESSAGE, inputJson, outputXml)
-            .isEqualToIgnoringWhitespace(expectedOutput);
+            .isEqualTo(expectedOutput);
     }
 
     @ParameterizedTest
@@ -880,7 +879,7 @@ class CodeableConceptCdMapperTest {
 
         assertThat(outputString)
             .describedAs(TestArgumentsLoaderUtil.FAIL_MESSAGE, inputJson, outputXml)
-            .isEqualToIgnoringWhitespace(expectedOutput);
+            .isEqualTo(expectedOutput);
     }
 
     @Test
@@ -891,7 +890,7 @@ class CodeableConceptCdMapperTest {
         var expectedOutput = ResourceTestFileUtils.getFileContent(CD_FOR_TOPIC_RELATED_PROBLEM_AND_TITLE);
         var outputString = codeableConceptCdMapper.mapToCdForTopic(codeableConcept, TEST_TITLE);
 
-        assertThat(outputString).isEqualToIgnoringWhitespace(expectedOutput);
+        assertThat(outputString).isEqualTo(expectedOutput);
     }
 
     @Test
@@ -901,7 +900,7 @@ class CodeableConceptCdMapperTest {
         var outputString = codeableConceptCdMapper.mapToCdForTopic(TEST_TITLE);
 
         assertThat(outputString)
-            .isEqualToIgnoringWhitespace(expectedOutput);
+            .isEqualTo(expectedOutput);
     }
 
     @Test
@@ -910,7 +909,7 @@ class CodeableConceptCdMapperTest {
         var expectedOutput = ResourceTestFileUtils.getFileContent(CD_FOR_TOPIC_UNSPECIFIED);
         var outputString = codeableConceptCdMapper.getCdForTopic();
 
-        assertThat(outputString).isEqualToIgnoringWhitespace(expectedOutput);
+        assertThat(outputString).isEqualTo(expectedOutput);
     }
 
     @Test
@@ -919,7 +918,7 @@ class CodeableConceptCdMapperTest {
         var expectedOutput = ResourceTestFileUtils.getFileContent(CD_FOR_CATEGORY_TITLE);
         var outputString = codeableConceptCdMapper.mapToCdForCategory(TEST_TITLE);
 
-        assertThat(outputString).isEqualToIgnoringWhitespace(expectedOutput);
+        assertThat(outputString).isEqualTo(expectedOutput);
     }
 
     @Test
@@ -928,7 +927,7 @@ class CodeableConceptCdMapperTest {
         var expectedOutput = ResourceTestFileUtils.getFileContent(CD_FOR_CATEGORY_NO_TITLE);
         var outputString = codeableConceptCdMapper.getCdForCategory();
 
-        assertThat(outputString).isEqualToIgnoringWhitespace(expectedOutput);
+        assertThat(outputString).isEqualTo(expectedOutput);
     }
 
     @Test
@@ -939,6 +938,6 @@ class CodeableConceptCdMapperTest {
         var expectedOutput = ResourceTestFileUtils.getFileContent(CD_FOR_TOPIC_RELATED_PROBLEM_AND_TITLE);
         var outputString = codeableConceptCdMapper.mapToCdForTopic(codeableConcept, TEST_TITLE);
 
-        assertThat(outputString).isEqualToIgnoringWhitespace(expectedOutput);
+        assertThat(outputString).isEqualTo(expectedOutput);
     }
 }

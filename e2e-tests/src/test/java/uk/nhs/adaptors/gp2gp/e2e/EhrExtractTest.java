@@ -72,6 +72,7 @@ class EhrExtractTest {
     private static final String NHS_NUMBER_RESPONSE_MISSING_PATIENT_RESOURCE = "2906543841";
     private static final String NHS_NUMBER_MEDICUS_BASED_ON = "9302014592";
     private static final String NHS_NUMBER_INVALID_CONTENT_TYPE_DOC = "9817280691";
+    private static final String NHS_NUMBER_NO_CLINICAL_CONTENT_STRUCTURE = "9736435687";
     private static final String NHS_NUMBER_BODY_SITE = "1239577290";
     private static final String EHR_EXTRACT_REQUEST_TEST_FILE = "/ehrExtractRequest.json";
     private static final String EHR_EXTRACT_REQUEST_WITHOUT_NHS_NUMBER_TEST_FILE = "/ehrExtractRequestWithoutNhsNumber.json";
@@ -440,6 +441,30 @@ class EhrExtractTest {
 
         assertHappyPathWithDocs(conversationId, FROM_ODS_CODE_1, NHS_NUMBER_MEDICUS_BASED_ON);
 
+    }
+
+    @Test
+    void When_ExtractRequestReceivedForPatientWithoutClinicalContent_Expect_ExtractStatusAndDocumentDataAddedToDbAndReturnCode10() throws Exception {
+        String conversationId = UUID.randomUUID().toString();
+        String ehrExtractRequest = buildEhrExtractRequest(conversationId, NHS_NUMBER_NO_CLINICAL_CONTENT_STRUCTURE, FROM_ODS_CODE_1);
+        MessageQueue.sendToMhsInboundQueue(ehrExtractRequest);
+
+        var requestJournal = waitFor(() -> {
+            try {
+                return mhsMockRequestsJournal.getRequestsJournal(conversationId);
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        assertThat(requestJournal).hasSize(1);
+
+        var ehrExtractStatus = waitFor(() -> Mongo.findEhrExtractStatus(conversationId));
+        assertThatInitialRecordWasCreated(conversationId, ehrExtractStatus, NHS_NUMBER_NO_CLINICAL_CONTENT_STRUCTURE, FROM_ODS_CODE_1);
+
+        var error = (Document) ehrExtractStatus.get("error");
+        assertThat(error).isNotEmpty();
+        softly.assertThat(error.get("code")).isEqualTo(NACK_CODE_FAILED_TO_GENERATE_EHR);
     }
 
     @Test
