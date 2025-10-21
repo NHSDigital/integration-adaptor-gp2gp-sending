@@ -65,15 +65,20 @@ public class TransformJsonToXml implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
-            getFiles().forEach(file -> {
-                String xmlResult = mapJsonToXml(file.getJsonFileInput());
-                writeToFile(xmlResult, file.getJsonFileName());
-                xmlSchemaValidator.validateOutputToXmlSchema(file.getJsonFileName(), xmlResult);
-            });
+            getFiles().forEach(this::processAndValidateFile);
         } catch (NHSNumberNotFound | UnreadableJsonFileException | NoJsonFileFound | Hl7TranslatedResponseError e) {
             LOGGER.error("error: " + e.getMessage());
         }
+
         LOGGER.info("end");
+    }
+
+    private void processAndValidateFile(InputFile file) {
+        String xmlResult = mapJsonToXml(file.getJsonFileInput());
+
+        writeToFile(xmlResult, file.getJsonFileName());
+
+        xmlSchemaValidator.validateOutputToXmlSchema(file.getJsonFileName(), xmlResult);
     }
 
     private List<InputFile> getFiles() throws UnreadableJsonFileException, NoJsonFileFound {
