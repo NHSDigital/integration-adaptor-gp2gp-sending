@@ -53,7 +53,7 @@ import uk.nhs.adaptors.gp2gp.ehr.utils.TemplateUtils;
 public class DiagnosticReportMapper {
 
     public static final String NOT_PRESENT_SPECIMEN_ID_PREFIX = "NOT-PRESENT-SPECIMEN-";
-    public static final String DUMMY_OBSERVATION_ID_PREFIX = "DUMMY-OBSERVATION-";
+    public static final String NOT_PRESENT_OBSERVATION_ID_PREFIX = "NOT-PRESENT-OBSERVATION-";
 
     private static final Mustache DIAGNOSTIC_REPORT_COMPOUND_STATEMENT_TEMPLATE =
         TemplateUtils.loadTemplate("diagnostic_report_compound_statement_template.mustache");
@@ -230,10 +230,10 @@ public class DiagnosticReportMapper {
 
         // Generate a dummy Observation for each Specimen without an Observation
         for (String specimenWithoutObservations : getSpecimenIdsWithoutObservation(specimens, observations)) {
-            Observation dummyObservation = generateDummyObservation(diagnosticReport);
+            Observation notPresentObservation = generateNotPresentObservation(diagnosticReport);
             Reference specimenReference = new Reference(specimenWithoutObservations);
-            dummyObservation.setSpecimen(specimenReference);
-            completeObservations.add(dummyObservation);
+            notPresentObservation.setSpecimen(specimenReference);
+            completeObservations.add(notPresentObservation);
         }
 
         return completeObservations;
@@ -264,10 +264,10 @@ public class DiagnosticReportMapper {
         return specimensWithoutObservations;
     }
 
-    private Observation generateDummyObservation(DiagnosticReport diagnosticReport) {
+    private Observation generateNotPresentObservation(DiagnosticReport diagnosticReport) {
         Observation observation = new Observation();
 
-        observation.setId(DUMMY_OBSERVATION_ID_PREFIX + randomIdGeneratorService.createNewId());
+        observation.setId(NOT_PRESENT_OBSERVATION_ID_PREFIX + randomIdGeneratorService.createNewId());
 
         return observation
             .setIssuedElement(diagnosticReport.getIssuedElement())

@@ -412,7 +412,7 @@ class DiagnosticReportMapperTest {
 
         assertThat(actualXml).containsIgnoringWhitespaces(
                 "<!-- Mapped Specimen with id: Specimen/96B93E28-293D-46E7-B4C2-D477EEBF7098-SPEC-1 "
-                        + "with linked Observations: DUMMY-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
+                        + "with linked Observations: NOT-PRESENT-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
 
     }
 
@@ -438,11 +438,11 @@ class DiagnosticReportMapperTest {
 
         assertThat(actualXml).containsIgnoringWhitespaces(
                 "<!-- Mapped Specimen with id: Specimen/96B93E28-293D-46E7-B4C2-D477EEBF7098-SPEC-1 "
-                        + "with linked Observations: DUMMY-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
+                        + "with linked Observations: NOT-PRESENT-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
 
         assertThat(actualXml).containsIgnoringWhitespaces(
                 "<!-- Mapped Specimen with id: Specimen/96B93E28-293D-46E7-B4C2-D477EEBF7098-SPEC-2 "
-                        + "with linked Observations: DUMMY-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
+                        + "with linked Observations: NOT-PRESENT-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
     }
 
     /**
@@ -472,7 +472,7 @@ class DiagnosticReportMapperTest {
 
         assertThat(actualXml).containsIgnoringWhitespaces(
                 "<!-- Mapped Specimen with id: Specimen/96B93E28-293D-46E7-B4C2-D477EEBF7098-SPEC-2 "
-                        + "with linked Observations: DUMMY-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
+                        + "with linked Observations: NOT-PRESENT-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
     }
 
     @Test
