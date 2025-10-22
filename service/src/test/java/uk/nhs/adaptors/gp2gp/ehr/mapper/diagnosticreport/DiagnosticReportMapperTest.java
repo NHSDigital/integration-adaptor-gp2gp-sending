@@ -155,7 +155,7 @@ class DiagnosticReportMapperTest {
         dummySpecimen.setId(NOT_PRESENT_SPECIMEN_ID_PREFIX + "123");
         List<Specimen> specimens = List.of(dummySpecimen);
 
-        List<Observation> result = mapper.assignDummySpecimensToObservationsWithNoSpecimen(observations, specimens);
+        List<Observation> result = mapper.assignNotPresentSpecimensToObservationsWithNoSpecimen(observations, specimens);
 
         assertThat(obsWithoutSpecimen.getSpecimen())
             .isNotNull()
@@ -178,7 +178,7 @@ class DiagnosticReportMapperTest {
 
         List<Specimen> specimens = List.of();
 
-        assertThatThrownBy(() -> mapper.assignDummySpecimensToObservationsWithNoSpecimen(observations, specimens))
+        assertThatThrownBy(() -> mapper.assignNotPresentSpecimensToObservationsWithNoSpecimen(observations, specimens))
             .isInstanceOf(NoSuchElementException.class);
     }
 
@@ -197,7 +197,7 @@ class DiagnosticReportMapperTest {
         realSpecimen.setId("real-specimen");
         List<Specimen> specimens = List.of(realSpecimen, dummySpecimen);
 
-        List<Observation> result = mapper.assignDummySpecimensToObservationsWithNoSpecimen(observations, specimens);
+        List<Observation> result = mapper.assignNotPresentSpecimensToObservationsWithNoSpecimen(observations, specimens);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getSpecimen().getReference()).contains(dummySpecimen.getId());
