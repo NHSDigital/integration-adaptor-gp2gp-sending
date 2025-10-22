@@ -20,6 +20,7 @@ import org.xml.sax.SAXException;
 import uk.nhs.adaptors.gp2gp.common.configuration.Gp2gpConfiguration;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.ehr.EhrExtractStatusService;
+import uk.nhs.adaptors.gp2gp.ehr.exception.XmlSchemaValidationException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.EhrExtractMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.MessageContext;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.OutputMessageWrapperMapper;
@@ -57,6 +58,7 @@ public class StructuredRecordMappingService {
     private final RandomIdGeneratorService randomIdGeneratorService;
     private final SupportedContentTypes supportedContentTypes;
     private final EhrExtractStatusService ehrExtractStatusService;
+
 
     private DocumentBuilder documentBuilder;
 
@@ -150,6 +152,13 @@ public class StructuredRecordMappingService {
         var ehrExtractTemplateParameters = ehrExtractMapper
                 .mapBundleToEhrFhirExtractParams(structuredTaskDefinition, bundle);
         String ehrExtractContent = ehrExtractMapper.mapEhrExtractToXml(ehrExtractTemplateParameters);
+
+        try {
+            ehrExtractMapper.validateXmlAgainstSchema(ehrExtractContent);
+        } catch (XmlSchemaValidationException e) {
+            LOGGER.error("EHR Extract XML validation failed: {}", e.getMessage());
+
+        }
 
         ehrExtractStatusService.saveEhrExtractMessageId(structuredTaskDefinition.getConversationId(),
                 ehrExtractTemplateParameters.getEhrExtractId());

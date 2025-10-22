@@ -157,7 +157,7 @@ public class EhrExtractUATTest {
         final NonConsultationResourceMapper nonConsultationResourceMapper =
             new NonConsultationResourceMapper(messageContext, randomIdGeneratorService, encounterComponentsMapper,
                 new BloodPressureValidator());
-        ehrExtractMapper = new EhrExtractMapper(randomIdGeneratorService, timestampService, encounterMapper,
+        ehrExtractMapper = new EhrExtractMapper(redactionsContext, randomIdGeneratorService, timestampService, encounterMapper,
             nonConsultationResourceMapper, agentDirectoryMapper, messageContext);
         lenient().when(confidentialityService.generateConfidentialityCode(any()))
             .thenReturn(Optional.empty());

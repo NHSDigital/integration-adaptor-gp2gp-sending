@@ -21,9 +21,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import uk.nhs.adaptors.gp2gp.common.configuration.RedactionsContext;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrValidationException;
+import uk.nhs.adaptors.gp2gp.ehr.exception.XmlSchemaValidationException;
 import uk.nhs.adaptors.gp2gp.gpc.GetGpcStructuredTaskDefinition;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,6 +54,8 @@ class EhrExtractMapperTest {
     private EhrFolderEffectiveTime ehrFolderEffectiveTime;
     @InjectMocks
     private EhrExtractMapper ehrExtractMapper;
+    @Mock
+    private RedactionsContext redactionsContext;
 
     @Test
     void When_NhsOverrideNumberProvided_Expect_OverrideToBeUsed()  {
@@ -155,4 +159,34 @@ class EhrExtractMapperTest {
 
         assertThat(actual).isEqualTo(expected);
     }
+
+    @Test
+    void When_ValidateXmlAgainstSchemaWithInvalidXmlAndRedactionID_Expect_XmlSchemaValidationExceptionIsThrown() {
+        String invalidXml = "<invalid><xml>";
+
+        when(redactionsContext.ehrExtractInteractionId())
+                .thenReturn(RedactionsContext.REDACTION_INTERACTION_ID);
+
+        XmlSchemaValidationException ex = assertThrows(XmlSchemaValidationException.class, () -> {
+            ehrExtractMapper.validateXmlAgainstSchema(invalidXml);
+        });
+
+        assertThat(ex.getMessage()).contains("XML schema validation failed");
+    }
+
+    @Test
+    void When_ValidateXmlAgainstSchemaWithInvalidXmlAndNonRedactionID_Expect_XmlSchemaValidationExceptionIsThrown() {
+        String invalidXml = "<invalid><xml>";
+
+        when(redactionsContext.ehrExtractInteractionId())
+                .thenReturn("non-redaction-id");
+
+        XmlSchemaValidationException ex = assertThrows(XmlSchemaValidationException.class, () -> {
+            ehrExtractMapper.validateXmlAgainstSchema(invalidXml);
+        });
+
+        assertThat(ex.getMessage()).contains("XML schema validation failed");
+    }
+
+
 }
