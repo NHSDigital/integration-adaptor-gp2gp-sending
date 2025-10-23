@@ -75,7 +75,6 @@ public class EhrExtractMapper {
         String schemaPath = isRedactionInteraction
                 ? RCMR_IN030000UK07_SCHEMA_PATH
                 : RCMR_IN030000UK06_SCHEMA_PATH;
-
         try {
             SchemaFactory factory = SchemaFactory.newDefaultInstance();
             Schema schema = factory.newSchema(new File(schemaPath));
