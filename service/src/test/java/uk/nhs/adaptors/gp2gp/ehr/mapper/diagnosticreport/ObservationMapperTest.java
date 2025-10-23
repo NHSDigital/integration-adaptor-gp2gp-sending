@@ -274,6 +274,21 @@ class ObservationMapperTest {
     }
 
     @Test
+    void When_ObservationDoesNotContainNotPresentElements_Expect_MappedObservetionNotContainAggregateComments() {
+        final Observation observation = getObservationResourceFromJson(OBSERVATION_TEST_RESULT_JSON);
+
+        ConfidentialityCodeUtility.appendNopatSecurityToMetaForResource(observation);
+        when(confidentialityService.generateConfidentialityCode(observation))
+            .thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
+
+        final String actualXml = observationMapper.mapObservationToCompoundStatement(observation);
+
+        String expression = "/component/NarrativeStatement/text[contains(normalize-space(.), 'AGGREGATE COMMENT SET')]";
+
+        assertThatXml(actualXml).doesNotContainXPath(expression);
+    }
+
+    @Test
     void When_MappingTestResult_With_NoscrubMetaSecurity_Expect_ConfidentialityCodeNotPresent() {
         final Observation observation = getObservationResourceFromJson(OBSERVATION_TEST_RESULT_JSON);
 
