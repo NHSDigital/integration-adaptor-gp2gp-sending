@@ -159,7 +159,6 @@ public class StructuredRecordMappingService {
             LOGGER.error("EHR Extract XML validation failed: {}", e.getMessage());
 
         }
-
         ehrExtractStatusService.saveEhrExtractMessageId(structuredTaskDefinition.getConversationId(),
                 ehrExtractTemplateParameters.getEhrExtractId());
 
