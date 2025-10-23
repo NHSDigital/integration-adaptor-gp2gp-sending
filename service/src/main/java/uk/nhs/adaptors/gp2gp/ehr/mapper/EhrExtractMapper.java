@@ -69,7 +69,10 @@ public class EhrExtractMapper {
 
 
     public void validateXmlAgainstSchema(String xml) {
-        String schemaPath = RedactionsContext.REDACTION_INTERACTION_ID.equals(redactionsContext.ehrExtractInteractionId())
+        String interactionId = redactionsContext.ehrExtractInteractionId();
+        boolean isRedactionInteraction = RedactionsContext.REDACTION_INTERACTION_ID.equals(interactionId);
+
+        String schemaPath = isRedactionInteraction
                 ? RCMR_IN030000UK07_SCHEMA_PATH
                 : RCMR_IN030000UK06_SCHEMA_PATH;
 
@@ -82,7 +85,7 @@ public class EhrExtractMapper {
 
             LOGGER.info("XML successfully validated against schema: {}", schemaPath);
         } catch (SAXException | IOException e) {
-            LOGGER.error("XML validation failed: {}", e.getMessage(), e);
+            LOGGER.error("XML validation failed against schema {}: {}", schemaPath, e.getMessage(), e);
             throw new XmlSchemaValidationException("XML schema validation failed", e);
         }
     }
