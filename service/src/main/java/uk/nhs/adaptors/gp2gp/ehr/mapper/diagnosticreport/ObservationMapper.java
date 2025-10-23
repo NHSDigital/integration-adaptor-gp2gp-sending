@@ -1,6 +1,5 @@
 package uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport;
 
-import static uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport.DiagnosticReportMapper.DUMMY_OBSERVATION_ID_PREFIX;
 
 import java.util.List;
 import java.util.Objects;
@@ -45,6 +44,8 @@ import uk.nhs.adaptors.gp2gp.ehr.utils.CodeableConceptMappingUtils;
 import uk.nhs.adaptors.gp2gp.ehr.utils.DateFormatUtil;
 import uk.nhs.adaptors.gp2gp.ehr.utils.StatementTimeMappingUtils;
 import uk.nhs.adaptors.gp2gp.ehr.utils.TemplateUtils;
+
+import static uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport.DiagnosticReportMapper.NOT_PRESENT_OBSERVATION_ID_PREFIX;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -240,7 +241,7 @@ public class ObservationMapper {
     private Optional<String> prepareNarrativeStatements(MultiStatementObservationHolder holder, boolean interpretationCodeMapped) {
         Observation observation = holder.getObservation();
 
-        if (observation.getIdElement().getIdPart().contains(DUMMY_OBSERVATION_ID_PREFIX)) {
+        if (observation.getIdElement().getIdPart().contains(NOT_PRESENT_OBSERVATION_ID_PREFIX)) {
             return Optional.of(
                 mapObservationToNarrativeStatement(holder, observation.getComment(), CommentType.AGGREGATE_COMMENT_SET.getCode())
             );

@@ -155,7 +155,7 @@ class DiagnosticReportMapperTest {
         dummySpecimen.setId(NOT_PRESENT_SPECIMEN_ID_PREFIX + "123");
         List<Specimen> specimens = List.of(dummySpecimen);
 
-        List<Observation> result = mapper.assignDummySpecimensToObservationsWithNoSpecimen(observations, specimens);
+        List<Observation> result = mapper.assignNotPresentSpecimensToObservationsWithNoSpecimen(observations, specimens);
 
         assertThat(obsWithoutSpecimen.getSpecimen())
             .isNotNull()
@@ -178,7 +178,7 @@ class DiagnosticReportMapperTest {
 
         List<Specimen> specimens = List.of();
 
-        assertThatThrownBy(() -> mapper.assignDummySpecimensToObservationsWithNoSpecimen(observations, specimens))
+        assertThatThrownBy(() -> mapper.assignNotPresentSpecimensToObservationsWithNoSpecimen(observations, specimens))
             .isInstanceOf(NoSuchElementException.class);
     }
 
@@ -197,7 +197,7 @@ class DiagnosticReportMapperTest {
         realSpecimen.setId("real-specimen");
         List<Specimen> specimens = List.of(realSpecimen, dummySpecimen);
 
-        List<Observation> result = mapper.assignDummySpecimensToObservationsWithNoSpecimen(observations, specimens);
+        List<Observation> result = mapper.assignNotPresentSpecimensToObservationsWithNoSpecimen(observations, specimens);
 
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getSpecimen().getReference()).contains(dummySpecimen.getId());
@@ -412,7 +412,7 @@ class DiagnosticReportMapperTest {
 
         assertThat(actualXml).containsIgnoringWhitespaces(
                 "<!-- Mapped Specimen with id: Specimen/96B93E28-293D-46E7-B4C2-D477EEBF7098-SPEC-1 "
-                        + "with linked Observations: DUMMY-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
+                        + "with linked Observations: NOT-PRESENT-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
 
     }
 
@@ -438,11 +438,11 @@ class DiagnosticReportMapperTest {
 
         assertThat(actualXml).containsIgnoringWhitespaces(
                 "<!-- Mapped Specimen with id: Specimen/96B93E28-293D-46E7-B4C2-D477EEBF7098-SPEC-1 "
-                        + "with linked Observations: DUMMY-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
+                        + "with linked Observations: NOT-PRESENT-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
 
         assertThat(actualXml).containsIgnoringWhitespaces(
                 "<!-- Mapped Specimen with id: Specimen/96B93E28-293D-46E7-B4C2-D477EEBF7098-SPEC-2 "
-                        + "with linked Observations: DUMMY-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
+                        + "with linked Observations: NOT-PRESENT-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
     }
 
     /**
@@ -472,7 +472,7 @@ class DiagnosticReportMapperTest {
 
         assertThat(actualXml).containsIgnoringWhitespaces(
                 "<!-- Mapped Specimen with id: Specimen/96B93E28-293D-46E7-B4C2-D477EEBF7098-SPEC-2 "
-                        + "with linked Observations: DUMMY-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
+                        + "with linked Observations: NOT-PRESENT-OBSERVATION-5E496953-065B-41F2-9577-BE8F2FBD0757-->");
     }
 
     @Test
