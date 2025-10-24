@@ -1,6 +1,7 @@
 package uk.nhs.adaptors.gp2gp.ehr.mapper;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -187,10 +189,9 @@ class EhrExtractMapperTest {
 
         when(redactionsContext.ehrExtractInteractionId())
                 .thenReturn(RedactionsContext.REDACTION_INTERACTION_ID);
+        Assertions.assertTrue(validXml.contains("RCMR_IN030000UK07"));
 
         assertDoesNotThrow(() -> ehrExtractMapper.validateXmlAgainstSchema(validXml));
     }
-
-
 
 }
