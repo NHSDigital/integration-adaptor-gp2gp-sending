@@ -1,6 +1,7 @@
 package uk.nhs.adaptors.gp2gp.ehr.mapper;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,6 +9,8 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
 
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -161,7 +164,7 @@ class EhrExtractMapperTest {
     }
 
     @Test
-    void When_ValidateXmlAgainstSchemaWithInvalidXmlAndRedactionID_Expect_XmlSchemaValidationExceptionIsThrown() {
+    void When_ValidateXmlAgainstSchemaWithInvalidXmlAndAnyId_Expect_XmlSchemaValidationExceptionIsThrown() {
         String invalidXml = "<invalid><xml>";
 
         when(redactionsContext.ehrExtractInteractionId())
@@ -175,18 +178,19 @@ class EhrExtractMapperTest {
     }
 
     @Test
-    void When_ValidateXmlAgainstSchemaWithInvalidXmlAndNonRedactionID_Expect_XmlSchemaValidationExceptionIsThrown() {
-        String invalidXml = "<invalid><xml>";
+    void When_ValidateXmlAgainstSchemaWithValidXmlAndAnyId_Expect_NoExceptionIsThrown() throws Exception {
+        String basePath = Paths.get("src/").toFile().getAbsoluteFile().getAbsolutePath()
+                + "/../../service/src/test/resources/";
+        String xmlFilePath = basePath + "complete-and-validated-xml-test-file.xml";
+
+        String validXml = Files.readString(Paths.get(xmlFilePath));
 
         when(redactionsContext.ehrExtractInteractionId())
-                .thenReturn("non-redaction-id");
+                .thenReturn(RedactionsContext.REDACTION_INTERACTION_ID);
 
-        XmlSchemaValidationException ex = assertThrows(XmlSchemaValidationException.class, () -> {
-            ehrExtractMapper.validateXmlAgainstSchema(invalidXml);
-        });
-
-        assertThat(ex.getMessage()).contains("XML schema validation failed");
+        assertDoesNotThrow(() -> ehrExtractMapper.validateXmlAgainstSchema(validXml));
     }
+
 
 
 }
