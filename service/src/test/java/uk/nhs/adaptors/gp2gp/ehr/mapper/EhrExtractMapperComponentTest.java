@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import uk.nhs.adaptors.gp2gp.common.configuration.RedactionsContext;
 import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
@@ -101,6 +102,8 @@ class EhrExtractMapperComponentTest {
     private CodeableConceptCdMapper codeableConceptCdMapper;
     @Mock
     private ConfidentialityService confidentialityService;
+    @Mock
+    private RedactionsContext redactionsContext;
 
     private NonConsultationResourceMapper nonConsultationResourceMapper;
     private EhrExtractMapper ehrExtractMapper;
@@ -218,7 +221,7 @@ class EhrExtractMapperComponentTest {
             new BloodPressureValidator()
         );
 
-        ehrExtractMapper = new EhrExtractMapper(randomIdGeneratorService,
+        ehrExtractMapper = new EhrExtractMapper(redactionsContext, randomIdGeneratorService,
             timestampService,
             new EncounterMapper(messageContext, encounterComponentsMapper, confidentialityService),
             nonConsultationResourceMapper,

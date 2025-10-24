@@ -1,6 +1,7 @@
 package uk.nhs.adaptors.gp2gp.ehr.mapper;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,12 +9,15 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
 
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 
 import org.hl7.fhir.dstu3.model.Bundle;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,9 +25,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import uk.nhs.adaptors.gp2gp.common.configuration.RedactionsContext;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrValidationException;
+import uk.nhs.adaptors.gp2gp.ehr.exception.XmlSchemaValidationException;
 import uk.nhs.adaptors.gp2gp.gpc.GetGpcStructuredTaskDefinition;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,6 +58,8 @@ class EhrExtractMapperTest {
     private EhrFolderEffectiveTime ehrFolderEffectiveTime;
     @InjectMocks
     private EhrExtractMapper ehrExtractMapper;
+    @Mock
+    private RedactionsContext redactionsContext;
 
     @Test
     void When_NhsOverrideNumberProvided_Expect_OverrideToBeUsed()  {
@@ -154,5 +162,49 @@ class EhrExtractMapperTest {
         var actual = ehrExtractMapper.buildEhrCompositionForSkeletonEhrExtract(documentId);
 
         assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    void When_ValidateXmlAgainstSchemaWithInvalidXmlAndAnyId_Expect_XmlSchemaValidationExceptionIsThrown() {
+        String invalidXml = "<invalid><xml>";
+
+        when(redactionsContext.ehrExtractInteractionId())
+                .thenReturn(RedactionsContext.REDACTION_INTERACTION_ID);
+
+        XmlSchemaValidationException ex = assertThrows(XmlSchemaValidationException.class, () -> {
+            ehrExtractMapper.validateXmlAgainstSchema(invalidXml);
+        });
+
+        assertThat(ex.getMessage()).contains("XML schema validation failed");
+    }
+
+    @Test
+    void When_ValidateXmlAgainstSchemaWithValidXmlAndRedactionId_Expect_NoExceptionIsThrown() throws Exception {
+        String basePath = Paths.get("src/").toFile().getAbsoluteFile().getAbsolutePath()
+                + "/../../service/src/test/resources/";
+        String xmlFilePath = basePath + "complete-and-validated-xml-test-file-redaction.xml";
+
+        String validXml = Files.readString(Paths.get(xmlFilePath));
+
+        when(redactionsContext.ehrExtractInteractionId())
+                .thenReturn(RedactionsContext.REDACTION_INTERACTION_ID);
+        Assertions.assertTrue(validXml.contains("RCMR_IN030000UK07"));
+
+        assertDoesNotThrow(() -> ehrExtractMapper.validateXmlAgainstSchema(validXml));
+    }
+    @Test
+    void When_ValidateXmlAgainstSchemaWithValidXmlAndNonRedactionId_Expect_NoExceptionIsThrown() throws Exception {
+        String basePath = Paths.get("src/").toFile().getAbsoluteFile().getAbsolutePath()
+                + "/../../service/src/test/resources/";
+        String xmlFilePath = basePath + "complete-and-validated-xml-test-file-non-redaction.xml";
+
+        String validXml = Files.readString(Paths.get(xmlFilePath));
+
+        Assertions.assertTrue(validXml.contains("RCMR_IN030000UK06"));
+
+        when(redactionsContext.ehrExtractInteractionId())
+                .thenReturn("interaction_id_test");
+
+        assertDoesNotThrow(() -> ehrExtractMapper.validateXmlAgainstSchema(validXml));
     }
 }

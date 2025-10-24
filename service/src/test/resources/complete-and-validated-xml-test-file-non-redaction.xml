@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RCMR_IN030000UK06 xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:hl7-org:v3 ..\Schemas\RCMR_IN030000UK06.xsd">
+    <id root="60A9EA7E-13BC-4CAB-94B9-E0094946C79D" />
+    <creationTime value="20250804144930" />
+    <versionCode code="V3NPfIT3.1.10" />
+    <interactionId root="2.16.840.1.113883.2.1.3.2.4.12" extension="RCMR_IN030000UK06" />
+    <processingCode code="P" />
+    <processingModeCode code="T" />
+    <acceptAckCode code="NE" />
+    <communicationFunctionRcv typeCode="RCV">
+        <device classCode="DEV" determinerCode="INSTANCE">
+            <id root="1.2.826.0.1285.0.2.0.106" extension="GP2GPTEST" />
+        </device>
+    </communicationFunctionRcv>
+    <communicationFunctionSnd typeCode="SND">
+        <device classCode="DEV" determinerCode="INSTANCE">
+            <id root="1.2.826.0.1285.0.2.0.106" extension="GP2GPTEST" />
+        </device>
+    </communicationFunctionSnd>
+    <ControlActEvent classCode="CACT" moodCode="EVN">
+        <author1 typeCode="AUT">
+            <AgentSystemSDS classCode="AGNT">
+                <agentSystemSDS classCode="DEV" determinerCode="INSTANCE">
+                    <id root="1.2.826.0.1285.0.2.0.106" extension="GP2GPTEST" />
+                </agentSystemSDS>
+            </AgentSystemSDS>
+        </author1>
+        <subject typeCode="SUBJ" contextConductionInd="false">
+            <EhrExtract classCode="EXTRACT" moodCode="EVN">
+                <id root="2428ED19-DBB6-41B7-B40D-8613EF5DF029" />
+                <statusCode code="COMPLETE" />
+                <availabilityTime value="20250804144930" />
+                <recordTarget typeCode="RCT">
+                    <patient classCode="PAT">
+                        <id root="2.16.840.1.113883.2.1.4.1" extension="9736169391" />
+                    </patient>
+                </recordTarget>
+                <author typeCode="AUT">
+                    <time value="20250804144930" />
+                    <AgentOrgSDS classCode="AGNT">
+                        <agentOrganizationSDS classCode="ORG" determinerCode="INSTANCE">
+                            <id root="1.2.826.0.1285.0.1.10" extension="GP2GPTEST" />
+                        </agentOrganizationSDS>
+                    </AgentOrgSDS>
+                </author>
+                <destination typeCode="DST">
+                    <AgentOrgSDS classCode="AGNT">
+                        <agentOrganizationSDS classCode="ORG" determinerCode="INSTANCE">
+                            <id root="1.2.826.0.1285.0.1.10" extension="GP2GPTEST" />
+                        </agentOrganizationSDS>
+                    </AgentOrgSDS>
+                </destination>
+                <component typeCode="COMP">
+                    <ehrFolder classCode="FOLDER" moodCode="EVN">
+                        <id root="D016EBE9-412D-463E-B24E-B96361F8B241" />
+                        <statusCode code="COMPLETE" />
+                        <effectiveTime>
+                            <low value="20250801"/>
+                        </effectiveTime>
+                        <availabilityTime value="20250804144930" />
+                        <author typeCode="AUT">
+                            <time value="20250804144930" />
+                            <AgentOrgSDS classCode="AGNT">
+                                <agentOrganizationSDS classCode="ORG" determinerCode="INSTANCE">
+                                    <id root="1.2.826.0.1285.0.1.10" extension="GP2GPTEST" />
+                                </agentOrganizationSDS>
+                            </AgentOrgSDS>
+                        </author>
+                        <responsibleParty typeCode="RESP">
+                            <agentDirectory classCode="AGNT">
+                                <part typeCode="PART">
+                                    <Agent classCode="AGNT">
+                                        <id root="5A33F5E1-28EA-453D-BAC5-BBD4AA855D16"/>
+                                        <code nullFlavor="UNK">
+                                            <originalText>Unknown</originalText>
+                                        </code>
+                                        <agentPerson classCode="PSN" determinerCode="INSTANCE">
+                                            <name>
+                                                <family>Spring Hall Group Practice</family>
+                                            </name>
+                                        </agentPerson>
+                                    </Agent>
+                                </part>
+                                <part typeCode="PART">
+                                    <Agent classCode="AGNT">
+                                        <id root="F6A7EE9B-B2E0-441E-A97B-9D6FD2EB439B"/>
+                                        <code nullFlavor="UNK">
+                                            <originalText>Unknown</originalText>
+                                        </code>
+                                        <agentPerson classCode="PSN" determinerCode="INSTANCE">
+                                            <name>
+                                                <given>Gareth</given>
+                                                <family>Roberts</family>
+                                            </name>
+                                        </agentPerson>
+                                        <representedOrganization classCode="ORG" determinerCode="INSTANCE">
+                                            <name>Spring Hall Group Practice</name>
+                                            <telecom value="tel:+441273749184" use="WP"/>
+                                            <addr use="WP">
+                                                <streetAddressLine>101 Yvonne Falls</streetAddressLine>
+                                                <streetAddressLine>West Carey</streetAddressLine>
+                                                <postalCode>MK3 7SA</postalCode>
+                                            </addr>
+                                        </representedOrganization>
+                                    </Agent>
+                                </part>
+                            </agentDirectory>
+                        </responsibleParty>
+
+                        <component typeCode="COMP">
+                            <ehrComposition classCode="COMPOSITION" moodCode="EVN">
+                                <id root="55CEA5E1-5B8F-47C3-BDF1-5561A2A3379D" />
+                                <code code="196401000000100" displayName="Non-consultation data" codeSystem="2.16.840.1.113883.2.1.3.2.4.15"/>
+                                <statusCode code="COMPLETE" />
+                                <effectiveTime>
+                                    <center value="20250801"/>
+                                </effectiveTime>
+                                <availabilityTime value="20250801134900"/>
+                                <author typeCode="AUT" contextControlCode="OP">
+                                    <time value="20250801134900" />
+                                    <agentRef classCode="AGNT">
+                                        <id root="F6A7EE9B-B2E0-441E-A97B-9D6FD2EB439B" />
+                                    </agentRef>
+                                </author>
+                                <Participant2 typeCode="PRF" contextControlCode="OP">
+                                    <agentRef classCode="AGNT">
+                                        <id root="F6A7EE9B-B2E0-441E-A97B-9D6FD2EB439B"/>
+                                    </agentRef>
+                                </Participant2>
+                                <component typeCode="COMP">
+                                    <CompoundStatement classCode="CATEGORY" moodCode="EVN">
+                                        <id root="019865AF-3316-7000-BA5C-F38F58D45D46"/>
+                                        <code code="14L..00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="H/O: drug allergy"/>
+                                        <statusCode code="COMPLETE"/>
+                                        <effectiveTime>
+                                            <center value="20250801"/>
+                                        </effectiveTime>
+                                        <availabilityTime value="20250801134900"/>
+                                        <component typeCode="COMP" contextConductionInd="true">
+                                            <ObservationStatement classCode="OBS" moodCode="ENV">
+                                                <id root="019865AF-3316-7000-BA5C-F38F58D45D46"/>
+                                                <code code="3299729014" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Allergy to banana">
+                                                    <originalText>Allergy to banana</originalText>
+                                                </code>
+                                                <statusCode code="COMPLETE"/>
+                                                <effectiveTime>
+                                                    <center value="20250801"/>
+                                                </effectiveTime>
+                                                <availabilityTime value="20250801134900"/>
+                                                <pertinentInformation typeCode="PERT">
+                                                    <sequenceNumber value="+1"/>
+                                                    <pertinentAnnotation classCode="OBS" moodCode="EVN">
+                                                        <text>Status: Active Reaction 1 Severity: MILD Manifestation(s): NoInformation Certainty: Unlikely</text>
+                                                    </pertinentAnnotation>
+                                                </pertinentInformation>
+                                                <Participant typeCode="AUT" contextControlCode="OP">
+                                                    <agentRef classCode="AGNT">
+                                                        <id root="F6A7EE9B-B2E0-441E-A97B-9D6FD2EB439B"/>
+                                                    </agentRef>
+                                                </Participant>
+                                                <Participant typeCode="PRF" contextControlCode="OP">
+                                                    <agentRef classCode="AGNT">
+                                                        <id root="F6A7EE9B-B2E0-441E-A97B-9D6FD2EB439B"/>
+                                                    </agentRef>
+                                                </Participant>
+                                            </ObservationStatement>
+                                        </component>
+                                    </CompoundStatement>
+                                </component>
+                            </ehrComposition>
+                        </component>
+                        <component typeCode="COMP">
+                            <ehrComposition classCode="COMPOSITION" moodCode="EVN">
+                                <id root="AF114A85-2B95-44A2-B0EA-F7B5D3F2B74C" />
+                                <code code="196391000000103" displayName="Non-consultation medication data" codeSystem="2.16.840.1.113883.2.1.3.2.4.15"/>
+                                <statusCode code="COMPLETE" />
+                                <effectiveTime>
+                                    <center value="20250801"/>
+                                </effectiveTime>
+                                <availabilityTime value="20250801"/>
+                                <author typeCode="AUT" contextControlCode="OP">
+                                    <time value="20250801" />
+                                    <agentRef classCode="AGNT">
+                                        <id root="F6A7EE9B-B2E0-441E-A97B-9D6FD2EB439B" />
+                                    </agentRef>
+                                </author>
+                                <Participant2 typeCode="PRF" contextControlCode="OP">
+                                    <agentRef classCode="AGNT">
+                                        <id root="F6A7EE9B-B2E0-441E-A97B-9D6FD2EB439B"/>
+                                    </agentRef>
+                                </Participant2>
+                                <component typeCode="COMP">
+                                    <MedicationStatement classCode="SBADM" moodCode="INT">
+                                        <id root="C40A2978-5483-4B7B-B89E-B9BF9C68A2C0"/>
+                                        <statusCode code="COMPLETE"/>
+                                        <effectiveTime>
+                                            <low value="20250801"/><high value="20250820"/>
+                                        </effectiveTime>
+                                        <availabilityTime value="20250801"/>
+                                        <consumable typeCode="CSM">
+                                            <manufacturedProduct classCode="MANU">
+                                                <manufacturedMaterial determinerCode="KIND" classCode="MMAT">
+                                                    <code code="42104711000001101" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Ibuprofen 200mg capsules">
+                                                    </code>
+                                                </manufacturedMaterial>
+                                            </manufacturedProduct>
+                                        </consumable>
+                                        <component typeCode="COMP">
+                                            <ehrSupplyAuthorise>
+                                                <id root="64B7FD49-8D17-4795-A181-82BE9DA20BB5"/>
+                                                <code code="394823006" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="NHS Prescription">
+                                                </code>
+                                                <statusCode code="COMPLETE"/>
+                                                <effectiveTime>
+                                                    <low value="20250801"/><high value="20250820"/>
+                                                </effectiveTime>
+                                                <availabilityTime value="20250801"/>
+                                                <repeatNumber value="0"/>
+                                                <quantity value="27" unit="1">
+                                                    <translation value="27">
+                                                        <originalText>capsule</originalText>
+                                                    </translation>
+                                                </quantity>
+                                                <pertinentInformation typeCode="PERT">
+                                                    <pertinentSupplyAnnotation>
+                                                        <text>Expected Supply Duration: 20 days</text>
+                                                    </pertinentSupplyAnnotation>
+                                                </pertinentInformation>
+                                            </ehrSupplyAuthorise>
+                                        </component>
+                                        <pertinentInformation typeCode="PERT">
+                                            <pertinentMedicationDosage classCode="SBADM" moodCode="RMD">
+                                                <text>Take 2 capsules four times a day - with or after food - oral</text>
+                                            </pertinentMedicationDosage>
+                                        </pertinentInformation>
+                                        <Participant typeCode="AUT" contextControlCode="OP">
+                                            <agentRef classCode="AGNT">
+                                                <id root="F6A7EE9B-B2E0-441E-A97B-9D6FD2EB439B"/>
+                                            </agentRef>
+                                        </Participant>
+                                    </MedicationStatement>
+                                </component>
+                            </ehrComposition>
+                        </component>
+                        <component typeCode="COMP">
+                            <ehrComposition classCode="COMPOSITION" moodCode="EVN">
+                                <id root="F6106F94-4DD9-4C39-8E5D-FCE614D42A91" />
+                                <code code="196391000000103" displayName="Non-consultation medication data" codeSystem="2.16.840.1.113883.2.1.3.2.4.15"/>
+                                <statusCode code="COMPLETE" />
+                                <effectiveTime>
+                                    <center value="20250801"/>
+                                </effectiveTime>
+                                <availabilityTime value="20250801"/>
+                                <author typeCode="AUT" contextControlCode="OP">
+                                    <time value="20250801" />
+                                    <agentRef classCode="AGNT">
+                                        <id root="F6A7EE9B-B2E0-441E-A97B-9D6FD2EB439B" />
+                                    </agentRef>
+                                </author>
+                                <Participant2 typeCode="PRF" contextControlCode="OP">
+                                    <agentRef classCode="AGNT">
+                                        <id root="F6A7EE9B-B2E0-441E-A97B-9D6FD2EB439B"/>
+                                    </agentRef>
+                                </Participant2>
+                                <component typeCode="COMP">
+                                    <MedicationStatement classCode="SBADM" moodCode="ORD">
+                                        <id root="019865B0-FF16-73B3-804E-B6A481968B58"/>
+                                        <statusCode code="COMPLETE"/>
+                                        <effectiveTime>
+                                            <low value="20250801"/><high value="20250820"/>
+                                        </effectiveTime>
+                                        <availabilityTime value="20250801"/>
+                                        <consumable typeCode="CSM">
+                                            <manufacturedProduct classCode="MANU">
+                                                <manufacturedMaterial determinerCode="KIND" classCode="MMAT">
+                                                    <code code="42104711000001101" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Ibuprofen 200mg capsules">
+                                                    </code>
+                                                </manufacturedMaterial>
+                                            </manufacturedProduct>
+                                        </consumable>
+                                        <component typeCode="COMP">
+                                            <ehrSupplyPrescribe>
+                                                <id root="30B0D917-40E8-41AF-8CFF-196BE5C32774"/>
+                                                <code code="394823006" displayName="NHS Prescription" codeSystem="2.16.840.1.113883.2.1.3.2.4.15"/>
+                                                <statusCode code="COMPLETE"/>
+                                                <availabilityTime value="20250801"/>
+                                                <quantity value="27" unit="1">
+                                                    <translation value="27">
+                                                        <originalText>capsule</originalText>
+                                                    </translation>
+                                                </quantity>
+                                                <inFulfillmentOf typeCode="FLFS">
+                                                    <priorMedicationRef moodCode="INT">
+                                                        <id root="64B7FD49-8D17-4795-A181-82BE9DA20BB5"/>
+                                                    </priorMedicationRef>
+                                                </inFulfillmentOf>
+                                                <pertinentInformation typeCode="PERT">
+                                                    <pertinentSupplyAnnotation>
+                                                        <text>Expected Supply Duration: 20 days</text>
+                                                    </pertinentSupplyAnnotation>
+                                                </pertinentInformation>
+                                            </ehrSupplyPrescribe>
+                                        </component>
+                                        <pertinentInformation typeCode="PERT">
+                                            <pertinentMedicationDosage classCode="SBADM" moodCode="RMD">
+                                                <text>Take 2 capsules four times a day - with or after food - oral</text>
+                                            </pertinentMedicationDosage>
+                                        </pertinentInformation>
+                                        <Participant typeCode="AUT" contextControlCode="OP">
+                                            <agentRef classCode="AGNT">
+                                                <id root="F6A7EE9B-B2E0-441E-A97B-9D6FD2EB439B"/>
+                                            </agentRef>
+                                        </Participant>
+                                    </MedicationStatement>
+                                </component>
+                            </ehrComposition>
+                        </component>
+                        <component typeCode="COMP">
+                            <ehrComposition classCode="COMPOSITION" moodCode="EVN">
+                                <id root="3110DDD4-5DEC-4996-8180-DC6C776F42B0" />
+                                <code code="109341000000100" displayName="GP to GP communication transaction" codeSystem="2.16.840.1.113883.2.1.3.2.4.15"/>
+                                <statusCode code="COMPLETE" />
+                                <effectiveTime>
+                                    <center value="20250801"/>
+                                </effectiveTime>
+                                <availabilityTime value="20250801"/>
+                                <author typeCode="AUT" contextControlCode="OP">
+                                    <time value="20250801" />
+                                    <agentRef classCode="AGNT">
+                                        <id root="F6A7EE9B-B2E0-441E-A97B-9D6FD2EB439B" />
+                                    </agentRef>
+                                </author>
+                                <Participant2 typeCode="PRF" contextControlCode="OP">
+                                    <agentRef classCode="AGNT">
+                                        <id root="F6A7EE9B-B2E0-441E-A97B-9D6FD2EB439B"/>
+                                    </agentRef>
+                                </Participant2>
+                                <component typeCode="COMP" >
+                                    <NarrativeStatement classCode="OBS" moodCode="EVN">
+                                        <id root="019865AD-D03E-7000-ACF4-22E84F458604" />
+                                        <text>Checked head</text>
+                                        <statusCode code="COMPLETE" />
+                                        <availabilityTime value="20250801" />
+                                        <Participant typeCode="PRF" contextControlCode="OP">
+                                            <agentRef classCode="AGNT">
+                                                <id root="F6A7EE9B-B2E0-441E-A97B-9D6FD2EB439B"/>
+                                            </agentRef>
+                                        </Participant>
+                                    </NarrativeStatement>
+                                </component>
+                            </ehrComposition>
+                        </component>
+                        <component typeCode="COMP">
+                            <ehrComposition classCode="COMPOSITION" moodCode="EVN">
+                                <id root="D54E2999-A174-4857-9096-603F108C9EEC" />
+                                <code code="109341000000100" displayName="GP to GP communication transaction" codeSystem="2.16.840.1.113883.2.1.3.2.4.15"/>
+                                <statusCode code="COMPLETE" />
+                                <effectiveTime>
+                                    <center value="20250801"/>
+                                </effectiveTime>
+                                <availabilityTime value="20250801"/>
+                                <author typeCode="AUT" contextControlCode="OP">
+                                    <time value="20250801" />
+                                    <agentRef classCode="AGNT">
+                                        <id root="F6A7EE9B-B2E0-441E-A97B-9D6FD2EB439B" />
+                                    </agentRef>
+                                </author>
+                                <Participant2 typeCode="PRF" contextControlCode="OP">
+                                    <agentRef classCode="AGNT">
+                                        <id root="F6A7EE9B-B2E0-441E-A97B-9D6FD2EB439B"/>
+                                    </agentRef>
+                                </Participant2>
+                                <component typeCode="COMP" >
+                                    <NarrativeStatement classCode="OBS" moodCode="EVN">
+                                        <id root="019865AD-D04C-7000-9B81-E7009ECBFDF7" />
+                                        <text>Test </text>
+                                        <statusCode code="COMPLETE" />
+                                        <availabilityTime value="20250801" />
+                                        <Participant typeCode="PRF" contextControlCode="OP">
+                                            <agentRef classCode="AGNT">
+                                                <id root="F6A7EE9B-B2E0-441E-A97B-9D6FD2EB439B"/>
+                                            </agentRef>
+                                        </Participant>
+                                    </NarrativeStatement>
+                                </component>
+                            </ehrComposition>
+                        </component>
+                        <component typeCode="COMP">
+                            <ehrComposition classCode="COMPOSITION" moodCode="EVN">
+                                <id root="C3648DBF-6C68-4871-92E3-A44213DAC20D" />
+                                <code code="196401000000100" displayName="Non-consultation data" codeSystem="2.16.840.1.113883.2.1.3.2.4.15"/>
+                                <statusCode code="COMPLETE" />
+                                <effectiveTime>
+                                    <center value="20250801"/>
+                                </effectiveTime>
+                                <availabilityTime value="20250801"/>
+                                <author typeCode="AUT" contextControlCode="OP">
+                                    <time value="20250801" />
+                                    <agentRef classCode="AGNT">
+                                        <id root="5A33F5E1-28EA-453D-BAC5-BBD4AA855D16" />
+                                    </agentRef>
+                                </author>
+                                <Participant2 typeCode="PRF" contextControlCode="OP">
+                                    <agentRef classCode="AGNT">
+                                        <id root="5A33F5E1-28EA-453D-BAC5-BBD4AA855D16"/>
+                                    </agentRef>
+                                </Participant2>
+                                <component typeCode="COMP" >
+                                    <ObservationStatement classCode="OBS" moodCode="EVN">
+                                        <id root="019865C6-DE0E-72C2-AD8A-D2432A0F23E8" />
+                                        <code code="1726131000000119" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Implied consent for core Summary Care Record dataset upload">
+                                            <originalText>Implied consent for core Summary Care Record dataset upload</originalText>
+                                        </code>
+                                        <statusCode code="COMPLETE" />
+                                        <effectiveTime>
+                                            <center value="20250801"/>
+                                        </effectiveTime>
+                                        <availabilityTime value="20250801"/>
+                                        <Participant typeCode="PRF" contextControlCode="OP">
+                                            <agentRef classCode="AGNT">
+                                                <id root="5A33F5E1-28EA-453D-BAC5-BBD4AA855D16"/>
+                                            </agentRef>
+                                        </Participant>
+                                    </ObservationStatement>
+                                </component>
+                            </ehrComposition>
+                        </component>
+                    </ehrFolder>
+                </component>
+                <inFulfillmentOf typeCode="FLFS">
+                    <priorEhrRequest classCode="EXTRACT" moodCode="RQO">
+                        <id root="17A3A644-A4EB-4C0A-A870-152D310FD1F8" />
+                    </priorEhrRequest>
+                </inFulfillmentOf>
+                <limitation typeCode="LIMIT" inversionInd="true">
+                    <limitingEhrExtractSpecification classCode="OBS" moodCode="DEF">
+                        <id root="76C49C11-5271-11EA-9384-E83935108FD5" />
+                        <code code="37241000000102" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Entire record available to originator (administrative concept)" />
+                    </limitingEhrExtractSpecification>
+                </limitation>
+            </EhrExtract>
+
+        </subject>
+    </ControlActEvent>
+</RCMR_IN030000UK06>
