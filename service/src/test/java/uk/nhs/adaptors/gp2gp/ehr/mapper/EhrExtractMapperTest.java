@@ -1,6 +1,7 @@
 package uk.nhs.adaptors.gp2gp.ehr.mapper;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -179,10 +180,10 @@ class EhrExtractMapperTest {
     }
 
     @Test
-    void When_ValidateXmlAgainstSchemaWithValidXmlAndAnyId_Expect_NoExceptionIsThrown() throws Exception {
+    void When_ValidateXmlAgainstSchemaWithValidXmlAndRedactionId_Expect_NoExceptionIsThrown() throws Exception {
         String basePath = Paths.get("src/").toFile().getAbsoluteFile().getAbsolutePath()
                 + "/../../service/src/test/resources/";
-        String xmlFilePath = basePath + "complete-and-validated-xml-test-file.xml";
+        String xmlFilePath = basePath + "complete-and-validated-xml-test-file-redaction.xml";
 
         String validXml = Files.readString(Paths.get(xmlFilePath));
 
@@ -192,5 +193,19 @@ class EhrExtractMapperTest {
 
         assertDoesNotThrow(() -> ehrExtractMapper.validateXmlAgainstSchema(validXml));
     }
+    @Test
+    void When_ValidateXmlAgainstSchemaWithValidXmlAndNonRedactionId_Expect_NoExceptionIsThrown() throws Exception {
+        String basePath = Paths.get("src/").toFile().getAbsoluteFile().getAbsolutePath()
+                + "/../../service/src/test/resources/";
+        String xmlFilePath = basePath + "complete-and-validated-xml-test-file-non-redaction.xml";
 
+        String validXml = Files.readString(Paths.get(xmlFilePath));
+
+        Assertions.assertTrue(validXml.contains("RCMR_IN030000UK06"));
+
+        when(redactionsContext.ehrExtractInteractionId())
+                .thenReturn("interaction_id_test");
+
+        assertDoesNotThrow(() -> ehrExtractMapper.validateXmlAgainstSchema(validXml));
+    }
 }
