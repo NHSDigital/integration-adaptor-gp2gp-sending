@@ -90,6 +90,8 @@ class ObservationMapperTest {
         "observation_test_group_header.json";
     private static final String OBSERVATION_TEST_RESULT_JSON =
         "observation_test_result.json";
+    private static final String NOT_PRESENT_OBSERVATION_RESULT_JSON =
+        "not_present_observation.json";
     private static final String OBSERVATION_FILING_COMMENT_JSON =
         "observation_filing_comment.json";
     private static final String OBSERVATION_ASSOCIATED_WITH_IGNORED_MEMBER_JSON =
@@ -271,6 +273,21 @@ class ObservationMapperTest {
         final String actualXml = observationMapper.mapObservationToCompoundStatement(observation);
 
         assertThatXml(actualXml).containsXPath(OBSERVATION_STATEMENT_CONFIDENTIALITY_CODE_XPATH);
+    }
+
+    @Test
+    void When_ObservationDoesNotContainNotPresentElements_Expect_MappedObservetionNotContainAggregateComments() {
+        final Observation not_present_observation = getObservationResourceFromJson(NOT_PRESENT_OBSERVATION_RESULT_JSON);
+        String expression = "//component/NarrativeStatement/text[contains(normalize-space(.), 'AGGREGATE COMMENT SET')]";
+
+        ConfidentialityCodeUtility.appendNopatSecurityToMetaForResource(not_present_observation);
+        when(confidentialityService.generateConfidentialityCode(not_present_observation))
+            .thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
+
+        final String actualXml = observationMapper.mapObservationToCompoundStatement(not_present_observation);
+        String wrappedXml = "<root>" + actualXml + "</root>";
+
+        assertThatXml(wrappedXml).containsXPath(expression);
     }
 
     @Test

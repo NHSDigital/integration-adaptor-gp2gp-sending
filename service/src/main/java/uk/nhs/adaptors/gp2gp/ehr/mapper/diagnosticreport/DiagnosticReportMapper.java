@@ -53,7 +53,7 @@ import uk.nhs.adaptors.gp2gp.ehr.utils.TemplateUtils;
 public class DiagnosticReportMapper {
 
     public static final String NOT_PRESENT_SPECIMEN_ID_PREFIX = "NOT-PRESENT-SPECIMEN-";
-    public static final String DUMMY_OBSERVATION_ID_PREFIX = "DUMMY-OBSERVATION-";
+    public static final String NOT_PRESENT_OBSERVATION_ID_PREFIX = "NOT-PRESENT-OBSERVATION-";
 
     private static final Mustache DIAGNOSTIC_REPORT_COMPOUND_STATEMENT_TEMPLATE =
         TemplateUtils.loadTemplate("diagnostic_report_compound_statement_template.mustache");
@@ -80,25 +80,25 @@ public class DiagnosticReportMapper {
         final IdMapper idMapper = messageContext.getIdMapper();
         markObservationsAsProcessed(idMapper, observations);
 
-        List<Observation> observationsWithAttachedDummySpecimens =
-                new ArrayList<>(assignDummySpecimensToObservationsWithNoSpecimen(observations, specimens));
+        List<Observation> observationsWithAttachedNotPresentSpecimens =
+                new ArrayList<>(assignNotPresentSpecimensToObservationsWithNoSpecimen(observations, specimens));
 
-        observations = addDummyObservationsToObservationList(
-                observationsWithAttachedDummySpecimens,
+        observations = addNotPresentObservationsToObservationList(
+                observationsWithAttachedNotPresentSpecimens,
                 specimens,
                 diagnosticReport);
 
-        List<Observation> observationsWithDummySpecimensAndDummyObservations = observations;
+        List<Observation> observationsWithNotPresentSpecimensAndNotPresentObservations = observations;
 
         String mappedSpecimens = specimens.stream()
             .map(specimen -> specimenMapper.mapSpecimenToCompoundStatement(specimen,
-                    observationsForSpecimen(specimen, observationsWithDummySpecimensAndDummyObservations),
+                    observationsForSpecimen(specimen, observationsWithNotPresentSpecimensAndNotPresentObservations),
                     diagnosticReport))
             .collect(Collectors.joining());
 
         String reportLevelNarrativeStatements = prepareReportLevelNarrativeStatements(
                 diagnosticReport,
-                observationsWithDummySpecimensAndDummyObservations);
+                observationsWithNotPresentSpecimensAndNotPresentObservations);
 
         var diagnosticReportCompoundStatementTemplateParameters = DiagnosticReportCompoundStatementTemplateParameters.builder()
             .compoundStatementId(idMapper.getOrNew(ResourceType.DiagnosticReport, diagnosticReport.getIdElement()))
@@ -146,14 +146,14 @@ public class DiagnosticReportMapper {
         }
 
         var inputBundleHolder = messageContext.getInputBundleHolder();
-        List<Specimen> nonDummySpecimens = diagnosticReport.getSpecimen()
+        List<Specimen> nonNotPresentSpecimens = diagnosticReport.getSpecimen()
             .stream()
             .map(specimenReference -> inputBundleHolder.getResource(specimenReference.getReferenceElement()))
             .flatMap(Optional::stream)
             .map(Specimen.class::cast)
             .toList();
 
-        specimens.addAll(nonDummySpecimens);
+        specimens.addAll(nonNotPresentSpecimens);
 
         return specimens;
     }
@@ -166,9 +166,9 @@ public class DiagnosticReportMapper {
     }
 
     /**
-     * For correct display in EMIS, any observation without a specimen must be assigned a dummy specimen.
+     * For correct display in EMIS, any observation without a specimen must be assigned a not present specimen.
      */
-    List<Observation> assignDummySpecimensToObservationsWithNoSpecimen(List<Observation> observations, List<Specimen> specimens) {
+    List<Observation> assignNotPresentSpecimensToObservationsWithNoSpecimen(List<Observation> observations, List<Specimen> specimens) {
 
         List<Observation> filingComments = getFilingComments(observations);
         List<Observation> nonFilingObservations = new ArrayList<>(stripFilingComments(observations));
@@ -178,7 +178,7 @@ public class DiagnosticReportMapper {
             return nonFilingObservations;
         }
 
-        // The assumption was made that all test results without a specimen will have the same dummy specimen referenced
+        // The assumption was made that all test results without a specimen will have the same not present specimen referenced
         Specimen notPresentSpecimen = specimens.stream()
             .filter(specimen -> specimen.getId().contains(NOT_PRESENT_SPECIMEN_ID_PREFIX))
             .toList().getFirst();
@@ -219,21 +219,21 @@ public class DiagnosticReportMapper {
     }
 
     /**
-     * For correct display in EMIS, any specimen without an observation must be assigned a dummy observation.
+     * For correct display in EMIS, any specimen without an observation must be assigned a not present observation.
      */
-    private List<Observation> addDummyObservationsToObservationList(
+    private List<Observation> addNotPresentObservationsToObservationList(
             List<Observation> observations,
             List<Specimen> specimens,
             DiagnosticReport diagnosticReport) {
         List<Observation> completeObservations = new ArrayList<>();
         completeObservations.addAll(observations);
 
-        // Generate a dummy Observation for each Specimen without an Observation
+        // Generate a not present Observation for each Specimen without an Observation
         for (String specimenWithoutObservations : getSpecimenIdsWithoutObservation(specimens, observations)) {
-            Observation dummyObservation = generateDummyObservation(diagnosticReport);
+            Observation notPresentObservation = generateNotPresentObservation(diagnosticReport);
             Reference specimenReference = new Reference(specimenWithoutObservations);
-            dummyObservation.setSpecimen(specimenReference);
-            completeObservations.add(dummyObservation);
+            notPresentObservation.setSpecimen(specimenReference);
+            completeObservations.add(notPresentObservation);
         }
 
         return completeObservations;
@@ -243,7 +243,7 @@ public class DiagnosticReportMapper {
         List<String> specimenIDList = new ArrayList<>();
         List<String> nonOrphanSpecimenIDList = new ArrayList<>();
         for (Specimen specimen : specimens) {
-            // Dummy Specimens should not have a dummy observation attached.
+            // Not present Specimens should not have a not present observation attached.
             if (!specimen.getId().contains(NOT_PRESENT_SPECIMEN_ID_PREFIX)) {
                 specimenIDList.add(specimen.getId());
             }
@@ -264,10 +264,10 @@ public class DiagnosticReportMapper {
         return specimensWithoutObservations;
     }
 
-    private Observation generateDummyObservation(DiagnosticReport diagnosticReport) {
+    private Observation generateNotPresentObservation(DiagnosticReport diagnosticReport) {
         Observation observation = new Observation();
 
-        observation.setId(DUMMY_OBSERVATION_ID_PREFIX + randomIdGeneratorService.createNewId());
+        observation.setId(NOT_PRESENT_OBSERVATION_ID_PREFIX + randomIdGeneratorService.createNewId());
 
         return observation
             .setIssuedElement(diagnosticReport.getIssuedElement())

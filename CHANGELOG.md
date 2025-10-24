@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The GP2GP Adaptor now throws an exception when the Access Structure Record is empty, thereby rejecting the transfer
 
 ### Fixed
-* When DiagnosticReport doesn't contain a Specimen reference, instead of "DUMMY" "NOT-PRESENT" value is used
+* When DiagnosticReport doesn't contain a Specimen or Observation reference, instead of "DUMMY" "NOT-PRESENT" value is used
 
 ### Update
 
