@@ -59,7 +59,6 @@ public class StructuredRecordMappingService {
     private final SupportedContentTypes supportedContentTypes;
     private final EhrExtractStatusService ehrExtractStatusService;
 
-
     private DocumentBuilder documentBuilder;
 
     public static final String DEFAULT_ATTACHMENT_CONTENT_TYPE = "text/plain";
@@ -157,8 +156,8 @@ public class StructuredRecordMappingService {
             ehrExtractMapper.validateXmlAgainstSchema(ehrExtractContent);
         } catch (XmlSchemaValidationException e) {
             LOGGER.error("EHR Extract XML validation failed: {}", e.getMessage());
-
         }
+
         ehrExtractStatusService.saveEhrExtractMessageId(structuredTaskDefinition.getConversationId(),
                 ehrExtractTemplateParameters.getEhrExtractId());
 

@@ -38,8 +38,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
-
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Component
 @Slf4j
@@ -67,7 +65,6 @@ public class EhrExtractMapper {
         return TemplateUtils.fillTemplate(EHR_EXTRACT_TEMPLATE, ehrExtractTemplateParameters);
     }
 
-
     public void validateXmlAgainstSchema(String xml) {
         String interactionId = redactionsContext.ehrExtractInteractionId();
         boolean isRedactionInteraction = RedactionsContext.REDACTION_INTERACTION_ID.equals(interactionId);
@@ -86,7 +83,6 @@ public class EhrExtractMapper {
             throw new XmlSchemaValidationException("XML schema validation failed", e);
         }
     }
-
 
     public EhrExtractTemplateParameters mapBundleToEhrFhirExtractParams(
             GetGpcStructuredTaskDefinition getGpcStructuredTaskDefinition, Bundle bundle) {
