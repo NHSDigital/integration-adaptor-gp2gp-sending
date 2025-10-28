@@ -56,7 +56,6 @@ public class TransformJsonToXml implements CommandLineRunner {
     private final MessageContext messageContext;
     private final OutputMessageWrapperMapper outputMessageWrapperMapper;
     private final EhrExtractMapper ehrExtractMapper;
-    private final XmlSchemaValidator xmlSchemaValidator;
 
     public static void main(String[] args) {
         SpringApplication.run(TransformJsonToXml.class, args).close();
@@ -68,7 +67,8 @@ public class TransformJsonToXml implements CommandLineRunner {
             getFiles().forEach(file -> {
                 String xmlResult = mapJsonToXml(file.getJsonFileInput());
                 writeToFile(xmlResult, file.getJsonFileName());
-                xmlSchemaValidator.validateOutputToXmlSchema(file.getJsonFileName(), xmlResult);
+                ehrExtractMapper.validateXmlAgainstSchema(xmlResult);
+                LOGGER.info("Successfully validated XML for file: {}", file.getJsonFileName());
             });
         } catch (NHSNumberNotFound | UnreadableJsonFileException | NoJsonFileFound | Hl7TranslatedResponseError e) {
             LOGGER.error("error: " + e.getMessage());
@@ -125,17 +125,17 @@ public class TransformJsonToXml implements CommandLineRunner {
 
             String gp2gptest = "GP2GPTEST";
             getGpcStructuredTaskDefinition = GetGpcStructuredTaskDefinition.builder()
-                .nhsNumber(extractNhsNumber(jsonAsStringInput))
-                .conversationId("6910A49D-1F97-4AA0-9C69-197EE9464C76")
-                .requestId("17A3A644-A4EB-4C0A-A870-152D310FD1F8")
-                .fromOdsCode(gp2gptest)
-                .toOdsCode(gp2gptest)
-                .toAsid(gp2gptest)
-                .fromAsid(gp2gptest)
-                .build();
+                    .nhsNumber(extractNhsNumber(jsonAsStringInput))
+                    .conversationId("6910A49D-1F97-4AA0-9C69-197EE9464C76")
+                    .requestId("17A3A644-A4EB-4C0A-A870-152D310FD1F8")
+                    .fromOdsCode(gp2gptest)
+                    .toOdsCode(gp2gptest)
+                    .toAsid(gp2gptest)
+                    .fromAsid(gp2gptest)
+                    .build();
 
             final EhrExtractTemplateParameters ehrExtractTemplateParameters =
-                ehrExtractMapper.mapBundleToEhrFhirExtractParams(getGpcStructuredTaskDefinition, bundle);
+                    ehrExtractMapper.mapBundleToEhrFhirExtractParams(getGpcStructuredTaskDefinition, bundle);
 
             final String ehrExtractContent = ehrExtractMapper.mapEhrExtractToXml(ehrExtractTemplateParameters);
 
@@ -151,7 +151,7 @@ public class TransformJsonToXml implements CommandLineRunner {
     private void writeToFile(String xml, String sourceFileName) {
         String outputFileName = FilenameUtils.removeExtension(sourceFileName);
         try (BufferedWriter writer =
-                 new BufferedWriter(new FileWriter(XML_OUTPUT_PATH + outputFileName + ".xml", StandardCharsets.UTF_8))) {
+                     new BufferedWriter(new FileWriter(XML_OUTPUT_PATH + outputFileName + ".xml", StandardCharsets.UTF_8))) {
             writer.write(xml);
             LOGGER.info("Contents of file: {}. Saved to: {}.xml", sourceFileName, outputFileName);
         } catch (IOException e) {
@@ -179,7 +179,7 @@ public class TransformJsonToXml implements CommandLineRunner {
 
     private Identifier getNhsNumberIdentifier(String nhsNumberSystem, Patient resource) {
         return resource.getIdentifier()
-            .stream().filter(identifier -> identifier.getSystem().equals(nhsNumberSystem)).findFirst().get();
+                .stream().filter(identifier -> identifier.getSystem().equals(nhsNumberSystem)).findFirst().get();
     }
 
     @Data
