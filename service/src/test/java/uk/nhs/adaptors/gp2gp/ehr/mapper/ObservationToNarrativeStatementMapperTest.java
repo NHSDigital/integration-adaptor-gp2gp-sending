@@ -119,7 +119,7 @@ class ObservationToNarrativeStatementMapperTest {
 
         String outputMessage = observationToNarrativeStatementMapper.mapObservationToNarrativeStatement(parsedObservation, true);
 
-        assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutputMessage);
+        assertThat(outputMessage).isEqualTo(expectedOutputMessage);
     }
 
     @Test
