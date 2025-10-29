@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,8 +43,7 @@ import uk.nhs.adaptors.gp2gp.gpc.GetGpcStructuredTaskDefinition;
 @ConditionalOnProperty(
     prefix = "command.line.runner",
     value = "enabled",
-    havingValue = "true",
-    matchIfMissing = false)
+    havingValue = "true")
 @Component
 public class TransformJsonToXml implements CommandLineRunner {
     private static final String JSON_FILE_INPUT_PATH =
@@ -67,39 +65,23 @@ public class TransformJsonToXml implements CommandLineRunner {
             getFiles().forEach(file -> {
                 String xmlResult = mapJsonToXml(file.getJsonFileInput());
                 writeToFile(xmlResult, file.getJsonFileName());
-                //ehrExtractMapper.validateXmlAgainstSchema(xmlResult);
                 LOGGER.info("Successfully validated XML for file: {}", file.getJsonFileName());
             });
         } catch (NHSNumberNotFound | UnreadableJsonFileException | NoJsonFileFound | Hl7TranslatedResponseError e) {
-            LOGGER.error("error: " + e.getMessage());
+            LOGGER.error("error: {}", e.getMessage());
         }
         LOGGER.info("end");
     }
 
     private List<InputFile> getFiles() throws UnreadableJsonFileException, NoJsonFileFound {
         File[] files = new File(JSON_FILE_INPUT_PATH).listFiles();
-        List<String> jsonStringInputs = new ArrayList<>();
-        List<String> fileNames = new ArrayList<>();
 
         if (files == null || files.length == 0) {
             throw new NoJsonFileFound("No json files found");
         }
 
-        LOGGER.info("Processing " + files.length + " files from location: " + JSON_FILE_INPUT_PATH);
+        LOGGER.info("Processing {} files from location: {}", files.length, JSON_FILE_INPUT_PATH);
 
-        Arrays.stream(files)
-            .peek(file -> LOGGER.info("Parsing file: {}", file.getName()))
-            .filter(file -> FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("json"))
-            .forEach(file -> {
-                String jsonAsString;
-                try {
-                    jsonAsString = readJsonFileAsString(JSON_FILE_INPUT_PATH + file.getName());
-                } catch (Exception e) {
-                    throw new UnreadableJsonFileException("Cant read file " + file.getName());
-                }
-                jsonStringInputs.add(jsonAsString);
-                fileNames.add(file.getName());
-            });
         return Arrays.stream(files)
             .filter(file -> FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("json"))
             .map(file -> {
@@ -109,7 +91,6 @@ public class TransformJsonToXml implements CommandLineRunner {
                 } catch (IOException e) {
                     throw new UnreadableJsonFileException("Cannot read Json File as String: " + file.getName());
                 }
-
             }).collect(Collectors.toList());
 
     }
@@ -171,15 +152,16 @@ public class TransformJsonToXml implements CommandLineRunner {
             .filter(resource -> ResourceType.Patient.equals(resource.getResourceType()))
             .map(Patient.class::cast)
             .map(resource -> getNhsNumberIdentifier(nhsNumberSystem, resource))
-            .map(Identifier.class::cast)
             .findFirst()
             .orElseThrow(() -> new NHSNumberNotFound("No Patient identifier was found"))
             .getValue();
     }
 
     private Identifier getNhsNumberIdentifier(String nhsNumberSystem, Patient resource) {
-        return resource.getIdentifier()
-            .stream().filter(identifier -> identifier.getSystem().equals(nhsNumberSystem)).findFirst().get();
+        return resource.getIdentifier().stream()
+            .filter(identifier -> identifier.getSystem().equals(nhsNumberSystem))
+            .findFirst()
+            .orElseThrow(() -> new NHSNumberNotFound("No Patient identifier was found"));
     }
 
     @Data
