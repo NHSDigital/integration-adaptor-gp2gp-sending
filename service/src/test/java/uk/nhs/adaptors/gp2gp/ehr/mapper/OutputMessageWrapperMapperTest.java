@@ -67,7 +67,7 @@ class OutputMessageWrapperMapperTest {
         final String actual = outputMessageWrapperMapper.map(gpcStructuredTaskDefinition, TRANSFORMED_EXTRACT);
 
         assertAll(
-            () -> assertThat(actual).isEqualToIgnoringWhitespace(expected),
+            () -> assertThat(actual).isEqualTo(expected),
             () -> assertThat(actual).contains(EHR_EXTRACT_INTERACTION_ID_NO_REDACTIONS),
             () -> assertThat(actual).doesNotContain(EHR_EXTRACT_INTERACTION_ID_WITH_REDACTIONS)
         );
@@ -82,7 +82,7 @@ class OutputMessageWrapperMapperTest {
         final String actual = outputMessageWrapperMapper.map(gpcStructuredTaskDefinition, TRANSFORMED_EXTRACT);
 
         assertAll(
-            () -> assertThat(actual).isEqualToIgnoringWhitespace(expected),
+            () -> assertThat(actual).isEqualTo(expected),
             () -> assertThat(actual).contains(EHR_EXTRACT_INTERACTION_ID_WITH_REDACTIONS),
             () -> assertThat(actual).doesNotContain(EHR_EXTRACT_INTERACTION_ID_NO_REDACTIONS)
         );
