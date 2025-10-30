@@ -30,6 +30,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
+import uk.nhs.adaptors.gp2gp.ehr.exception.EhrValidationException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.EhrExtractMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.MessageContext;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.OutputMessageWrapperMapper;
@@ -65,12 +66,12 @@ public class TransformJsonToXml implements CommandLineRunner {
             getFiles().forEach(file -> {
                 String xmlResult = mapJsonToXml(file.getJsonFileInput());
                 writeToFile(xmlResult, file.getJsonFileName());
-                LOGGER.info("Successfully validated XML for file: {}", file.getJsonFileName());
             });
         } catch (NHSNumberNotFound | UnreadableJsonFileException | NoJsonFileFound | Hl7TranslatedResponseError e) {
-            LOGGER.error("error: {}", e.getMessage());
+            LOGGER.error("Failed to parse the provided JSON: {}", e.getMessage());
+        } catch (EhrValidationException e) {
+            LOGGER.error("Failed to validate the produced XML");
         }
-        LOGGER.info("end");
     }
 
     private List<InputFile> getFiles() throws UnreadableJsonFileException, NoJsonFileFound {
