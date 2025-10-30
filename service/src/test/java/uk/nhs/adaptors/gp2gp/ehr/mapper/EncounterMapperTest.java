@@ -113,7 +113,7 @@ public class EncounterMapperTest {
 
         String outputMessageWithConfidentialityCode = encounterMapper.mapEncounterToEhrComposition(parsedEncounter);
 
-        assertThat(outputMessageWithConfidentialityCode).isEqualToIgnoringWhitespace(expectedOutputWithConfidentialityCode);
+        assertThat(outputMessageWithConfidentialityCode).isEqualTo(expectedOutputWithConfidentialityCode);
         verify(encounterComponentsMapper).mapComponents(parsedEncounter);
     }
 
@@ -130,7 +130,7 @@ public class EncounterMapperTest {
         when(encounterComponentsMapper.mapComponents(parsedEncounter)).thenReturn(sampleComponent);
 
         String outputMessage = encounterMapper.mapEncounterToEhrComposition(parsedEncounter);
-        assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutputMessage);
+        assertThat(outputMessage).isEqualTo(expectedOutputMessage);
 
         verify(encounterComponentsMapper).mapComponents(parsedEncounter);
     }
