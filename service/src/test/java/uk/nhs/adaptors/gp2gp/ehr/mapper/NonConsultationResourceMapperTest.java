@@ -118,7 +118,7 @@ class NonConsultationResourceMapperTest {
         messageContext.initialize(parsedBundle);
 
         var translatedOutput = nonConsultationResourceMapper.mapRemainingResourcesToEhrCompositions(parsedBundle).get(0);
-        assertThat(translatedOutput).isEqualToIgnoringWhitespace(expectedOutput);
+        assertThat(translatedOutput).isEqualTo(expectedOutput);
     }
 
     @ParameterizedTest
@@ -132,8 +132,8 @@ class NonConsultationResourceMapperTest {
         var translatedOutput = nonConsultationResourceMapper.mapRemainingResourcesToEhrCompositions(parsedBundle);
         assertAll(
             () -> assertThat(translatedOutput).hasSize(2),
-            () -> assertThat(translatedOutput.get(0)).isEqualToIgnoringWhitespace(expectedOutput),
-            () -> assertThat(translatedOutput.get(1)).isEqualToIgnoringWhitespace(expectedOutput)
+            () -> assertThat(translatedOutput.get(0)).isEqualTo(expectedOutput),
+            () -> assertThat(translatedOutput.get(1)).isEqualTo(expectedOutput)
         );
     }
 
@@ -148,7 +148,7 @@ class NonConsultationResourceMapperTest {
 
         assertAll(
             () -> assertThat(translatedOutput.size()).isOne(),
-            () -> assertThat(translatedOutput.get(0)).isEqualToIgnoringWhitespace(expectedOutput)
+            () -> assertThat(translatedOutput.get(0)).isEqualTo(expectedOutput)
         );
     }
 
