@@ -7,8 +7,6 @@
             <center value="20100714163251"/>
         </effectiveTime>
         <availabilityTime value="20100714163251"/>
-        
-        
         <pertinentInformation typeCode="PERT">
             <sequenceNumber value="+1" />
             <pertinentAnnotation classCode="OBS" moodCode="EVN">
@@ -27,6 +25,5 @@ The line below contains special characters...
 ¬`1234567890!&quot;£$%^&amp;*()_+=-{}][~@#&apos;:;&lt;&gt;?,./|\</text>
             </pertinentAnnotation>
         </pertinentInformation>
-        
     </ObservationStatement>
 </component>
