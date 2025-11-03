@@ -66,7 +66,7 @@ class EhrDocumentMapperTest {
             TEST_MESSAGE_ID,
             TEST_DOCUMENT_ID,
             TEXT_PLAIN
-        )).isEqualToIgnoringWhitespace(expectedJsonToXmlContent);
+        )).isEqualTo(expectedJsonToXmlContent);
     }
 
     @Test
@@ -75,6 +75,6 @@ class EhrDocumentMapperTest {
                 getGpcDocumentTaskDefinition,
                 TEST_MESSAGE_ID,
                 TEST_FILENAME
-        )).isEqualToIgnoringWhitespace(expectedJsonToXmlContent);
+        )).isEqualTo(expectedJsonToXmlContent);
     }
 }
