@@ -194,7 +194,7 @@ class ObservationMapperTest {
         final String actualXml = observationMapper.mapObservationToCompoundStatement(
             observationAssociatedWithSpecimen);
 
-        assertThat(actualXml).isEqualToIgnoringWhitespace(expectedXml);
+        assertThat(actualXml).isEqualTo(expectedXml);
     }
 
     @Test
