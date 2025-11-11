@@ -27,7 +27,6 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -97,7 +96,6 @@ class NonConsultationResourceMapperTest {
 
     @BeforeEach
     void setUp() {
-        lenient().when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         messageContext = new MessageContext(randomIdGeneratorService);
         fhirParseService = new FhirParseService();
     }
@@ -112,6 +110,7 @@ class NonConsultationResourceMapperTest {
     void When_TransformingResourceToEhrComp_Expect_CorrectValuesToBeExtracted(String stubEhrComponentMapperXml, String inputBundle,
         String output) {
         setupMock(ResourceTestFileUtils.getFileContent(stubEhrComponentMapperXml));
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         String bundle = ResourceTestFileUtils.getFileContent(inputBundle);
         String expectedOutput = ResourceTestFileUtils.getFileContent(output);
         Bundle parsedBundle = fhirParseService.parseResource(bundle, Bundle.class);
@@ -125,6 +124,7 @@ class NonConsultationResourceMapperTest {
     @MethodSource("endedAllergiesArgs")
     void When_TransformingEndedAllergyListToEhrComp_Expect_CorrectValuesToBeExtracted(String inputBundle, String output) {
         setupMock(ResourceTestFileUtils.getFileContent(ALLERGY_INTOLERANCE_XML));
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         String bundle = ResourceTestFileUtils.getFileContent(inputBundle);
         String expectedOutput = ResourceTestFileUtils.getFileContent(output);
         Bundle parsedBundle = fhirParseService.parseResource(bundle, Bundle.class);
@@ -143,6 +143,7 @@ class NonConsultationResourceMapperTest {
         String bundle = ResourceTestFileUtils.getFileContent(CONTAINED_MISCELLANEOUS_RECORDS_BUNDLE);
         String expectedOutput = ResourceTestFileUtils.getFileContent(EXPECTED_MISCELLANEOUS_RECORDS_OUTPUT);
         Bundle parsedBundle = fhirParseService.parseResource(bundle, Bundle.class);
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
 
         List<String> translatedOutput = nonConsultationResourceMapper.mapRemainingResourcesToEhrCompositions(parsedBundle);
 
@@ -154,6 +155,7 @@ class NonConsultationResourceMapperTest {
 
     @Test
     void When_TransformingContainedResourceToEhrComp_WithUnsupportedComponent_Expect_ComponentNotMapped() {
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         nonConsultationResourceMapper = new NonConsultationResourceMapper(
             messageContext,
             randomIdGeneratorService,
@@ -176,11 +178,18 @@ class NonConsultationResourceMapperTest {
 
     @Test
     void When_TransformingResourceToEhrComp_Expect_IgnoredResourceToBeIgnored() {
-        setupMock(ResourceTestFileUtils.getFileContent("")); // empty filePath provided as this isn't expected to return anything
         String bundle = ResourceTestFileUtils.getFileContent(UNCATAGORISED_IGNORED_RESOURCE_BUNDLE);
         Bundle parsedBundle = fhirParseService.parseResource(bundle, Bundle.class);
 
+        nonConsultationResourceMapper = new NonConsultationResourceMapper(
+                messageContext,
+                randomIdGeneratorService,
+                encounterComponentsMapper,
+                new BloodPressureValidator()
+        );
+
         var translatedOutput = nonConsultationResourceMapper.mapRemainingResourcesToEhrCompositions(parsedBundle);
+
         assertThat(translatedOutput).isEmpty();
     }
 
@@ -190,6 +199,7 @@ class NonConsultationResourceMapperTest {
         setupMock("<MappedResourceStub/>");
         String bundle = ResourceTestFileUtils.getFileContent(DIAGNOSTIC_REPORT_AFTER_OBSERVATION_BUNDLE);
         Bundle parsedBundle = fhirParseService.parseResource(bundle, Bundle.class);
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
 
         // ACT
         nonConsultationResourceMapper.mapRemainingResourcesToEhrCompositions(parsedBundle);
@@ -235,7 +245,7 @@ class NonConsultationResourceMapperTest {
     }
 
     private void setupMock(String stubEhrComponentMapperXml) {
-        lenient().when(encounterComponentsMapper.mapResourceToComponent(any(Resource.class)))
+        when(encounterComponentsMapper.mapResourceToComponent(any(Resource.class)))
             .thenReturn(Optional.of(stubEhrComponentMapperXml));
         nonConsultationResourceMapper = new NonConsultationResourceMapper(messageContext,
             randomIdGeneratorService,

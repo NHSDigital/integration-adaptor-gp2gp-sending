@@ -5,6 +5,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,8 +32,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 
 import uk.nhs.adaptors.gp2gp.ehr.mapper.AgentDirectory;
@@ -49,14 +48,12 @@ import uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility;
 import uk.nhs.adaptors.gp2gp.utils.FileParsingUtility;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 
-import static org.mockito.ArgumentMatchers.anyList;
 import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOPAT_HL7_CONFIDENTIALITY_CODE;
 import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.getNopatConfidentialityCodeXpathSegment;
 import static uk.nhs.adaptors.gp2gp.utils.XmlAssertion.assertThatXml;
 import static uk.nhs.adaptors.gp2gp.utils.XmlParsingUtility.getXmlStringFromFile;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class DiagnosticReportMapperTest {
 
     private static final String TEST_FILE_DIRECTORY = "/ehr/mapper/diagnosticreport/";
@@ -113,19 +110,6 @@ class DiagnosticReportMapperTest {
 
     @BeforeEach
     public void setUp() {
-        final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
-
-        when(messageContext.getIdMapper()).thenReturn(idMapper);
-        when(messageContext.getInputBundleHolder()).thenReturn(new InputBundle(bundle));
-        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
-        when(idMapper.getOrNew(any(ResourceType.class), any(IdType.class))).thenAnswer(mockIdForResourceAndId());
-        when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(mockIdForReference());
-        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
-        when(specimenMapper.mapSpecimenToCompoundStatement(any(Specimen.class), anyList(), any(DiagnosticReport.class)))
-            .thenAnswer(mockSpecimenMapping());
-        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-
         mapper = new DiagnosticReportMapper(
             messageContext, specimenMapper, new ParticipantMapper(), randomIdGeneratorService, confidentialityService);
     }
@@ -207,9 +191,37 @@ class DiagnosticReportMapperTest {
     @ParameterizedTest
     @MethodSource("resourceFileParams")
     void When_MappingDiagnosticReportJson_Expect_CompoundStatementXmlOutput(String inputJson, String outputXml) {
+        final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
+
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getInputBundleHolder()).thenReturn(new InputBundle(bundle));
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+        when(specimenMapper.mapSpecimenToCompoundStatement(any(Specimen.class), anyList(), any(DiagnosticReport.class)))
+                .thenAnswer(mockSpecimenMapping());
+        when(idMapper.getOrNew(any(ResourceType.class), any(IdType.class))).thenAnswer(mockIdForResourceAndId());
+
         final CharSequence expectedOutputMessage = ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + outputXml);
         final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(inputJson);
+        final String outputMessage = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
 
+        assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutputMessage.toString());
+    }
+
+    @Test
+    void When_MappingDiagnosticReportJson_Expect_CompoundStatementWithParticipantXmlOutput() {
+        final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
+
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getInputBundleHolder()).thenReturn(new InputBundle(bundle));
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+        when(specimenMapper.mapSpecimenToCompoundStatement(any(Specimen.class), anyList(), any(DiagnosticReport.class)))
+                .thenAnswer(mockSpecimenMapping());
+        when(idMapper.getOrNew(any(ResourceType.class), any(IdType.class))).thenAnswer(mockIdForResourceAndId());
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(agentDirectory.getAgentId(any())).thenReturn("II-for-Organization/5E496953-065B-41F2-9577-BE8F2FBD0757");
+
+        final CharSequence expectedOutputMessage = ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + OUTPUT_XML_PARTICIPANT);
+        final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(INPUT_JSON_PERFORMER);
         final String outputMessage = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
 
         assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutputMessage.toString());
@@ -221,6 +233,13 @@ class DiagnosticReportMapperTest {
         final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(diagnosticReportFileName);
         final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE_WITH_FILING_COMMENTS);
         final InputBundle inputBundle = new InputBundle(bundle);
+
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getInputBundleHolder()).thenReturn(new InputBundle(bundle));
+        when(specimenMapper.mapSpecimenToCompoundStatement(any(Specimen.class), anyList(), any(DiagnosticReport.class)))
+                .thenAnswer(mockSpecimenMapping());
+        when(confidentialityService.generateConfidentialityCode(diagnosticReport))
+                .thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
 
         when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
 
@@ -236,7 +255,12 @@ class DiagnosticReportMapperTest {
     void When_DiagnosticReport_With_NopatMetaSecurity_Expect_ConfidentialityCodeWithinCompoundStatement() {
         final String testFile = "diagnostic-report-with-multi-specimens-nopat.json";
         final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(testFile);
+        final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
 
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getInputBundleHolder()).thenReturn(new InputBundle(bundle));
+        when(specimenMapper.mapSpecimenToCompoundStatement(any(Specimen.class), anyList(), any(DiagnosticReport.class)))
+                .thenAnswer(mockSpecimenMapping());
         when(confidentialityService.generateConfidentialityCode(diagnosticReport))
             .thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
 
@@ -252,6 +276,14 @@ class DiagnosticReportMapperTest {
     void When_DiagnosticReport_With_NoscrubMetaSecurity_Expect_ConfidentialityCodeNotWithinCompoundStatement() {
         final String testFile = "diagnostic-report-with-multi-specimens-noscrub.json";
         final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(testFile);
+        final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
+
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getInputBundleHolder()).thenReturn(new InputBundle(bundle));
+        when(specimenMapper.mapSpecimenToCompoundStatement(any(Specimen.class), anyList(), any(DiagnosticReport.class)))
+                .thenAnswer(mockSpecimenMapping());
+        when(confidentialityService.generateConfidentialityCode(diagnosticReport))
+                .thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
 
         when(confidentialityService.generateConfidentialityCode(diagnosticReport)).thenReturn(Optional.empty());
 
@@ -270,6 +302,7 @@ class DiagnosticReportMapperTest {
         final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(diagnosticReportFileName);
         final InputBundle inputBundle = new InputBundle(bundle);
 
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
         when(confidentialityService.generateConfidentialityCode(bundle.getEntry().getFirst().getResource()))
             .thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
         when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
@@ -293,6 +326,7 @@ class DiagnosticReportMapperTest {
             "/component/CompoundStatement/component[1]/NarrativeStatement/" + getNopatConfidentialityCodeXpathSegment()
         );
 
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
         when(confidentialityService.generateConfidentialityCode(observation)).thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
         when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
 
@@ -315,6 +349,7 @@ class DiagnosticReportMapperTest {
             "/component/CompoundStatement/component[1]/NarrativeStatement/" + getNopatConfidentialityCodeXpathSegment()
         );
 
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
         when(confidentialityService.generateConfidentialityCode(observation)).thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
         when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
 
@@ -335,13 +370,14 @@ class DiagnosticReportMapperTest {
         final List<String> expectedXPaths = Collections.singletonList(
             "/component/CompoundStatement/component/CompoundStatement/specimen/specimenRole/id[@extension=\"NOT PRESENT\"]");
 
-        when(specimenMapper.mapSpecimenToCompoundStatement(
-            any(Specimen.class),
-            anyList(),
-            any(DiagnosticReport.class)
-        )).thenCallRealMethod();
-
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
         when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(idMapper.getOrNew(any(ResourceType.class), any(IdType.class))).thenAnswer(mockIdForResourceAndId());
+        when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(mockIdForReference());
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
+            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
 
         mapper = new DiagnosticReportMapper(
             messageContext,
@@ -380,6 +416,13 @@ class DiagnosticReportMapperTest {
         final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
         final InputBundle inputBundle = new InputBundle(bundle);
 
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getInputBundleHolder()).thenReturn(new InputBundle(bundle));
+        when(idMapper.getOrNew(any(ResourceType.class), any(IdType.class))).thenAnswer(mockIdForResourceAndId());
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+        when(specimenMapper.mapSpecimenToCompoundStatement(any(Specimen.class), anyList(), any(DiagnosticReport.class)))
+            .thenAnswer(mockSpecimenMapping());
+
         when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
 
         final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
@@ -401,7 +444,11 @@ class DiagnosticReportMapperTest {
         final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
         final InputBundle inputBundle = new InputBundle(bundle);
 
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
         when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+        when(specimenMapper.mapSpecimenToCompoundStatement(any(Specimen.class), anyList(), any(DiagnosticReport.class)))
+                .thenAnswer(mockSpecimenMapping());
 
         final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
 
@@ -427,7 +474,11 @@ class DiagnosticReportMapperTest {
         final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
         final InputBundle inputBundle = new InputBundle(bundle);
 
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
         when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+        when(specimenMapper.mapSpecimenToCompoundStatement(any(Specimen.class), anyList(), any(DiagnosticReport.class)))
+            .thenAnswer(mockSpecimenMapping());
 
         final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
 
@@ -457,7 +508,12 @@ class DiagnosticReportMapperTest {
         final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
         final InputBundle inputBundle = new InputBundle(bundle);
 
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
         when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+        when(specimenMapper.mapSpecimenToCompoundStatement(any(Specimen.class), anyList(), any(DiagnosticReport.class)))
+                .thenAnswer(mockSpecimenMapping());
+
 
         final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
 
@@ -477,11 +533,18 @@ class DiagnosticReportMapperTest {
 
     @Test
     void When_DiagnosticReport_Has_SpecimenALinkedTestResultAndAnUnlinkedTestResult_Expect_ASpecimenOnAllTestResults() {
+        final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
+        final InputBundle inputBundle = new InputBundle(bundle);
+
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+        when(specimenMapper.mapSpecimenToCompoundStatement(any(Specimen.class), anyList(), any(DiagnosticReport.class)))
+                .thenAnswer(mockSpecimenMapping());
+
         final String diagnosticReportFileName =
                 "diagnostic-report-with-one-specimen-one-linked-observation-and-one-unlinked-observation.json";
         final DiagnosticReport diagnosticReport = getDiagnosticReportResourceFromJson(diagnosticReportFileName);
-        final Bundle bundle = getBundleResourceFromJson(INPUT_JSON_BUNDLE);
-        final InputBundle inputBundle = new InputBundle(bundle);
         when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
 
         final String actualXml = mapper.mapDiagnosticReportToCompoundStatement(diagnosticReport);
@@ -511,7 +574,6 @@ class DiagnosticReportMapperTest {
             Arguments.of(INPUT_JSON_ONE_RESULT, OUTPUT_XML_REQUIRED_DATA),
             Arguments.of(INPUT_JSON_MULTI_SPECIMENS, OUTPUT_XML_MULTI_SPECIMENS),
             Arguments.of(INPUT_JSON_MULTI_RESULTS, OUTPUT_XML_MULTIPLE_RESULTS),
-            Arguments.of(INPUT_JSON_PERFORMER, OUTPUT_XML_PARTICIPANT),
             Arguments.of(INPUT_JSON_PERFORMER_NO_ACTOR, OUTPUT_XML_STATUS_NARRATIVE),
             Arguments.of(INPUT_JSON_CONCLUSION, OUTPUT_XML_CONCLUSION),
             Arguments.of(INPUT_JSON_CODED_DIAGNOSIS, OUTPUT_XML_CODED_DIAGNOSIS),

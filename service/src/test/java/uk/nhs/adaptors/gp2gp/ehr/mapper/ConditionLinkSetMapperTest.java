@@ -38,9 +38,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assumptions.assumeThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.*;
+import static uk.nhs.adaptors.gp2gp.utils.CodeableConceptMapperMockUtil.TEST_CONDITION_CODE;
 import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOPAT;
 import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOPAT_HL7_CONFIDENTIALITY_CODE;
 import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOSCRUB;
@@ -63,30 +62,30 @@ class ConditionLinkSetMapperTest {
     private static final String INPUT_JSON_NO_ACTUAL_PROBLEM_NO_DATE = "condition_no_problem_no_onsetdate.json";
     private static final String INPUT_JSON_WITH_ACTUAL_PROBLEM_CONDITION = "condition_actual_problem_condition.json";
     private static final String INPUT_JSON_WITH_ACTUAL_PROBLEM_ALLERGY_INTOLERANCE =
-        "condition_actual_problem_allergy_intolerance.json";
+            "condition_actual_problem_allergy_intolerance.json";
     private static final String INPUT_JSON_WITH_ACTUAL_PROBLEM_IMMUNIZATION = "condition_actual_problem_immunization.json";
     private static final String INPUT_JSON_WITH_MAJOR_SIGNIFICANCE = "condition_major_significance.json";
     private static final String INPUT_JSON_WITH_MINOR_SIGNIFICANCE = "condition_all_included.json";
     private static final String INPUT_JSON_NO_RELATED_CLINICAL_CONTENT = "condition_no_related_clinical_content.json";
     private static final String INPUT_JSON_MAP_TWO_RELATED_CLINICAL_CONTENT_IGNORE_ONE =
-        "condition_related_clinical_content_suppressed_linkage_references.json";
+            "condition_related_clinical_content_suppressed_linkage_references.json";
     private static final String INPUT_JSON_MAP_TWO_RELATED_CLINICAL_CONTENT = "condition_2_related_clinical_content.json";
     private static final String INPUT_JSON_STATUS_ACTIVE = "condition_status_active.json";
     private static final String INPUT_JSON_STATUS_INACTIVE = "condition_status_inactive.json";
     private static final String INPUT_JSON_DATES_PRESENT = "condition_dates_present.json";
     private static final String INPUT_JSON_DATES_NOT_PRESENT = "condition_dates_not_present.json";
     private static final String INPUT_JSON_RELATED_CLINICAL_CONTENT_LIST_REFERENCE =
-        "condition_related_clinical_content_list_reference.json";
+            "condition_related_clinical_content_list_reference.json";
     private static final String INPUT_JSON_RELATED_CLINICAL_CONTENT_NON_EXISTENT_REFERENCE =
-        "condition_related_clinical_content_non_existent_reference.json";
+            "condition_related_clinical_content_non_existent_reference.json";
     private static final String INPUT_JSON_ASSERTER_NOT_PRESENT = "condition_asserter_not_present.json";
     private static final String INPUT_JSON_ASSERTER_NOT_PRACTITIONER = "condition_asserter_not_practitioner.json";
     private static final String INPUT_JSON_MISSING_CONDITION_CODE = "condition_missing_code.json";
     private static final String INPUT_JSON_SUPPRESSED_RELATED_MEDICATION_REQUEST =
-        "condition_suppressed_related_medication_request.json";
+            "condition_suppressed_related_medication_request.json";
     private static final String INPUT_JSON_RELATED_CLINICAL_CONTENT_ALLERGY = "condition_related_clinical_content_allergy.json";
     private static final String INPUT_JSON_WITH_ACTUAL_PROBLEM_MEDICATION_REQUEST =
-        "condition_actual_problem_medication_request.json";
+            "condition_actual_problem_medication_request.json";
 
     private static final String EXPECTED_OUTPUT_LINKSET = "expected_output_linkset_";
     private static final String OUTPUT_XML_WITH_IS_NESTED = EXPECTED_OUTPUT_LINKSET + "1.xml";
@@ -129,39 +128,18 @@ class ConditionLinkSetMapperTest {
     private InputBundle inputBundle;
 
     private ConditionLinkSetMapper conditionLinkSetMapperSpy;
-    private ConditionLinkSetMapper conditionLinkSetMapper;
 
     @BeforeEach
     void setUp() {
         var bundleInput = ResourceTestFileUtils.getFileContent(TEST_FILES_DIRECTORY + INPUT_JSON_BUNDLE);
         final Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
         inputBundle = new InputBundle(bundle);
-
-        lenient().when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        lenient().when(codeableConceptCdMapper.mapCodeableConceptToCdForTransformedActualProblemHeader(any(CodeableConcept.class)))
-                .thenReturn(CodeableConceptMapperMockUtil.ACTUAL_PROBLEM_CODE);
-        lenient().when(messageContext.getIdMapper()).thenReturn(idMapper);
-        lenient().when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
-        lenient().when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
-
-        IdType conditionId = buildIdType(ResourceType.Condition, CONDITION_ID);
-        IdType allergyId = buildIdType(ResourceType.AllergyIntolerance, ALLERGY_ID);
-        IdType immunizationId = buildIdType(ResourceType.Immunization, IMMUNIZATION_ID);
-        lenient().when(idMapper.getOrNew(ResourceType.Condition, conditionId)).thenReturn(CONDITION_ID);
-        lenient().when(idMapper.getOrNew(ResourceType.Observation, allergyId)).thenReturn(ALLERGY_ID);
-        lenient().when(idMapper.getOrNew(ResourceType.Observation, immunizationId)).thenReturn(IMMUNIZATION_ID);
-        lenient().when(idMapper.getOrNew(any(Reference.class))).thenAnswer(answerWithObjectId(ResourceType.Condition));
-        lenient().when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(answerWithObjectId());
-        lenient().when(randomIdGeneratorService.createNewId()).thenReturn(GENERATED_ID);
-
-
-        conditionLinkSetMapper = new ConditionLinkSetMapper(messageContext, randomIdGeneratorService, codeableConceptCdMapper,
-            new ParticipantMapper(), confidentialityService);
+        ConditionLinkSetMapper conditionLinkSetMapper
+                = new ConditionLinkSetMapper(messageContext, randomIdGeneratorService, codeableConceptCdMapper,
+                new ParticipantMapper(), confidentialityService);
 
         conditionLinkSetMapperSpy = spy(conditionLinkSetMapper);
 
-        lenient().doNothing().when(conditionLinkSetMapperSpy).testForValidReferences(any());
     }
 
     @AfterEach
@@ -173,21 +151,42 @@ class ConditionLinkSetMapperTest {
     void When_MappingParsedConditionWithoutMappedAgent_Expect_EhrMapperException() {
         final EhrMapperException propagatedException = new EhrMapperException("expected exception");
         final Condition condition = getConditionResourceFromJson(INPUT_JSON_STATUS_ACTIVE);
+        IdType conditionId = buildIdType(ResourceType.Condition, CONDITION_ID);
 
+        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(idMapper.getOrNew(ResourceType.Condition, conditionId)).thenReturn(CONDITION_ID);
+        when(idMapper.getOrNew(any(Reference.class))).thenAnswer(answerWithObjectId(ResourceType.Condition));
         when(agentDirectory.getAgentId(any(Reference.class)))
-            .thenThrow(propagatedException);
+                .thenThrow(propagatedException);
+        lenient().doNothing().when(conditionLinkSetMapperSpy).testForValidReferences(any());
 
         assertThatThrownBy(() -> conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false))
-            .isSameAs(propagatedException);
+                .isSameAs(propagatedException);
     }
 
     @Test
     void When_MappingParsedConditionWithAsserterNotPractitioner_Expect_EhrMapperException() {
         final Condition condition = getConditionResourceFromJson(INPUT_JSON_ASSERTER_NOT_PRACTITIONER);
 
+        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
+        IdType conditionId = buildIdType(ResourceType.Condition, CONDITION_ID);
+        when(idMapper.getOrNew(ResourceType.Condition, conditionId)).thenReturn(CONDITION_ID);
+        when(idMapper.getOrNew(any(Reference.class))).thenAnswer(answerWithObjectId(ResourceType.Condition));
+        when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(answerWithObjectId());
+        lenient().doNothing().when(conditionLinkSetMapperSpy).testForValidReferences(any());
+
         assertThatThrownBy(() -> conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false))
-            .isExactlyInstanceOf(EhrMapperException.class)
-            .hasMessage("Condition.asserter must be a Practitioner");
+                .isExactlyInstanceOf(EhrMapperException.class)
+                .hasMessage("Condition.asserter must be a Practitioner");
     }
 
     @ParameterizedTest
@@ -195,6 +194,17 @@ class ConditionLinkSetMapperTest {
     void When_MappingParsedCondition_With_RealProblem_Expect_LinkSetXml(String conditionJson, String outputXml, boolean isNested) {
         final Condition condition = getConditionResourceFromJson(conditionJson);
         final String expectedXml = getXmlStringFromFile(outputXml);
+        IdType conditionId = buildIdType(ResourceType.Condition, CONDITION_ID);
+
+        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(idMapper.getOrNew(ResourceType.Condition, conditionId)).thenReturn(CONDITION_ID);
+        when(idMapper.getOrNew(any(Reference.class))).thenAnswer(answerWithObjectId(ResourceType.Condition));
+        when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(answerWithObjectId());
+        lenient().doNothing().when(conditionLinkSetMapperSpy).testForValidReferences(any());
 
         final String actualXml = conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, isNested);
 
@@ -208,15 +218,165 @@ class ConditionLinkSetMapperTest {
         final Condition condition = getConditionResourceFromJson(conditionJson);
         final String expectedXml = getXmlStringFromFile(outputXml);
 
+        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
+        IdType conditionId = buildIdType(ResourceType.Condition, CONDITION_ID);
+        when(idMapper.getOrNew(ResourceType.Condition, conditionId)).thenReturn(CONDITION_ID);
+        when(idMapper.getOrNew(any(Reference.class))).thenAnswer(answerWithObjectId(ResourceType.Condition));
+        when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(answerWithObjectId());
+        when(randomIdGeneratorService.createNewId()).thenReturn(GENERATED_ID);
+        lenient().doNothing().when(conditionLinkSetMapperSpy).testForValidReferences(any());
+
         final String actualXml = conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, isNested);
 
         assertThat(actualXml).isEqualTo(expectedXml);
     }
 
     @Test
+    void When_MappingParsedCondition_With_ActualProblemCondition_Expect_LinkSetXml() {
+        final Condition condition = getConditionResourceFromJson(INPUT_JSON_WITH_ACTUAL_PROBLEM_CONDITION);
+        final String expectedXml = getXmlStringFromFile(OUTPUT_XML_WITH_CONDITION_NAMED_OBSERVATION_STATEMENT_GENERATED);
+
+        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
+        IdType conditionId = buildIdType(ResourceType.Condition, CONDITION_ID);
+        when(idMapper.getOrNew(ResourceType.Condition, conditionId)).thenReturn(CONDITION_ID);
+        when(idMapper.getOrNew(any(Reference.class))).thenAnswer(answerWithObjectId(ResourceType.Condition));
+        when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(answerWithObjectId());
+        when(randomIdGeneratorService.createNewId()).thenReturn(GENERATED_ID);
+        lenient().doNothing().when(conditionLinkSetMapperSpy).testForValidReferences(any());
+
+        final String actualXml = conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false);
+
+        assertThat(actualXml).isEqualTo(expectedXml);
+    }
+    // It works but the indentation is giving me pain in the test comparison
+    @Test
+    void When_MappingParsedCondition_With_ActualProblemImmunization_Expect_LinkSetXml() {
+        final Condition condition = getConditionResourceFromJson(INPUT_JSON_WITH_ACTUAL_PROBLEM_IMMUNIZATION);
+        final String expectedXml = getXmlStringFromFile(OUTPUT_XML_IMMUNIZATION_ACTUAL_PROBLEM);
+
+        when(codeableConceptCdMapper.mapCodeableConceptToCdForTransformedActualProblemHeader(
+                any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.TEST_CONDITION_CODE);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
+        IdType conditionId = buildIdType(ResourceType.Condition, CONDITION_ID);
+        when(idMapper.getOrNew(ResourceType.Condition, conditionId)).thenReturn(CONDITION_ID);
+        when(idMapper.getOrNew(any(Reference.class))).thenAnswer(answerWithObjectId(ResourceType.Condition));
+        when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(answerWithObjectId());
+        when(randomIdGeneratorService.createNewId()).thenReturn(GENERATED_ID);
+        lenient().doNothing().when(conditionLinkSetMapperSpy).testForValidReferences(any());
+
+        final String actualXml = conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false);
+
+        assertThat(actualXml).isEqualTo(expectedXml);
+    }
+    @Test
+    void When_MappingParsedCondition_With_RelatedClinicalContentAllergy_Expect_LinkSetXml() {
+        final Condition condition = getConditionResourceFromJson(INPUT_JSON_RELATED_CLINICAL_CONTENT_ALLERGY);
+        final String expectedXml = getXmlStringFromFile(OUTPUT_XML_WITH_STATEMENT_REF_LINK_ALLERGY_OBSERVATION);
+
+        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
+        IdType conditionId = buildIdType(ResourceType.Condition, CONDITION_ID);
+        when(idMapper.getOrNew(ResourceType.Condition, conditionId)).thenReturn(CONDITION_ID);
+        when(idMapper.getOrNew(any(Reference.class))).thenAnswer(answerWithObjectId(ResourceType.Condition));
+        when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(answerWithObjectId());
+        when(randomIdGeneratorService.createNewId()).thenReturn(GENERATED_ID);
+        lenient().doNothing().when(conditionLinkSetMapperSpy).testForValidReferences(any());
+
+        final String actualXml = conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false);
+
+        assertThat(actualXml).isEqualTo(expectedXml);
+    }
+
+    @Test
+    void When_MappingParsedCondition_With_ActualProblemMedicationRequest_Expect_LinkSetXml() {
+        final Condition condition = getConditionResourceFromJson(INPUT_JSON_WITH_ACTUAL_PROBLEM_MEDICATION_REQUEST);
+        final String expectedXml = getXmlStringFromFile(OUTPUT_XML_MEDICATION_REQUEST_ACTUAL_PROBLEM);
+
+        when(codeableConceptCdMapper.mapCodeableConceptToCdForTransformedActualProblemHeader(
+                any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.ACTUAL_PROBLEM_CODE);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
+        IdType conditionId = buildIdType(ResourceType.Condition, CONDITION_ID);
+        when(idMapper.getOrNew(ResourceType.Condition, conditionId)).thenReturn(CONDITION_ID);
+        when(idMapper.getOrNew(any(Reference.class))).thenAnswer(answerWithObjectId(ResourceType.Condition));
+        when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(answerWithObjectId());
+        when(randomIdGeneratorService.createNewId()).thenReturn(GENERATED_ID);
+        lenient().doNothing().when(conditionLinkSetMapperSpy).testForValidReferences(any());
+
+        final String actualXml = conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false);
+
+        assertThat(actualXml).isEqualTo(expectedXml);
+    }
+
+    @Test
+    void When_MappingParsedCondition_With_AllergyIntolerance_Expect_LinkSetXml() {
+        final Condition condition =
+                getConditionResourceFromJson(INPUT_JSON_WITH_ACTUAL_PROBLEM_ALLERGY_INTOLERANCE);
+        final String expectedXml =
+                getXmlStringFromFile(OUTPUT_XML_ALLERGY_INTOLERANCE_ACTUAL_PROBLEM);
+        IdType conditionId = buildIdType(ResourceType.Condition, CONDITION_ID);
+
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(idMapper.getOrNew(ResourceType.Condition, conditionId))
+                .thenReturn(CONDITION_ID);
+        when(idMapper.getOrNew(any(Reference.class)))
+                .thenAnswer(answerWithObjectId(ResourceType.Condition));
+        when(agentDirectory.getAgentId(any(Reference.class)))
+                .thenAnswer(answerWithObjectId());
+        when(randomIdGeneratorService.createNewId())
+                .thenReturn(GENERATED_ID);
+        lenient().doNothing().when(conditionLinkSetMapperSpy)
+                .testForValidReferences(any());
+        when(codeableConceptCdMapper.mapCodeableConceptToCdForTransformedActualProblemHeader(
+                any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.TEST_CONDITION_CODE);
+
+        final String actualXml =
+                conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false);
+
+        assertThat(actualXml).isEqualTo(expectedXml);
+        verify(codeableConceptCdMapper).mapCodeableConceptToCdForTransformedActualProblemHeader(any());
+        verify(codeableConceptCdMapper, never()).mapCodeableConceptToCd(any());
+    }
+
+    @Test
     void When_MappingParsedCondition_With_NoRelatedClinicalContent_Expect_LinkSetXml() {
         final Condition condition = getConditionResourceFromJson(INPUT_JSON_NO_RELATED_CLINICAL_CONTENT);
         final String expectedXml = getXmlStringFromFile(OUTPUT_XML_WITH_NO_RELATED_CLINICAL_CONTENT);
+        IdType conditionId = buildIdType(ResourceType.Condition, CONDITION_ID);
+
+        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(idMapper.getOrNew(ResourceType.Condition, conditionId)).thenReturn(CONDITION_ID);
+        when(idMapper.getOrNew(any(Reference.class))).thenAnswer(answerWithObjectId(ResourceType.Condition));
+        when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(answerWithObjectId());
+        lenient().doNothing().when(conditionLinkSetMapperSpy).testForValidReferences(any());
 
         final String actualXml = conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false);
 
@@ -231,23 +391,42 @@ class ConditionLinkSetMapperTest {
 
         // TODO: workaround for NIAD-1409 should throw an exception but demonstrator include invalid references
         assumeThatThrownBy(() -> conditionLinkSetMapperSpy.mapConditionToLinkSet(parsedObservation, false))
-            .isExactlyInstanceOf(EhrMapperException.class)
-            .hasMessage("Could not resolve Condition Related Medical Content reference");
+                .isExactlyInstanceOf(EhrMapperException.class)
+                .hasMessage("Could not resolve Condition Related Medical Content reference");
     }
 
     @Test
     void When_MappingParsedConditionCodeIsMissing_Expect_MapperException() {
         final Condition condition = getConditionResourceFromJson(INPUT_JSON_MISSING_CONDITION_CODE);
 
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        IdType conditionId = buildIdType(ResourceType.Condition, CONDITION_ID);
+        when(idMapper.getOrNew(ResourceType.Condition, conditionId)).thenReturn(CONDITION_ID);
+        when(idMapper.getOrNew(any(Reference.class))).thenAnswer(answerWithObjectId(ResourceType.Condition));
+        lenient().doNothing().when(conditionLinkSetMapperSpy).testForValidReferences(any());
+
         assertThatThrownBy(() -> conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false))
-            .isExactlyInstanceOf(EhrMapperException.class)
-            .hasMessage("Condition code not present");
+                .isExactlyInstanceOf(EhrMapperException.class)
+                .hasMessage("Condition code not present");
     }
 
     @Test
     void When_MappingCondition_With_SuppressedMedReqAsRelatedClinicalContent_Expect_NoEntry() throws IOException, SAXException {
         final Condition condition = getConditionResourceFromJson(INPUT_JSON_SUPPRESSED_RELATED_MEDICATION_REQUEST);
         final String expectedXml = getXmlStringFromFile(OUTPUT_XML_SUPPRESSED_RELATED_MEDICATION_REQUEST);
+
+        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
+        IdType conditionId = buildIdType(ResourceType.Condition, CONDITION_ID);
+        when(idMapper.getOrNew(ResourceType.Condition, conditionId)).thenReturn(CONDITION_ID);
+        when(idMapper.getOrNew(any(Reference.class))).thenAnswer(answerWithObjectId(ResourceType.Condition));
+        when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(answerWithObjectId());
+        lenient().doNothing().when(conditionLinkSetMapperSpy).testForValidReferences(any());
 
         final String actualXml = conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false);
 
@@ -259,35 +438,77 @@ class ConditionLinkSetMapperTest {
         final Condition condition = getConditionResourceFromJson(INPUT_JSON_WITH_ACTUAL_PROBLEM_CONDITION);
         final String linkSetXpath = "/Root/component[1]/LinkSet/" + ConfidentialityCodeUtility.getNopatConfidentialityCodeXpathSegment();
         final String observationStatementXpath = "/Root/component[2]/ObservationStatement/" + ConfidentialityCodeUtility
-            .getNopatConfidentialityCodeXpathSegment();
+                .getNopatConfidentialityCodeXpathSegment();
 
         ConfidentialityCodeUtility.appendNopatSecurityToMetaForResource(condition);
+        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
+        IdType conditionId = buildIdType(ResourceType.Condition, CONDITION_ID);
+        when(idMapper.getOrNew(ResourceType.Condition, conditionId)).thenReturn(CONDITION_ID);
+        when(idMapper.getOrNew(any(Reference.class))).thenAnswer(answerWithObjectId(ResourceType.Condition));
+        when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(answerWithObjectId());
+        lenient().doNothing().when(conditionLinkSetMapperSpy).testForValidReferences(any());
+
         when(confidentialityService.generateConfidentialityCode(conditionArgumentCaptor.capture()))
-            .thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
+                .thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
 
         final String actualXml = wrapXmlInRootElement(conditionLinkSetMapperSpy
-            .mapConditionToLinkSet(condition, false));
+                .mapConditionToLinkSet(condition, false));
         final String conditionSecurityCode = ConfidentialityCodeUtility
-            .getSecurityCodeFromResource(conditionArgumentCaptor.getValue());
+                .getSecurityCodeFromResource(conditionArgumentCaptor.getValue());
 
         assertAll(
-            () -> assertThatXml(actualXml).containsXPath(observationStatementXpath),
-            () -> assertThatXml(actualXml).containsXPath(linkSetXpath),
-            () -> assertThat(conditionSecurityCode).isEqualTo(NOPAT)
+                () -> assertThatXml(actualXml).containsXPath(observationStatementXpath),
+                () -> assertThatXml(actualXml).containsXPath(linkSetXpath),
+                () -> assertThat(conditionSecurityCode).isEqualTo(NOPAT)
         );
+    }
+
+    @Test
+    void When_MappingParsedCondition_With_AsserterNotPresent_Expect_LinkSetXml() {
+        final Condition condition = getConditionResourceFromJson(INPUT_JSON_ASSERTER_NOT_PRESENT);
+        final String expectedXml = getXmlStringFromFile(OUTPUT_XML_NO_PARTICIPANT);
+        IdType conditionId = buildIdType(ResourceType.Condition, CONDITION_ID);
+
+        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(idMapper.getOrNew(ResourceType.Condition, conditionId)).thenReturn(CONDITION_ID);
+        when(idMapper.getOrNew(any(Reference.class))).thenAnswer(answerWithObjectId(ResourceType.Condition));
+        lenient().doNothing().when(conditionLinkSetMapperSpy).testForValidReferences(any());
+
+        final String actualXml = conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false);
+
+        assertThat(actualXml).isEqualTo(expectedXml);
     }
 
     @Test
     void When_MappingCondition_With_NoscrubMetaSecurity_Expect_ConfidentialityCodeNotPresent() {
         final Condition condition = getConditionResourceFromJson(INPUT_JSON_SUPPRESSED_RELATED_MEDICATION_REQUEST);
-
         ConfidentialityCodeUtility.appendNoscrubSecurityToMetaForResource(condition);
+
+        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        IdType conditionId = buildIdType(ResourceType.Condition, CONDITION_ID);
+        when(idMapper.getOrNew(ResourceType.Condition, conditionId)).thenReturn(CONDITION_ID);
+        when(idMapper.getOrNew(any(Reference.class))).thenAnswer(answerWithObjectId(ResourceType.Condition));
+        when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(answerWithObjectId());
         when(confidentialityService.generateConfidentialityCode(conditionArgumentCaptor.capture()))
-            .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
+
+        lenient().doNothing().when(conditionLinkSetMapperSpy).testForValidReferences(any());
 
         final String actualXml = conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false);
         final String conditionSecurityCode = ConfidentialityCodeUtility
-            .getSecurityCodeFromResource(conditionArgumentCaptor.getValue());
+                .getSecurityCodeFromResource(conditionArgumentCaptor.getValue());
 
         assertThat(actualXml).doesNotContainIgnoringCase(NOPAT_HL7_CONFIDENTIALITY_CODE);
         assertThat(conditionSecurityCode).isEqualTo(NOSCRUB);
@@ -295,32 +516,26 @@ class ConditionLinkSetMapperTest {
 
     private static Stream<Arguments> testArguments() {
         return Stream.of(
-            Arguments.of(INPUT_JSON_WITH_ACTUAL_PROBLEM_OBSERVATION, OUTPUT_XML_WITH_IS_NESTED, true),
-            Arguments.of(INPUT_JSON_WITH_ACTUAL_PROBLEM_OBSERVATION, OUTPUT_XML_WITHOUT_IS_NESTED, false),
-            Arguments.of(INPUT_JSON_WITH_ACTUAL_PROBLEM_OBSERVATION, OUTPUT_XML_WITH_CONDITION_NAMED, false),
-            Arguments.of(INPUT_JSON_WITH_MAJOR_SIGNIFICANCE, OUTPUT_XML_WITH_MAJOR_SIGNIFICANCE, false),
-            Arguments.of(INPUT_JSON_WITH_MINOR_SIGNIFICANCE, OUTPUT_XML_WITH_MINOR_SIGNIFICANCE, false),
-            Arguments.of(INPUT_JSON_MAP_TWO_RELATED_CLINICAL_CONTENT_IGNORE_ONE, OUTPUT_XML_WITH_1_RELATED_CLINICAL_CONTENT, false),
-            Arguments.of(INPUT_JSON_MAP_TWO_RELATED_CLINICAL_CONTENT, OUTPUT_XML_WITH_2_RELATED_CLINICAL_CONTENT, false),
-            Arguments.of(INPUT_JSON_STATUS_ACTIVE, OUTPUT_XML_WITH_STATUS_ACTIVE, false),
-            Arguments.of(INPUT_JSON_STATUS_INACTIVE, OUTPUT_XML_WITH_STATUS_INACTIVE, false),
-            Arguments.of(INPUT_JSON_DATES_PRESENT, OUTPUT_XML_WITH_DATES_PRESENT, false),
-            Arguments.of(INPUT_JSON_DATES_NOT_PRESENT, OUTPUT_XML_WITH_DATES_NOT_PRESENT, false),
-            Arguments.of(INPUT_JSON_ASSERTER_NOT_PRESENT, OUTPUT_XML_NO_PARTICIPANT, false),
-            Arguments.of(INPUT_JSON_RELATED_CLINICAL_CONTENT_LIST_REFERENCE, OUTPUT_XML_WITH_NO_RELATED_CLINICAL_CONTENT, false),
-            Arguments.of(INPUT_JSON_WITH_ACTUAL_PROBLEM_ALLERGY_INTOLERANCE, OUTPUT_XML_ALLERGY_INTOLERANCE_ACTUAL_PROBLEM, false),
-            Arguments.of(INPUT_JSON_WITH_ACTUAL_PROBLEM_IMMUNIZATION, OUTPUT_XML_IMMUNIZATION_ACTUAL_PROBLEM, false),
-            Arguments.of(INPUT_JSON_RELATED_CLINICAL_CONTENT_ALLERGY, OUTPUT_XML_WITH_STATEMENT_REF_LINK_ALLERGY_OBSERVATION, false),
-            Arguments.of(INPUT_JSON_WITH_ACTUAL_PROBLEM_MEDICATION_REQUEST, OUTPUT_XML_MEDICATION_REQUEST_ACTUAL_PROBLEM, false)
+                Arguments.of(INPUT_JSON_WITH_ACTUAL_PROBLEM_OBSERVATION, OUTPUT_XML_WITH_IS_NESTED, true),
+                Arguments.of(INPUT_JSON_WITH_ACTUAL_PROBLEM_OBSERVATION, OUTPUT_XML_WITHOUT_IS_NESTED, false),
+                Arguments.of(INPUT_JSON_WITH_ACTUAL_PROBLEM_OBSERVATION, OUTPUT_XML_WITH_CONDITION_NAMED, false),
+                Arguments.of(INPUT_JSON_WITH_MAJOR_SIGNIFICANCE, OUTPUT_XML_WITH_MAJOR_SIGNIFICANCE, false),
+                Arguments.of(INPUT_JSON_WITH_MINOR_SIGNIFICANCE, OUTPUT_XML_WITH_MINOR_SIGNIFICANCE, false),
+                Arguments.of(INPUT_JSON_MAP_TWO_RELATED_CLINICAL_CONTENT_IGNORE_ONE, OUTPUT_XML_WITH_1_RELATED_CLINICAL_CONTENT, false),
+                Arguments.of(INPUT_JSON_MAP_TWO_RELATED_CLINICAL_CONTENT, OUTPUT_XML_WITH_2_RELATED_CLINICAL_CONTENT, false),
+                Arguments.of(INPUT_JSON_STATUS_ACTIVE, OUTPUT_XML_WITH_STATUS_ACTIVE, false),
+                Arguments.of(INPUT_JSON_STATUS_INACTIVE, OUTPUT_XML_WITH_STATUS_INACTIVE, false),
+                Arguments.of(INPUT_JSON_DATES_PRESENT, OUTPUT_XML_WITH_DATES_PRESENT, false),
+                Arguments.of(INPUT_JSON_DATES_NOT_PRESENT, OUTPUT_XML_WITH_DATES_NOT_PRESENT, false),
+                Arguments.of(INPUT_JSON_RELATED_CLINICAL_CONTENT_LIST_REFERENCE, OUTPUT_XML_WITH_NO_RELATED_CLINICAL_CONTENT, false)
         );
     }
 
     private static Stream<Arguments> testObservationArguments() {
         return Stream.of(
-            Arguments.of(INPUT_JSON_NO_ACTUAL_PROBLEM, OUTPUT_XML_WITH_GENERATED_PROBLEM_IS_NESTED, true),
-            Arguments.of(INPUT_JSON_WITH_ACTUAL_PROBLEM_CONDITION, OUTPUT_XML_WITH_CONDITION_NAMED_OBSERVATION_STATEMENT_GENERATED, false),
-            Arguments.of(INPUT_JSON_NO_ACTUAL_PROBLEM_NO_DATE, OUTPUT_XML_WITH_NULL_FLAVOR_OBSERVATION_STATEMENT_AVAILABILITY_TIME,
-                true)
+                Arguments.of(INPUT_JSON_NO_ACTUAL_PROBLEM, OUTPUT_XML_WITH_GENERATED_PROBLEM_IS_NESTED, true),
+                Arguments.of(INPUT_JSON_NO_ACTUAL_PROBLEM_NO_DATE, OUTPUT_XML_WITH_NULL_FLAVOR_OBSERVATION_STATEMENT_AVAILABILITY_TIME,
+                        true)
         );
     }
 
@@ -335,8 +550,8 @@ class ConditionLinkSetMapperTest {
         return invocation -> {
             Reference reference = invocation.getArgument(0);
             return String.format("%s-%s-new-ID",
-                reference.getReferenceElement().getIdPart(),
-                reference.getReferenceElement().getResourceType());
+                    reference.getReferenceElement().getIdPart(),
+                    reference.getReferenceElement().getResourceType());
         };
     }
 
@@ -347,7 +562,7 @@ class ConditionLinkSetMapperTest {
 
     private String getXmlStringFromFile(String filename) {
         return ResourceTestFileUtils.getFileContent(
-            TEST_FILES_DIRECTORY + filename
+                TEST_FILES_DIRECTORY + filename
         );
     }
 }

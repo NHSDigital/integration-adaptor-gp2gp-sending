@@ -7,8 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
@@ -23,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 public class DocumentToMHSTranslatorTest {
     private static final String TEST_FILE_DIRECTORY = "/ehr/request/fhir/";
     private static final String INPUT_DIRECTORY = "input/";
@@ -69,9 +66,6 @@ public class DocumentToMHSTranslatorTest {
 
     @BeforeEach
     public void setUp() {
-        when(timestampService.now()).thenReturn(Instant.parse(TEST_DATE_TIME));
-        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
-
         documentToMHSTranslator = new DocumentToMHSTranslator(
             new ObjectMapper(),
             new EhrDocumentMapper(timestampService, randomIdGeneratorService));
@@ -79,6 +73,9 @@ public class DocumentToMHSTranslatorTest {
 
     @Test
     void When_TranslatingDocumentData_Expect_ProperMhsOutboundRequestPayload() {
+        when(timestampService.now()).thenReturn(Instant.parse(TEST_DATE_TIME));
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+
         GetGpcDocumentTaskDefinition taskDefinition = GetGpcDocumentTaskDefinition.builder()
             .messageId(MESSAGE_ID)
             .documentId(TEST_DOCUMENT_ID)
@@ -92,6 +89,9 @@ public class DocumentToMHSTranslatorTest {
 
     @Test
     void When_TranslatingFileContentData_Expect_ProperMhsOutboundRequestPayload() {
+        when(timestampService.now()).thenReturn(Instant.parse(TEST_DATE_TIME));
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+
         final GetAbsentAttachmentTaskDefinition taskDefinition = GetAbsentAttachmentTaskDefinition.builder()
             .title(TEST_TITLE)
             .messageId(MESSAGE_ID)

@@ -36,86 +36,73 @@ class AllergyStructureExtractorTest {
     private static final String EXPECTED_ONSET_DATE = "19781231";
     private static final String REACTION_START = "Reaction 1 ";
     private static final String FULL_REACTION = REACTION_START + "Description: description Exposure Route: exposure route "
-        + "Severity: MODERATE Manifestation(s): manifestation 1, manifestation 2";
+            + "Severity: MODERATE Manifestation(s): manifestation 1, manifestation 2";
 
     private Extension extension;
     private List<Extension> extensionList;
-    private Extension nestedExtension;
 
     private static Stream<Arguments> reasonEndTextParams() {
         return Stream.of(
-            Arguments.of(REASON_END_URL, REASON_END_TEXT, EXPECTED_REASON_END_TEXT),
-            Arguments.of(REASON_END_URL, REASON_END_NO_INFO, StringUtils.EMPTY),
-            Arguments.of(INVALID_URL, REASON_END_TEXT, StringUtils.EMPTY)
+                Arguments.of(REASON_END_URL, REASON_END_TEXT, EXPECTED_REASON_END_TEXT),
+                Arguments.of(REASON_END_URL, REASON_END_NO_INFO, StringUtils.EMPTY),
+                Arguments.of(INVALID_URL, REASON_END_TEXT, StringUtils.EMPTY)
         );
     }
 
     private static Stream<Arguments> reasonEndDateHL7Params() {
         return Stream.of(
-            Arguments.of(ALLERGY_END_DATE_URL, REASON_END_DATE, EXPECTED_REASON_END_DATE_HL7),
-            Arguments.of(INVALID_URL, REASON_END_DATE, StringUtils.EMPTY)
+                Arguments.of(ALLERGY_END_DATE_URL, REASON_END_DATE, EXPECTED_REASON_END_DATE_HL7),
+                Arguments.of(INVALID_URL, REASON_END_DATE, StringUtils.EMPTY)
         );
     }
 
     private static Stream<Arguments> reasonEndDateHumanReadableParams() {
         return Stream.of(
-            Arguments.of(ALLERGY_END_DATE_URL, REASON_END_DATE, EXPECTED_REASON_END_DATE_HUMAN_READABLE),
-            Arguments.of(INVALID_URL, REASON_END_DATE, StringUtils.EMPTY)
+                Arguments.of(ALLERGY_END_DATE_URL, REASON_END_DATE, EXPECTED_REASON_END_DATE_HUMAN_READABLE),
+                Arguments.of(INVALID_URL, REASON_END_DATE, StringUtils.EMPTY)
         );
     }
 
     private static Stream<Arguments> onsetDateParams() {
         return Stream.of(
-            Arguments.of(ONSET_DATE, EXPECTED_ONSET_DATE),
-            Arguments.of(null, StringUtils.EMPTY)
+                Arguments.of(ONSET_DATE, EXPECTED_ONSET_DATE),
+                Arguments.of(null, StringUtils.EMPTY)
         );
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         extension = new Extension();
         extensionList = new ArrayList<>();
-        nestedExtension = new Extension();
+    }
+
+    private void setupNestedExtension(String url, org.hl7.fhir.dstu3.model.Type value) {
+        var nested = new Extension(url, value);
+        extensionList.clear();
+        extensionList.add(nested);
+        extension.setExtension(extensionList);
     }
 
     @ParameterizedTest
     @MethodSource("reasonEndTextParams")
     void When_ExtractingReasonEnd_Expect_ReasonOutput(String reasonEndUrl, String reasonEndText, String expectedReasonEnd) {
-        nestedExtension.setUrl(reasonEndUrl);
-        nestedExtension.setValue(new StringType(reasonEndText));
-        extensionList.add(nestedExtension);
-        extension.setExtension(extensionList);
-
-        String outputReasonEnd = AllergyStructureExtractor.extractReasonEnd(extension);
-
-        assertEquals(expectedReasonEnd, outputReasonEnd);
+        setupNestedExtension(reasonEndUrl, new StringType(reasonEndText));
+        assertEquals(expectedReasonEnd, AllergyStructureExtractor.extractReasonEnd(extension));
     }
 
     @ParameterizedTest
     @MethodSource("reasonEndDateHL7Params")
     void When_ExtractingReasonEndDate_Expect_EndDateOutput(String reasonEndDateUrl, String reasonEndDate, String expectedEndDate) {
-        nestedExtension.setUrl(reasonEndDateUrl);
-        nestedExtension.setValue(new DateTimeType(reasonEndDate));
-        extensionList.add(nestedExtension);
-        extension.setExtension(extensionList);
-
-        String outputEndDate = AllergyStructureExtractor.extractEndDate(extension, DateFormatUtil::toHl7Format);
-
-        assertEquals(expectedEndDate, outputEndDate);
+        setupNestedExtension(reasonEndDateUrl, new DateTimeType(reasonEndDate));
+        assertEquals(expectedEndDate, AllergyStructureExtractor.extractEndDate(extension, DateFormatUtil::toHl7Format));
     }
 
     @ParameterizedTest
     @MethodSource("reasonEndDateHumanReadableParams")
     void When_ExtractingReasonEndDateHumanReadable_Expect_EndDateOutput(String reasonEndDateUrl, String reasonEndDate,
-        String expectedEndDate) {
-        nestedExtension.setUrl(reasonEndDateUrl);
-        nestedExtension.setValue(new DateTimeType(reasonEndDate));
-        extensionList.add(nestedExtension);
-        extension.setExtension(extensionList);
-
-        String outputEndDate = AllergyStructureExtractor.extractEndDate(extension, DateFormatUtil::toTextFormat);
-
-        assertEquals(expectedEndDate, outputEndDate);
+                                                                        String expectedEndDate) {
+        setupNestedExtension(reasonEndDateUrl, new DateTimeType(reasonEndDate));
+        assertEquals(expectedEndDate, AllergyStructureExtractor.extractEndDate(extension, DateFormatUtil::toTextFormat));
     }
 
     @ParameterizedTest
@@ -123,58 +110,40 @@ class AllergyStructureExtractorTest {
     void When_ExtractingOnsetDate_Expect_OnsetDateOutput(String onsetDate, String expectedOnsetDate) {
         AllergyIntolerance allergyIntolerance = new AllergyIntolerance();
         allergyIntolerance.setOnset(new DateTimeType(onsetDate));
-
-        String outputReasonEnd = AllergyStructureExtractor.extractOnsetDate(allergyIntolerance);
-
-        assertEquals(expectedOnsetDate, outputReasonEnd);
+        assertEquals(expectedOnsetDate, AllergyStructureExtractor.extractOnsetDate(allergyIntolerance));
     }
 
     @Test
     void When_ExtractingNoOnsetDate_Expect_EmptyOutput() {
         AllergyIntolerance allergyIntolerance = new AllergyIntolerance();
-
-        String outputOnsetDate = AllergyStructureExtractor.extractOnsetDate(allergyIntolerance);
-
-        assertEquals(StringUtils.EMPTY, outputOnsetDate);
+        assertEquals(StringUtils.EMPTY, AllergyStructureExtractor.extractOnsetDate(allergyIntolerance));
     }
 
     @Test
     void When_ExtractingFullReaction_Expect_Output() {
         AtomicInteger atomicInteger = new AtomicInteger(1);
-        AllergyIntolerance.AllergyIntoleranceReactionComponent reactionComponent
-            = new AllergyIntolerance.AllergyIntoleranceReactionComponent();
-
+        AllergyIntolerance.AllergyIntoleranceReactionComponent reactionComponent =
+                new AllergyIntolerance.AllergyIntoleranceReactionComponent();
         reactionComponent.setDescription("description");
 
         CodeableConcept exposureRoute = new CodeableConcept();
         exposureRoute.setText("exposure route");
-
         reactionComponent.setExposureRoute(exposureRoute);
-
         reactionComponent.setSeverity(MODERATE);
 
         List<CodeableConcept> manifestations = new ArrayList<>();
-        CodeableConcept manifestation1 = new CodeableConcept();
-        CodeableConcept manifestation2 = new CodeableConcept();
-        manifestation1.setText("manifestation 1");
-        manifestation2.setText("manifestation 2");
-        manifestations.add(manifestation1);
-        manifestations.add(manifestation2);
+        manifestations.add(new CodeableConcept().setText("manifestation 1"));
+        manifestations.add(new CodeableConcept().setText("manifestation 2"));
         reactionComponent.setManifestation(manifestations);
 
-        String outputOnsetDate = AllergyStructureExtractor.extractReaction(reactionComponent, atomicInteger);
-
-        assertEquals(FULL_REACTION, outputOnsetDate);
+        assertEquals(FULL_REACTION, AllergyStructureExtractor.extractReaction(reactionComponent, atomicInteger));
     }
 
     @Test
     void When_ExtractingEmptyReaction_Expect_Output() {
         AtomicInteger atomicInteger = new AtomicInteger(1);
         AllergyIntolerance.AllergyIntoleranceReactionComponent reactionComponent =
-            new AllergyIntolerance.AllergyIntoleranceReactionComponent();
-
-        String outputOnsetDate = AllergyStructureExtractor.extractReaction(reactionComponent, atomicInteger);
-
-        assertEquals(REACTION_START, outputOnsetDate);
+                new AllergyIntolerance.AllergyIntoleranceReactionComponent();
+        assertEquals(REACTION_START, AllergyStructureExtractor.extractReaction(reactionComponent, atomicInteger));
     }
 }
