@@ -184,10 +184,10 @@ public class AllergyStructureMapperTest {
     @Test
     void When_ConfidentialityServiceReturnsConfidentialityCode_Expect_MessageContainsConfidentialityCode() {
         final var allergyIntolerance = parseAllergyIntoleranceFromJsonFile(INPUT_JSON_WITH_OPTIONAL_TEXT_FIELDS);
-        final var message = allergyStructureMapper.mapAllergyIntoleranceToAllergyStructure(allergyIntolerance);
-
         when(confidentialityService.generateConfidentialityCode(allergyIntolerance))
-                .thenReturn(Optional.of(CONFIDENTIALITY_CODE));
+            .thenReturn(Optional.of(CONFIDENTIALITY_CODE));
+
+        final var message = allergyStructureMapper.mapAllergyIntoleranceToAllergyStructure(allergyIntolerance);
 
         assertThat(message).contains(CONFIDENTIALITY_CODE);
         assertThat(StringUtils.countOccurrencesOf(message, CONFIDENTIALITY_CODE))
