@@ -23,9 +23,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
-
 import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
@@ -33,7 +30,6 @@ import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class ObservationToNarrativeStatementMapperTest {
     private static final String TEST_ID = "394559384658936";
     private static final String TEST_FILE_DIRECTORY = "/ehr/mapper/observation/";
@@ -68,7 +64,6 @@ class ObservationToNarrativeStatementMapperTest {
 
     @BeforeEach
     void setUp() {
-        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(TEST_ID);
 
         messageContext = new MessageContext(randomIdGeneratorService);
@@ -86,6 +81,8 @@ class ObservationToNarrativeStatementMapperTest {
     @ParameterizedTest
     @MethodSource("resourceFileParams")
     void When_MappingObservationJson_Expect_NarrativeStatementXmlOutput(String inputJson, String outputXml) {
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+
         messageContext.getAgentDirectory().getAgentId(buildReference(ResourceType.Practitioner, "something"));
         messageContext.getAgentDirectory().getAgentId(buildReference(ResourceType.Organization, "something"));
 
@@ -144,15 +141,16 @@ class ObservationToNarrativeStatementMapperTest {
     @ParameterizedTest
     @MethodSource("resourceFileParamsThrowError")
     void When_MappingObservationWithAttachmentAndSampleData_Expect_MapperException(String inputJson, Class expectedClass) {
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+
         var jsonInput = ResourceTestFileUtils.getFileContent(inputJson);
         Observation parsedObservation = new FhirParseService().parseResource(jsonInput, Observation.class);
-
         var exception = assertThrows(EhrMapperException.class, () ->
-            observationToNarrativeStatementMapper.mapObservationToNarrativeStatement(parsedObservation, true));
-
+                observationToNarrativeStatementMapper.mapObservationToNarrativeStatement(parsedObservation, true));
         assertThat(exception.getMessage()).isEqualTo(String.format(
-            "Observation value type %s not supported.", expectedClass));
+                "Observation value type %s not supported.", expectedClass));
     }
+
 
     private static Stream<Arguments> resourceFileParamsThrowError() {
         return Stream.of(

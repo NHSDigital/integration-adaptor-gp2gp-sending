@@ -9,7 +9,7 @@ import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EncounterExtractorTest {
+class EncounterExtractorTest {
     private static final String TEST_FILE_DIRECTORY = "/ehr/request/fhir/";
     private static final String INPUT_DIRECTORY = "input/";
     private static final String FULL_BUNDLE_FILE = "gpc-access-structured.json";
@@ -31,7 +31,7 @@ public class EncounterExtractorTest {
     private static Bundle bundleWithNoConsultationList;
 
     @BeforeAll
-    public static void initialize() {
+    static void initialize() {
         String inputFullBundle = ResourceTestFileUtils.getFileContent(INPUT_PATH
             + FULL_BUNDLE_FILE);
         fullBundle = FHIR_PARSE_SERVICE.parseResource(inputFullBundle, Bundle.class);

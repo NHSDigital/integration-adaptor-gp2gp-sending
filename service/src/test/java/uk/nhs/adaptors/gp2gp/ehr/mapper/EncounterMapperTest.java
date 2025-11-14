@@ -3,7 +3,6 @@ package uk.nhs.adaptors.gp2gp.ehr.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -83,14 +82,8 @@ public class EncounterMapperTest {
 
     @BeforeEach
     void setUp() {
-        lenient().when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(TEST_ID);
-
         messageContext = new MessageContext(randomIdGeneratorService);
         messageContext.initialize(bundle);
-        lenient().when(bundle.getEntry()).thenReturn(List.of(
-            BUNDLE_ENTRY_WITH_CONSULTATION,
-            BUNDLE_ENTRY_WITH_LOCATION
-        ));
         encounterMapper = new EncounterMapper(messageContext, encounterComponentsMapper, confidentialityService);
     }
 
@@ -101,7 +94,14 @@ public class EncounterMapperTest {
 
     @Test
     void testEncounterWithNOPATAddsConfidentialityCodeIntoEhrComposition() {
-        lenient().when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+        when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(TEST_ID);
+
+        when(bundle.getEntry()).thenReturn(List.of(
+                BUNDLE_ENTRY_WITH_CONSULTATION,
+                BUNDLE_ENTRY_WITH_LOCATION
+        ));
+
         var sampleComponent = ResourceTestFileUtils.getFileContent(SAMPLE_EHR_COMPOSITION_COMPONENT);
         var encounterJsonInput = ResourceTestFileUtils.getFileContent(TEST_FILES_DIRECTORY + "input-encounter-with-nopat.json");
         var expectedOutputWithConfidentialityCode
@@ -120,12 +120,41 @@ public class EncounterMapperTest {
     @ParameterizedTest
     @MethodSource("testFilePaths")
     void When_MappingParsedEncounterJson_Expect_EhrCompositionXmlOutput(String input, String output) {
-        lenient().when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+        when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(TEST_ID);
+        when(bundle.getEntry()).thenReturn(List.of(
+                BUNDLE_ENTRY_WITH_CONSULTATION,
+                BUNDLE_ENTRY_WITH_LOCATION
+        ));
+
         var sampleComponent = ResourceTestFileUtils.getFileContent(SAMPLE_EHR_COMPOSITION_COMPONENT);
 
         String expectedOutputMessage = ResourceTestFileUtils.getFileContent(TEST_FILES_DIRECTORY + output);
 
         var jsonInput = ResourceTestFileUtils.getFileContent(TEST_FILES_DIRECTORY + input);
+        Encounter parsedEncounter = new FhirParseService().parseResource(jsonInput, Encounter.class);
+        when(encounterComponentsMapper.mapComponents(parsedEncounter)).thenReturn(sampleComponent);
+
+        String outputMessage = encounterMapper.mapEncounterToEhrComposition(parsedEncounter);
+        assertThat(outputMessage).isEqualTo(expectedOutputMessage);
+
+        verify(encounterComponentsMapper).mapComponents(parsedEncounter);
+    }
+    @Test
+    void When_MappingParsedEncounterJson_Expect_EhrCompositionXmlOutputWithNulAuthor() {
+        when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(TEST_ID);
+        when(bundle.getEntry()).thenReturn(List.of(
+            BUNDLE_ENTRY_WITH_CONSULTATION,
+            BUNDLE_ENTRY_WITH_LOCATION
+        ));
+
+        var sampleComponent = ResourceTestFileUtils.getFileContent(SAMPLE_EHR_COMPOSITION_COMPONENT);
+
+        String expectedOutputMessage = ResourceTestFileUtils
+                .getFileContent(TEST_FILES_DIRECTORY + "output-with-nul-author-participant2.xml");
+
+        var jsonInput = ResourceTestFileUtils
+                .getFileContent(TEST_FILES_DIRECTORY + "input-without-recorder-participant.json");
         Encounter parsedEncounter = new FhirParseService().parseResource(jsonInput, Encounter.class);
         when(encounterComponentsMapper.mapComponents(parsedEncounter)).thenReturn(sampleComponent);
 
@@ -153,7 +182,6 @@ public class EncounterMapperTest {
                 "output-with-type-and-no-coding-and-text-and-no-text.xml"
             ),
             Arguments.of("input-without-performer-participant.json", "output-with-recorder-as-participant2.xml"),
-            Arguments.of("input-without-recorder-participant.json", "output-with-nul-author-participant2.xml"),
             Arguments.of("input-with-no-location-reference.json", "output-with-no-location-reference.xml")
         );
     }
@@ -175,8 +203,6 @@ public class EncounterMapperTest {
 
     @Test
     void When_MappingEncounterLocationWithNoReference_Expect_Exception() {
-        lenient().when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
-        lenient().when(bundle.getEntry()).thenReturn(List.of(BUNDLE_ENTRY_WITH_CONSULTATION));
         var sampleComponent = ResourceTestFileUtils.getFileContent(SAMPLE_EHR_COMPOSITION_COMPONENT);
 
         var jsonInput = ResourceTestFileUtils.getFileContent(TEST_FILES_DIRECTORY
@@ -191,6 +217,11 @@ public class EncounterMapperTest {
 
     @Test
     void When_MappingEncounterWithInvalidParticipantReferenceResourceType_Expect_Exception() {
+        when(bundle.getEntry()).thenReturn(List.of(
+                BUNDLE_ENTRY_WITH_CONSULTATION,
+                BUNDLE_ENTRY_WITH_LOCATION
+        ));
+
         var sampleComponent = ResourceTestFileUtils.getFileContent(SAMPLE_EHR_COMPOSITION_COMPONENT);
 
         var jsonInput = ResourceTestFileUtils.getFileContent(TEST_FILES_DIRECTORY

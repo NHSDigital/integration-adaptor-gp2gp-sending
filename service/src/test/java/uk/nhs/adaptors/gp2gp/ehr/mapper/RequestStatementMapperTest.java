@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOPAT_HL7_CONFIDENTIALITY_CODE;
 
@@ -13,7 +12,6 @@ import java.util.stream.Stream;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.IdType;
-import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.ReferralRequest;
 import org.hl7.fhir.dstu3.model.ResourceType;
 import org.junit.jupiter.api.AfterEach;
@@ -213,59 +211,6 @@ class RequestStatementMapperTest {
 
     private RequestStatementMapper requestStatementMapper;
 
-    private static Stream<Arguments> resourceFileParams() {
-        return Stream.of(
-            arguments(INPUT_JSON_WITH_NO_OPTIONAL_FIELDS, OUTPUT_XML_USES_NO_OPTIONAL_FIELDS),
-            arguments(INPUT_JSON_WITH_OPTIONAL_FIELDS, OUTPUT_XML_WITH_OPTIONAL_FIELDS),
-            arguments(INPUT_JSON_WITH_PRACTITIONER_REQUESTER, OUTPUT_XML_WITH_PRACTITIONER_REQUESTER),
-            arguments(INPUT_JSON_WITH_SERVICES_REQUESTED, OUTPUT_XML_WITH_SERVICES_REQUESTED),
-            arguments(INPUT_JSON_WITH_DEVICE_REQUESTER, OUTPUT_XML_WITH_DEVICE_REQUESTER),
-            arguments(INPUT_JSON_WITH_ORG_REQUESTER, OUTPUT_XML_WITH_ORG_REQUESTER),
-            arguments(INPUT_JSON_WITH_PATIENT_REQUESTER, OUTPUT_XML_WITH_PATIENT_REQUESTER),
-            arguments(INPUT_JSON_WITH_RELATION_REQUESTER, OUTPUT_XML_WITH_RELATION_REQUESTER),
-            arguments(INPUT_JSON_WITH_ONE_PRACTITIONER_RECIPIENT, OUTPUT_XML_WITH_ONE_PRACTITIONER_RECIPIENT),
-            arguments(INPUT_JSON_WITH_MULTIPLE_PRACTITIONER_RECIPIENT, OUTPUT_XML_WITH_MULTIPLE_PRACTITIONER_RECIPIENT),
-            arguments(INPUT_JSON_WITH_NOTES, OUTPUT_XML_WITH_NOTES),
-            arguments(INPUT_JSON_WITH_PRACTITIONER_REQUESTER_NO_ONBEHALFOF, OUTPUT_XML_WITH_PRACTITIONER_REQUESTER_NO_ONBEHALFOF),
-            arguments(INPUT_JSON_WITH_MULTIPLE_RECIPIENTS, OUTPUT_XML_WITH_MULTIPLE_RECIPIENTS),
-            arguments(INPUT_JSON_WITH_ASAP_PRIORITY, OUTPUT_XML_WITH_PRIORITY_ASAP),
-            arguments(INPUT_JSON_WITH_ROUTINE_PRIORITY, OUTPUT_XML_WITH_NORMAL_PRIORITY),
-            arguments(INPUT_JSON_WITH_URGENT_PRIORITY, OUTPUT_XML_WITH_HIGH_PRIORITY),
-            arguments(INPUT_JSON_WITH_SUPPORTINGINFO_DOCUMENTREFERENCE,
-                    OUTPUT_XML_WITH_SUPPORTINGINFO_DOCUMENTREFERENCE),
-            arguments(INPUT_JSON_WITH_SUPPORTINGINFO_DOCUMENTREFERENCE_NO_DESCRIPTION,
-                OUTPUT_XML_WITH_SUPPORTINGINFO_DOCUMENTREFERENCE_NO_DESCRIPTION),
-            arguments(INPUT_JSON_WITH_SUPPORTINGINFO_DOCUMENTREFERENCE_NO_CREATED_NO_TEXT,
-                    OUTPUT_XML_WITH_SUPPORTINGINFO_DOCUMENTREFERENCE_NO_CREATED_NO_TEXT),
-            arguments(INPUT_JSON_WITH_SUPPORTINGINFO_OBSERVATION,
-                    OUTPUT_XML_WITH_SUPPORTINGINFO_OBSERVATION),
-            arguments(INPUT_JSON_WITH_SUPPORTINGINFO_OBSERVATION_EFFECTIVEPERIOD,
-                OUTPUT_XML_WITH_SUPPORTINGINFO_OBSERVATION),
-            arguments(INPUT_JSON_WITH_SUPPORTINGINFO_OBSERVATION_EFFECTIVEPERIOD_NO_START,
-                OUTPUT_XML_WITH_SUPPORTINGINFO_OBSERVATION_NO_DATE),
-            arguments(INPUT_JSON_WITH_SUPPORTINGINFO_OBSERVATION_NO_DATE,
-                    OUTPUT_XML_WITH_SUPPORTINGINFO_OBSERVATION_NO_DATE),
-            arguments(INPUT_JSON_WITH_SUPPORTINGINFO_REFERRALREQUEST,
-                    OUTPUT_XML_WITH_SUPPORTINGINFO_REFERRALREQUEST),
-            arguments(INPUT_JSON_WITH_SUPPORTINGINFO_REFERRALREQUEST_NO_DATE_NO_REASON,
-                    OUTPUT_XML_WITH_SUPPORTINGINFO_REFERRALREQUEST_NO_DATE_NO_REASON),
-            arguments(INPUT_JSON_WITH_SUPPORTINGINFO_DIAGNOSTICREPORT,
-                    OUTPUT_XML_WITH_SUPPORTINGINFO_DIAGNOSTICREPORT),
-            arguments(INPUT_JSON_WITH_SUPPORTINGINFO_DIAGNOSTICREPORT_NO_DATE_NO_SYSTEM,
-                    OUTPUT_XML_WITH_SUPPORTINGINFO_DIAGNOSTICREPORT_NO_DATE_NO_SYSTEM),
-            arguments(INPUT_JSON_WITH_SUPPORTINGINFO_MEDICATIONREQUEST,
-                    OUTPUT_XML_WITH_SUPPORTINGINFO_MEDICATIONREQUEST),
-            arguments(INPUT_JSON_WITH_SUPPORTINGINFO_MEDICATIONREQUEST_NO_DATE,
-                OUTPUT_XML_WITH_SUPPORTINGINFO_MEDICATIONREQUEST_NO_DATE),
-            arguments(INPUT_JSON_WITH_SUPPORTINGINFO_IGNORED_RESOURCES,
-                OUTPUT_XML_WITH_NO_SUPPORTINGINFO),
-            arguments(INPUT_JSON_WITH_WITH_UBRN_SYSTEM_URL, OUTPUT_XML_WITH_SYSTEM_URL),
-            arguments(INPUT_JSON_WITH_SUPPORTINGINFO_MEDICATION_REQUEST_WITH_MEDICATION_CODEABLE_CONCEPT,
-                OUTPUT_XML_WITH_SUPPORTINGINFO_FROM_MEDICATION_CODEABLE_CONCEPT_DISPLAY),
-            arguments(INPUT_JSON_WITH_NO_AUTHOR_AND_TIME, OUTPUT_XML_WITH_NO_AUTHOR_AND_TIME),
-            arguments(INPUT_JSON_WITH_WITH_UBR_NUMBER_SYSTEM_URL, OUTPUT_XML_WITH_SYSTEM_URL)
-        );
-    }
 
     private static Stream<Arguments> resourceFileParamsReasonCodes() {
         return Stream.of(
@@ -276,35 +221,24 @@ class RequestStatementMapperTest {
 
     private static Stream<Arguments> resourceFileParamsWithInvalidData() {
         return Stream.of(
-            arguments(INPUT_JSON_WITH_INCORRECT_RESOURCE_TYPE_REQUESTER, "Requester Reference not of expected Resource Type"),
             arguments(INPUT_JSON_WITH_INCORRECT_RESOURCE_TYPE_RECIPIENT, "Recipient Reference not of expected Resource Type"),
-            arguments(INPUT_JSON_WITH_INCORRECT_RESOURCE_TYPE_AUTHOR, "Author Reference not of expected Resource Type"),
             arguments(INPUT_JSON_WITH_NO_RESOLVED_REFERENCE_REQUESTER, "Resource not found: Device/un-resolved"),
             arguments(INPUT_JSON_WITH_NO_RESOLVED_REFERENCE_RECIPIENT, "Resource not found: Organization/un-resolved"),
-            arguments(INPUT_JSON_WITH_NO_RESOLVED_REFERENCE_NOTE_AUTHOR, "Resource not found: RelatedPerson/un-resolved"),
-            arguments(INPUT_JSON_WITH_UNSUPPORTED_PRIORITY, "Unsupported priority in ReferralRequest: stat")
+            arguments(INPUT_JSON_WITH_NO_RESOLVED_REFERENCE_NOTE_AUTHOR, "Resource not found: RelatedPerson/un-resolved")
         );
     }
 
+
     @BeforeEach
     void setUp() {
-        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
-        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
-        var inputBundle = new InputBundle(bundle);
-
-        lenient().when(messageContext.getIdMapper()).thenReturn(idMapper);
-        lenient().when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
-        lenient().when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
-        lenient().when(idMapper.getOrNew(any(ResourceType.class), any(IdType.class))).thenAnswer(mockIdForResourceAndId());
-        lenient().when(idMapper.getOrNew(any(Reference.class))).thenAnswer(mockIdForReference());
-        lenient().when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(mockIdForReference());
-        lenient().when(agentDirectory.getAgentRef(any(Reference.class), any(Reference.class))).thenAnswer(mockIdForAgentReference());
-
-        requestStatementMapper = new RequestStatementMapper(messageContext,
-                                                            codeableConceptCdMapper,
-                                                            new ParticipantMapper(),
-                                                            confidentialityService);
+        requestStatementMapper = new RequestStatementMapper(
+                messageContext,
+                codeableConceptCdMapper,
+                new ParticipantMapper(),
+                confidentialityService
+        );
     }
+
 
     private Answer<String> mockIdForResourceAndId() {
         return invocation -> {
@@ -314,34 +248,437 @@ class RequestStatementMapperTest {
         };
     }
 
-    private Answer<String> mockIdForReference() {
-        return invocation -> {
-            Reference reference = invocation.getArgument(0);
-            return String.format("II-for-%s", reference.getReference());
-        };
-    }
-
-    private Answer<String> mockIdForAgentReference() {
-        return invocation -> {
-            Reference practitionerReference = invocation.getArgument(0);
-            Reference organizationReference = invocation.getArgument(1);
-            return String.format("II-for-%s-%s", practitionerReference.getReference(), organizationReference.getReference());
-        };
-    }
-
     @AfterEach
     void tearDown() {
         messageContext.resetMessageContext();
     }
 
-    @ParameterizedTest
-    @MethodSource("resourceFileParams")
-    void When_MappingObservationJson_Expect_NarrativeStatementXmlOutput(String inputJson, String outputXml) {
-        assertThatInputMapsToExpectedOutput(inputJson, outputXml);
+    @Test
+    void When_MappingObservationJsonWithNoOptionalFields_Expect_NarrativeStatementXmlOutput() {
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_NO_OPTIONAL_FIELDS, OUTPUT_XML_USES_NO_OPTIONAL_FIELDS);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithOptionalFields_Expect_NarrativeStatementXmlOutput() {
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_OPTIONAL_FIELDS, OUTPUT_XML_WITH_OPTIONAL_FIELDS);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithPractitionerRequester_Expect_NarrativeStatementXmlOutput() {
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(agentDirectory.getAgentRef(any(), any()))
+                .thenReturn("II-for-Practitioner/6D340A1B-BC15-4D4E-93CF-BBCB5B74DF73-Organization/1F90B10F-CF14-4D6F-8C0D-585059DA4EC5");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_PRACTITIONER_REQUESTER, OUTPUT_XML_WITH_PRACTITIONER_REQUESTER);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithServicesRequested_Expect_NarrativeStatementXmlOutput() {
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_SERVICES_REQUESTED, OUTPUT_XML_WITH_SERVICES_REQUESTED);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithDeviceRequester_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_DEVICE_REQUESTER, OUTPUT_XML_WITH_DEVICE_REQUESTER);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithOrgRequester_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_ORG_REQUESTER, OUTPUT_XML_WITH_ORG_REQUESTER);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithPatientRequester_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_PATIENT_REQUESTER, OUTPUT_XML_WITH_PATIENT_REQUESTER);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithRelationRequester_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_RELATION_REQUESTER, OUTPUT_XML_WITH_RELATION_REQUESTER);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithMultiplePractitionerRecipient_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(agentDirectory.getAgentId(any())).thenReturn("II-for-Practitioner/567B852A-5775-4AEF-BB77-504D820F11F7");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_MULTIPLE_PRACTITIONER_RECIPIENT,
+                OUTPUT_XML_WITH_MULTIPLE_PRACTITIONER_RECIPIENT);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithNotes_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_NOTES, OUTPUT_XML_WITH_NOTES);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithPractitionerRequesterNoOnBehalfOf_Expect_NarrativeStatementXmlOutput() {
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(agentDirectory.getAgentId(any())).thenReturn("II-for-Practitioner/6D340A1B-BC15-4D4E-93CF-BBCB5B74DF73");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_PRACTITIONER_REQUESTER_NO_ONBEHALFOF,
+                OUTPUT_XML_WITH_PRACTITIONER_REQUESTER_NO_ONBEHALFOF);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithMultipleRecipients_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(agentDirectory.getAgentId(any())).thenReturn("II-for-Practitioner/567B852A-5775-4AEF-BB77-504D820F11F7");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_MULTIPLE_RECIPIENTS, OUTPUT_XML_WITH_MULTIPLE_RECIPIENTS);
+    }
+
+
+    @Test
+    void When_MappingObservationJsonWithASAPPriority_Expect_NarrativeStatementXmlOutput() {
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_ASAP_PRIORITY, OUTPUT_XML_WITH_PRIORITY_ASAP);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithRoutinePriority_Expect_NarrativeStatementXmlOutput() {
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_ROUTINE_PRIORITY, OUTPUT_XML_WITH_NORMAL_PRIORITY);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithUrgentPriority_Expect_NarrativeStatementXmlOutput() {
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_URGENT_PRIORITY, OUTPUT_XML_WITH_HIGH_PRIORITY);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithSupportingInfoDocumentReference_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-2FB2C828-F8EC-11EB-9A03-0242AC130003");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_SUPPORTINGINFO_DOCUMENTREFERENCE,
+                OUTPUT_XML_WITH_SUPPORTINGINFO_DOCUMENTREFERENCE);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithSupportingInfoDocumentReferenceNoDescription_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-2FB2C828-F8EC-11EB-9A03-0242AC130003");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_SUPPORTINGINFO_DOCUMENTREFERENCE_NO_DESCRIPTION,
+                OUTPUT_XML_WITH_SUPPORTINGINFO_DOCUMENTREFERENCE_NO_DESCRIPTION);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithSupportingInfoDocumentReferenceNoCreatedNoText_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-2FB2C828-F8EC-11EB-9A03-0242AC130003");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_SUPPORTINGINFO_DOCUMENTREFERENCE_NO_CREATED_NO_TEXT,
+                OUTPUT_XML_WITH_SUPPORTINGINFO_DOCUMENTREFERENCE_NO_CREATED_NO_TEXT);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithSupportingInfoObservation_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-2FB2C828-F8EC-11EB-9A03-0242AC130003");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_SUPPORTINGINFO_OBSERVATION,
+                OUTPUT_XML_WITH_SUPPORTINGINFO_OBSERVATION);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithSupportingInfoObservationEffectivePeriod_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-2FB2C828-F8EC-11EB-9A03-0242AC130003");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_SUPPORTINGINFO_OBSERVATION_EFFECTIVEPERIOD,
+                OUTPUT_XML_WITH_SUPPORTINGINFO_OBSERVATION);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithSupportingInfoObservationEffectivePeriodNoStart_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-2FB2C828-F8EC-11EB-9A03-0242AC130003");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_SUPPORTINGINFO_OBSERVATION_EFFECTIVEPERIOD_NO_START,
+                OUTPUT_XML_WITH_SUPPORTINGINFO_OBSERVATION_NO_DATE);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithSupportingInfoObservationNoDate_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-2FB2C828-F8EC-11EB-9A03-0242AC130003");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_SUPPORTINGINFO_OBSERVATION_NO_DATE,
+                OUTPUT_XML_WITH_SUPPORTINGINFO_OBSERVATION_NO_DATE);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithSupportingInfoReferralRequest_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-2FB2C828-F8EC-11EB-9A03-0242AC130003");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_SUPPORTINGINFO_REFERRALREQUEST, OUTPUT_XML_WITH_SUPPORTINGINFO_REFERRALREQUEST);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithSupportingInfoReferralRequestNoDateNoReason_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-2FB2C828-F8EC-11EB-9A03-0242AC130003");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_SUPPORTINGINFO_REFERRALREQUEST_NO_DATE_NO_REASON,
+                OUTPUT_XML_WITH_SUPPORTINGINFO_REFERRALREQUEST_NO_DATE_NO_REASON);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithSupportingInfoDiagnosticReport_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-2FB2C828-F8EC-11EB-9A03-0242AC130003");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_SUPPORTINGINFO_DIAGNOSTICREPORT,
+                OUTPUT_XML_WITH_SUPPORTINGINFO_DIAGNOSTICREPORT);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithSupportingInfoDiagnosticReportNoDateNoSystem_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-2FB2C828-F8EC-11EB-9A03-0242AC130003");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_SUPPORTINGINFO_DIAGNOSTICREPORT_NO_DATE_NO_SYSTEM,
+                OUTPUT_XML_WITH_SUPPORTINGINFO_DIAGNOSTICREPORT_NO_DATE_NO_SYSTEM);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithSupportingInfoMedicationRequest_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-2FB2C828-F8EC-11EB-9A03-0242AC130003");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_SUPPORTINGINFO_MEDICATIONREQUEST,
+                OUTPUT_XML_WITH_SUPPORTINGINFO_MEDICATIONREQUEST);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithSupportingInfoMedicationRequestNoDate_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-2FB2C828-F8EC-11EB-9A03-0242AC130003");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_SUPPORTINGINFO_MEDICATIONREQUEST_NO_DATE,
+                OUTPUT_XML_WITH_SUPPORTINGINFO_MEDICATIONREQUEST_NO_DATE);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithSupportingInfoIgnoredResources_Expect_NarrativeStatementXmlOutput() {
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-C7F71C3B-83F9-4E63-AC9C-7629563FF85F");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_SUPPORTINGINFO_IGNORED_RESOURCES, OUTPUT_XML_WITH_NO_SUPPORTINGINFO);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithUBRNSystemUrl_Expect_NarrativeStatementXmlOutput() {
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_WITH_UBRN_SYSTEM_URL, OUTPUT_XML_WITH_SYSTEM_URL);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithMedicationRequestWithMedicationCodeableConcept_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-2FB2C828-F8EC-11EB-9A03-0242AC139999");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_SUPPORTINGINFO_MEDICATION_REQUEST_WITH_MEDICATION_CODEABLE_CONCEPT,
+                OUTPUT_XML_WITH_SUPPORTINGINFO_FROM_MEDICATION_CODEABLE_CONCEPT_DISPLAY);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithNoAuthorAndTime_Expect_NarrativeStatementXmlOutput() {
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+        when(agentDirectory.getAgentId(any())).thenReturn("II-for-Practitioner/6D340A1B-BC15-4D4E-93CF-BBCB5B74DF73");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_NO_AUTHOR_AND_TIME, OUTPUT_XML_WITH_NO_AUTHOR_AND_TIME);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithUBRNumberSystemUrl_Expect_NarrativeStatementXmlOutput() {
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_WITH_UBR_NUMBER_SYSTEM_URL, OUTPUT_XML_WITH_SYSTEM_URL);
+    }
+
+    @Test
+    void When_MappingObservationJsonWithOnePractitionerRecipient_Expect_NarrativeStatementXmlOutput() {
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+        when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+        when(agentDirectory.getAgentId(any())).thenReturn("II-for-Practitioner/567B852A-5775-4AEF-BB77-504D820F11F7");
+
+        assertThatInputMapsToExpectedOutput(INPUT_JSON_WITH_ONE_PRACTITIONER_RECIPIENT, OUTPUT_XML_WITH_ONE_PRACTITIONER_RECIPIENT);
     }
 
     @SneakyThrows
-    private void assertThatInputMapsToExpectedOutput(String inputJsonResourcePath, String outputXmlResourcePath) {
+    public void assertThatInputMapsToExpectedOutput(String inputJsonResourcePath, String outputXmlResourcePath) {
         var expected = ResourceTestFileUtils.getFileContent(outputXmlResourcePath);
         var input = ResourceTestFileUtils.getFileContent(inputJsonResourcePath);
         var referralRequest = new FhirParseService().parseResource(input, ReferralRequest.class);
@@ -354,13 +691,20 @@ class RequestStatementMapperTest {
     @ParameterizedTest
     @MethodSource("resourceFileParamsReasonCodes")
     void When_MappingObservationJsonWithReason_Expect_NarrativeStatementXmlOutput(String inputJson, String outputXml) {
+        when(idMapper.getOrNew(any(ResourceType.class), any(IdType.class)))
+                .thenAnswer(mockIdForResourceAndId());
         when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
         assertThatInputMapsToExpectedOutput(inputJson, outputXml);
     }
 
     @Test
     void When_MappingReferralRequestJsonWithNestedTrue_Expect_RequestStatementXmlOutput() {
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-E63AF323-919F-4D5F-9A1D-BA933BC230BC");
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+
         String expectedOutputMessage = ResourceTestFileUtils.getFileContent(OUTPUT_XML_USES_NO_OPTIONAL_FIELDS_NESTED);
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_NO_OPTIONAL_FIELDS);
         ReferralRequest parsedReferralRequest = new FhirParseService().parseResource(jsonInput, ReferralRequest.class);
@@ -374,6 +718,8 @@ class RequestStatementMapperTest {
     void When_MappingReferralRequestWithNoPat_Expect_RequestStatementWithConfidentialityCode() {
         when(confidentialityService.generateConfidentialityCode(any(ReferralRequest.class)))
             .thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+
         var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_NOPAT);
         ReferralRequest parsedReferralRequest = new FhirParseService().parseResource(jsonInput, ReferralRequest.class);
 
@@ -388,8 +734,56 @@ class RequestStatementMapperTest {
         var jsonInput = ResourceTestFileUtils.getFileContent(inputJson);
         ReferralRequest parsedReferralRequest = new FhirParseService().parseResource(jsonInput, ReferralRequest.class);
 
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-2FB2C828-F8EC-11EB-9A03-0242AC130003");
+
+        var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
+        Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
+        var inputBundle = new InputBundle(bundle);
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
+
         assertThatThrownBy(() -> requestStatementMapper.mapReferralRequestToRequestStatement(parsedReferralRequest, false))
             .isExactlyInstanceOf(EhrMapperException.class)
             .hasMessage(exceptionMessage);
+    }
+
+    @Test
+    void When_MappingReferralRequestJsonWithIncorrectResourceTypeRequester_Expect_Exception() {
+        String expectedMessage = "Requester Reference not of expected Resource Type";
+        var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_INCORRECT_RESOURCE_TYPE_REQUESTER);
+        ReferralRequest parsedReferralRequest = new FhirParseService().parseResource(jsonInput, ReferralRequest.class);
+
+        assertThatThrownBy(() -> requestStatementMapper.mapReferralRequestToRequestStatement(parsedReferralRequest, false))
+                .isExactlyInstanceOf(EhrMapperException.class)
+                .hasMessage(expectedMessage);
+    }
+
+    @Test
+    void When_MappingReferralRequestJsonWithIncorrectResourceTypeAuthor_Expect_Exception() {
+        String expectedMessage = "Author Reference not of expected Resource Type";
+        var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_INCORRECT_RESOURCE_TYPE_AUTHOR);
+        ReferralRequest parsedReferralRequest = new FhirParseService().parseResource(jsonInput, ReferralRequest.class);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-2FB2C828-F8EC-11EB-9A03-0242AC130003");
+
+        assertThatThrownBy(() -> requestStatementMapper.mapReferralRequestToRequestStatement(parsedReferralRequest, false))
+                .isExactlyInstanceOf(EhrMapperException.class)
+                .hasMessage(expectedMessage);
+    }
+
+    @Test
+    void When_MappingReferralRequestJsonWithUnsupportedPriority_Expect_Exception() {
+        String expectedMessage = "Unsupported priority in ReferralRequest: stat";
+        var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_UNSUPPORTED_PRIORITY);
+        ReferralRequest parsedReferralRequest = new FhirParseService().parseResource(jsonInput, ReferralRequest.class);
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(), any()))
+                .thenReturn("II-for-ReferralRequest-2FB2C828-F8EC-11EB-9A03-0242AC130003");
+
+        assertThatThrownBy(() -> requestStatementMapper.mapReferralRequestToRequestStatement(parsedReferralRequest, false))
+                .isExactlyInstanceOf(EhrMapperException.class)
+                .hasMessage(expectedMessage);
     }
 }
