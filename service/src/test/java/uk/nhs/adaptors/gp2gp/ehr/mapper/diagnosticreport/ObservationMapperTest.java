@@ -180,11 +180,10 @@ class ObservationMapperTest {
     @ParameterizedTest
     @MethodSource("resourceFileParams")
     void When_MappingObservationJson_Expect_CompoundStatementXmlOutput(String inputJson, String outputXml) {
+        when(randomIdGeneratorService.createNewId()).thenReturn("random-unmapped-id");
+
         final Observation observationAssociatedWithSpecimen = getObservationResourceFromJson(inputJson);
         final String expectedXml = getXmlStringFromFile(outputXml);
-
-       when(randomIdGeneratorService.createNewId()).thenReturn("random-unmapped-id");
-
         final String actualXml = observationMapper.mapObservationToCompoundStatement(
             observationAssociatedWithSpecimen);
 
