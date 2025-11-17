@@ -7,14 +7,12 @@
             <center value="20190601113000"/>
         </effectiveTime>
         <availabilityTime value="20190601113000"/>
-        <value xsi:type="ST">test-string</value>
-        
+            <value xsi:type="ST">test-string</value>
         <pertinentInformation typeCode="PERT">
             <sequenceNumber value="+1" />
             <pertinentAnnotation classCode="OBS" moodCode="EVN">
                 <text>Test comment</text>
             </pertinentAnnotation>
         </pertinentInformation>
-        
     </ObservationStatement>
 </component>

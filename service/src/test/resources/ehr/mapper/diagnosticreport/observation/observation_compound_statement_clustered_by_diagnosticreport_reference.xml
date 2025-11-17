@@ -2,8 +2,8 @@
     <CompoundStatement classCode="CLUSTER" moodCode="EVN">
         <id root="random-unmapped-id"/>
         <code code="257472014" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="International normalised ratio">
-            <translation code="42QE.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="International normalised ratio" />
-        </code>
+    <translation code="42QE.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="International normalised ratio" />
+</code>
         <statusCode code="COMPLETE"/>
         <effectiveTime>
             <center value="20100223"/>
@@ -13,8 +13,8 @@
     <ObservationStatement classCode="OBS" moodCode="EVN">
         <id root="random-unmapped-id"/>
         <code code="257472014" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="International normalised ratio">
-            <translation code="42QE.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="International normalised ratio" />
-        </code>
+    <translation code="42QE.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="International normalised ratio" />
+</code>
         <statusCode code="COMPLETE"/>
         <effectiveTime>
             <center value="20100223"/>
