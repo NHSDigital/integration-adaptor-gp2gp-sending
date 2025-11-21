@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.doThrow;
@@ -76,11 +75,12 @@ class StructuredRecordMappingServiceTest {
 
     @BeforeEach
     void setup() {
-        lenient().when(messageContext.getIdMapper()).thenReturn(new IdMapper(randomIdGeneratorService));
+//        when(messageContext.getIdMapper()).thenReturn(new IdMapper(randomIdGeneratorService));
     }
 
     @Test
     void When_GettingExternalAttachments_Expect_AllDocumentReferenceResourcesAreMapped() {
+        when(messageContext.getIdMapper()).thenReturn(new IdMapper(randomIdGeneratorService));
         when(randomIdGeneratorService.createNewId()).thenReturn(
                 NEW_DOC_MANIFEST_ID_1,
                 NEW_DOC_MANIFEST_ID_2
@@ -115,6 +115,7 @@ class StructuredRecordMappingServiceTest {
 
     @Test
     void When_GettingExternalAttachment_WithWrongContentType_Expect_AbsentAttachmentMapped() {
+        when(messageContext.getIdMapper()).thenReturn(new IdMapper(randomIdGeneratorService));
         when(randomIdGeneratorService.createNewId()).thenReturn(NEW_DOC_MANIFEST_ID_1);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(NEW_DOC_MANIFEST_ID_1);
         when(gp2gpConfiguration.getLargeAttachmentThreshold()).thenReturn(LARGE_MESSAGE_THRESHOLD);
@@ -132,6 +133,7 @@ class StructuredRecordMappingServiceTest {
 
     @Test
     void When_GettingExternalAttachment_WithTitleAndNoUrl_Expect_AbsentAttachmentMapped() {
+        when(messageContext.getIdMapper()).thenReturn(new IdMapper(randomIdGeneratorService));
         when(randomIdGeneratorService.createNewId()).thenReturn(NEW_DOC_MANIFEST_ID_1);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(NEW_DOC_MANIFEST_ID_1);
         when(gp2gpConfiguration.getLargeAttachmentThreshold()).thenReturn(LARGE_MESSAGE_THRESHOLD);
