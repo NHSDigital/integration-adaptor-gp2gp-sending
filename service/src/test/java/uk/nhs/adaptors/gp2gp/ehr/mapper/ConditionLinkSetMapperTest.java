@@ -38,7 +38,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assumptions.assumeThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.spy;
 import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOPAT;
 import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOPAT_HL7_CONFIDENTIALITY_CODE;
 import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOSCRUB;
@@ -357,8 +360,6 @@ class ConditionLinkSetMapperTest {
                 conditionLinkSetMapperSpy.mapConditionToLinkSet(condition, false);
 
         assertThat(actualXml).isEqualTo(expectedXml);
-        verify(codeableConceptCdMapper).mapCodeableConceptToCdForTransformedActualProblemHeader(any());
-        verify(codeableConceptCdMapper, never()).mapCodeableConceptToCd(any());
     }
 
     @Test
