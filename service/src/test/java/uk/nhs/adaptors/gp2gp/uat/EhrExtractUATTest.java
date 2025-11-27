@@ -68,7 +68,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static uk.nhs.adaptors.gp2gp.XsdValidator.validateFileContentAgainstSchema;
 
@@ -159,7 +158,7 @@ public class EhrExtractUATTest {
                 new BloodPressureValidator());
         ehrExtractMapper = new EhrExtractMapper(redactionsContext, randomIdGeneratorService, timestampService, encounterMapper,
             nonConsultationResourceMapper, agentDirectoryMapper, messageContext);
-        lenient().when(confidentialityService.generateConfidentialityCode(any()))
+        when(confidentialityService.generateConfidentialityCode(any()))
             .thenReturn(Optional.empty());
     }
 
