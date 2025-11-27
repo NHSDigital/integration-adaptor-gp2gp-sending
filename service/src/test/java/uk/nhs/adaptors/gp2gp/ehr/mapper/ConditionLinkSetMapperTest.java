@@ -79,20 +79,20 @@ class ConditionLinkSetMapperTest {
         final InputBundle inputBundle = new InputBundle(bundle);
 
         when(messageContext.getIdMapper())
-            .thenReturn(idMapper);
+                .thenReturn(idMapper);
         when(messageContext.getInputBundleHolder())
-            .thenReturn(inputBundle);
+                .thenReturn(inputBundle);
         when(idMapper.getOrNew(ResourceType.Condition, conditionId))
-            .thenReturn(CONDITION_ID);
+                .thenReturn(CONDITION_ID);
         when(idMapper.getOrNew(any(Reference.class)))
-            .thenAnswer(answerWithId());
+                .thenAnswer(answerWithId());
 
         conditionLinkSetMapper = new ConditionLinkSetMapper(
-            messageContext,
-            randomIdGeneratorService,
-            codeableConceptCdMapper,
-            participantMapper,
-            confidentialityService
+                messageContext,
+                randomIdGeneratorService,
+                codeableConceptCdMapper,
+                participantMapper,
+                confidentialityService
         );
     }
 
@@ -103,12 +103,12 @@ class ConditionLinkSetMapperTest {
 
     private void initializeNullFlavorCodeableConceptMocks() {
         when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
-            .thenReturn(NULL_FLAVOR_CODE);
+                .thenReturn(NULL_FLAVOR_CODE);
     }
 
     private void initializeAgentDirectoryMocks() {
         when(messageContext.getAgentDirectory())
-            .thenReturn(agentDirectory);
+                .thenReturn(agentDirectory);
     }
 
     static Stream<Arguments> testArguments() {
@@ -135,7 +135,7 @@ class ConditionLinkSetMapperTest {
         initializeAgentDirectoryMocks();
         initializeNullFlavorCodeableConceptMocks();
         when(agentDirectory.getAgentId(any(Reference.class)))
-            .thenAnswer(answerWithId());
+                .thenAnswer(answerWithId());
 
         final String actualXml = conditionLinkSetMapper.mapConditionToLinkSet(condition, isNested);
 
@@ -144,19 +144,19 @@ class ConditionLinkSetMapperTest {
 
     private static Stream<Arguments> testObservationArguments() {
         return Stream.of(
-            Arguments.of("condition_no_problem.json", "expected_output_linkset_3.xml", true),
-            Arguments.of("condition_actual_problem_condition.json", "expected_output_linkset_5.xml", false),
-            Arguments.of("condition_no_problem_no_onsetdate.json", "expected_output_linkset_18.xml", true),
-            Arguments.of("condition_related_clinical_content_allergy.json", "expected_output_linkset_19.xml", false)
+                Arguments.of("condition_no_problem.json", "expected_output_linkset_3.xml", true),
+                Arguments.of("condition_actual_problem_condition.json", "expected_output_linkset_5.xml", false),
+                Arguments.of("condition_no_problem_no_onsetdate.json", "expected_output_linkset_18.xml", true),
+                Arguments.of("condition_related_clinical_content_allergy.json", "expected_output_linkset_19.xml", false)
         );
     }
 
     @ParameterizedTest
     @MethodSource("testObservationArguments")
     void When_MappingParsedCondition_With_ObservationActualProblem_Expect_LinkSetXml(
-        String conditionJson,
-        String outputXml,
-        boolean isNested
+            String conditionJson,
+            String outputXml,
+            boolean isNested
     ) {
         final Condition condition = getConditionResourceFromJson(conditionJson);
         final String expectedXml = getXmlStringFromFile(outputXml);
@@ -164,9 +164,9 @@ class ConditionLinkSetMapperTest {
         initializeAgentDirectoryMocks();
         initializeNullFlavorCodeableConceptMocks();
         when(agentDirectory.getAgentId(any(Reference.class)))
-            .thenAnswer(answerWithId());
+                .thenAnswer(answerWithId());
         when(randomIdGeneratorService.createNewId())
-            .thenReturn(GENERATED_ID);
+                .thenReturn(GENERATED_ID);
 
         final String actualXml = conditionLinkSetMapper.mapConditionToLinkSet(condition, isNested);
 
@@ -181,10 +181,10 @@ class ConditionLinkSetMapperTest {
         initializeAgentDirectoryMocks();
         initializeNullFlavorCodeableConceptMocks();
         when(agentDirectory.getAgentId(any(Reference.class)))
-            .thenThrow(propagatedException);
+                .thenThrow(propagatedException);
 
         assertThatThrownBy(() -> conditionLinkSetMapper.mapConditionToLinkSet(condition, false))
-            .isEqualTo(propagatedException);
+                .isEqualTo(propagatedException);
     }
 
     @Test
@@ -195,8 +195,8 @@ class ConditionLinkSetMapperTest {
         initializeNullFlavorCodeableConceptMocks();
 
         assertThatThrownBy(() -> conditionLinkSetMapper.mapConditionToLinkSet(condition, false))
-            .isExactlyInstanceOf(EhrMapperException.class)
-            .hasMessage("Condition.asserter must be a Practitioner");
+                .isExactlyInstanceOf(EhrMapperException.class)
+                .hasMessage("Condition.asserter must be a Practitioner");
     }
 
     @Test
@@ -206,11 +206,11 @@ class ConditionLinkSetMapperTest {
 
         initializeAgentDirectoryMocks();
         when(codeableConceptCdMapper.mapCodeableConceptToCdForTransformedActualProblemHeader(any(CodeableConcept.class)))
-            .thenReturn(TEST_CONDITION_CODE);
+                .thenReturn(TEST_CONDITION_CODE);
         when(agentDirectory.getAgentId(any(Reference.class)))
-            .thenAnswer(answerWithId());
+                .thenAnswer(answerWithId());
         when(randomIdGeneratorService.createNewId())
-            .thenReturn(GENERATED_ID);
+                .thenReturn(GENERATED_ID);
 
         final String actualXml = conditionLinkSetMapper.mapConditionToLinkSet(condition, false);
 
@@ -224,11 +224,11 @@ class ConditionLinkSetMapperTest {
 
         initializeAgentDirectoryMocks();
         when(codeableConceptCdMapper.mapCodeableConceptToCdForTransformedActualProblemHeader(any(CodeableConcept.class)))
-            .thenReturn(ACTUAL_PROBLEM_CODE);
+                .thenReturn(ACTUAL_PROBLEM_CODE);
         when(agentDirectory.getAgentId(any(Reference.class)))
-            .thenAnswer(answerWithId());
+                .thenAnswer(answerWithId());
         when(randomIdGeneratorService.createNewId())
-            .thenReturn(GENERATED_ID);
+                .thenReturn(GENERATED_ID);
 
         final String actualXml = conditionLinkSetMapper.mapConditionToLinkSet(condition, false);
 
@@ -242,9 +242,9 @@ class ConditionLinkSetMapperTest {
 
         initializeAgentDirectoryMocks();
         when(codeableConceptCdMapper.mapCodeableConceptToCdForTransformedActualProblemHeader(any(CodeableConcept.class)))
-            .thenReturn(TEST_CONDITION_CODE);
+                .thenReturn(TEST_CONDITION_CODE);
         when(agentDirectory.getAgentId(any(Reference.class)))
-            .thenAnswer(answerWithId());
+                .thenAnswer(answerWithId());
         when(randomIdGeneratorService.createNewId())
                 .thenReturn(GENERATED_ID);
 
@@ -258,8 +258,8 @@ class ConditionLinkSetMapperTest {
         final Condition condition = getConditionResourceFromJson("condition_missing_code.json");
 
         assertThatThrownBy(() -> conditionLinkSetMapper.mapConditionToLinkSet(condition, false))
-            .isExactlyInstanceOf(EhrMapperException.class)
-            .hasMessage("Condition code not present");
+                .isExactlyInstanceOf(EhrMapperException.class)
+                .hasMessage("Condition code not present");
     }
 
     @Test
@@ -270,7 +270,7 @@ class ConditionLinkSetMapperTest {
         initializeAgentDirectoryMocks();
         initializeNullFlavorCodeableConceptMocks();
         when(agentDirectory.getAgentId(any(Reference.class)))
-            .thenAnswer(answerWithId());
+                .thenAnswer(answerWithId());
 
         final String actualXml = conditionLinkSetMapper.mapConditionToLinkSet(condition, false);
 
@@ -285,7 +285,7 @@ class ConditionLinkSetMapperTest {
         initializeAgentDirectoryMocks();
         initializeNullFlavorCodeableConceptMocks();
         when(agentDirectory.getAgentId(any(Reference.class)))
-            .thenAnswer(answerWithId());
+                .thenAnswer(answerWithId());
 
         final String actualXml = conditionLinkSetMapper.mapConditionToLinkSet(condition, false);
 
@@ -308,21 +308,21 @@ class ConditionLinkSetMapperTest {
         final Condition condition = getConditionResourceFromJson("condition_actual_problem_condition.json");
         final String linkSetXpath = "/Root/component[1]/LinkSet/" + ConfidentialityCodeUtility.getNopatConfidentialityCodeXpathSegment();
         final String observationStatementXpath = "/Root/component[2]/ObservationStatement/" + ConfidentialityCodeUtility
-            .getNopatConfidentialityCodeXpathSegment();
+                .getNopatConfidentialityCodeXpathSegment();
         ConfidentialityCodeUtility.appendNopatSecurityToMetaForResource(condition);
 
         initializeAgentDirectoryMocks();
         initializeNullFlavorCodeableConceptMocks();
         when(confidentialityService.generateConfidentialityCode(conditionArgumentCaptor.capture()))
-            .thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
+                .thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
 
         final String actualXml = wrapXmlInRootElement(conditionLinkSetMapper.mapConditionToLinkSet(condition, false));
         final String conditionSecurityCode = ConfidentialityCodeUtility.getSecurityCodeFromResource(conditionArgumentCaptor.getValue());
 
         assertAll(
-            () -> assertThatXml(actualXml).containsXPath(observationStatementXpath),
-            () -> assertThatXml(actualXml).containsXPath(linkSetXpath),
-            () -> assertThat(conditionSecurityCode).isEqualTo(NOPAT)
+                () -> assertThatXml(actualXml).containsXPath(observationStatementXpath),
+                () -> assertThatXml(actualXml).containsXPath(linkSetXpath),
+                () -> assertThat(conditionSecurityCode).isEqualTo(NOPAT)
         );
     }
 
@@ -334,14 +334,14 @@ class ConditionLinkSetMapperTest {
         initializeAgentDirectoryMocks();
         initializeNullFlavorCodeableConceptMocks();
         when(confidentialityService.generateConfidentialityCode(conditionArgumentCaptor.capture()))
-            .thenReturn(Optional.empty());
+                .thenReturn(Optional.empty());
 
         final String actualXml = conditionLinkSetMapper.mapConditionToLinkSet(condition, false);
         final String conditionSecurityCode = ConfidentialityCodeUtility.getSecurityCodeFromResource(conditionArgumentCaptor.getValue());
 
         assertAll(
-            () -> assertThat(actualXml).doesNotContainIgnoringCase(NOPAT_HL7_CONFIDENTIALITY_CODE),
-            () -> assertThat(conditionSecurityCode).isEqualTo(NOSCRUB)
+                () -> assertThat(actualXml).doesNotContainIgnoringCase(NOPAT_HL7_CONFIDENTIALITY_CODE),
+                () -> assertThat(conditionSecurityCode).isEqualTo(NOSCRUB)
         );
     }
 

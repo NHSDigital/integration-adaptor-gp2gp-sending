@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import static uk.nhs.adaptors.gp2gp.utils.IdUtil.buildIdType;
@@ -43,6 +42,17 @@ public class AllergyStructureMapperTest {
     private static final String TEST_FILE_DIRECTORY = "/ehr/mapper/allergy/";
     private static final String INPUT_JSON_BUNDLE = TEST_FILE_DIRECTORY + "fhir-bundle.json";
     private static final String INPUT_JSON_WITH_OPTIONAL_TEXT_FIELDS = TEST_FILE_DIRECTORY + "input-with-optional-text-fields.json";
+    private static final String INPUT_WITH_ENV_CATEGORY = "input-with-environment-category.json";
+    private static final String EXPECTED_WITH_ENV_CATEGORY = "expected-uses-environment-category.xml";
+
+    private static final String INPUT_WITH_CONDITION_ONE_NOTE = "input-with-relation-to-condition-with-one-note.json";
+    private static final String EXPECTED_WITH_CONDITION_ONE_NOTE = "expected-uses-relation-to-condition-with-one-note.xml";
+
+    private static final String INPUT_WITH_CONDITION_TWO_NOTES = "input-with-relation-to-condition-with-two-notes.json";
+    private static final String EXPECTED_WITH_CONDITION_TWO_NOTES = "expected-uses-relation-to-condition-with-two-notes.xml";
+
+    private static final String INPUT_WITH_NO_CONDITION = "input-with-no-relation-to-condition.json";
+    private static final String EXPECTED_WITH_NO_CONDITION = "expected-uses-no-relation-to-condition.xml";
 
     private static final String COMMON_ID = "6D340A1B-BC15-4D4E-93CF-BBCB5B74DF73";
 
@@ -71,12 +81,8 @@ public class AllergyStructureMapperTest {
             Arguments.of("input-with-onset-date-only.json", "expected-uses-onset-date.xml"),
             Arguments.of("input-with-reason-end-date-only.json", "expected-uses-end-date.xml"),
             Arguments.of("input-with-no-dates.json", "expected-uses-null-flavor-date.xml"),
-            Arguments.of("input-with-environment-category.json", "expected-uses-environment-category.xml"),
             Arguments.of("input-with-medication-category.json", "expected-uses-medication-category.xml"),
             Arguments.of("input-with-reaction.json", "expected-uses-reaction.xml"),
-            Arguments.of("input-with-relation-to-condition-with-one-note.json", "expected-uses-relation-to-condition-with-one-note.xml"),
-            Arguments.of("input-with-relation-to-condition-with-two-notes.json", "expected-uses-relation-to-condition-with-two-notes.xml"),
-            Arguments.of("input-with-no-relation-to-condition.json", "expected-uses-no-relation-to-condition.xml"),
             Arguments.of("input-with-device-recorder-and-asserter.json", "expected-uses-device-recorder-and-asserter.xml"),
             Arguments.of("input-with-related-person-asserter.json", "expected-uses-related-person-asserter.xml"),
             Arguments.of("input-with-related-person-asserter-name-text.json", "expected-uses-related-person-asserter.xml"),
@@ -94,22 +100,20 @@ public class AllergyStructureMapperTest {
         );
     }
 
+    private static Stream<Arguments> resourceFileParamsWithEnvironmentCategoryAndConditionRelatedData() {
+        return Stream.of(
+                Arguments.of(INPUT_WITH_ENV_CATEGORY, EXPECTED_WITH_ENV_CATEGORY),
+                Arguments.of(INPUT_WITH_CONDITION_ONE_NOTE, EXPECTED_WITH_CONDITION_ONE_NOTE),
+                Arguments.of(INPUT_WITH_CONDITION_TWO_NOTES, EXPECTED_WITH_CONDITION_TWO_NOTES),
+                Arguments.of(INPUT_WITH_NO_CONDITION, EXPECTED_WITH_NO_CONDITION)
+        );
+    }
+
     @BeforeEach
     void setUp() {
         when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(TEST_ID);
-
-        lenient().when(codeableConceptCdMapper.mapToNullFlavorCodeableConcept(any(CodeableConcept.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        lenient().when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        lenient().when(codeableConceptCdMapper.mapCodeableConceptToCdForAllergy(any(CodeableConcept.class),
-                any(AllergyIntolerance.AllergyIntoleranceClinicalStatus.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        lenient().when(codeableConceptCdMapper.mapToNullFlavorCodeableConceptForAllergy(any(CodeableConcept.class),
-                any(AllergyIntolerance.AllergyIntoleranceClinicalStatus.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        lenient().when(confidentialityService.generateConfidentialityCode(any()))
+        when(confidentialityService.generateConfidentialityCode(any()))
             .thenReturn(Optional.empty());
 
         var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
@@ -144,6 +148,24 @@ public class AllergyStructureMapperTest {
     void When_MappingAllergyIntoleranceJson_Expect_AllergyStructureXmlOutput(String inputJson, String outputXml) {
         final var expectedMessage = ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + outputXml);
         final var allergyIntolerance = parseAllergyIntoleranceFromJsonFile(TEST_FILE_DIRECTORY + inputJson);
+
+        when(codeableConceptCdMapper.mapToNullFlavorCodeableConceptForAllergy(any(CodeableConcept.class),
+                any(AllergyIntolerance.AllergyIntoleranceClinicalStatus.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+
+        String message = allergyStructureMapper.mapAllergyIntoleranceToAllergyStructure(allergyIntolerance);
+        assertThat(message).contains(expectedMessage);
+    }
+
+    @ParameterizedTest
+    @MethodSource("resourceFileParamsWithEnvironmentCategoryAndConditionRelatedData")
+    void When_MappingAllergyIntoleranceJson_Expect_AllergyStructureXmlOutputWithEnvironmentAndData(String inputJson, String outputXml) {
+        final var expectedMessage = ResourceTestFileUtils.getFileContent(TEST_FILE_DIRECTORY + outputXml);
+        final var allergyIntolerance = parseAllergyIntoleranceFromJsonFile(TEST_FILE_DIRECTORY + inputJson);
+
+        when(codeableConceptCdMapper.mapCodeableConceptToCdForAllergy(any(CodeableConcept.class),
+                any(AllergyIntolerance.AllergyIntoleranceClinicalStatus.class)))
+            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
 
         String message = allergyStructureMapper.mapAllergyIntoleranceToAllergyStructure(allergyIntolerance);
         assertThat(message).contains(expectedMessage);
