@@ -33,7 +33,7 @@ gp2gp:
   mongodb:
     uri: ${GP2GP_MONGO_URI:mongodb://localhost:27017}
     database: ${GP2GP_MONGO_DATABASE_NAME:gp2gp}
-    host: ${GP2GP_MONGO_HOST:}
+    host: nia-ptl-base-dbcluster-ver-5-0.cluster-co553fsbcrew.eu-west-2.docdb.amazonaws.com
     port: ${GP2GP_MONGO_PORT:}
     username: ${GP2GP_MONGO_USERNAME:}
     password: ${GP2GP_MONGO_PASSWORD:}
