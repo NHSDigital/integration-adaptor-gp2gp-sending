@@ -15,7 +15,7 @@
         <availabilityTime value="20200907101202" />
             <component typeCode="COMP">
                 <statementRef classCode="OBS" moodCode="EVN">
-                    <id root="44AF36F0-12A9-4119-9DCA-399532CA28BA-Condition-new-ID"/>
+                    <id root="44AF36F0-12A9-4119-9DCA-399532CA28BA"/>
                 </statementRef>
             </component>
         <conditionNamed typeCode="NAME" inversionInd="true">
@@ -25,7 +25,7 @@
         </conditionNamed>
         <Participant typeCode="PRF" contextControlCode="OP">
     <agentRef classCode="AGNT">
-        <id root="1-Practitioner-new-ID"/>
+        <id root="1"/>
     </agentRef>
 </Participant>
     </LinkSet>

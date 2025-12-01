@@ -15,7 +15,7 @@
         <availabilityTime value="20200907101202" />
             <component typeCode="COMP">
                 <statementRef classCode="OBS" moodCode="EVN">
-                    <id root="230D3D37-99E3-450A-AE88-B5AB802B7137-Condition-new-ID"/>
+                    <id root="230D3D37-99E3-450A-AE88-B5AB802B7137"/>
                 </statementRef>
             </component>
         <conditionNamed typeCode="NAME" inversionInd="true">
@@ -25,7 +25,7 @@
         </conditionNamed>
         <Participant typeCode="PRF" contextControlCode="OP">
     <agentRef classCode="AGNT">
-        <id root="1-Practitioner-new-ID"/>
+        <id root="1"/>
     </agentRef>
 </Participant>
     </LinkSet>
@@ -33,7 +33,7 @@
 <component typeCode="COMP">
     <ObservationStatement classCode="OBS" moodCode="EVN">
         <id root="50233a2f-128f-4b96-bdae-6207ed11a8ea"/>
-        <code code="55607006" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Problem">
+        <code code="55607006" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Problem"><originalText>Test Condition</originalText></code>
         <statusCode code="COMPLETE"/>
         <effectiveTime>
             <low value="20200906"/>
