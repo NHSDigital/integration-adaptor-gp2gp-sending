@@ -135,6 +135,18 @@ Use environment variables to configure the tests to use:
     ./gradlew cleanIntegrationTest integrationTest -i
     ```  
 
+Please note that if you see an error such as:
+
+`Level=ERROR Logger=o.t.d.DockerClientProviderStrategy Could not find a valid Docker environment.`
+
+Then run the following command from a terminal window, and restart your docker engine (or machine):
+
+```bash
+cat > ~/.docker-java.properties <<EOF
+api.version=1.44
+EOF
+```
+
 ## How to run e2e tests:
 
 End-to-end (e2e) tests execute against an already running / deployed adaptor and its dependencies. You must run these
