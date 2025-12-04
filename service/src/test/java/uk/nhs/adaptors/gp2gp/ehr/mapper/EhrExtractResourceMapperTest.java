@@ -58,7 +58,7 @@ class EhrExtractResourceMapperTest {
 
         boolean result = resourceMapper.shouldMapResource(medRequest);
 
-       assertTrue(result);
+        assertTrue(result);
     }
 
     @Test
@@ -73,7 +73,7 @@ class EhrExtractResourceMapperTest {
 
         boolean result = resourceMapper.shouldMapResource(medRequest);
 
-       assertTrue(result);
+        assertTrue(result);
     }
 
     @Test
