@@ -5,7 +5,8 @@ import org.hl7.fhir.dstu3.model.MedicationRequest;
 import org.hl7.fhir.dstu3.model.QuestionnaireResponse;
 import org.hl7.fhir.dstu3.model.Reference;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,7 +58,7 @@ class EhrExtractResourceMapperTest {
 
         boolean result = resourceMapper.shouldMapResource(medRequest);
 
-        Assertions.assertTrue(result);
+       assertTrue(result);
     }
 
     @Test
@@ -72,7 +73,7 @@ class EhrExtractResourceMapperTest {
 
         boolean result = resourceMapper.shouldMapResource(medRequest);
 
-        Assertions.assertTrue(result);
+       assertTrue(result);
     }
 
     @Test
@@ -85,7 +86,7 @@ class EhrExtractResourceMapperTest {
 
         boolean result = resourceMapper.shouldMapResource(medRequest);
 
-        Assertions.assertFalse(result);
+        assertFalse(result);
     }
 
     @Test
@@ -96,7 +97,7 @@ class EhrExtractResourceMapperTest {
 
         boolean result = resourceMapper.shouldMapResource(medRequest);
 
-        Assertions.assertTrue(result);
+        assertTrue(result);
     }
 
     @Test
@@ -110,7 +111,7 @@ class EhrExtractResourceMapperTest {
 
             boolean result = resourceMapper.shouldMapResource(questionnaireResp);
 
-            Assertions.assertFalse(result);
+            assertFalse(result);
         }
     }
 
