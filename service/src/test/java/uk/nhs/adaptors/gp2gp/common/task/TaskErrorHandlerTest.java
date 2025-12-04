@@ -5,15 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 
+import static org.mockito.Mockito.*;
 import static uk.nhs.adaptors.gp2gp.common.task.TaskType.GET_GPC_STRUCTURED;
 
 import java.util.concurrent.TimeoutException;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -47,9 +45,17 @@ class TaskErrorHandlerTest {
     @InjectMocks
     private TaskErrorHandler taskErrorHandler;
 
+    private boolean skipSetup;
+
+    @BeforeEach
+    void setUp() {
+        if (!skipSetup) {
+            when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
+        }
+    }
+
     @Test
     void When_HandleProcessingError_WithEhrRequestException_Expect_ProcessToBeFailedWithCorrectCode() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         taskErrorHandler.handleProcessingError(new EhrRequestException(TEST_EXCEPTION_MESSAGE), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -61,7 +67,6 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleProcessingError_WithEhrValidationException_Expect_ProcessToBeFailedWithCorrectCode() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         taskErrorHandler.handleProcessingError(new EhrValidationException(TEST_EXCEPTION_MESSAGE), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -73,7 +78,6 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleProcessingError_WithEhrRequestException_Expect_ReturnValueOfFailService() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         when(processFailureHandlingService.failProcess(any(), any(), any(), any()))
             .thenReturn(true, false);
 
@@ -83,7 +87,6 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleProcessingError_With_EhrExtractException_Expect_ProcessToBeFailedWithCorrectCode() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         taskErrorHandler.handleProcessingError(new EhrExtractException("Test Exception"), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -95,7 +98,6 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleProcessingError_WithEhrExtractException_Expect_ReturnValueOfFailService() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         when(processFailureHandlingService.failProcess(any(), any(), any(), any()))
             .thenReturn(true, false);
 
@@ -105,7 +107,6 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleProcessingError_WithEhrMapperException_Expect_ProcessToBeFailedWithCorrectCode() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         taskErrorHandler.handleProcessingError(new EhrMapperException(TEST_EXCEPTION_MESSAGE), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -117,7 +118,6 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleProcessingError_WithEhrMapperException_Expect_ReturnValueOfFailService() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         when(processFailureHandlingService.failProcess(any(), any(), any(), any()))
             .thenReturn(true, false);
 
@@ -127,7 +127,6 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleProcessingError_WithFhirValidationException_Expect_ProcessToBeFailedWithCorrectCode() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         taskErrorHandler.handleProcessingError(new FhirValidationException(TEST_EXCEPTION_MESSAGE), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -139,7 +138,6 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleProcessingError_WithFhirValidationException_Expect_ReturnValueOfFailService() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         when(processFailureHandlingService.failProcess(any(), any(), any(), any()))
             .thenReturn(true, false);
 
@@ -149,7 +147,6 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleProcessingError_WithOtherException_Expect_ProcessToBeFailedWithCorrectCode() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         taskErrorHandler.handleProcessingError(new Exception(), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -161,7 +158,6 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleProcessingError_WithOtherException_Expect_ReturnValueOfFailService() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         when(processFailureHandlingService.failProcess(any(), any(), any(), any()))
             .thenReturn(true, false);
 
@@ -171,7 +167,6 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleProcessingError_WithGpConnectException_Expect_ProcessToBeFailedWithCorrectCode() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         taskErrorHandler.handleProcessingError(new GpConnectException(TEST_EXCEPTION_MESSAGE), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -183,7 +178,6 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleProcessingError_WithGpConnectException_Expect_ReturnValueOfFailService() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         when(processFailureHandlingService.failProcess(any(), any(), any(), any()))
             .thenReturn(true, false);
 
@@ -193,7 +187,6 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleProcessingError_WithGpConnectInvalidException_Expect_ProcessToBeFailedWithCorrectCode() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         taskErrorHandler.handleProcessingError(new GpConnectInvalidException(TEST_EXCEPTION_MESSAGE), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -205,7 +198,6 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleProcessingError_WithGpConnectInvalidException_Expect_ReturnValueOfFailService() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         when(processFailureHandlingService.failProcess(any(), any(), any(), any()))
             .thenReturn(true, false);
 
@@ -215,7 +207,6 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleProcessingError_WithGpConnectGpConnectNotFoundException_Expect_ProcessToBeFailedWithCorrectCode() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         taskErrorHandler.handleProcessingError(new GpConnectNotFoundException(TEST_EXCEPTION_MESSAGE), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -227,7 +218,6 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleProcessingError_WithGpConnectNotFoundException_Expect_ReturnValueOfFailService() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         when(processFailureHandlingService.failProcess(any(), any(), any(), any()))
             .thenReturn(true, false);
 
@@ -237,7 +227,6 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleProcessingError_WithMaximumExternalAttachmentsException_Expect_ProcessToBeFailedWithCorrectCode() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         taskErrorHandler.handleProcessingError(new MaximumExternalAttachmentsException(TEST_EXCEPTION_MESSAGE), taskDefinition);
 
         verify(processFailureHandlingService).failProcess(
@@ -249,7 +238,6 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleProcessingError_WithMaximumExternalAttachmentsException_Expect_ReturnValueOfFailService() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         when(processFailureHandlingService.failProcess(any(), any(), any(), any()))
             .thenReturn(true, false);
 
@@ -263,6 +251,7 @@ class TaskErrorHandlerTest {
 
     @Test
     void When_HandleGeneralProcessingError_WithNullParameter_Expect_ProcessIsNotFailed() {
+        lenient().when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         taskErrorHandler.handleProcessingError(new RuntimeException(), null);
 
         verifyNoInteractions(processFailureHandlingService);
@@ -270,7 +259,6 @@ class TaskErrorHandlerTest {
     @Test
     @SneakyThrows
     void When_FailProcessThrowsException_Expect_ExceptionToBeRethrown() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         var failureHandlingException = new RuntimeException("failure handler exception");
         doThrow(failureHandlingException).when(processFailureHandlingService).failProcess(
             any(), any(), any(), any());
@@ -283,7 +271,6 @@ class TaskErrorHandlerTest {
     @Test
     @SneakyThrows
     void When_HandleProcessingError_WithGpcServerErrorExceptionAsRootCause_Expect_FailedWithCorrectCode() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         Throwable testException = new RetryLimitReachedException("test", new GpcServerErrorException("exception"));
 
         taskErrorHandler.handleProcessingError(testException, taskDefinition);
@@ -298,7 +285,6 @@ class TaskErrorHandlerTest {
     @Test
     @SneakyThrows
     void When_HandleProcessingError_WithTimeoutExceptionAsRootCause_Expect_FailedWithCorrectCode() {
-        when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         Throwable testException = new RetryLimitReachedException("test", new TimeoutException("exception"));
 
         taskErrorHandler.handleProcessingError(testException, taskDefinition);
