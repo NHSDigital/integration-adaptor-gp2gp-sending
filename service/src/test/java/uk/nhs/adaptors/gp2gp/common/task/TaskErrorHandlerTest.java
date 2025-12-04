@@ -5,8 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
-import static org.mockito.Mockito.*;
 import static uk.nhs.adaptors.gp2gp.common.task.TaskType.GET_GPC_STRUCTURED;
 
 import java.util.concurrent.TimeoutException;
