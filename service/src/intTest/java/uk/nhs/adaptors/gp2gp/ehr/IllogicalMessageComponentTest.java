@@ -60,13 +60,11 @@ public class IllogicalMessageComponentTest {
     private static final String FROM_ODS_CODE_PATH = SUBJECT_PATH + "/EhrRequest/author/AgentOrgSDS/agentOrganizationSDS/id/@extension";
     private static final String TO_ODS_CODE_PATH = SUBJECT_PATH + "/EhrRequest/destination/AgentOrgSDS/agentOrganizationSDS/id/@extension";
     private static final String MESSAGE_ID_PATH = MESSAGE_HEADER_PATH + "/MessageData/MessageId";
-    private static final String EHR_EXTRACT_REQUEST = "RCMR_IN010000UK05";
     private static final String CONTINUE_REQUEST = "COPC_IN000001UK01";
     private static final String ACKNOWLEDGMENT_REQUEST = "MCCI_IN010000UK13";
     private static final String ACTION_PATH = "/Envelope/Header/MessageHeader/Action";
     private static final String CONVERSATION_ID_PATH = "/Envelope/Header/MessageHeader/ConversationId";
     private static final String NON_EXISTING_CONVERSATION_ID = "d3746650-096e-414b-92a4-146ceaf74f0e";
-    private static final String ACK_OK_CODE = "AA";
     private static final XPathService SERVICE = new XPathService();
 
     @Mock
