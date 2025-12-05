@@ -50,6 +50,7 @@ class AgentDirectoryMapperTest {
         messageContext = new MessageContext(randomIdGeneratorService);
         agentDirectoryMapper = new AgentDirectoryMapper(messageContext, agentPersonMapper);
         fhirParseService = new FhirParseService();
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
     }
 
     @AfterEach
@@ -89,7 +90,6 @@ class AgentDirectoryMapperTest {
 
     @Test
     void When_MappingAgentDirectory_Expect_CorrectOutputFromMapper() {
-        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         when(agentPersonMapper.mapAgentPerson(any(), any())).thenAnswer(answerWithObjectId());
 
         var bundle = parseBundle(INPUT_AGENT_DIRECTORY);
@@ -103,8 +103,6 @@ class AgentDirectoryMapperTest {
 
     @Test
     void When_MappingAgentDirectoryWithoutPatientManagingOrganizationReference_Expect_Exception() {
-        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
-
         var bundle = parseBundle(INPUT_AGENT_DIRECTORY_WITHOUT_MANAGING_ORGANIZATION_REFERENCE);
         initializeMessageContextWithAgentKeys(bundle);
 
@@ -115,8 +113,6 @@ class AgentDirectoryMapperTest {
 
     @Test
     void When_MappingAgentDirectoryWithoutPatientManagingOrganizationResource_Expect_Exception() {
-        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
-
         var bundle = parseBundle(INPUT_AGENT_DIRECTORY_WITHOUT_MANAGING_ORGANIZATION_RESOURCE);
         initializeMessageContextWithAgentKeys(bundle);
 
@@ -127,7 +123,6 @@ class AgentDirectoryMapperTest {
 
     @Test
     void When_MappingAgentDirectoryWithPatientManagingOrganizationInAgentKeys_Expect_AgentPersonNotDuplicated() {
-        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         when(agentPersonMapper.mapAgentPerson(any(), any())).thenAnswer(answerWithObjectId());
 
         var bundle = parseBundle(INPUT_AGENT_DIRECTORY);
@@ -144,8 +139,6 @@ class AgentDirectoryMapperTest {
 
     @Test
     void When_MappingAgentKeysWithoutAgentKeys_Expect_CorrectOutputFromMapper() {
-        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
-
         var bundle = parseBundle(INPUT_AGENT_DIRECTORY);
         messageContext.initialize(bundle);
 
