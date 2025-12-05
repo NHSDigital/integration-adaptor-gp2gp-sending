@@ -48,22 +48,8 @@ import uk.nhs.adaptors.gp2gp.testcontainers.MongoDBExtension;
 @SpringBootTest
 @DirtiesContext
 public class IllogicalMessageComponentTest {
-    private static final String INTERACTION_ID_PATH = "/RCMR_IN010000UK05";
-    private static final String SUBJECT_PATH = INTERACTION_ID_PATH + "/ControlActEvent/subject";
-    private static final String MESSAGE_HEADER_PATH = "/Envelope/Header/MessageHeader";
-    private static final String REQUEST_ID_PATH = SUBJECT_PATH + "/EhrRequest/id/@root";
-    private static final String NHS_NUMBER_PATH = SUBJECT_PATH + "/EhrRequest/recordTarget/patient/id/@extension";
-    private static final String FROM_PARTY_ID_PATH = MESSAGE_HEADER_PATH + "/From/PartyId";
-    private static final String TO_PARTY_ID_PATH = MESSAGE_HEADER_PATH + "/To/PartyId";
-    private static final String FROM_ASID_PATH = INTERACTION_ID_PATH + "/communicationFunctionSnd/device/id/@extension";
-    private static final String TO_ASID_PATH = INTERACTION_ID_PATH + "/communicationFunctionRcv/device/id/@extension";
-    private static final String FROM_ODS_CODE_PATH = SUBJECT_PATH + "/EhrRequest/author/AgentOrgSDS/agentOrganizationSDS/id/@extension";
-    private static final String TO_ODS_CODE_PATH = SUBJECT_PATH + "/EhrRequest/destination/AgentOrgSDS/agentOrganizationSDS/id/@extension";
-    private static final String MESSAGE_ID_PATH = MESSAGE_HEADER_PATH + "/MessageData/MessageId";
     private static final String CONTINUE_REQUEST = "COPC_IN000001UK01";
     private static final String ACKNOWLEDGMENT_REQUEST = "MCCI_IN010000UK13";
-    private static final String ACTION_PATH = "/Envelope/Header/MessageHeader/Action";
-    private static final String CONVERSATION_ID_PATH = "/Envelope/Header/MessageHeader/ConversationId";
     private static final String NON_EXISTING_CONVERSATION_ID = "d3746650-096e-414b-92a4-146ceaf74f0e";
     private static final XPathService SERVICE = new XPathService();
 
@@ -219,32 +205,6 @@ public class IllogicalMessageComponentTest {
         assertFalse(inboundMessageHandler.handle(message));
 
         verify(taskDispatcher, never()).createTask(any());
-    }
-
-    @SneakyThrows
-    private void mockEhrRequest(String ebxml, String payload, String interactionId, String conversationId) {
-        String incomingMessage = null;
-        when(objectMapper.readValue(incomingMessage, InboundMessage.class)).thenReturn(inboundMessage);
-        when(inboundMessage.getEbXML()).thenReturn(ebxml);
-        when(inboundMessage.getPayload()).thenReturn(payload);
-
-        var ebxmlDocument = SERVICE.parseDocumentFromXml(ebxml);
-        when(xPathService.parseDocumentFromXml(inboundMessage.getEbXML())).thenReturn(ebxmlDocument);
-        var payloadDocument = SERVICE.parseDocumentFromXml(payload);
-        when(xPathService.parseDocumentFromXml(inboundMessage.getPayload())).thenReturn(payloadDocument);
-
-        when(xPathService.getNodeValue(ebxmlDocument, ACTION_PATH)).thenReturn(interactionId);
-        when(xPathService.getNodeValue(ebxmlDocument, CONVERSATION_ID_PATH)).thenReturn(conversationId);
-
-        when(xPathService.getNodeValue(payloadDocument, REQUEST_ID_PATH)).thenReturn("123");
-        when(xPathService.getNodeValue(payloadDocument, NHS_NUMBER_PATH)).thenReturn("123");
-        when(xPathService.getNodeValue(ebxmlDocument, FROM_PARTY_ID_PATH)).thenReturn("123");
-        when(xPathService.getNodeValue(ebxmlDocument, TO_PARTY_ID_PATH)).thenReturn("123");
-        when(xPathService.getNodeValue(payloadDocument, FROM_ASID_PATH)).thenReturn("123");
-        when(xPathService.getNodeValue(payloadDocument, TO_ASID_PATH)).thenReturn("123");
-        when(xPathService.getNodeValue(payloadDocument, FROM_ODS_CODE_PATH)).thenReturn("123");
-        when(xPathService.getNodeValue(payloadDocument, TO_ODS_CODE_PATH)).thenReturn("123");
-        when(xPathService.getNodeValue(ebxmlDocument, MESSAGE_ID_PATH)).thenReturn("123");
     }
 
     private static String asString(Resource resource) {
