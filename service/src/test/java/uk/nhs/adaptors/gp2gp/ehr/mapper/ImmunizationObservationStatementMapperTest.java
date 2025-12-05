@@ -12,8 +12,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
@@ -33,7 +31,6 @@ import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOPAT_HL7_C
 import static uk.nhs.adaptors.gp2gp.utils.XmlAssertion.assertThatXml;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class ImmunizationObservationStatementMapperTest {
     private static final String TEST_ID = "test-id";
     private static final String IMMUNIZATION_FILE_LOCATIONS = "/ehr/mapper/immunization/";
@@ -168,7 +165,6 @@ class ImmunizationObservationStatementMapperTest {
 
     @BeforeEach
     void setUp() {
-        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(TEST_ID);
         when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
             .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
@@ -197,17 +193,66 @@ class ImmunizationObservationStatementMapperTest {
         var expectedOutput = ResourceTestFileUtils.getFileContent(outputXml);
         var jsonInput = ResourceTestFileUtils.getFileContent(inputJson);
 
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+
         Immunization parsedImmunization = fhirParseService.parseResource(jsonInput, Immunization.class);
         String outputMessage = observationStatementMapper.mapImmunizationToObservationStatement(parsedImmunization, isNested);
         assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
     }
 
+    @Test
+    void When_MappingImmunizationWithoutCodeableConceptText_Expect_ObservationStatementXmlOutput() {
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+
+        var expectedOutput = ResourceTestFileUtils.getFileContent(OUTPUT_XML_WITH_PERTINENT_INFORMATION);
+        var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITHOUT_CODEABLE_CONCEPT_TEXT);
+
+        Immunization parsedImmunization = fhirParseService.parseResource(jsonInput, Immunization.class);
+        String outputMessage = observationStatementMapper.mapImmunizationToObservationStatement(parsedImmunization, false);
+        assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+    }
+
+    @Test
+    void When_MappingImmunizationWithoutRequiredPertinentInformation_Expect_ObservationStatementXmlOutput() {
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+
+        var expectedOutput = ResourceTestFileUtils.getFileContent(OUTPUT_XML_WITHOUT_REQUIRED_PERTINENT_INFORMATION);
+        var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITHOUT_REQUIRED_PERTINENT_INFORMATION);
+
+        Immunization parsedImmunization = fhirParseService.parseResource(jsonInput, Immunization.class);
+        String outputMessage = observationStatementMapper.mapImmunizationToObservationStatement(parsedImmunization, false);
+        assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+    }
+
+
+
+    @Test
+    void When_MappingImmunizationWithoutPractitioner_Expect_ObservationStatementXmlOutput() {
+        var expectedOutput = ResourceTestFileUtils.getFileContent(OUTPUT_XML_WITHOUT_PARTICIPANT);
+        var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITHOUT_PRACTITIONER);
+
+        Immunization parsedImmunization = fhirParseService.parseResource(jsonInput, Immunization.class);
+        String outputMessage = observationStatementMapper.mapImmunizationToObservationStatement(parsedImmunization, false);
+        assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+    }
+
+    @Test
+    void When_MappingImmunizationWithPractitionerButNoActor_Expect_ObservationStatementXmlOutput() {
+        var expectedOutput = ResourceTestFileUtils.getFileContent(OUTPUT_XML_WITHOUT_PARTICIPANT);
+        var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_PRACTITIONER_BUT_NO_ACTOR);
+
+        Immunization parsedImmunization = fhirParseService.parseResource(jsonInput, Immunization.class);
+        String outputMessage = observationStatementMapper.mapImmunizationToObservationStatement(parsedImmunization, false);
+        assertThat(outputMessage).isEqualToIgnoringWhitespace(expectedOutput);
+    }
+
+
+
+
     private static Stream<Arguments> resourceFileParams() {
         return Stream.of(
             Arguments.of(INPUT_JSON_WITH_PERTINENT_INFORMATION, OUTPUT_XML_WITH_PERTINENT_INFORMATION, false),
-            Arguments.of(INPUT_JSON_WITHOUT_CODEABLE_CONCEPT_TEXT, OUTPUT_XML_WITH_PERTINENT_INFORMATION, false),
             Arguments.of(INPUT_JSON_WITHOUT_DATE, OUTPUT_XML_WITHOUT_DATE, false),
-            Arguments.of(INPUT_JSON_WITHOUT_REQUIRED_PERTINENT_INFORMATION, OUTPUT_XML_WITHOUT_REQUIRED_PERTINENT_INFORMATION, false),
             Arguments.of(INPUT_JSON_REASON_NOT_GIVEN, OUTPUT_XML_WITH_REASON_NOT_GIVEN, false),
             Arguments.of(INPUT_JSON_REASON_NOT_GIVEN_TEXT, OUTPUT_XML_WITH_REASON_NOT_GIVEN, false),
             Arguments.of(INPUT_JSON_WITH_PERTINENT_INFORMATION, OUTPUT_XML_WITHOUT_CONTEXT, true),
@@ -219,8 +264,6 @@ class ImmunizationObservationStatementMapperTest {
             Arguments.of(INPUT_JSON_WITH_NO_RELATION_TO_CONDITION,
                 OUTPUT_XML_WITH_IMMUNIZATION_WITH_NO_RELATION_TO_CONDITION, false),
             Arguments.of(INPUT_JSON_WITH_VACCINE_CODE, OUTPUT_XML_WITH_VACCINE_CODE, false),
-            Arguments.of(INPUT_JSON_WITHOUT_PRACTITIONER, OUTPUT_XML_WITHOUT_PARTICIPANT, false),
-            Arguments.of(INPUT_JSON_WITH_PRACTITIONER_BUT_NO_ACTOR, OUTPUT_XML_WITHOUT_PARTICIPANT, false),
             Arguments.of(INPUT_JSON_WITH_REPORT_ORIGIN, OUTPUT_XML_WITH_IMMUNIZATION_WITH_REPORT_ORIGIN, false),
             Arguments.of(INPUT_JSON_WITH_PARENT_PRESENT_FALSE, OUTPUT_XML_WITH_IMMUNIZATION_PARENT_PRESENT_FALSE, false),
             Arguments.of(INPUT_JSON_WITH_NO_PARENT_PRESENT, OUTPUT_XML_WITH_IMMUNIZATION_NO_PARENT_PRESENT, false),
@@ -259,6 +302,7 @@ class ImmunizationObservationStatementMapperTest {
         final var parsedImmunization = fhirParseService.parseResource(jsonInput, Immunization.class);
         when(confidentialityService.generateConfidentialityCode(parsedImmunization))
             .thenReturn(Optional.of(NOPAT_HL7_CONFIDENTIALITY_CODE));
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
 
         final var actualMessage = observationStatementMapper.mapImmunizationToObservationStatement(
             parsedImmunization,
@@ -271,6 +315,8 @@ class ImmunizationObservationStatementMapperTest {
 
     @Test
     void When_MappingImmunizationWithoutNoNopatMetaSecurity_Expect_MessageDoesNotContainConfidentialityCode() {
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+
         final var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_PERTINENT_INFORMATION);
         final var parsedImmunization = fhirParseService.parseResource(jsonInput, Immunization.class);
         when(confidentialityService.generateConfidentialityCode(parsedImmunization))

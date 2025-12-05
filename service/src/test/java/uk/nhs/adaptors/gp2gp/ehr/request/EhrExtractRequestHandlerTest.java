@@ -35,7 +35,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -142,12 +141,17 @@ class EhrExtractRequestHandlerTest {
 
     private static List<String> pathsToBodyValues() {
         return List.of(
-                "/RCMR_IN010000UK05/ControlActEvent/subject/EhrRequest/id/@root",
                 "/RCMR_IN010000UK05/ControlActEvent/subject/EhrRequest/recordTarget/patient/id/@extension",
+                "/RCMR_IN010000UK05/ControlActEvent/subject/EhrRequest/destination/AgentOrgSDS/agentOrganizationSDS/id/@extension"
+        );
+    }
+
+    private static List<String> pathsToBodyValuesNoEhrExtract() {
+        return List.of(
+                "/RCMR_IN010000UK05/ControlActEvent/subject/EhrRequest/id/@root",
                 "/RCMR_IN010000UK05/communicationFunctionSnd/device/id/@extension",
                 "/RCMR_IN010000UK05/communicationFunctionRcv/device/id/@extension",
-                "/RCMR_IN010000UK05/ControlActEvent/subject/EhrRequest/author/AgentOrgSDS/agentOrganizationSDS/id/@extension",
-                "/RCMR_IN010000UK05/ControlActEvent/subject/EhrRequest/destination/AgentOrgSDS/agentOrganizationSDS/id/@extension"
+                "/RCMR_IN010000UK05/ControlActEvent/subject/EhrRequest/author/AgentOrgSDS/agentOrganizationSDS/id/@extension"
         );
     }
 
@@ -158,7 +162,7 @@ class EhrExtractRequestHandlerTest {
         Document header = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
         Document body = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_body.xml");
 
-        lenient().when(ehrExtractStatusRepository.save(any()))
+        when(ehrExtractStatusRepository.save(any()))
             .thenAnswer((Answer<EhrExtractStatus>) invocation -> (EhrExtractStatus) invocation.getArguments()[0]);
 
         removeAttributeElement(xpath, body);
@@ -175,8 +179,7 @@ class EhrExtractRequestHandlerTest {
     void When_RequiredValueIsBlankInBody_Expect_HandlerThrowsException(String xpath) {
         Document header = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
         Document body = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_body.xml");
-
-        lenient().when(ehrExtractStatusRepository.save(any()))
+        when(ehrExtractStatusRepository.save(any()))
             .thenAnswer((Answer<EhrExtractStatus>) invocation -> (EhrExtractStatus) invocation.getArguments()[0]);
 
         clearAttribute(xpath, body);
@@ -185,6 +188,21 @@ class EhrExtractRequestHandlerTest {
             .isThrownBy(() -> ehrExtractRequestHandler.handleStart(header, body, MESSAGE_TIMESTAMP))
             .withMessageContaining(xpath)
             .withMessageContaining(SpineInteraction.EHR_EXTRACT_REQUEST.getInteractionId());
+    }
+
+    @SneakyThrows
+    @ParameterizedTest
+    @MethodSource("pathsToBodyValuesNoEhrExtract")
+    void When_RequiredValueIsBlankInBodyAndNoNeedForEhrExtract_Expect_HandlerThrowsException(String xpath) {
+        Document header = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
+        Document body = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_body.xml");
+
+        clearAttribute(xpath, body);
+
+        assertThatExceptionOfType(MissingValueException.class)
+                .isThrownBy(() -> ehrExtractRequestHandler.handleStart(header, body, MESSAGE_TIMESTAMP))
+                .withMessageContaining(xpath)
+                .withMessageContaining(SpineInteraction.EHR_EXTRACT_REQUEST.getInteractionId());
     }
 
     private static List<String> pathsToHeaderValues() {
