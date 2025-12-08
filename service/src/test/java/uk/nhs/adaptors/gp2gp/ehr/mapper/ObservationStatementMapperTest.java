@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import static uk.nhs.adaptors.gp2gp.common.configuration.RedactionsContext.REDACTION_INTERACTION_ID;
@@ -209,8 +208,7 @@ class ObservationStatementMapperTest {
 
     @BeforeEach
     void setUp() {
-        lenient().when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
-        lenient().when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(TEST_ID);
+        when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(TEST_ID);
 
         when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
             .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
@@ -254,6 +252,7 @@ class ObservationStatementMapperTest {
     @ParameterizedTest
     @MethodSource("resourceFileParams")
     void When_MappingObservationJson_Expect_ObservationStatementXmlOutput(String inputJson, String outputXml) {
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         messageContext.getAgentDirectory().getAgentId(buildReference(ResourceType.Practitioner, "something"));
 
         expectedOutputMessage = ResourceTestFileUtils.getFileContent(outputXml);
@@ -267,6 +266,7 @@ class ObservationStatementMapperTest {
     @ParameterizedTest
     @MethodSource("resourceFileParamsThrowError")
     void When_MappingObservationJson_Expect_ErrorThrown(String inputJson, Class expectedClass) {
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         messageContext.getAgentDirectory().getAgentId(buildReference(ResourceType.Practitioner, "something"));
 
         var jsonInput = ResourceTestFileUtils.getFileContent(inputJson);
