@@ -11,12 +11,13 @@ Variables without a default value and not marked optional, *MUST* be defined for
 
 ### General Configuration Options
 
-| Environment Variable     | Default                   | Description                                                                               |
-|--------------------------|---------------------------|-------------------------------------------------------------------------------------------|
-| GP2GP_SERVER_PORT        | 8080                      | The port on which the GP2GP Adapter API will run.                                         |
-| GP2GP_ROOT_LOGGING_LEVEL | WARN                      | The logging level applied to the entire application (including third-party dependencies). |
-| GP2GP_LOGGING_LEVEL      | INFO                      | The logging level applied to GP2GP adaptor components.                                    |
-| GP2GP_LOGGING_FORMAT     | (*)                       | Defines how to format log events on stdout                                                |
+| Environment Variable     | Default | Description                                                                                                                    |
+|--------------------------|---------|--------------------------------------------------------------------------------------------------------------------------------|
+| GP2GP_SERVER_PORT        | 8080    | The port on which the GP2GP Adapter API will run.                                                                              |
+| GP2GP_ROOT_LOGGING_LEVEL | WARN    | The logging level applied to the entire application (including third-party dependencies).                                      |
+| GP2GP_LOGGING_LEVEL      | INFO    | The logging level applied to GP2GP adaptor components.                                                                         |
+| GP2GP_LOGGING_FORMAT     | (*)     | Defines how to format log events on stdout                                                                                     |
+| GP2GP_REDACTIONS_ENABLED | false   | Defines if RCMR_IN030000UK07 HL7 XML is produced when `NOPAT` `meta.security` fields are provided within the structured bundle |
 
 Logging levels are ane of: DEBUG, INFO, WARN, ERROR
 
