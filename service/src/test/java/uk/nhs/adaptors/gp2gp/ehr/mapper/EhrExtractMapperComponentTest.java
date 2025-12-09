@@ -1,9 +1,8 @@
 package uk.nhs.adaptors.gp2gp.ehr.mapper;
-
-import org.hl7.fhir.dstu3.model.AllergyIntolerance;
 import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Encounter;
 import org.hl7.fhir.dstu3.model.Observation;
+import org.hl7.fhir.dstu3.model.CodeableConcept;
 import org.hl7.fhir.dstu3.model.ResourceType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,8 +13,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import uk.nhs.adaptors.gp2gp.common.configuration.RedactionsContext;
 import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
@@ -37,11 +34,9 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class EhrExtractMapperComponentTest {
 
     private static final String TEST_FILE_DIRECTORY = "/ehr/request/fhir/";
@@ -112,121 +107,98 @@ class EhrExtractMapperComponentTest {
     @BeforeEach
     public void setUp() {
         getGpcStructuredTaskDefinition = GetGpcStructuredTaskDefinition.builder()
-            .nhsNumber(TEST_NHS_NUMBER)
-            .conversationId(TEST_CONVERSATION_ID)
-            .requestId(TEST_REQUEST_ID)
-            .fromOdsCode(TEST_FROM_ODS_CODE)
-            .toOdsCode(TEST_TO_ODS_CODE)
-            .build();
-
-        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID_1, TEST_ID_2, TEST_ID_3);
-        lenient().when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString()))
-            .thenReturn(TEST_ID_3);
-
-        when(timestampService.now()).thenReturn(Instant.parse(TEST_DATE_TIME));
-        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.mapCodeableConceptForMedication(any(CodeableConcept.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.mapCodeableConceptToCdForTransformedActualProblemHeader(any(CodeableConcept.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.ACTUAL_PROBLEM_CODE);
-        when(codeableConceptCdMapper.mapToNullFlavorCodeableConcept(any(CodeableConcept.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.mapCodeableConceptToCdForAllergy(any(CodeableConcept.class),
-            any(AllergyIntolerance.AllergyIntoleranceClinicalStatus.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.mapToNullFlavorCodeableConceptForAllergy(any(CodeableConcept.class),
-            any(AllergyIntolerance.AllergyIntoleranceClinicalStatus.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.getDisplayFromCodeableConcept(any(CodeableConcept.class)))
-            .thenCallRealMethod();
-        when(codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(any(CodeableConcept.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.mapToCdForTopic(any(CodeableConcept.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.mapToCdForTopic(any(CodeableConcept.class), any(String.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.mapToCdForTopic(any(String.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.getCdForTopic())
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.mapToCdForCategory(any(String.class)))
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-        when(codeableConceptCdMapper.getCdForCategory())
-            .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
-
+                .nhsNumber(TEST_NHS_NUMBER)
+                .conversationId(TEST_CONVERSATION_ID)
+                .requestId(TEST_REQUEST_ID)
+                .fromOdsCode(TEST_FROM_ODS_CODE)
+                .toOdsCode(TEST_TO_ODS_CODE)
+                .build();
 
         messageContext = new MessageContext(randomIdGeneratorService);
 
         ParticipantMapper participantMapper = new ParticipantMapper();
-        StructuredObservationValueMapper structuredObservationValueMapper = new StructuredObservationValueMapper();
-        ObservationMapper specimenObservationMapper = new ObservationMapper(
-            messageContext, structuredObservationValueMapper, codeableConceptCdMapper,
-            participantMapper, randomIdGeneratorService, confidentialityService);
-        SpecimenMapper specimenMapper = new SpecimenMapper(messageContext, specimenObservationMapper,
-            randomIdGeneratorService, confidentialityService);
-        DocumentReferenceToNarrativeStatementMapper documentReferenceToNarrativeStatementMapper
-            = new DocumentReferenceToNarrativeStatementMapper(
-                messageContext, new SupportedContentTypes(), participantMapper, confidentialityService);
+        StructuredObservationValueMapper structuredObsValueMapper = new StructuredObservationValueMapper();
 
-        EncounterComponentsMapper encounterComponentsMapper = new EncounterComponentsMapper(
-            messageContext,
-            new AllergyStructureMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService),
-            new BloodPressureMapper(
-                messageContext, randomIdGeneratorService, new StructuredObservationValueMapper(),
-                codeableConceptCdMapper, new ParticipantMapper(), confidentialityService),
-            new ConditionLinkSetMapper(
-                messageContext, randomIdGeneratorService, codeableConceptCdMapper, participantMapper, confidentialityService),
-            new DiaryPlanStatementMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService),
-            documentReferenceToNarrativeStatementMapper,
-            new ImmunizationObservationStatementMapper(
+        ObservationMapper specimenObservationMapper = new ObservationMapper(
                 messageContext,
-                codeableConceptCdMapper,
-                participantMapper,
-                confidentialityService
-            ),
-            new MedicationStatementMapper(
-                messageContext,
+                structuredObsValueMapper,
                 codeableConceptCdMapper,
                 participantMapper,
                 randomIdGeneratorService,
                 confidentialityService
-            ),
-            new ObservationToNarrativeStatementMapper(messageContext, participantMapper, confidentialityService),
-            new ObservationStatementMapper(
+        );
+
+        SpecimenMapper specimenMapper = new SpecimenMapper(
                 messageContext,
-                new StructuredObservationValueMapper(),
-                new PertinentInformationObservationValueMapper(),
-                codeableConceptCdMapper,
-                participantMapper,
+                specimenObservationMapper,
+                randomIdGeneratorService,
                 confidentialityService
-            ),
-            new RequestStatementMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService),
-            new DiagnosticReportMapper(
-                messageContext, specimenMapper, participantMapper, randomIdGeneratorService, confidentialityService
-            ),
-            new BloodPressureValidator(),
-            codeableConceptCdMapper,
-            confidentialityService
+        );
+
+        DocumentReferenceToNarrativeStatementMapper documentRefMapper =
+                new DocumentReferenceToNarrativeStatementMapper(
+                        messageContext,
+                        new SupportedContentTypes(),
+                        participantMapper,
+                        confidentialityService
+                );
+
+        EncounterComponentsMapper encounterComponentsMapper = new EncounterComponentsMapper(
+                messageContext,
+                new AllergyStructureMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService),
+                new BloodPressureMapper(messageContext, randomIdGeneratorService,
+                        new StructuredObservationValueMapper(), codeableConceptCdMapper,
+                        new ParticipantMapper(), confidentialityService),
+                new ConditionLinkSetMapper(messageContext, randomIdGeneratorService,
+                        codeableConceptCdMapper, participantMapper, confidentialityService),
+                new DiaryPlanStatementMapper(messageContext, codeableConceptCdMapper,
+                        participantMapper, confidentialityService),
+                documentRefMapper,
+                new ImmunizationObservationStatementMapper(messageContext, codeableConceptCdMapper,
+                        participantMapper, confidentialityService),
+                new MedicationStatementMapper(messageContext, codeableConceptCdMapper,
+                        participantMapper, randomIdGeneratorService, confidentialityService),
+                new ObservationToNarrativeStatementMapper(messageContext, participantMapper, confidentialityService),
+                new ObservationStatementMapper(messageContext,
+                        new StructuredObservationValueMapper(), new PertinentInformationObservationValueMapper(),
+                        codeableConceptCdMapper, participantMapper, confidentialityService),
+                new RequestStatementMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService),
+                new DiagnosticReportMapper(messageContext, specimenMapper,
+                        participantMapper, randomIdGeneratorService, confidentialityService),
+                new BloodPressureValidator(),
+                codeableConceptCdMapper,
+                confidentialityService
         );
 
         AgentDirectoryMapper agentDirectoryMapper = new AgentDirectoryMapper(
-            messageContext,
-            new AgentPersonMapper(messageContext)
+                messageContext, new AgentPersonMapper(messageContext)
         );
 
-        nonConsultationResourceMapper = new NonConsultationResourceMapper(messageContext,
-            randomIdGeneratorService,
-            encounterComponentsMapper,
-            new BloodPressureValidator()
+        nonConsultationResourceMapper = new NonConsultationResourceMapper(
+                messageContext, randomIdGeneratorService, encounterComponentsMapper, new BloodPressureValidator()
         );
 
-        ehrExtractMapper = new EhrExtractMapper(redactionsContext, randomIdGeneratorService,
-            timestampService,
-            new EncounterMapper(messageContext, encounterComponentsMapper, confidentialityService),
-            nonConsultationResourceMapper,
-            agentDirectoryMapper,
-            messageContext);
+        ehrExtractMapper = new EhrExtractMapper(
+                redactionsContext,
+                randomIdGeneratorService,
+                timestampService,
+                new EncounterMapper(messageContext, encounterComponentsMapper, confidentialityService),
+                nonConsultationResourceMapper,
+                agentDirectoryMapper,
+                messageContext
+        );
+    }
+
+    private void setupRandomIdMocks() {
+        when(randomIdGeneratorService.createNewId())
+                .thenReturn(TEST_ID_1, TEST_ID_2, TEST_ID_3);
+
+        when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString()))
+                .thenReturn(TEST_ID_3);
+    }
+
+    private void setupTimestampMock() {
+        when(timestampService.now()).thenReturn(Instant.parse(TEST_DATE_TIME));
     }
 
     @AfterEach
@@ -236,26 +208,116 @@ class EhrExtractMapperComponentTest {
 
     @Test
     void When_MappingUncategorizedObservationWithNOPAT_Expect_ObservationStatementWithConfidentialityCode() {
+        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.mapCodeableConceptForMedication(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.mapCodeableConceptToCdForTransformedActualProblemHeader(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.ACTUAL_PROBLEM_CODE);
+        when(codeableConceptCdMapper.mapCodeableConceptToCdForAllergy(any(CodeableConcept.class), any()))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.getDisplayFromCodeableConcept(any(CodeableConcept.class)))
+                .thenCallRealMethod();
+        when(codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.mapToCdForTopic(any(CodeableConcept.class), any(String.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.getCdForTopic())
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.mapToCdForCategory(any(String.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.getCdForCategory())
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(confidentialityService.generateConfidentialityCode(any(Encounter.class)))
+                .thenReturn(Optional.empty());
+
+        setupTimestampMock();
+        setupRandomIdMocks();
 
         String expectedJsonToXmlContent = ResourceTestFileUtils.getFileContent(OUTPUT_PATH + EXPECTED_XML_TO_JSON_FILE_WITH_NOPAT);
         String inputJsonFileContent = ResourceTestFileUtils.getFileContent(INPUT_PATH + JSON_INPUT_FILE_WITH_NOPAT);
         Bundle bundle = new FhirParseService().parseResource(inputJsonFileContent, Bundle.class);
-
-        Observation uncategorizedObservation = bundle.getEntry().stream()
-            .map(Bundle.BundleEntryComponent::getResource)
-            .filter(resource -> ResourceType.Observation.equals(resource.getResourceType()))
-            .map(Observation.class::cast)
-            .filter(o -> "Observation/FB5E6E97-3152-46EB-B46A-B48D21FC1099".equals(o.getId()))
-            .findFirst()
-            .get();
-
-        when(confidentialityService.generateConfidentialityCode(uncategorizedObservation)).thenReturn(Optional.of(CONFIDENTIALITY_CODE));
-
         messageContext.initialize(bundle);
 
+        Observation uncategorizedObservation = bundle.getEntry().stream()
+                .map(Bundle.BundleEntryComponent::getResource)
+                .filter(resource -> ResourceType.Observation.equals(resource.getResourceType()))
+                .map(Observation.class::cast)
+                .filter(o -> "Observation/FB5E6E97-3152-46EB-B46A-B48D21FC1099".equals(o.getId()))
+                .findFirst()
+                .get();
+
+        when(confidentialityService.generateConfidentialityCode(any(Observation.class)))
+                .thenReturn(Optional.empty());
+        when(confidentialityService.generateConfidentialityCode(any(org.hl7.fhir.dstu3.model.ListResource.class)))
+                .thenReturn(Optional.empty());
+        when(confidentialityService.generateConfidentialityCode(uncategorizedObservation))
+                .thenReturn(Optional.of(CONFIDENTIALITY_CODE));
+
+
         EhrExtractTemplateParameters ehrExtractTemplateParameters = ehrExtractMapper.mapBundleToEhrFhirExtractParams(
-            getGpcStructuredTaskDefinition,
-            bundle);
+                getGpcStructuredTaskDefinition,
+                bundle);
+
+        String output = ehrExtractMapper.mapEhrExtractToXml(ehrExtractTemplateParameters);
+
+        assertThat(output).isEqualToIgnoringWhitespace(expectedJsonToXmlContent);
+    }
+
+    @Test
+    void When_MappingProperJsonRequestBody_Expect_XmlWithoutEffectiveTime() {
+        String expectedJsonToXmlContent = ResourceTestFileUtils.getFileContent(OUTPUT_PATH + EXPECTED_XML_WITHOUT_EFFECTIVE_TIME);
+        String inputJsonFileContent = ResourceTestFileUtils.getFileContent(INPUT_PATH + FHIR_BUNDLE_WITHOUT_EFFECTIVE_TIME);
+        Bundle bundle = new FhirParseService().parseResource(inputJsonFileContent, Bundle.class);
+        messageContext.initialize(bundle);
+        setupTimestampMock();
+        setupRandomIdMocks();
+        when(codeableConceptCdMapper.mapToNullFlavorCodeableConceptForAllergy(any(CodeableConcept.class), any()))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+
+        EhrExtractTemplateParameters ehrExtractTemplateParameters = ehrExtractMapper.mapBundleToEhrFhirExtractParams(
+                getGpcStructuredTaskDefinition,
+                bundle
+        );
+        String output = ehrExtractMapper.mapEhrExtractToXml(ehrExtractTemplateParameters);
+
+        assertThat(output).isEqualToIgnoringWhitespace(expectedJsonToXmlContent);
+    }
+
+
+    @Test
+    void When_MappingProperJsonRequestBody_Expect_EhrExtractResponseFromJson() {
+        String expectedJsonToXmlContent = ResourceTestFileUtils.getFileContent(OUTPUT_PATH + EXPECTED_XML_TO_JSON_FILE);
+        String inputJsonFileContent = ResourceTestFileUtils.getFileContent(INPUT_PATH + JSON_INPUT_FILE);
+        Bundle bundle = new FhirParseService().parseResource(inputJsonFileContent, Bundle.class);
+        messageContext.initialize(bundle);
+        setupTimestampMock();
+        setupRandomIdMocks();
+
+        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.mapCodeableConceptForMedication(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.mapCodeableConceptToCdForTransformedActualProblemHeader(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.ACTUAL_PROBLEM_CODE);
+        when(codeableConceptCdMapper.mapCodeableConceptToCdForAllergy(any(CodeableConcept.class), any()))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.getDisplayFromCodeableConcept(any(CodeableConcept.class)))
+                .thenCallRealMethod();
+        when(codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.mapToCdForTopic(any(CodeableConcept.class), any(String.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.getCdForTopic())
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.mapToCdForCategory(any(String.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.getCdForCategory())
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        EhrExtractTemplateParameters ehrExtractTemplateParameters = ehrExtractMapper.mapBundleToEhrFhirExtractParams(
+                getGpcStructuredTaskDefinition,
+                bundle
+        );
         String output = ehrExtractMapper.mapEhrExtractToXml(ehrExtractTemplateParameters);
 
         assertThat(output).isEqualToIgnoringWhitespace(expectedJsonToXmlContent);
@@ -268,6 +330,8 @@ class EhrExtractMapperComponentTest {
         String inputJsonFileContent = ResourceTestFileUtils.getFileContent(INPUT_PATH + input);
         Bundle bundle = new FhirParseService().parseResource(inputJsonFileContent, Bundle.class);
         messageContext.initialize(bundle);
+        setupTimestampMock();
+        setupRandomIdMocks();
 
         EhrExtractTemplateParameters ehrExtractTemplateParameters = ehrExtractMapper.mapBundleToEhrFhirExtractParams(
             getGpcStructuredTaskDefinition,
@@ -278,12 +342,49 @@ class EhrExtractMapperComponentTest {
         assertThat(output).isEqualToIgnoringWhitespace(expectedJsonToXmlContent);
     }
 
+    @ParameterizedTest
+    @MethodSource("testDataWithObservations")
+    void When_MappingProperJsonRequestBody_Expect_ProperXmlOutputWithObservations(String input, String expected) {
+        String expectedJsonToXmlContent = ResourceTestFileUtils.getFileContent(OUTPUT_PATH + expected);
+        String inputJsonFileContent = ResourceTestFileUtils.getFileContent(INPUT_PATH + input);
+        Bundle bundle = new FhirParseService().parseResource(inputJsonFileContent, Bundle.class);
+        messageContext.initialize(bundle);
+
+        setupTimestampMock();
+        setupRandomIdMocks();
+        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+
+        EhrExtractTemplateParameters ehrExtractTemplateParameters = ehrExtractMapper.mapBundleToEhrFhirExtractParams(
+                getGpcStructuredTaskDefinition,
+                bundle
+        );
+        String output = ehrExtractMapper.mapEhrExtractToXml(ehrExtractTemplateParameters);
+
+        assertThat(output).isEqualToIgnoringWhitespace(expectedJsonToXmlContent);
+    }
+
     @Test
     void When_MappingProperJsonRequestBody_Expect_NonDuplicatedMedicationRequestRemainingResources() {
         String inputJsonFileContent =
-            ResourceTestFileUtils.getFileContent(INPUT_PATH + FHIR_BUNDLE_WITH_DUPLICATED_MEDICATION_REQUESTS);
+                ResourceTestFileUtils.getFileContent(INPUT_PATH + FHIR_BUNDLE_WITH_DUPLICATED_MEDICATION_REQUESTS);
         Bundle bundle = new FhirParseService().parseResource(inputJsonFileContent, Bundle.class);
         messageContext.initialize(bundle);
+
+        setupTimestampMock();
+        setupRandomIdMocks();
+        when(codeableConceptCdMapper.mapCodeableConceptToCd(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.mapCodeableConceptForMedication(any(CodeableConcept.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.mapCodeableConceptToCdForAllergy(any(CodeableConcept.class), any()))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.mapToCdForTopic(any(String.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.mapToCdForCategory(any(String.class)))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        when(codeableConceptCdMapper.getCdForCategory())
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
 
         EhrExtractTemplateParameters ehrExtractTemplateParameters = ehrExtractMapper.mapBundleToEhrFhirExtractParams(
             getGpcStructuredTaskDefinition,
@@ -292,21 +393,13 @@ class EhrExtractMapperComponentTest {
         assertThat(ehrExtractTemplateParameters.getComponents()).hasSize(2);
     }
 
-    private static Stream<Arguments> testData() {
-        return Stream.of(
-            Arguments.of(JSON_INPUT_FILE, EXPECTED_XML_TO_JSON_FILE),
-            Arguments.of(FHIR_BUNDLE_WITHOUT_EFFECTIVE_TIME, EXPECTED_XML_WITHOUT_EFFECTIVE_TIME),
-            Arguments.of(FHIR_BUNDLE_WITHOUT_HIGH_EFFECTIVE_TIME, EXPECTED_XML_WITHOUT_HIGH_EFFECTIVE_TIME),
-            Arguments.of(FHIR_BUNDLE_WITH_EFFECTIVE_TIME, EXPECTED_XML_WITH_EFFECTIVE_TIME),
-            Arguments.of(FHIR_BUNDLE_WITH_WITH_OBSERVATIONS_BEFORE_DIAGNOSTIC_REPORT, EXPECTED_XML_WITH_OBSERVATIONS_INSIDE_REPORT),
-            Arguments.of(FHIR_BUNDLE_WITH_WITH_OBSERVATIONS_AFTER_DIAGNOSTIC_REPORT, EXPECTED_XML_WITH_OBSERVATIONS_INSIDE_REPORT),
-            Arguments.of(FHIR_BUNDLE_WITH_OBSERVATIONS_UNRELATED_TO_DIAGNOSTIC_REPORT, EXPECTED_XML_WITH_STANDALONE_OBSERVATIONS),
-            Arguments.of(FHIR_BUNDLE_WITH_OBSERVATIONS_WITH_RELATED_OBSERVATIONS, EXPECTED_XML_WITH_RELATED_OBSERVATIONS)
-        );
-    }
-
     @Test
     void When_MappingJsonBody_Expect_OnlyOneConsultationResource() {
+        when(codeableConceptCdMapper.mapToNullFlavorCodeableConceptForAllergy(any(CodeableConcept.class), any()))
+                .thenReturn(CodeableConceptMapperMockUtil.NULL_FLAVOR_CODE);
+        setupTimestampMock();
+        setupRandomIdMocks();
+
         String expectedJsonToXmlContent = ResourceTestFileUtils.getFileContent(OUTPUT_PATH + EXPECTED_XML_FOR_ONE_CONSULTATION_RESOURCE);
         String inputJsonFileContent = ResourceTestFileUtils.getFileContent(ONE_CONSULTATION_RESOURCE_BUNDLE);
         Bundle bundle = new FhirParseService().parseResource(inputJsonFileContent, Bundle.class);
@@ -326,5 +419,21 @@ class EhrExtractMapperComponentTest {
         messageContext.initialize(parsedBundle);
         var translatedOutput = nonConsultationResourceMapper.mapRemainingResourcesToEhrCompositions(parsedBundle);
         assertThat(translatedOutput).hasSize(1);
+    }
+
+    private static Stream<Arguments> testData() {
+        return Stream.of(
+                Arguments.of(FHIR_BUNDLE_WITHOUT_HIGH_EFFECTIVE_TIME, EXPECTED_XML_WITHOUT_HIGH_EFFECTIVE_TIME),
+                Arguments.of(FHIR_BUNDLE_WITH_EFFECTIVE_TIME, EXPECTED_XML_WITH_EFFECTIVE_TIME)
+        );
+    }
+
+    private static Stream<Arguments> testDataWithObservations() {
+        return Stream.of(
+                Arguments.of(FHIR_BUNDLE_WITH_WITH_OBSERVATIONS_BEFORE_DIAGNOSTIC_REPORT, EXPECTED_XML_WITH_OBSERVATIONS_INSIDE_REPORT),
+                Arguments.of(FHIR_BUNDLE_WITH_WITH_OBSERVATIONS_AFTER_DIAGNOSTIC_REPORT, EXPECTED_XML_WITH_OBSERVATIONS_INSIDE_REPORT),
+                Arguments.of(FHIR_BUNDLE_WITH_OBSERVATIONS_UNRELATED_TO_DIAGNOSTIC_REPORT, EXPECTED_XML_WITH_STANDALONE_OBSERVATIONS),
+                Arguments.of(FHIR_BUNDLE_WITH_OBSERVATIONS_WITH_RELATED_OBSERVATIONS, EXPECTED_XML_WITH_RELATED_OBSERVATIONS)
+        );
     }
 }

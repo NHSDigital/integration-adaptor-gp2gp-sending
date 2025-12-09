@@ -3,7 +3,6 @@ package uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOPAT_HL7_CONFIDENTIALITY_CODE;
 
@@ -17,7 +16,6 @@ import org.hl7.fhir.dstu3.model.DiagnosticReport;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.dstu3.model.InstantType;
 import org.hl7.fhir.dstu3.model.Observation;
-import org.hl7.fhir.dstu3.model.Reference;
 import org.hl7.fhir.dstu3.model.ResourceType;
 import org.hl7.fhir.dstu3.model.Specimen;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +34,6 @@ import uk.nhs.adaptors.gp2gp.utils.FileParsingUtility;
 import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
-import uk.nhs.adaptors.gp2gp.ehr.mapper.AgentDirectory;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.IdMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.InputBundle;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.MessageContext;
@@ -63,8 +60,6 @@ class SpecimenMapperTest {
     @Mock
     private IdMapper idMapper;
     @Mock
-    private AgentDirectory agentDirectory;
-    @Mock
     private ObservationMapper observationMapper;
     @Mock
     private RandomIdGeneratorService randomIdGeneratorService;
@@ -75,14 +70,7 @@ class SpecimenMapperTest {
 
     @BeforeEach
     void setUp() {
-        var inputBundleString = ResourceTestFileUtils.getFileContent(FHIR_INPUT_BUNDLE);
-        var inputBundle = new FhirParseService().parseResource(inputBundleString, Bundle.class);
-        lenient().when(messageContext.getIdMapper()).thenReturn(idMapper);
-        lenient().when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
-        lenient().when(messageContext.getInputBundleHolder()).thenReturn(new InputBundle(inputBundle));
-        lenient().when(idMapper.getOrNew(any(ResourceType.class), any(IdType.class))).thenAnswer(mockId());
-        lenient().when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(mockReference());
-
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
         when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
 
         observations = List.of(
@@ -95,9 +83,30 @@ class SpecimenMapperTest {
     void When_MappingSpecimen_Expect_XmlOutput(String inputPath, String expectedPath) {
         final Specimen specimen = getSpecimenResourceFromJson(inputPath);
         final String expectedXml = ResourceTestFileUtils.getFileContent(SPECIMEN_TEST_FILES_DIRECTORY + expectedPath);
+        var inputBundleString = ResourceTestFileUtils.getFileContent(FHIR_INPUT_BUNDLE);
+        var inputBundle = new FhirParseService().parseResource(inputBundleString, Bundle.class);
 
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(messageContext.getInputBundleHolder()).thenReturn(new InputBundle(inputBundle));
+        when(idMapper.getOrNew(any(ResourceType.class), any(IdType.class))).thenAnswer(mockId());
         when(observationMapper.mapObservationToCompoundStatement(any(Observation.class)))
             .thenAnswer(mockObservationMapping());
+
+        final String actualXml = specimenMapper.mapSpecimenToCompoundStatement(specimen, observations, DIAGNOSTIC_REPORT);
+
+        assertThat(actualXml).isEqualTo(expectedXml);
+    }
+
+    @ParameterizedTest
+    @MethodSource("testDataNoNeedToMockBundle")
+    void When_MappingSpecimen_Expect_XmlOutputWithoutCertainData(String inputPath, String expectedPath) {
+        final Specimen specimen = getSpecimenResourceFromJson(inputPath);
+        final String expectedXml = ResourceTestFileUtils.getFileContent(SPECIMEN_TEST_FILES_DIRECTORY + expectedPath);
+
+        when(messageContext.getIdMapper()).thenReturn(idMapper);
+        when(idMapper.getOrNew(any(ResourceType.class), any(IdType.class))).thenAnswer(mockId());
+        when(observationMapper.mapObservationToCompoundStatement(any(Observation.class)))
+                .thenAnswer(mockObservationMapping());
 
         final String actualXml = specimenMapper.mapSpecimenToCompoundStatement(specimen, observations, DIAGNOSTIC_REPORT);
 
@@ -202,13 +211,6 @@ class SpecimenMapperTest {
     private static Stream<Arguments> testData() {
         return Stream.of(
             Arguments.of("input-specimen.json", "expected-specimen.xml"),
-            Arguments.of("input-specimen-with-collection-period.json", "expected-specimen-with-collection-period.xml"),
-            Arguments.of("input-specimen-without-accession-identifier.json", "expected-specimen-without-accession-identifier.xml"),
-            Arguments.of("input-specimen-without-collection-time.json", "expected-specimen-without-collection-time.xml"),
-            Arguments.of("input-specimen-without-type.json", "expected-specimen-without-type.xml"),
-            Arguments.of("input-specimen-without-type-text.json", "expected-specimen-without-type-text.xml"),
-            Arguments.of("input-specimen-without-agent-person.json", "expected-specimen-without-agent-person.xml"),
-            Arguments.of("input-specimen-without-collection-details.json", "expected-specimen-without-collection-details.xml"),
             Arguments.of("input-specimen-without-fasting-status.json", "expected-specimen-without-fasting-status.xml"),
             Arguments.of("input-specimen-without-fasting-duration.json", "expected-specimen-without-fasting-duration.xml"),
             Arguments.of("input-specimen-without-quantity.json", "expected-specimen-without-quantity.xml"),
@@ -220,18 +222,23 @@ class SpecimenMapperTest {
         );
     }
 
+    private static Stream<Arguments> testDataNoNeedToMockBundle() {
+        return Stream.of(
+            Arguments.of("input-specimen-with-collection-period.json", "expected-specimen-with-collection-period.xml"),
+            Arguments.of("input-specimen-without-accession-identifier.json", "expected-specimen-without-accession-identifier.xml"),
+            Arguments.of("input-specimen-without-collection-time.json", "expected-specimen-without-collection-time.xml"),
+            Arguments.of("input-specimen-without-type.json", "expected-specimen-without-type.xml"),
+            Arguments.of("input-specimen-without-type-text.json", "expected-specimen-without-type-text.xml"),
+            Arguments.of("input-specimen-without-agent-person.json", "expected-specimen-without-agent-person.xml"),
+            Arguments.of("input-specimen-without-collection-details.json", "expected-specimen-without-collection-details.xml")
+        );
+    }
+
     private Answer<String> mockId() {
         return invocation -> {
             ResourceType resourceType = invocation.getArgument(0);
             String originalId = invocation.getArgument(1).toString();
             return String.format("ID-for-%s-%s", resourceType.name(), originalId);
-        };
-    }
-
-    private Answer<String> mockReference() {
-        return invocation -> {
-            Reference reference = invocation.getArgument(0);
-            return String.format("REFERENCE-to-%s", reference.getReference());
         };
     }
 
