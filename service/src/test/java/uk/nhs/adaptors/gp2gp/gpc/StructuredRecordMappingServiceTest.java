@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.doThrow;
@@ -21,7 +20,6 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.DocumentReference;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.ResourceType;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -74,13 +72,9 @@ class StructuredRecordMappingServiceTest {
     @InjectMocks
     private StructuredRecordMappingService structuredRecordMappingService;
 
-    @BeforeEach
-    void setup() {
-        lenient().when(messageContext.getIdMapper()).thenReturn(new IdMapper(randomIdGeneratorService));
-    }
-
     @Test
     void When_GettingExternalAttachments_Expect_AllDocumentReferenceResourcesAreMapped() {
+        when(messageContext.getIdMapper()).thenReturn(new IdMapper(randomIdGeneratorService));
         when(randomIdGeneratorService.createNewId()).thenReturn(
                 NEW_DOC_MANIFEST_ID_1,
                 NEW_DOC_MANIFEST_ID_2
@@ -115,6 +109,7 @@ class StructuredRecordMappingServiceTest {
 
     @Test
     void When_GettingExternalAttachment_WithWrongContentType_Expect_AbsentAttachmentMapped() {
+        when(messageContext.getIdMapper()).thenReturn(new IdMapper(randomIdGeneratorService));
         when(randomIdGeneratorService.createNewId()).thenReturn(NEW_DOC_MANIFEST_ID_1);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(NEW_DOC_MANIFEST_ID_1);
         when(gp2gpConfiguration.getLargeAttachmentThreshold()).thenReturn(LARGE_MESSAGE_THRESHOLD);
@@ -132,6 +127,7 @@ class StructuredRecordMappingServiceTest {
 
     @Test
     void When_GettingExternalAttachment_WithTitleAndNoUrl_Expect_AbsentAttachmentMapped() {
+        when(messageContext.getIdMapper()).thenReturn(new IdMapper(randomIdGeneratorService));
         when(randomIdGeneratorService.createNewId()).thenReturn(NEW_DOC_MANIFEST_ID_1);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(NEW_DOC_MANIFEST_ID_1);
         when(gp2gpConfiguration.getLargeAttachmentThreshold()).thenReturn(LARGE_MESSAGE_THRESHOLD);

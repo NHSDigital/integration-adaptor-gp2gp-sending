@@ -5,15 +5,12 @@ import org.hl7.fhir.dstu3.model.Organization;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 import uk.nhs.adaptors.gp2gp.utils.TestArgumentsLoaderUtil;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class OrganizationToAgentMapperTest {
 
     private static final String TEST_ID = "5E496953-065B-41F2-9577-BE8F2FBD0757";

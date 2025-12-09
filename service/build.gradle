@@ -78,13 +78,15 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation "org.assertj:assertj-core:3.27.6"
 	testImplementation 'org.apache.commons:commons-compress:1.28.0'
-	testImplementation 'org.testcontainers:testcontainers:1.21.3'
-	testImplementation 'org.testcontainers:junit-jupiter:1.21.3'
+    testImplementation(platform('org.testcontainers:testcontainers-bom:2.0.2'))
+    testImplementation 'commons-io:commons-io:2.21.0'
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:junit-jupiter'
 	testImplementation 'org.awaitility:awaitility:4.3.0'
 	testImplementation 'org.wiremock:wiremock-standalone:3.13.1'
 	testImplementation 'com.squareup.okhttp3:okhttp:5.3.0'
 	testImplementation 'com.squareup.okhttp3:mockwebserver3:5.3.0'
-	testImplementation 'com.adobe.testing:s3mock-testcontainers:4.7.0'
+	testImplementation 'com.adobe.testing:s3mock-testcontainers:4.10.0'
 
     spotbugs 'com.github.spotbugs:spotbugs:4.9.8'
     spotbugs 'com.github.spotbugs:spotbugs-annotations:4.9.8'
