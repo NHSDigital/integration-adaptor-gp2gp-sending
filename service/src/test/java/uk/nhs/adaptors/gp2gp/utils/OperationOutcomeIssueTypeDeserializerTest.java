@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import uk.nhs.adaptors.gp2gp.common.utils.OperationOutcomeIssueTypeDeserializer;
 
@@ -22,7 +23,7 @@ class OperationOutcomeIssueTypeDeserializerTest {
 
         final var deserializedValue = jsonMapper.convertValue("not-found", OperationOutcome.IssueType.class);
 
-        assertThat(OperationOutcome.IssueType.NOTFOUND).isEqualTo(deserializedValue);
+        assertEquals(OperationOutcome.IssueType.NOTFOUND, deserializedValue);
     }
 
     @Test
@@ -35,7 +36,7 @@ class OperationOutcomeIssueTypeDeserializerTest {
 
         final var deserializedValue = jsonMapper.convertValue("transient", OperationOutcome.IssueType.class);
 
-        assertThat(OperationOutcome.IssueType.TRANSIENT).isEqualTo(deserializedValue);
+        assertEquals(OperationOutcome.IssueType.TRANSIENT, deserializedValue);
     }
 
     @Test
