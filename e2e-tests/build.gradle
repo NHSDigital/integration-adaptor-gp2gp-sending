@@ -3,8 +3,6 @@ plugins {
     id "io.freefair.lombok" version "9.1.0"
 }
 
-apply plugin: 'java'
-
 group = 'uk.nhs.adaptors'
 sourceCompatibility = '21'
 
@@ -18,6 +16,7 @@ dependencies {
     implementation 'org.mongodb:mongo-java-driver:3.12.14'
     testImplementation(platform('org.junit:junit-bom:6.0.0'))
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.20.0'
     testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1'
     testImplementation 'commons-io:commons-io:2.21.0'
@@ -26,8 +25,6 @@ dependencies {
     testImplementation 'ch.qos.logback:logback-classic:1.5.21'
     testImplementation 'org.xmlunit:xmlunit-assertj3:2.11.0'
     testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.5.1'
-
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.withType(Test) {
@@ -41,4 +38,3 @@ test {
     useJUnitPlatform()
     dependsOn "cleanTest" // never re-use previous test outputs
 }
-
