@@ -14,7 +14,7 @@ plugins {
 }
 
 spotbugs {
-    toolVersion = '4.9.5'
+	toolVersion = '4.9.5'
 }
 
 apply plugin: 'java'
@@ -24,15 +24,15 @@ apply plugin: "com.github.spotbugs"
 apply plugin: 'application'
 
 application {
-    mainClassName = 'uk.nhs.adaptors.gp2gp.Gp2gpApplication'
+	mainClassName = 'uk.nhs.adaptors.gp2gp.Gp2gpApplication'
 }
 
 group = 'uk.nhs.adaptors'
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
 }
 
 checkstyle {
@@ -78,21 +78,21 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation "org.assertj:assertj-core:3.27.6"
 	testImplementation 'org.apache.commons:commons-compress:1.28.0'
-    testImplementation(platform('org.testcontainers:testcontainers-bom:2.0.2'))
-    testImplementation 'commons-io:commons-io:2.21.0'
-    testImplementation 'org.testcontainers:testcontainers'
-    testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation(platform('org.testcontainers:testcontainers-bom:2.0.2'))
+	testImplementation 'commons-io:commons-io:2.21.0'
+	testImplementation 'org.testcontainers:testcontainers'
+	testImplementation 'org.testcontainers:junit-jupiter'
 	testImplementation 'org.awaitility:awaitility:4.3.0'
 	testImplementation 'org.wiremock:wiremock-standalone:3.13.1'
 	testImplementation 'com.squareup.okhttp3:okhttp:5.3.0'
 	testImplementation 'com.squareup.okhttp3:mockwebserver3:5.3.0'
 	testImplementation 'com.adobe.testing:s3mock-testcontainers:4.10.0'
 
-    spotbugs 'com.github.spotbugs:spotbugs:4.9.8'
-    spotbugs 'com.github.spotbugs:spotbugs-annotations:4.9.8'
+	spotbugs 'com.github.spotbugs:spotbugs:4.9.8'
+	spotbugs 'com.github.spotbugs:spotbugs-annotations:4.9.8'
 
-    pitest 'com.arcmutate:base:1.3.2'
-    pitest 'com.arcmutate:pitest-git-plugin:2.1.0'
+	pitest 'com.arcmutate:base:1.3.2'
+	pitest 'com.arcmutate:pitest-git-plugin:2.1.0'
 }
 
 test {
@@ -121,33 +121,35 @@ sourceSets {
 }
 
 tasks.register('interoperabilityTestingToolJsonToXml', JavaExec) {
-    dependsOn 'classes'
-    mainClass.set('uk.nhs.adaptors.gp2gp.transformjsontoxmltool.TransformJsonToXml')
-    classpath = sourceSets.main.runtimeClasspath
+	dependsOn 'classes'
+	mainClass.set('uk.nhs.adaptors.gp2gp.transformjsontoxmltool.TransformJsonToXml')
+	classpath = sourceSets.main.runtimeClasspath
 }
 
 configurations {
 	integrationTestCompileOnly.extendsFrom testCompileOnly
 	integrationTestImplementation.extendsFrom testImplementation
-	integrationTestRuntime.extendsFrom testRuntime
+	integrationTestRuntime.extendsFrom testRuntimeOnly
 	integrationTestAnnotationProcessor.extendsFrom testAnnotationProcessor
 }
 
 tasks.register('integrationTest', Test) {
-    useJUnitPlatform() {
-        description = 'Runs integration tests.'
-        group = 'verification'
+	// Runs integration tests
+	description = 'Runs integration tests.'
+	group = 'verification'
 
-        testClassesDirs = sourceSets.integrationTest.output.classesDirs
-        classpath = sourceSets.integrationTest.runtimeClasspath
-        shouldRunAfter test
-    }
+	// Enable JUnit 5
+	useJUnitPlatform()
+
+	testClassesDirs = sourceSets.integrationTest.output.classesDirs
+	classpath = sourceSets.integrationTest.runtimeClasspath
+	shouldRunAfter test
 }
 
 tasks.withType(Test).configureEach {
-    testLogging {
-        events "passed", "skipped", "failed"
-    }
+	testLogging {
+		events "passed", "skipped", "failed"
+	}
 }
 
 check.dependsOn integrationTest
@@ -163,7 +165,7 @@ spotbugsMain {
 			enabled(true)
 		}
 	}
-    excludeFilter.set(file("spotbugs/exclude.xml"))
+	excludeFilter.set(file("spotbugs/exclude.xml"))
 }
 
 pitest {
@@ -175,7 +177,7 @@ pitest {
 	features = ["+GIT(from[HEAD~1])"]
 
 	// PRs which don't introduce any production code changes, shouldn't fail the Mutation Testing Actions Workflow
-        failWhenNoMutations = false
+	failWhenNoMutations = false
 
 	mutators = ['STRONGER', 'EXTENDED_ALL']
 
@@ -198,4 +200,3 @@ sonar {
 bootJar {
 	exclude("**/TransformJsonToXml*")
 }
-
