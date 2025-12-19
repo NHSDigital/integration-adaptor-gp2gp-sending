@@ -256,7 +256,6 @@ class CodeableConceptCdMapperTest {
         private static Stream<Arguments> codeableConceptCases() {
             return Stream.of(
 
-                // --- 1 ---
                 Arguments.of(
                     "WithoutCoding → nullFlavor UNK without originalText",
                     """
@@ -267,9 +266,8 @@ class CodeableConceptCdMapperTest {
                     """
                     <code nullFlavor="UNK">
                     </code>"""
-                            ),
+                ),
 
-                // --- 2 ---
                 Arguments.of(
                     "SNOMED with display → code, system, display & originalText",
                     """
@@ -289,9 +287,8 @@ class CodeableConceptCdMapperTest {
                     <code code="852471000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Prothrombin time">
                         <originalText>Prothrombin time</originalText>
                     </code>"""
-                            ),
+                ),
 
-                // --- 3 ---
                 Arguments.of(
                     "SNOMED no display, with descriptionId extension → displayName empty",
                     """
@@ -320,9 +317,8 @@ class CodeableConceptCdMapperTest {
                     """
                     <code code="852471000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="">
                     </code>"""
-                            ),
+                ),
 
-                // --- 4 ---
                 Arguments.of(
                     "SNOMED no display, descriptionDisplay extension → originalText from extension",
                     """
@@ -352,9 +348,8 @@ class CodeableConceptCdMapperTest {
                     <code code="852471000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="">
                         <originalText>Prothrombin time (observed)</originalText>
                     </code>"""
-                            ),
+                ),
 
-                // --- 5 ---
                 Arguments.of(
                     "SNOMED + legacy coding → translations generated",
                     """
@@ -386,9 +381,8 @@ class CodeableConceptCdMapperTest {
                         <translation code="42Q5.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="Observed Prothrombin time" />
                         <translation code="123456" codeSystem="2.16.840.1.113883.2.1.3.2.4.14" displayName="Prothrombin time (observed)" />
                     </code>"""
-                            ),
+                ),
 
-                // --- 6 ---
                 Arguments.of(
                     "Non-SNOMED, text present → nullFlavor=UNK originalText from text",
                     """
@@ -409,9 +403,8 @@ class CodeableConceptCdMapperTest {
                     <code nullFlavor="UNK">
                         <originalText>Prothrombin time (observed)</originalText>
                     </code>"""
-                            ),
+                ),
 
-                // --- 7 ---
                 Arguments.of(
                     "Non-SNOMED no text, display present → originalText from display",
                     """
@@ -431,9 +424,8 @@ class CodeableConceptCdMapperTest {
                     <code nullFlavor="UNK">
                         <originalText>Prothrombin time</originalText>
                     </code>"""
-                            ),
+                ),
 
-                // --- 8 ---
                 Arguments.of(
                     "Non-SNOMED with descriptionId extension → originalText from display",
                     """
@@ -464,9 +456,8 @@ class CodeableConceptCdMapperTest {
                     <code nullFlavor="UNK">
                         <originalText>Prothrombin time</originalText>
                     </code>"""
-                            ),
+                ),
 
-                // --- 9 ---
                 Arguments.of(
                     "Non-SNOMED descriptionDisplay extension → originalText from extension",
                     """
@@ -497,9 +488,8 @@ class CodeableConceptCdMapperTest {
                     <code nullFlavor="UNK">
                         <originalText>Prothrombin time (observed)</originalText>
                     </code>"""
-                            ),
+                ),
 
-                // --- 10 ---
                 Arguments.of(
                     "No SNOMED but multiple legacy → nullFlavor=UNK, originalText from first",
                     """
@@ -524,8 +514,8 @@ class CodeableConceptCdMapperTest {
                     <code nullFlavor="UNK">
                         <originalText>Observed Prothrombin time</originalText>
                     </code>"""
-                            )
-                            );
+                )
+            );
         }
     }
 
