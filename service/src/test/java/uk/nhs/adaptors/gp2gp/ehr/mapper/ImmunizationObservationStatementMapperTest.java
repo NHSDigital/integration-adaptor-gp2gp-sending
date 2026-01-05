@@ -2,6 +2,7 @@ package uk.nhs.adaptors.gp2gp.ehr.mapper;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.CodeableConcept;
+import org.hl7.fhir.dstu3.model.Coding;
 import org.hl7.fhir.dstu3.model.Immunization;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +17,7 @@ import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
+import uk.nhs.adaptors.gp2gp.ehr.utils.CodeableConceptMappingUtils;
 import uk.nhs.adaptors.gp2gp.utils.CodeableConceptMapperMockUtil;
 import uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
@@ -330,4 +332,22 @@ class ImmunizationObservationStatementMapperTest {
         assertThatXml(actualMessage)
             .doesNotContainXPath(OBSERVATION_STATEMENT_CONFIDENTIALITY_CODE_XPATH);
     }
+
+    @Test
+    void When_MappingImmunizationWithUserSelectedSite_Expect_SiteTextFromUserSelectedCoding() {
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+
+        final var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_SITE_USER_SELECTED);
+        final var expectedOutput = ResourceTestFileUtils.getFileContent(OUTPUT_XML_WITH_IMMUNIZATION_SITE_USER_SELECTED);
+
+        Immunization parsedImmunization = fhirParseService.parseResource(jsonInput, Immunization.class);
+        when(confidentialityService.generateConfidentialityCode(parsedImmunization))
+                .thenReturn(Optional.empty());
+
+        String actualMessage = observationStatementMapper.mapImmunizationToObservationStatement(parsedImmunization, false);
+
+        assertThat(actualMessage).isEqualToIgnoringWhitespace(expectedOutput);
+        assertThat(actualMessage).contains("Site With User Selected");
+    }
+
 }
