@@ -330,4 +330,22 @@ class ImmunizationObservationStatementMapperTest {
         assertThatXml(actualMessage)
             .doesNotContainXPath(OBSERVATION_STATEMENT_CONFIDENTIALITY_CODE_XPATH);
     }
+
+    @Test
+    void When_MappingImmunizationWithUserSelectedSite_Expect_SiteTextFromUserSelectedCoding() {
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+
+        final var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_WITH_SITE_USER_SELECTED);
+        final var expectedOutput = ResourceTestFileUtils.getFileContent(OUTPUT_XML_WITH_IMMUNIZATION_SITE_USER_SELECTED);
+
+        Immunization parsedImmunization = fhirParseService.parseResource(jsonInput, Immunization.class);
+        when(confidentialityService.generateConfidentialityCode(parsedImmunization))
+                .thenReturn(Optional.empty());
+
+        String actualMessage = observationStatementMapper.mapImmunizationToObservationStatement(parsedImmunization, false);
+
+        assertThat(actualMessage).isEqualToIgnoringWhitespace(expectedOutput);
+        assertThat(actualMessage).contains("Site With User Selected");
+    }
+
 }

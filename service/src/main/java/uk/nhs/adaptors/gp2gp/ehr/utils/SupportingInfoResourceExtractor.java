@@ -46,7 +46,7 @@ public class SupportingInfoResourceExtractor {
                 .append(formatDateUsingDayPrecision(documentReference.getIndexedElement()));
         }
 
-        CodeableConceptMappingUtils.extractTextOrCoding(documentReference.getType()).ifPresent(
+        CodeableConceptMappingUtils.extractUserSelectedTextOrCoding(documentReference.getType()).ifPresent(
             code -> stringBuilder
                 .append(" ")
                 .append(code)
@@ -89,7 +89,7 @@ public class SupportingInfoResourceExtractor {
             }
         }
 
-        CodeableConceptMappingUtils.extractTextOrCoding(observation.getCode()).ifPresent(
+        CodeableConceptMappingUtils.extractUserSelectedTextOrCoding(observation.getCode()).ifPresent(
             code -> stringBuilder
                 .append(" ")
                 .append(code)
@@ -122,7 +122,7 @@ public class SupportingInfoResourceExtractor {
         }
 
         if (referralRequest.hasReasonCode()) {
-            CodeableConceptMappingUtils.extractTextOrCoding(referralRequest.getReasonCode().getFirst()).ifPresent(
+            CodeableConceptMappingUtils.extractUserSelectedTextOrCoding(referralRequest.getReasonCode().getFirst()).ifPresent(
                     reasonCode -> stringBuilder
                         .append(" ")
                         .append(reasonCode)
@@ -215,7 +215,7 @@ public class SupportingInfoResourceExtractor {
             .getInputBundleHolder()
             .getResource(medicationRequest.getMedicationReference().getReferenceElement())
             .map(Medication.class::cast)
-            .flatMap(medication -> CodeableConceptMappingUtils.extractTextOrCoding(medication.getCode()))
+            .flatMap(medication -> CodeableConceptMappingUtils.extractUserSelectedTextOrCoding(medication.getCode()))
             .map(code -> " " + code)
             .orElse("");
     }
@@ -223,7 +223,7 @@ public class SupportingInfoResourceExtractor {
     private static String buildCodeableConceptTextFromMedicationCodableConcept(
         MedicationRequest medicationRequest
     ) {
-        return " " + CodeableConceptMappingUtils.extractTextOrCoding(medicationRequest.getMedicationCodeableConcept())
+        return " " + CodeableConceptMappingUtils.extractUserSelectedTextOrCoding(medicationRequest.getMedicationCodeableConcept())
             .orElse("");
     }
 
