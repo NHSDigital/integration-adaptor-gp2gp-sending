@@ -145,8 +145,9 @@ class EhrExtractMapperComponentTest {
 
         EncounterComponentsMapper encounterComponentsMapper = new EncounterComponentsMapper(
                 messageContext,
-                new AllergyStructureMapper(messageContext,codeableConceptCdMapper, participantMapper, confidentialityService,
-                    new PertinentInformationAllergyMapper(messageContext)),
+                new AllergyStructureMapper(messageContext, codeableConceptCdMapper, participantMapper,
+                        confidentialityService,
+                        new PertinentInformationAllergyMapper(messageContext)),
                 new BloodPressureMapper(messageContext, randomIdGeneratorService,
                         new StructuredObservationValueMapper(), codeableConceptCdMapper,
                         new ParticipantMapper(), confidentialityService),

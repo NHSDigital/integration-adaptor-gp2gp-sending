@@ -82,7 +82,7 @@ public class AllergyStructureMapper {
             }
             if (category.equals(AllergyIntoleranceCategory.MEDICATION)) {
                 return codeableConceptCdMapper.mapToNullFlavorCodeableConceptForAllergy(allergyCode, clinicalStatus);
-                }
+            }
             throw new EhrMapperException("Category could not be mapped");
         }
         return codeableConceptCdMapper.mapCodeableConceptToCdForAllergy(allergyCode, clinicalStatus);
@@ -117,7 +117,7 @@ public class AllergyStructureMapper {
     }
     private Optional<String> buildParticipant(Reference reference, ParticipantType participantType) {
         var resourceType = reference.getReferenceElement().getResourceType();
-        if(!resourceType.startsWith(ResourceType.Practitioner.name())) {
+        if (!resourceType.startsWith(ResourceType.Practitioner.name())) {
             return Optional.empty();
         }
         var authorReferenceId = messageContext.getAgentDirectory().getAgentId(reference);
