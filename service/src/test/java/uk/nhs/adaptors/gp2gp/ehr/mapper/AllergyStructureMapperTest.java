@@ -113,8 +113,6 @@ public class AllergyStructureMapperTest {
     void setUp() {
         when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(TEST_ID);
-        when(confidentialityService.generateConfidentialityCode(any()))
-            .thenReturn(Optional.empty());
 
         var bundleInput = ResourceTestFileUtils.getFileContent(INPUT_JSON_BUNDLE);
         Bundle bundle = new FhirParseService().parseResource(bundleInput, Bundle.class);
@@ -128,7 +126,8 @@ public class AllergyStructureMapperTest {
             messageContext,
             codeableConceptCdMapper,
             new ParticipantMapper(),
-            confidentialityService);
+            confidentialityService,
+            new PertinentInformationAllergyMapper(messageContext));
     }
 
     @AfterEach
