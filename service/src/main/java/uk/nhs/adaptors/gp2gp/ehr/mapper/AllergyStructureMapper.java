@@ -140,7 +140,7 @@ public class AllergyStructureMapper {
             .map(Enumeration::getValue)
             .filter(this::isMedicationOrEnvironmentCategory)
             .findFirst()
-            .orElse(null);
+            .orElse(AllergyIntoleranceCategory.NULL);
     }
 
     private boolean isValidAsserter(AllergyIntolerance allergyIntolerance) {
