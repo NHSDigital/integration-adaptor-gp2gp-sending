@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
@@ -28,14 +27,15 @@ import lombok.SneakyThrows;
 @Component
 public class XPathService {
 
-    private static final ThreadLocal<XPath> XPATH = ThreadLocal.withInitial(() -> XPathFactory.newInstance().newXPath());
     private static final Map<String, XPathExpression> CACHE = new ConcurrentHashMap<>();
     private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newDefaultInstance();
 
     private XPathExpression compile(String expression) {
         return CACHE.computeIfAbsent(expression, expr -> {
             try {
-                return XPATH.get().compile(expr);
+                return XPathFactory.newInstance()
+                    .newXPath()
+                    .compile(expr);
             } catch (XPathExpressionException e) {
                 throw new IllegalArgumentException("Invalid xpath: " + expr, e);
             }
@@ -65,11 +65,9 @@ public class XPathService {
 
     public String getNodeValue(Document xmlDoc, String firstExpression, String secondExpression) {
         var firstExtraction = getNodeValue(xmlDoc, firstExpression);
-        if (StringUtils.isNotBlank(firstExtraction)) {
-            return firstExtraction;
-        } else {
-            return getNodeValue(xmlDoc, secondExpression);
-        }
+        return StringUtils.isNotBlank(firstExtraction)
+               ? firstExtraction
+               : getNodeValue(xmlDoc, secondExpression);
     }
 
     @SneakyThrows
