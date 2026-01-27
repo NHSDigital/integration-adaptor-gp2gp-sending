@@ -28,14 +28,14 @@ import lombok.SneakyThrows;
 @Component
 public class XPathService {
 
-    private static final XPath XPATH = XPathFactory.newInstance().newXPath();
+    private static final ThreadLocal<XPath> XPATH = ThreadLocal.withInitial(() -> XPathFactory.newInstance().newXPath());
     private static final Map<String, XPathExpression> CACHE = new ConcurrentHashMap<>();
     private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newDefaultInstance();
 
     private XPathExpression compile(String expression) {
         return CACHE.computeIfAbsent(expression, expr -> {
             try {
-                return XPATH.compile(expr);
+                return XPATH.get().compile(expr);
             } catch (XPathExpressionException e) {
                 throw new IllegalArgumentException("Invalid xpath: " + expr, e);
             }
@@ -74,10 +74,10 @@ public class XPathService {
 
     @SneakyThrows
     public NodeList getNodes(Document document, String xPath) {
-        XPathExpression xPathExpression = XPathFactory.newInstance()
-            .newXPath()
-            .compile(xPath);
-
-        return (NodeList) xPathExpression.evaluate(document, NODESET);
+        try {
+            return (NodeList) compile(xPath).evaluate(document, NODESET);
+        } catch (XPathExpressionException e) {
+            throw new IllegalArgumentException("Invalid xpath expression " + xPath, e);
+        }
     }
 }
