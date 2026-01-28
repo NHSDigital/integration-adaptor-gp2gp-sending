@@ -39,6 +39,17 @@ pipeline {
     }
 
     stages {
+        stage('Dockerfile lint') {
+            steps {
+                script {
+                    sh '''
+                        curl -sLO https://github.com/hadolint/hadolint/releases/download/v1.19.0/hadolint-Linux-x86_64
+                        chmod +x hadolint-Linux-x86_64 && mv hadolint-Linux-x86_64 /usr/local/bin/hadolint
+                    '''
+                    if (sh(label: 'Running dockerfile lint with hadolint', script: 'hadolint docker/service/Dockerfile', returnStatus: true) != 0) {error("Dockerfile linting failed")}
+                }
+            }
+        }
         stage('Build') {
             stages {
                 stage('Tests') {
