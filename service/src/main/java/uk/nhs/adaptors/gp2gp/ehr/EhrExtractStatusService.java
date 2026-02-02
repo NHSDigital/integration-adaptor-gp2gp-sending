@@ -1,10 +1,9 @@
 package uk.nhs.adaptors.gp2gp.ehr;
 
+import static io.netty.util.internal.PlatformDependent.newConcurrentHashMap;
 import static java.lang.String.format;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
-import static org.springframework.util.CollectionUtils.newHashMap;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
@@ -177,7 +176,7 @@ public class EhrExtractStatusService {
             var ehrExtractStatus = ehrExtractStatusSearch.get();
             var ehrDocuments = ehrExtractStatus.getGpcAccessDocument().getDocuments();
 
-            Map<String, String> replacementMap = newHashMap(ehrDocuments.size());
+            Map<String, String> replacementMap = newConcurrentHashMap(ehrDocuments.size());
 
             for (var document:ehrDocuments) {
                 String error = document.getGpConnectErrorMessage() == null ? ""
