@@ -24,6 +24,7 @@ import java.time.Duration;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -51,6 +52,8 @@ class EhrExtractStatusServiceTest {
     public static final String ERROR_CODE = "99";
     public static final String ERROR_MESSAGE = "No acknowledgement has been received within ACK timeout limit";
     public static final int EHR_EXTRACT_SENT_DAYS_LIMIT = 8;
+    private static final int DEFAULT_CONTENT_LENGTH = 244;
+    private static final String CONTENT_TYPE_MSWORD = "application/msword";
 
     private ArgumentCaptor<Query> queryCaptor = ArgumentCaptor.forClass(Query.class);
     private ArgumentCaptor<Update> updateCaptor = ArgumentCaptor.forClass(Update.class);
@@ -81,6 +84,32 @@ class EhrExtractStatusServiceTest {
         Field field = EhrExtractStatusService.class.getDeclaredField("ehrExtractSentDaysLimit");
         field.setAccessible(true);
         field.set(ehrExtractStatusService, EHR_EXTRACT_SENT_DAYS_LIMIT);
+    }
+
+    @Test
+    void fetchDocumentObjectNameAndSize() {
+        String conversationId = generateRandomUppercaseUUID();
+        Optional<EhrExtractStatus> ehrExtractStatus
+            = Optional.of(EhrExtractStatus
+                              .builder()
+                              .gpcAccessDocument(
+                                  EhrExtractStatus.
+                                      GpcAccessDocument
+                                      .builder()
+                                      .documents(List.of(EhrExtractStatus.GpcDocument.builder()
+                                                             .fileName("AbsentAttachment4E0C8345-A9AB-48EA-8882-DC9E9F3F5F60.rtx")
+                                                             .documentId("4E0C8345-A9AB-48EA-8882-DC9E9F3F5F60")
+                                                             .contentLength(DEFAULT_CONTENT_LENGTH)
+                                                             .gpConnectErrorMessage("404 Not Found")
+                                                             .contentType(CONTENT_TYPE_MSWORD)
+                                                             .build())).build())
+                              .ehrExtractCorePending(null).build());
+
+        doReturn(ehrExtractStatus).when(ehrExtractStatusRepository).findByConversationId(conversationId);
+
+        Map<String, String> replacementMap = ehrExtractStatusService.fetchDocumentObjectNameAndSize(conversationId);
+
+        assertEquals(1, replacementMap.size());
     }
 
     @Test
