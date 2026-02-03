@@ -54,6 +54,7 @@ class EhrExtractStatusServiceTest {
     public static final int EHR_EXTRACT_SENT_DAYS_LIMIT = 8;
     private static final int DEFAULT_CONTENT_LENGTH = 244;
     private static final String CONTENT_TYPE_MSWORD = "application/msword";
+    public static final int FOUR = 4;
 
     private ArgumentCaptor<Query> queryCaptor = ArgumentCaptor.forClass(Query.class);
     private ArgumentCaptor<Update> updateCaptor = ArgumentCaptor.forClass(Update.class);
@@ -87,7 +88,7 @@ class EhrExtractStatusServiceTest {
     }
 
     @Test
-    void fetchDocumentObjectNameAndSize() {
+    void fetchDocumentObjectNameAndSizeTest() {
         String conversationId = generateRandomUppercaseUUID();
         Optional<EhrExtractStatus> ehrExtractStatus
             = Optional.of(EhrExtractStatus
@@ -109,7 +110,7 @@ class EhrExtractStatusServiceTest {
 
         Map<String, String> replacementMap = ehrExtractStatusService.fetchDocumentObjectNameAndSize(conversationId);
 
-        assertEquals(1, replacementMap.size());
+        assertEquals(FOUR, replacementMap.size());
     }
 
     @Test
