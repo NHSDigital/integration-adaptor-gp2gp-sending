@@ -15,9 +15,9 @@ public class Gp2gpConfigurationValidator implements ConstraintValidator<ValidGp2
 
     @Override
     public boolean isValid(Gp2gpConfiguration config, ConstraintValidatorContext context) {
-        TreeMap<String, Integer> environmentVariables = new TreeMap<>();
-        environmentVariables.put("GP2GP_LARGE_ATTACHMENT_THRESHOLD", config.getLargeAttachmentThreshold());
-        environmentVariables.put("GP2GP_LARGE_EHR_EXTRACT_THRESHOLD", config.getLargeEhrExtractThreshold());
+        TreeMap<String, String> environmentVariables = new TreeMap<>();
+        environmentVariables.put("GP2GP_LARGE_ATTACHMENT_THRESHOLD", Integer.toString(config.getLargeAttachmentThreshold()));
+        environmentVariables.put("GP2GP_LARGE_EHR_EXTRACT_THRESHOLD", Integer.toString(config.getLargeEhrExtractThreshold()));
         List<String> missingProperties = new ArrayList<>();
         List<String> invalidProperties = new ArrayList<>();
 
@@ -32,26 +32,25 @@ public class Gp2gpConfigurationValidator implements ConstraintValidator<ValidGp2
                 .filter(key -> !missingProperties.contains(key))
                 .sorted().toList();
 
-        if (!missingProperties.isEmpty()) {
-            var message = String.format(
-                    SSL_PROPERTIES_VIOLATION_MESSAGE,
-                    String.join(", ", missingProperties),
-                    String.join(", ", presentProperties));
+//        if (!missingProperties.isEmpty()) {
+//            var message = String.format(
+//                    SSL_PROPERTIES_VIOLATION_MESSAGE,
+//                    String.join(", ", missingProperties),
+//                    String.join(", ", presentProperties));
+//
+//            setConstraintViolation(context, message);
+//        }
 
-            setConstraintViolation(context, message);
-        }
+//        if (!invalidProperties.isEmpty()) {
+//            var message = String.format(PEM_FORMAT_VIOLATION_MESSAGE, String.join(", ", invalidProperties));
+//            setConstraintViolation(context, message);
+//        }
+//
+//        if (!missingProperties.isEmpty() || !invalidProperties.isEmpty()) {
+//            config.setSslEnabled(false);
+//            return false;
+//        }
 
-        if (!invalidProperties.isEmpty()) {
-            var message = String.format(PEM_FORMAT_VIOLATION_MESSAGE, String.join(", ", invalidProperties));
-            setConstraintViolation(context, message);
-        }
-
-        if (!missingProperties.isEmpty() || !invalidProperties.isEmpty()) {
-            config.setSslEnabled(false);
-            return false;
-        }
-
-        config.setSslEnabled(true);
         return true;
     }
 

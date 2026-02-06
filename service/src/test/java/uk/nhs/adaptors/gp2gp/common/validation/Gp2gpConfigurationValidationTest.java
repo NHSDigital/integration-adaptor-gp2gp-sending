@@ -1,4 +1,5 @@
 package uk.nhs.adaptors.gp2gp.common.validation;
+import uk.nhs.adaptors.gp2gp.common.configuration.Gp2gpConfiguration;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -10,11 +11,11 @@ import org.springframework.context.annotation.Configuration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-public class GpcConfigurationValidationTest {
+public class Gp2gpConfigurationValidationTest {
 
     // Valid configurations
-    private static final int VALID_LARGE_ATTACHMENT_THRESHOLD = "4500000";
-    private static final int VALID_LARGE_EHR_EXTRACT_THRESHOLD = "4500000";
+    private static final String VALID_LARGE_ATTACHMENT_THRESHOLD = "4500000";
+    private static final String VALID_LARGE_EHR_EXTRACT_THRESHOLD = "4500000";
 
     // Configuration fields
     private static final String LARGE_ATTACHMENT_THRESHOLD = "largeAttachmentThreshold";
@@ -28,17 +29,17 @@ public class GpcConfigurationValidationTest {
         contextRunner
                 .withPropertyValues(
                         buildPropertyValue(LARGE_ATTACHMENT_THRESHOLD, VALID_LARGE_ATTACHMENT_THRESHOLD),
-                        buildPropertyValue(LARGE_EHR_EXTRACT_THRESHOLD, VALID_LARGE_EHR_EXTRACT_THRESHOLD),
+                        buildPropertyValue(LARGE_EHR_EXTRACT_THRESHOLD, VALID_LARGE_EHR_EXTRACT_THRESHOLD)
                 )
                 .run(context -> {
                     assertThat(context)
                             .hasNotFailed()
-                            .hasSingleBean(GpcConfiguration.class);
+                            .hasSingleBean(Gp2gpConfiguration.class);
 
-                    var gpcConfiguration = context.getBean(GpcConfiguration.class);
+                    var gp2gpConfiguration = context.getBean(Gp2gpConfiguration.class);
 
                     assertAll(
-                            () -> assertThat(gpcConfiguration.getLargeAttachmentThreshold()).isEqualTo(LARGE_ATTACHMENT_THRESHOLD)
+                            () -> assertThat(gp2gpConfiguration.getLargeAttachmentThreshold()).isEqualTo(LARGE_ATTACHMENT_THRESHOLD)
 //                            () -> assertThat(gpcConfiguration.getClientKey()).isEqualTo(VALID_RSA_PRIVATE_KEY),
 //                            () -> assertThat(gpcConfiguration.getRootCA()).isEqualTo(VALID_CERTIFICATE),
 //                            () -> assertThat(gpcConfiguration.getSubCA()).isEqualTo(VALID_CERTIFICATE),
