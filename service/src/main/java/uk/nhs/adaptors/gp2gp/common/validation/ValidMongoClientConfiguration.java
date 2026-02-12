@@ -10,11 +10,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Documented
-@Constraint(validatedBy = Gp2gpConfigurationValidator.class)
+@Constraint(validatedBy = MongoClientConfigurationValidator.class)
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ValidGp2gpConfiguration {
-    String message() default "Invalid GP2GP Configuration";
+public @interface ValidMongoClientConfiguration {
+    String message() default "Invalid Mongo Client Configuration";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

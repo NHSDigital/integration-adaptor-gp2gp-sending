@@ -1,76 +1,83 @@
 package uk.nhs.adaptors.gp2gp.common.validation;
-import uk.nhs.adaptors.gp2gp.common.configuration.Gp2gpConfiguration;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import uk.nhs.adaptors.gp2gp.common.configuration.AppInitializer;
+import uk.nhs.adaptors.gp2gp.common.mongo.MongoClientConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-public class Gp2gpConfigurationValidationTest {
+@SpringBootTest(classes = MongoClientConfigurationValidator.class)
+public class MongoClientConfigurationValidationTest {
 
     // Valid configurations
-    private static final String VALID_LARGE_ATTACHMENT_THRESHOLD = "4500000";
-    private static final String VALID_LARGE_EHR_EXTRACT_THRESHOLD = "4500000";
+    private static final String VALID_GP2GP_MONGO_HOST = "host";
+    private static final String VALID_GP2GP_MONGO_PORT = "1234";
+    private static final String VALID_GP2GP_MONGO_USERNAME = "some-username";
+    private static final String VALID_GP2GP_MONGO_PASSWORD = "some-password";
+    private static final String VALID_GP2GP_MONGO_OPTIONS = "some-options";
 
     // Configuration fields
-    private static final String LARGE_ATTACHMENT_THRESHOLD = "largeAttachmentThreshold";
-    private static final String LARGE_EHR_EXTRACT_THRESHOLD = "largeEhrExtractThreshold";
+    private static final String GP2GP_MONGO_HOST = "host";
+    private static final String GP2GP_MONGO_PORT = "port";
+    private static final String GP2GP_MONGO_USERNAME = "username";
+    private static final String GP2GP_MONGO_PASSWORD = "password";
+    private static final String GP2GP_MONGO_OPTIONS = "options";
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-            .withUserConfiguration(TestGp2gpConfiguration.class);
+            .withUserConfiguration(TestMongoClientConfiguration.class);
 
     @Test
-    void When_GpcConfigurationContainsAllProperties_Expect_IsContextIsCreated() {
+    void When_ConfigurationContainsAllProperties_Expect_IsContextIsCreated() {
         contextRunner
                 .withPropertyValues(
-                        buildPropertyValue(LARGE_ATTACHMENT_THRESHOLD, VALID_LARGE_ATTACHMENT_THRESHOLD),
-                        buildPropertyValue(LARGE_EHR_EXTRACT_THRESHOLD, VALID_LARGE_EHR_EXTRACT_THRESHOLD)
+                        buildPropertyValue(GP2GP_MONGO_HOST, VALID_GP2GP_MONGO_HOST),
+                        buildPropertyValue(GP2GP_MONGO_PORT, VALID_GP2GP_MONGO_PORT),
+                        buildPropertyValue(GP2GP_MONGO_USERNAME, VALID_GP2GP_MONGO_USERNAME),
+                        buildPropertyValue(GP2GP_MONGO_PASSWORD, VALID_GP2GP_MONGO_PASSWORD),
+                        buildPropertyValue(GP2GP_MONGO_OPTIONS, VALID_GP2GP_MONGO_OPTIONS)
                 )
                 .run(context -> {
                     assertThat(context)
                             .hasNotFailed()
-                            .hasSingleBean(Gp2gpConfiguration.class);
+                            .hasSingleBean(AppInitializer.class)
+                            .hasSingleBean(MongoClientConfiguration.class);
 
-                    var gp2gpConfiguration = context.getBean(Gp2gpConfiguration.class);
+                    var mongoClientConfiguration = context.getBean(MongoClientConfiguration.class);
 
                     assertAll(
-                            () -> assertThat(gp2gpConfiguration.getLargeAttachmentThreshold()).isEqualTo(LARGE_ATTACHMENT_THRESHOLD)
-//                            () -> assertThat(gpcConfiguration.getClientKey()).isEqualTo(VALID_RSA_PRIVATE_KEY),
-//                            () -> assertThat(gpcConfiguration.getRootCA()).isEqualTo(VALID_CERTIFICATE),
-//                            () -> assertThat(gpcConfiguration.getSubCA()).isEqualTo(VALID_CERTIFICATE),
-//                            () -> assertThat(gpcConfiguration.isSslEnabled()).isTrue()
+                            () -> assertThat(mongoClientConfiguration.getHost()).isEqualTo(VALID_GP2GP_MONGO_HOST),
+                            () -> assertThat(mongoClientConfiguration.getPort()).isEqualTo(VALID_GP2GP_MONGO_PORT),
+                            () -> assertThat(mongoClientConfiguration.getUsername()).isEqualTo(VALID_GP2GP_MONGO_USERNAME),
+                            () -> assertThat(mongoClientConfiguration.getPassword()).isEqualTo(VALID_GP2GP_MONGO_PASSWORD),
+                            () -> assertThat(mongoClientConfiguration.getOptions()).isEqualTo(VALID_GP2GP_MONGO_OPTIONS)
                     );
                 });
     }
 
 //    @Test
-//    void When_GpcConfigurationNoSslProperties_Expect_IsContextIsCreatedAndShouldUseSslIsFalse() {
+//    void When_ConfigurationPropertiesNotProvided_Expect_ContextNotCreated() {
 //        contextRunner
 //                .withPropertyValues(
-//                        buildPropertyValue(CLIENT_CERT, ""),
-//                        buildPropertyValue(CLIENT_KEY, ""),
-//                        buildPropertyValue(ROOT_CA, ""),
-//                        buildPropertyValue(SUB_CA, "")
+////                        buildPropertyValue(LARGE_ATTACHMENT_THRESHOLD, ""),
+//                        buildPropertyValue(GP2GP_MONGO_PORT, "")
 //                )
 //                .run(context -> {
-//                    assertThat(context)
-//                            .hasNotFailed()
-//                            .hasSingleBean(GpcConfiguration.class);
+//                    assertThat(context).hasFailed();
+//                    var startupFailure = context.getStartupFailure();
 //
-//                    var gpcConfiguration = context.getBean(GpcConfiguration.class);
-//
-//                    assertAll(
-//                            () -> assertThat(gpcConfiguration.getClientCert()).isEmpty(),
-//                            () -> assertThat(gpcConfiguration.getClientKey()).isEmpty(),
-//                            () -> assertThat(gpcConfiguration.getRootCA()).isEmpty(),
-//                            () -> assertThat(gpcConfiguration.getSubCA()).isEmpty(),
-//                            () -> assertThat(gpcConfiguration.isSslEnabled()).isFalse()
-//                    );
+//                    assertThat(startupFailure)
+//                            .rootCause()
+//                            .hasMessageContaining("LARGE_ATTACHMENT_THRESHOLD not provided")
+//                            .hasMessageContaining("LARGE_EHR_EXTRACT_THRESHOLD not provided");
 //                });
 //    }
 //
@@ -195,12 +202,12 @@ public class Gp2gpConfigurationValidationTest {
 
     @Contract(pure = true)
     private static @NotNull String buildPropertyValue(String propertyName, String value) {
-        return String.format("gpc-consumer.gpc.%s=%s", propertyName, value);
+        return String.format("gp2gp.mongodb.%s=%s", propertyName, value);
     }
 
     @Configuration
-    @EnableConfigurationProperties(Gp2gpConfiguration.class)
-    static class TestGp2gpConfiguration {
+    @EnableConfigurationProperties(MongoClientConfiguration.class)
+    static class TestMongoClientConfiguration {
     }
 }
 
