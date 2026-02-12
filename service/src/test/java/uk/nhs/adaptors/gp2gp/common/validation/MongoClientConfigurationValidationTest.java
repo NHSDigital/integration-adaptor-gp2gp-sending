@@ -3,14 +3,14 @@ package uk.nhs.adaptors.gp2gp.common.validation;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.Mockito;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import uk.nhs.adaptors.gp2gp.common.configuration.AppInitializer;
 import uk.nhs.adaptors.gp2gp.common.mongo.MongoClientConfiguration;
+import uk.nhs.adaptors.gp2gp.common.storage.StorageConnectorConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -19,13 +19,15 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 public class MongoClientConfigurationValidationTest {
 
     // Valid configurations
+    private static final String VALID_GP2GP_MONGO_DATABASE = "test-db";
     private static final String VALID_GP2GP_MONGO_HOST = "host";
     private static final String VALID_GP2GP_MONGO_PORT = "1234";
     private static final String VALID_GP2GP_MONGO_USERNAME = "some-username";
     private static final String VALID_GP2GP_MONGO_PASSWORD = "some-password";
-    private static final String VALID_GP2GP_MONGO_OPTIONS = "some-options";
+    private static final String VALID_GP2GP_MONGO_OPTIONS = "ssl=true;tls=true";
 
     // Configuration fields
+    private static final String GP2GP_MONGO_DATABASE = "database";
     private static final String GP2GP_MONGO_HOST = "host";
     private static final String GP2GP_MONGO_PORT = "port";
     private static final String GP2GP_MONGO_USERNAME = "username";
@@ -33,12 +35,24 @@ public class MongoClientConfigurationValidationTest {
     private static final String GP2GP_MONGO_OPTIONS = "options";
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-            .withUserConfiguration(TestMongoClientConfiguration.class);
+            .withUserConfiguration(TestMongoClientConfiguration.class)
+            .withBean(
+                    "appInitializer",
+                    AppInitializer.class,
+                    () -> Mockito.mock(AppInitializer.class)
+            )
+            .withBean(
+                    "storageConnectorConfiguration",
+                    StorageConnectorConfiguration.class,
+                    () -> Mockito.mock(StorageConnectorConfiguration.class)
+            );
 
     @Test
     void When_ConfigurationContainsAllProperties_Expect_IsContextIsCreated() {
+
         contextRunner
                 .withPropertyValues(
+                        buildPropertyValue(GP2GP_MONGO_DATABASE,  VALID_GP2GP_MONGO_DATABASE),
                         buildPropertyValue(GP2GP_MONGO_HOST, VALID_GP2GP_MONGO_HOST),
                         buildPropertyValue(GP2GP_MONGO_PORT, VALID_GP2GP_MONGO_PORT),
                         buildPropertyValue(GP2GP_MONGO_USERNAME, VALID_GP2GP_MONGO_USERNAME),
@@ -48,17 +62,23 @@ public class MongoClientConfigurationValidationTest {
                 .run(context -> {
                     assertThat(context)
                             .hasNotFailed()
-                            .hasSingleBean(AppInitializer.class)
                             .hasSingleBean(MongoClientConfiguration.class);
 
                     var mongoClientConfiguration = context.getBean(MongoClientConfiguration.class);
 
                     assertAll(
-                            () -> assertThat(mongoClientConfiguration.getHost()).isEqualTo(VALID_GP2GP_MONGO_HOST),
-                            () -> assertThat(mongoClientConfiguration.getPort()).isEqualTo(VALID_GP2GP_MONGO_PORT),
-                            () -> assertThat(mongoClientConfiguration.getUsername()).isEqualTo(VALID_GP2GP_MONGO_USERNAME),
-                            () -> assertThat(mongoClientConfiguration.getPassword()).isEqualTo(VALID_GP2GP_MONGO_PASSWORD),
-                            () -> assertThat(mongoClientConfiguration.getOptions()).isEqualTo(VALID_GP2GP_MONGO_OPTIONS)
+                            () -> assertThat(mongoClientConfiguration.getDatabase())
+                                    .isEqualTo(VALID_GP2GP_MONGO_DATABASE),
+                            () -> assertThat(mongoClientConfiguration.getHost())
+                                    .isEqualTo(VALID_GP2GP_MONGO_HOST),
+                            () -> assertThat(mongoClientConfiguration.getPort())
+                                    .isEqualTo(VALID_GP2GP_MONGO_PORT),
+                            () -> assertThat(mongoClientConfiguration.getUsername())
+                                    .isEqualTo(VALID_GP2GP_MONGO_USERNAME),
+                            () -> assertThat(mongoClientConfiguration.getPassword())
+                                    .isEqualTo(VALID_GP2GP_MONGO_PASSWORD),
+                            () -> assertThat(mongoClientConfiguration.getOptions())
+                                    .isEqualTo(VALID_GP2GP_MONGO_OPTIONS)
                     );
                 });
     }
