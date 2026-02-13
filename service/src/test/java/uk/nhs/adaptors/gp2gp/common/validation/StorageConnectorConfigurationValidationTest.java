@@ -72,7 +72,6 @@ public class StorageConnectorConfigurationValidationTest {
                             .rootCause()
                             .hasMessageContaining("Env variable not provided: GP2GP_STORAGE_TYPE")
                             .hasMessageContaining("Env variable not provided: GP2GP_STORAGE_CONTAINER_NAME");
-//                            .hasMessageContaining("Env variable not provided: GP2GP_AZURE_STORAGE_CONNECTION_STRING");
                 });
     }
 
@@ -109,8 +108,6 @@ public class StorageConnectorConfigurationValidationTest {
 
                     assertThat(startupFailure)
                             .rootCause()
-//                            .hasMessageContaining("Env variable not provided: GP2GP_STORAGE_TYPE")
-//                            .hasMessageContaining("Env variable not provided: GP2GP_STORAGE_CONTAINER_NAME");
                             .hasMessageContaining("Env variable not provided: GP2GP_AZURE_STORAGE_CONNECTION_STRING");
                 });
     }

@@ -48,7 +48,7 @@ public class StorageConnectorConfigurationValidator implements ConstraintValidat
         for (var variable : environmentVariables.entrySet()) {
             boolean isConnectionString = variable.getKey().equals("GP2GP_AZURE_STORAGE_CONNECTION_STRING");
 
-            if(isConnectionString && isAzure)
+            if(isConnectionString && !isAzure)
             {
                 continue;
             }
