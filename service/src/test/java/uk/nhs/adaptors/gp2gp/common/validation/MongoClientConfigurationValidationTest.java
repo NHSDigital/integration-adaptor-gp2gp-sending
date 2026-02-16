@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Configuration;
 import uk.nhs.adaptors.gp2gp.common.configuration.AppInitializer;
 import uk.nhs.adaptors.gp2gp.common.mongo.MongoClientConfiguration;
-import uk.nhs.adaptors.gp2gp.common.storage.StorageConnectorConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -19,14 +18,17 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 public class MongoClientConfigurationValidationTest {
 
     // Valid configurations
-    private static final String VALID_GP2GP_MONGO_DATABASE = "test-db";
+    private static final String DEFAULT_GP2GP_MONGO_URI = "mongodb://localhost:27017";
+    private static final String DEFAULT_GP2GP_MONGO_DATABASE = "gp2gp";
     private static final String VALID_GP2GP_MONGO_HOST = "host";
     private static final String VALID_GP2GP_MONGO_PORT = "1234";
     private static final String VALID_GP2GP_MONGO_USERNAME = "some-username";
     private static final String VALID_GP2GP_MONGO_PASSWORD = "some-password";
     private static final String VALID_GP2GP_MONGO_OPTIONS = "ssl=true;tls=true";
+    private static final String EMPTY_CONFIGURATION_STRING = "";
 
     // Configuration fields
+    private static final String GP2GP_MONGO_URI = "uri";
     private static final String GP2GP_MONGO_DATABASE = "database";
     private static final String GP2GP_MONGO_HOST = "host";
     private static final String GP2GP_MONGO_PORT = "port";
@@ -40,19 +42,52 @@ public class MongoClientConfigurationValidationTest {
                     "appInitializer",
                     AppInitializer.class,
                     () -> Mockito.mock(AppInitializer.class)
-            )
-            .withBean(
-                    "storageConnectorConfiguration",
-                    StorageConnectorConfiguration.class,
-                    () -> Mockito.mock(StorageConnectorConfiguration.class)
             );
 
     @Test
-    void When_ConfigurationContainsAllProperties_Expect_IsContextIsCreated() {
-
+    void When_ConfigurationContainsOnlyUriProperty_Expect_IsContextIsCreated() {
         contextRunner
                 .withPropertyValues(
-                        buildPropertyValue(GP2GP_MONGO_DATABASE,  VALID_GP2GP_MONGO_DATABASE),
+                        buildPropertyValue(GP2GP_MONGO_URI, DEFAULT_GP2GP_MONGO_URI),
+                        buildPropertyValue(GP2GP_MONGO_DATABASE, DEFAULT_GP2GP_MONGO_DATABASE),
+                        buildPropertyValue(GP2GP_MONGO_HOST, EMPTY_CONFIGURATION_STRING),
+                        buildPropertyValue(GP2GP_MONGO_PORT, EMPTY_CONFIGURATION_STRING),
+                        buildPropertyValue(GP2GP_MONGO_USERNAME, EMPTY_CONFIGURATION_STRING),
+                        buildPropertyValue(GP2GP_MONGO_PASSWORD, EMPTY_CONFIGURATION_STRING),
+                        buildPropertyValue(GP2GP_MONGO_OPTIONS, EMPTY_CONFIGURATION_STRING)
+                )
+                .run(context -> {
+                    assertThat(context)
+                            .hasNotFailed()
+                            .hasSingleBean(MongoClientConfiguration.class);
+
+                    var mongoClientConfiguration = context.getBean(MongoClientConfiguration.class);
+
+                    assertAll(
+                            () -> assertThat(mongoClientConfiguration.getUri())
+                                    .isEqualTo(DEFAULT_GP2GP_MONGO_URI),
+                            () -> assertThat(mongoClientConfiguration.getDatabase())
+                                    .isEqualTo(DEFAULT_GP2GP_MONGO_DATABASE),
+                            () -> assertThat(mongoClientConfiguration.getHost())
+                                    .isEqualTo(EMPTY_CONFIGURATION_STRING),
+                            () -> assertThat(mongoClientConfiguration.getPort())
+                                    .isEqualTo(EMPTY_CONFIGURATION_STRING),
+                            () -> assertThat(mongoClientConfiguration.getUsername())
+                                    .isEqualTo(EMPTY_CONFIGURATION_STRING),
+                            () -> assertThat(mongoClientConfiguration.getPassword())
+                                    .isEqualTo(EMPTY_CONFIGURATION_STRING),
+                            () -> assertThat(mongoClientConfiguration.getOptions())
+                                    .isEqualTo(EMPTY_CONFIGURATION_STRING)
+                    );
+                });
+    }
+
+    @Test
+    void When_ConfigurationContainsAllPropertiesExceptUri_Expect_IsContextIsCreated() {
+        contextRunner
+                .withPropertyValues(
+                        buildPropertyValue(GP2GP_MONGO_URI, EMPTY_CONFIGURATION_STRING),
+                        buildPropertyValue(GP2GP_MONGO_DATABASE, DEFAULT_GP2GP_MONGO_DATABASE),
                         buildPropertyValue(GP2GP_MONGO_HOST, VALID_GP2GP_MONGO_HOST),
                         buildPropertyValue(GP2GP_MONGO_PORT, VALID_GP2GP_MONGO_PORT),
                         buildPropertyValue(GP2GP_MONGO_USERNAME, VALID_GP2GP_MONGO_USERNAME),
@@ -67,8 +102,10 @@ public class MongoClientConfigurationValidationTest {
                     var mongoClientConfiguration = context.getBean(MongoClientConfiguration.class);
 
                     assertAll(
+                            () -> assertThat(mongoClientConfiguration.getUri())
+                                    .isEqualTo(EMPTY_CONFIGURATION_STRING),
                             () -> assertThat(mongoClientConfiguration.getDatabase())
-                                    .isEqualTo(VALID_GP2GP_MONGO_DATABASE),
+                                    .isEqualTo(DEFAULT_GP2GP_MONGO_DATABASE),
                             () -> assertThat(mongoClientConfiguration.getHost())
                                     .isEqualTo(VALID_GP2GP_MONGO_HOST),
                             () -> assertThat(mongoClientConfiguration.getPort())
@@ -87,8 +124,12 @@ public class MongoClientConfigurationValidationTest {
 //    void When_ConfigurationPropertiesNotProvided_Expect_ContextNotCreated() {
 //        contextRunner
 //                .withPropertyValues(
-////                        buildPropertyValue(LARGE_ATTACHMENT_THRESHOLD, ""),
-//                        buildPropertyValue(GP2GP_MONGO_PORT, "")
+//                        buildPropertyValue(GP2GP_MONGO_DATABASE,  VALID_GP2GP_MONGO_DATABASE),
+//                        buildPropertyValue(GP2GP_MONGO_HOST, VALID_GP2GP_MONGO_HOST),
+//                        buildPropertyValue(GP2GP_MONGO_PORT, VALID_GP2GP_MONGO_PORT),
+//                        buildPropertyValue(GP2GP_MONGO_USERNAME, VALID_GP2GP_MONGO_USERNAME),
+//                        buildPropertyValue(GP2GP_MONGO_PASSWORD, VALID_GP2GP_MONGO_PASSWORD),
+//                        buildPropertyValue(GP2GP_MONGO_OPTIONS, VALID_GP2GP_MONGO_OPTIONS)
 //                )
 //                .run(context -> {
 //                    assertThat(context).hasFailed();
@@ -100,7 +141,7 @@ public class MongoClientConfigurationValidationTest {
 //                            .hasMessageContaining("LARGE_EHR_EXTRACT_THRESHOLD not provided");
 //                });
 //    }
-//
+
 //    @Test
 //    void When_GpcConfigurationHasSomeButNotAllSslProperties_Expect_ContextNotCreated(
 //    ) {
