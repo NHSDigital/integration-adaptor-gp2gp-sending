@@ -120,6 +120,29 @@ public class MongoClientConfigurationValidationTest {
                 });
     }
 
+    @Test
+    void When_ConfigurationDoesNotContainAnyProperties_Expect_ContextIsNotCreated() {
+        contextRunner
+                .withPropertyValues(
+                        buildPropertyValue(GP2GP_MONGO_URI, EMPTY_CONFIGURATION_STRING),
+                        buildPropertyValue(GP2GP_MONGO_DATABASE, EMPTY_CONFIGURATION_STRING),
+                        buildPropertyValue(GP2GP_MONGO_HOST, EMPTY_CONFIGURATION_STRING),
+                        buildPropertyValue(GP2GP_MONGO_PORT, EMPTY_CONFIGURATION_STRING),
+                        buildPropertyValue(GP2GP_MONGO_USERNAME, EMPTY_CONFIGURATION_STRING),
+                        buildPropertyValue(GP2GP_MONGO_PASSWORD, EMPTY_CONFIGURATION_STRING),
+                        buildPropertyValue(GP2GP_MONGO_OPTIONS, EMPTY_CONFIGURATION_STRING)
+                )
+                .run(context -> {
+                    assertThat(context).hasFailed();
+                    var startupFailure = context.getStartupFailure();
+
+                    assertThat(startupFailure)
+                            .rootCause()
+                            .hasMessageContaining("Env variable not provided: GP2GP_MONGO_URI. Alternatively, provide the following env variables instead: " +
+                                    "GP2GP_MONGO_DATABASE, GP2GP_MONGO_HOST, GP2GP_MONGO_OPTIONS, GP2GP_MONGO_PASSWORD, GP2GP_MONGO_PORT, GP2GP_MONGO_USERNAME");
+                });
+    }
+
 //    @Test
 //    void When_ConfigurationPropertiesNotProvided_Expect_ContextNotCreated() {
 //        contextRunner

@@ -6,34 +6,29 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import uk.nhs.adaptors.gp2gp.common.mongo.MongoClientConfiguration;
 
+import java.util.ArrayList;
 import java.util.TreeMap;
 
 @Slf4j
 public class MongoClientConfigurationValidator implements ConstraintValidator<ValidMongoClientConfiguration, MongoClientConfiguration> {
     private MongoClientConfiguration configuration;
-
+    final static String MISSING_ENV_VARIABLE_MESSAGE = "Env variable not provided: %s. Alternatively, provide the following env variables instead: %s";
 
     @Override
     public boolean isValid(MongoClientConfiguration config, ConstraintValidatorContext context) {
         this.configuration = config;
-        final String MISSING_ENV_VARIABLE_MESSAGE = "Env variable %s not provided";
 
         TreeMap<String, String> environmentVariables = getEnvironmentVariables();
 
-        ValidatedProperties properties = validateAgainstRuleset(environmentVariables);
+        ArrayList<String> validationMessages = validateAgainstRuleset(environmentVariables);
 
-        if (!properties.missingProperties.isEmpty()) {
-            for(var property : properties.missingProperties)
+        if (!validationMessages.isEmpty()) {
+            for(var message : validationMessages)
             {
-                var message = String.format(
-                        MISSING_ENV_VARIABLE_MESSAGE,
-                        property);
-
                 setConstraintViolation(context, message);
             }
             return false;
         }
-
         return true;
     }
 
@@ -47,34 +42,31 @@ public class MongoClientConfigurationValidator implements ConstraintValidator<Va
         environmentVariables.put("GP2GP_MONGO_PORT", configuration.getPort());
         environmentVariables.put("GP2GP_MONGO_USERNAME", configuration.getUsername());
         environmentVariables.put("GP2GP_MONGO_PASSWORD", configuration.getPassword());
+        environmentVariables.put("GP2GP_MONGO_OPTIONS", configuration.getOptions());
 
         return environmentVariables;
     }
 
-    // TODO: add custom rules
-    private static ValidatedProperties validateAgainstRuleset(TreeMap<String, String> environmentVariables)
+    // TODO: add custom rules, return validation errors as <property, message>
+    private static ArrayList<String> validateAgainstRuleset(TreeMap<String, String> environmentVariables)
     {
-        ValidatedProperties validatedProperties = new ValidatedProperties();
+        ArrayList<String> messages = new ArrayList<>();
         boolean uriProvided = !environmentVariables.get("GP2GP_MONGO_URI").isBlank();
 
-        for (var variable : environmentVariables.entrySet()) {
-            if(uriProvided) {
-                if (variable.getKey().equals("GP2GP_MONGO_URI")) continue;
-            }
-            else
-            {
-                if (StringUtils.isBlank(variable.getValue())) {
-                    validatedProperties.missingProperties.add(variable.getKey());
+        if(!uriProvided) {
+            ArrayList<String> validatedProperties = new ArrayList<>();
+            for (var variable : environmentVariables.entrySet()) {
+                if (StringUtils.isBlank(variable.getValue()) && !variable.getKey().equals("GP2GP_MONGO_URI")) {
+                    validatedProperties.add(variable.getKey());
                 }
             }
+
+            if(!validatedProperties.isEmpty()) {
+                messages.add(String.format(MISSING_ENV_VARIABLE_MESSAGE, "GP2GP_MONGO_URI", String.join(", ", validatedProperties)));
+            }
         }
 
-        // If all other env variables are present then ignore absence of uri property
-        if(!uriProvided && validatedProperties.missingProperties.size() == 1) {
-            validatedProperties.missingProperties.clear();
-        }
-
-        return validatedProperties;
+        return messages;
     }
 
     private static void setConstraintViolation(ConstraintValidatorContext context, String message) {
