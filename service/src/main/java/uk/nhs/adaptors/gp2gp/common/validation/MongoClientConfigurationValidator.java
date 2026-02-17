@@ -47,7 +47,6 @@ public class MongoClientConfigurationValidator implements ConstraintValidator<Va
         return environmentVariables;
     }
 
-    // TODO: add custom rules, return validation errors as <property, message>
     private static ArrayList<String> validateAgainstRuleset(TreeMap<String, String> environmentVariables)
     {
         ArrayList<String> messages = new ArrayList<>();
