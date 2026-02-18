@@ -17,9 +17,7 @@ public class MongoClientConfigurationValidator implements ConstraintValidator<Va
 
     @Override
     public boolean isValid(MongoClientConfiguration config, ConstraintValidatorContext context) {
-        this.configuration = config;
-
-        TreeMap<String, String> environmentVariables = getEnvironmentVariables();
+        TreeMap<String, String> environmentVariables = getEnvironmentVariables(config);
 
         ArrayList<String> validationMessages = validateAgainstRuleset(environmentVariables);
 
@@ -32,7 +30,7 @@ public class MongoClientConfigurationValidator implements ConstraintValidator<Va
         return true;
     }
 
-    private TreeMap<String, String> getEnvironmentVariables() {
+    private TreeMap<String, String> getEnvironmentVariables(MongoClientConfiguration configuration) {
         TreeMap<String, String> environmentVariables =  new TreeMap<>();
 
         environmentVariables.put("GP2GP_MONGO_URI", configuration.getUri());
