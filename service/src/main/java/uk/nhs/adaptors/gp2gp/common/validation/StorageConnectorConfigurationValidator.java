@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.TreeMap;
 
 @Slf4j
-public class StorageConnectorConfigurationValidator implements ConstraintValidator<ValidStorageConnectorConfiguration, StorageConnectorConfiguration> {
+public class StorageConnectorConfigurationValidator
+        implements ConstraintValidator<ValidStorageConnectorConfiguration, StorageConnectorConfiguration> {
 
     @Override
     public boolean isValid(StorageConnectorConfiguration config, ConstraintValidatorContext context) {
@@ -26,8 +27,7 @@ public class StorageConnectorConfigurationValidator implements ConstraintValidat
         List<String> missingProperties = validateAgainstRuleset(environmentVariables);
 
         if (!missingProperties.isEmpty()) {
-            for(var property : missingProperties)
-            {
+            for (var property : missingProperties) {
                 var message = String.format(
                         MISSING_ENV_VARIABLE_MESSAGE,
                         property);
@@ -40,16 +40,14 @@ public class StorageConnectorConfigurationValidator implements ConstraintValidat
         return true;
     }
 
-    private static List<String> validateAgainstRuleset(TreeMap<String, String> environmentVariables)
-    {
+    private static List<String> validateAgainstRuleset(TreeMap<String, String> environmentVariables) {
         List<String> missingProperties = new ArrayList<>();
         boolean isAzure = environmentVariables.get("GP2GP_STORAGE_TYPE").equals("Azure");
 
         for (var variable : environmentVariables.entrySet()) {
             boolean isConnectionString = variable.getKey().equals("GP2GP_AZURE_STORAGE_CONNECTION_STRING");
 
-            if(isConnectionString && !isAzure)
-            {
+            if (isConnectionString && !isAzure) {
                 continue;
             }
 
