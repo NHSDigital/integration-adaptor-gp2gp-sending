@@ -108,6 +108,7 @@ jobs:
 
       - name: Execute Unit Tests
         run: |
+          echo "api.version=1.44" > $HOME/.docker-java.properties &&
           if [[ $GITHUB_ACTOR == 'dependabot[bot]' ]]; then
             ./gradlew test jacocoTestReport --parallel --build-cache
           else
