@@ -21,6 +21,8 @@ jobs:
           java-version: 21
       - name: run pitest
         working-directory: ./service
-        run: ./gradlew pitest-github
+        run: |
+          echo "api.version=1.44" > $HOME/.docker-java.properties &&
+          ./gradlew pitest-github
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
