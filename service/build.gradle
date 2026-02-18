@@ -51,8 +51,7 @@ ext {
 dependencies {
 	// Spring
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
-//	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.cloud:spring-cloud-starter-gateway-server-webflux'
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 	implementation 'org.springframework:spring-jms'
 
@@ -92,7 +91,7 @@ dependencies {
 	testImplementation 'com.squareup.okhttp3:okhttp:5.3.0'
 	testImplementation 'com.squareup.okhttp3:mockwebserver3:5.3.0'
 	testImplementation 'com.adobe.testing:s3mock-testcontainers:4.10.0'
-	testImplementation "org.springframework.cloud:spring-cloud-gateway-server:4.3.2"
+	testImplementation "org.springframework.cloud:spring-cloud-gateway-server-webflux:4.3.2"
 
 	spotbugs 'com.github.spotbugs:spotbugs:4.9.8'
 	spotbugs 'com.github.spotbugs:spotbugs-annotations:4.9.8'
