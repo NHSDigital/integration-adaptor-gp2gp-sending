@@ -49,9 +49,12 @@ public class StorageConnectorConfigurationValidationTest {
                     var storageConnectorConfiguration = context.getBean(StorageConnectorConfiguration.class);
 
                     assertAll(
-                            () -> assertThat(storageConnectorConfiguration.getType()).isEqualTo(VALID_GP2GP_STORAGE_TYPE),
-                            () -> assertThat(storageConnectorConfiguration.getContainerName()).isEqualTo(VALID_GP2GP_STORAGE_CONTAINER_NAME),
-                            () -> assertThat(storageConnectorConfiguration.getAzureConnectionString()).isEqualTo(VALID_GP2GP_AZURE_STORAGE_CONNECTION_STRING)
+                            () -> assertThat(storageConnectorConfiguration.getType())
+                                    .isEqualTo(VALID_GP2GP_STORAGE_TYPE),
+                            () -> assertThat(storageConnectorConfiguration.getContainerName())
+                                    .isEqualTo(VALID_GP2GP_STORAGE_CONTAINER_NAME),
+                            () -> assertThat(storageConnectorConfiguration.getAzureConnectionString())
+                                    .isEqualTo(VALID_GP2GP_AZURE_STORAGE_CONNECTION_STRING)
                     );
                 });
     }
@@ -87,9 +90,12 @@ public class StorageConnectorConfigurationValidationTest {
                     var storageConnectorConfiguration = context.getBean(StorageConnectorConfiguration.class);
 
                     assertAll(
-                            () -> assertThat(storageConnectorConfiguration.getType()).isEqualTo(VALID_GP2GP_STORAGE_TYPE),
-                            () -> assertThat(storageConnectorConfiguration.getContainerName()).isEqualTo(VALID_GP2GP_STORAGE_CONTAINER_NAME),
-                            () -> assertThat(storageConnectorConfiguration.getAzureConnectionString()).isEqualTo("")
+                            () -> assertThat(storageConnectorConfiguration.getType())
+                                    .isEqualTo(VALID_GP2GP_STORAGE_TYPE),
+                            () -> assertThat(storageConnectorConfiguration.getContainerName())
+                                    .isEqualTo(VALID_GP2GP_STORAGE_CONTAINER_NAME),
+                            () -> assertThat(storageConnectorConfiguration.getAzureConnectionString())
+                                    .isEqualTo("")
                     );
                 });
     }

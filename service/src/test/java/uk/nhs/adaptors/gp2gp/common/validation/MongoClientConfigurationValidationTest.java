@@ -138,8 +138,10 @@ public class MongoClientConfigurationValidationTest {
 
                     assertThat(startupFailure)
                             .rootCause()
-                            .hasMessageContaining("Env variable not provided: GP2GP_MONGO_URI. Alternatively, provide the following env variables instead: " +
-                                    "GP2GP_MONGO_DATABASE, GP2GP_MONGO_HOST, GP2GP_MONGO_OPTIONS, GP2GP_MONGO_PASSWORD, GP2GP_MONGO_PORT, GP2GP_MONGO_USERNAME");
+                            .hasMessageContaining("Env variable not provided: GP2GP_MONGO_URI. "
+                                    + "Alternatively, provide the following env variables instead: "
+                                    + "GP2GP_MONGO_DATABASE, GP2GP_MONGO_HOST, GP2GP_MONGO_OPTIONS, "
+                                    + "GP2GP_MONGO_PASSWORD, GP2GP_MONGO_PORT, GP2GP_MONGO_USERNAME");
                 });
     }
 
