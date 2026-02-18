@@ -174,7 +174,10 @@ jobs:
         working-directory: ./docker
 
       - name: Execute Integration Tests
-        run: ./gradlew integrationTest
+        run: |
+          echo "api.version=1.44" > $HOME/.docker-java.properties &&
+          ./gradlew integrationTest
+
         working-directory: ./service
 
       - name: Dump Docker Logs
