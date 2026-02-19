@@ -65,7 +65,7 @@ The adaptor uses AWS S3 or Azure Storage Blob to stage translated GP2GP HL7 and 
 | Environment Variable                  | Default   | Description                                                                         |
 |---------------------------------------|-----------|-------------------------------------------------------------------------------------|
 | GP2GP_STORAGE_TYPE                    | LocalMock | The type of storage solution. One of: S3, Azure, LocalMock                          |
-| GP2GP_STORAGE_CONTAINER_NAME          |           | The name of the Azure Storage container or Amazon S3 Bucket                         |
+| GP2GP_STORAGE_CONTAINER_NAME          | LocalMock | The name of the Azure Storage container or Amazon S3 Bucket                         |
 | GP2GP_AZURE_STORAGE_CONNECTION_STRING |           | The connection string for Azure Blob Storage. Leave undefined if type is not Azure. |
 | AWS_ACCESS_KEY_ID                     |           | The access key for Amazon S3. Leave undefined if using an AWS instance role.        |
 | AWS_SECRET_ACCESS_KEY                 |           | The secret access key for Amazon S3. Leave undefined if using an AWS instance role. |

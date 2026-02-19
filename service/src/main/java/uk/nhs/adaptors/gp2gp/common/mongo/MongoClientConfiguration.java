@@ -10,6 +10,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
+import org.springframework.validation.annotation.Validated;
+import uk.nhs.adaptors.gp2gp.common.validation.ValidMongoClientConfiguration;
 
 import java.time.Duration;
 
@@ -18,6 +20,8 @@ import java.time.Duration;
 @Getter
 @Setter
 @Slf4j
+@Validated
+@ValidMongoClientConfiguration
 @DependsOn({"appInitializer"})
 public class MongoClientConfiguration extends AbstractMongoClientConfiguration {
     private String database;
