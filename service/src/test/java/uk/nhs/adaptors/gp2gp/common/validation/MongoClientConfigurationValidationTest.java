@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @SpringBootTest(classes = MongoClientConfigurationValidator.class)
-public class MongoClientConfigurationValidationTest {
+class MongoClientConfigurationValidationTest {
 
     // Valid configurations
     private static final String DEFAULT_GP2GP_MONGO_URI = "mongodb://localhost:27017";

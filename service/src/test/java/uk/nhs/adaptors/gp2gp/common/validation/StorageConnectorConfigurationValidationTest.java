@@ -13,7 +13,7 @@ import uk.nhs.adaptors.gp2gp.common.storage.StorageConnectorConfiguration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-public class StorageConnectorConfigurationValidationTest {
+class StorageConnectorConfigurationValidationTest {
 
     // Valid configurations
     private static final String VALID_GP2GP_STORAGE_TYPE = "some-type";
@@ -95,7 +95,7 @@ public class StorageConnectorConfigurationValidationTest {
                             () -> assertThat(storageConnectorConfiguration.getContainerName())
                                     .isEqualTo(VALID_GP2GP_STORAGE_CONTAINER_NAME),
                             () -> assertThat(storageConnectorConfiguration.getAzureConnectionString())
-                                    .isEqualTo("")
+                                    .isEmpty()
                     );
                 });
     }
