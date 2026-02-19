@@ -66,7 +66,6 @@ public class MongoClientConfigurationValidator implements ConstraintValidator<Va
 
     private static void setConstraintViolation(ConstraintValidatorContext context, String message) {
         LOGGER.error(message);
-        context.disableDefaultConstraintViolation();
         context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
     }
 

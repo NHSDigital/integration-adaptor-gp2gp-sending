@@ -9,6 +9,7 @@ import uk.nhs.adaptors.gp2gp.common.storage.StorageConnectorConfiguration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 @Slf4j
 public class StorageConnectorConfigurationValidator
@@ -61,7 +62,6 @@ public class StorageConnectorConfigurationValidator
 
     private static void setConstraintViolation(ConstraintValidatorContext context, String message) {
         LOGGER.error(message);
-        context.disableDefaultConstraintViolation();
         context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
     }
 
