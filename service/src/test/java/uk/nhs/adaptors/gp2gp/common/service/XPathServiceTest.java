@@ -3,6 +3,7 @@ package uk.nhs.adaptors.gp2gp.common.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.NodeList;
@@ -10,7 +11,25 @@ import org.xml.sax.SAXException;
 
 import lombok.SneakyThrows;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 class XPathServiceTest {
+
+
+    @Test
+    @SneakyThrows
+    void When_GetMCCIWithValidXPath_Expect_TheMCCIValueIsReturned() {
+        final String ACK_TYPE_CODE_XPATH = "//MCCI_IN010000UK13/acknowledgement/@typeCode";
+        String basePath = Paths.get("src/").toFile().getAbsoluteFile().getAbsolutePath()
+                          + "/../../service/src/test/resources/ehr/request/";
+        String xmlFilePath = basePath + "MCCI_IN010000UK13_body_AA.xml";
+
+        String validXml = Files.readString(Paths.get(xmlFilePath));
+
+        var document = new XPathService().parseDocumentFromXml(validXml);
+        assertEquals("AA", new XPathService().getNodeValue(document, ACK_TYPE_CODE_XPATH));
+    }
 
     @Test
     @SneakyThrows
