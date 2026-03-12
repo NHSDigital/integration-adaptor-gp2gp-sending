@@ -4,11 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Fixed
-
-* Prevent duplicate processing: after a medication request is processed, the system no longer pulls a subsequent non‑consultation item based on the same request.
+## [3.0.0] - 2025-11-06
 
 ### Added
 * The GP2GP Adaptor now validates references inside condition objects to test whether they actually exist. Otherwise, the bundle is rejected.
@@ -20,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 * When DiagnosticReport doesn't contain a Specimen or Observation reference, instead of "DUMMY" "NOT-PRESENT" value is used
+* Prevent duplicate processing: after a medication request is processed, the system no longer pulls a subsequent non‑consultation item based on the same request.
 
 ### Update
 
