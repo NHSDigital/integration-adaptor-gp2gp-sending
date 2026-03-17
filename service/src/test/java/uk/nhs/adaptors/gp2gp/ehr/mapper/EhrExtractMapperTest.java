@@ -207,4 +207,20 @@ class EhrExtractMapperTest {
 
         assertDoesNotThrow(() -> ehrExtractMapper.validateXmlAgainstSchema(validXml));
     }
+
+    @Test
+    void When_ValidatingRedactionXmlAgainstNonRedactionSchema_Expect_ValidationExceptionThrown() throws Exception {
+        String basePath = Paths.get("src/").toFile().getAbsoluteFile().getAbsolutePath()
+                + "/../../service/src/test/resources/";
+        String xmlFilePath = basePath + "complete-and-validated-xml-test-file-redaction.xml";
+
+        String redactionXml = Files.readString(Paths.get(xmlFilePath));
+
+        when(redactionsContext.ehrExtractInteractionId())
+                .thenReturn("interaction_id_test");
+
+        assertThrows(XmlSchemaValidationException.class, () ->
+                ehrExtractMapper.validateXmlAgainstSchema(redactionXml)
+        );
+    }
 }

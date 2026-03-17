@@ -27,11 +27,9 @@ import uk.nhs.adaptors.gp2gp.ehr.exception.EhrValidationException;
 
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 import javax.xml.transform.stream.StreamSource;
 import org.xml.sax.SAXException;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
@@ -46,10 +44,6 @@ public class EhrExtractMapper {
     private static final Mustache EHR_EXTRACT_TEMPLATE = TemplateUtils.loadTemplate("ehr_extract_template.mustache");
     private static final Mustache SKELETON_COMPONENT_TEMPLATE = TemplateUtils.loadTemplate("ehr_skeleton_component_template.mustache");
     private static final String CONSULTATION_LIST_CODE = "325851000000107";
-    private static final String SCHEMA_PATH = "../service/src/test/resources/mim/Schemas/";
-
-    private static final String RCMR_IN030000UK06_SCHEMA_PATH =  SCHEMA_PATH + RedactionsContext.NON_REDACTION_INTERACTION_ID + ".xsd";
-    private static final String RCMR_IN030000UK07_SCHEMA_PATH =  SCHEMA_PATH + RedactionsContext.REDACTION_INTERACTION_ID + ".xsd";
 
     private final RandomIdGeneratorService randomIdGeneratorService;
     private final TimestampService timestampService;
@@ -67,19 +61,25 @@ public class EhrExtractMapper {
 
     public void validateXmlAgainstSchema(String xml) {
         String interactionId = redactionsContext.ehrExtractInteractionId();
-        boolean isRedactionInteraction = RedactionsContext.REDACTION_INTERACTION_ID.equals(interactionId);
+        boolean isRedaction = RedactionsContext.REDACTION_INTERACTION_ID.equals(interactionId);
 
-        String schemaPath = isRedactionInteraction ? RCMR_IN030000UK07_SCHEMA_PATH : RCMR_IN030000UK06_SCHEMA_PATH;
+        String schemaId = isRedaction
+                ? RedactionsContext.REDACTION_INTERACTION_ID
+                : RedactionsContext.NON_REDACTION_INTERACTION_ID;
+
+        String schemaFile = "mim/Schemas/" + schemaId + ".xsd";
+
         try {
+            var resource = getClass().getClassLoader().getResource(schemaFile);
+
             SchemaFactory factory = SchemaFactory.newDefaultInstance();
-            Schema schema = factory.newSchema(new File(schemaPath));
-            Validator validator = schema.newValidator();
+            Schema schema = factory.newSchema(new StreamSource(resource.openStream(), resource.toExternalForm()));
+            schema.newValidator().validate(new StreamSource(new StringReader(xml)));
 
-            validator.validate(new StreamSource(new StringReader(xml)));
+            LOGGER.info("XML successfully validated against schema: {}", schemaFile);
 
-            LOGGER.info("XML successfully validated against schema: {}", schemaPath);
         } catch (SAXException | IOException e) {
-            LOGGER.error("XML validation failed against schema {}: {}", schemaPath, e.getMessage(), e);
+            LOGGER.error("XML validation failed against schema {}: {}", schemaFile, e.getMessage(), e);
             throw new XmlSchemaValidationException("XML schema validation failed", e);
         }
     }
