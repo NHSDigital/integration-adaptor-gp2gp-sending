@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The GP2GP Adaptor now populates the ObservationStatement / confidentialityCode field when the .meta.security field of an Uncategorized Data Observation contains NOPAT
 * When List.meta.security field contains NOPAT, the GP2GP Adaptor will now populate the CompoundStatement.confidentialityCode
 * The GP2GP Adaptor now throws an exception when the Access Structure Record is empty, thereby rejecting the transfer
+* The GP2GP Adaptor now throws an exception when the XML is not valid, thereby stopping the transfer from going forward
 
 ### Fixed
 * When DiagnosticReport doesn't contain a Specimen or Observation reference, instead of "DUMMY" "NOT-PRESENT" value is used
