@@ -1,12 +1,12 @@
 # Developer Information
 
 > [!WARNING]
-> The audience of this documentation is designed for NHS England developers.
+> This documentation is designed for NHS England developers.
 
-## Requirements:
+## Requirements
 
-* JDK 21 - We develop the adaptor in Java with Spring Boot
-* Docker - We release the adaptor using Docker images on [Dockerhub](https://hub.docker.com/repository/docker/nhsdev/nia-gp2gp-adaptor)
+* JDK 21 — we develop the adaptor in Java with Spring Boot
+* Docker — we release the adaptor using Docker images on [Dockerhub](https://hub.docker.com/repository/docker/nhsdev/nia-gp2gp-adaptor)
 
 ## How to operate the adaptor
 
@@ -14,7 +14,7 @@ The following sections describe how to run the adaptor for development and testi
 
 Refer to [OPERATING.md](./OPERATING.md) for how to operate the adaptor in a live environment.
 
-## How to run service:
+## How to run the service
 
 The following steps use Docker to provide mocks of adaptor dependencies and infrastructure for local testing and
 development. These containers are not suitable for use in a deployed environment. You are responsible for providing
@@ -38,12 +38,12 @@ Full descriptions of each configuration option can be found within the [OPERATIN
 
 ### Using the helper script for Docker Compose
 
-For local environment to run against mocks:
+For a local environment to run against mocks:
 ```bash
 ./start-local-environment-local.sh
 ```
 
-For local environment to run against gp demonstrator 1.6.0
+For a local environment to run against the GP demonstrator 1.6.0:
 ```bash
 ./start-local-environment-public.sh
 ```
@@ -66,41 +66,38 @@ Build the project in your IDE or run `./gradlew bootJar`
 
 Run `uk.nhs.adaptors.gp2gp.Gp2gpApplication` in your IDE or `java -jar build/libs/gp2gp.jar`
 
-### Using Envfile for IntelliJ
-
-
 ## How to run tests
 
 **Warning**: Gradle uses a [Build Cache](https://docs.gradle.org/current/userguide/build_cache.html) to re-use compile and
-test outputs for faster builds. To re-run passing tests without making any code changes you must first run
-`./gradlew clean` to clear the build cache. Otherwise, gradle uses the cached outputs from a previous test execution to
+test outputs for faster builds. To re-run passing tests without making any code changes, you must first run
+`./gradlew clean` to clear the build cache. Otherwise, Gradle uses the cached outputs from a previous test execution to
 pass the build.
 
-You must run all gradle commands from the `service/` directory.
+You must run all Gradle commands from the `service/` directory.
 
-### How to run unit tests:
+### How to run unit tests
 
 ```shell script
 ./gradlew test
 ```
 
-### How to run all checks:
+### How to run all checks
 
 ```shell script
 ./gradlew check
 ```
 
-### How to run integration tests:
+### How to run integration tests
 
 ```shell script
 ./gradlew integrationTest
 ```
 
 Most integration tests automatically start their external dependencies using [TestContainers](https://www.testcontainers.org/).
-To disable this set the `DISABLE_TEST_CONTAINERS` environment variable to `true`.
+To disable this, set the `DISABLE_TEST_CONTAINERS` environment variable to `true`.
 
-If a Test fails with a connection error, you will need to boot up the Docker dependencies.
-See "How to run service" section for details.
+If a test fails with a connection error, you will need to boot up the Docker dependencies.
+See the "How to run the service" section for details.
 
 You can set the adaptor's environment variables to test integrations with specific dependencies.
 
@@ -147,9 +144,9 @@ api.version=1.44
 EOF
 ```
 
-## How to run e2e tests:
+## How to run E2E tests
 
-End-to-end (e2e) tests execute against an already running / deployed adaptor and its dependencies. You must run these
+End-to-end (E2E) tests execute against an already running / deployed adaptor and its dependencies. You must run these
 yourself and configure the environment variables as needed. The tests do not automatically start any dependencies.
 
 These tests publish messages to the MHS inbound queue and make assertions on the Mongo database. The tests must have
@@ -201,11 +198,11 @@ We provide a mock MHS adaptor for local development and testing.
 | MOCK_MHS_SERVER_PORT   | 8081    | The port on which the mock MHS Adapter will run.                                                                                |                                                                                
 | MOCK_MHS_LOGGING_LEVEL | INFO    | Mock MHS logging level. One of: DEBUG, INFO, WARN, ERROR. The level DEBUG **MUST NOT** be used when handling live patient data. | 
 
-### How to transform arbitrary json ASR payload files
+## How to transform arbitrary JSON ASR payload files
 
-This is an interoperability testing tool to transform arbitrary/ad-hoc json ASR payloads, access the outputs and validate the produced XML against the relevant schema.
+This is an interoperability testing tool to transform arbitrary/ad-hoc JSON ASR payloads, access the outputs and validate the produced XML against the relevant schema.
 
-1. Navigate to the input folder and place all Json files to convert here.
+1. Navigate to the input folder and place all JSON files to convert here.
    `integration-adaptor-gp2gp/transformJsonToXml/input/`
 
 2. Navigate to the TransformJsonToXml.sh file and run that script to execute the testing tool.
@@ -224,7 +221,7 @@ This is an interoperability testing tool to transform arbitrary/ad-hoc json ASR 
 
 ### "Invalid source release 17" error
 
-When using IntelliJ this could be caused by either of the following:
+When using IntelliJ, this could be caused by either of the following:
 
 - The [Project SDK] being set too low.
 - The [Gradle JDK] being set too low.
@@ -234,17 +231,17 @@ When using IntelliJ this could be caused by either of the following:
 
 ## Releasing a new version to Docker Hub
 
-First identify which is the most recent commit within GitHub which contains only changes which are marked as Done within Jira.
-You can also review what commits have gone in by using the git log command or IDE.
+First, identify the most recent commit within GitHub that contains only changes marked as Done in Jira.
+You can review what commits have gone in by using the `git log` command or your IDE.
 
 Make a note of the most recent Release within GitHub, and identify what the next version number to use will be.
 
-On the repository home page, navigate to **Releases** and make sure the latest release is on screen. Click on the `Draft a new release` button
+On the repository home page, navigate to **Releases** and make sure the latest release is on screen. Click the **Draft a new release** button.
 
-To create a new release within GitHub, specify a tag version to use (e.g. 0.11), and the target being the latest commit using the options available.
-Click on the `Generate release notes` button and this will list all the current changes from the recent commit.
+To create a new release within GitHub, specify a tag version to use (e.g. 0.11) and set the target to the latest commit using the options available.
+Click the **Generate release notes** button to list all current changes from the most recent commit.
 
-Click "Publish Release" which will trigger a GitHub Actions job called "Push Docker Image", which will build and
+Click **Publish Release**, which will trigger a GitHub Actions job called "Push Docker Image" that will build and
 push images to DockerHub.
 
 Update the `CHANGELOG.md` file, moving the UNRELEASED entries into a line for the new release.
