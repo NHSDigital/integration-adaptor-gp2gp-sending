@@ -14,12 +14,14 @@ The "National Integration Adaptor - GP2GP" implements a GP2GP 2.2b producer usin
 Provider implementation to extract the Electronic Health Record. Suppliers that have not already implemented a
 GP2GP 2.2b producer, or those wishing to decommission their existing producer, may deploy the GP2GP adaptor in its place.
 
-## Table of contents
+## Table of Contents
 
 1. [Guidance for setting up the GP2GP adaptors in INT](https://github.com/NHSDigital/nia-patient-switching-standard-adaptor/blob/main/getting-started-instructions.md)
 1. [Guidance for operating the adaptor as a New Market Entrant](OPERATING.md)
-1. [Guidance on integrating with the adaptors APIs](#adaptor-api)
-1. [Documentation on how this adaptor maps GPConnect concepts to GP2GP concepts](https://github.com/NHSDigital/patient-switching-adaptors-mapping-documentation)
+1. [AWS DocumentDB Configuration Guide](documentation/database/documentdb.md)
+1. [MongoDB 4.0 Compatibility Guide](documentation/database/mongodb-4.0-compatibility.md)
+1. [Guidance on integrating with the adaptor's APIs](#adaptor-api)
+1. [Documentation on how this adaptor maps GP Connect concepts to GP2GP concepts](https://github.com/NHSDigital/patient-switching-adaptors-mapping-documentation)
 
 ## Adaptor API
 
@@ -30,7 +32,7 @@ The API has been [documented using the OpenAPI Specification (version 3.0.1)](gp
 includes detailed descriptions of endpoints, parameters, and data models, as well as examples of requests and responses
 to help developers integrate and use the API effectively.
 
-The documentation can also be displayed using [editor.swagger.io (exteral link)][swagger_editor].
+The documentation can also be displayed using [editor.swagger.io (external link)][swagger_editor].
 
 [swagger_editor]: https://editor.swagger.io/?url=https://raw.githubusercontent.com/NHSDigital/integration-adaptor-gp2gp-sending/refs/heads/main/gp2gp_adaptor_response_docs.yaml
 
@@ -40,14 +42,14 @@ The documentation can also be displayed using [editor.swagger.io (exteral link)]
 
 ![Sequence diagram](documentation/sequence/sequence.svg)
 
-## NIA Support (NHS England) guidance
+## NIA Support (NHS England) Guidance
 
-If you are are New Market Entrant, please read the guidance linked from the [table of contents](#table-of-contents).
-If you are looking to make changes to the adaptor you should first read the [guidance for developing the adaptor](nhs-england-developer-information.md).
+If you are a New Market Entrant, please read the guidance linked from the [Table of Contents](#table-of-contents).
+If you are looking to make changes to the adaptor, you should first read the [guidance for developing the adaptor](nhs-england-developer-information.md).
 
 ## Disclaimer
 
-All Patient data within this repository is synthetic
+All patient data within this repository is synthetic.
 
 ## Licensing
 This code is dual licensed under the MIT license and the OGL (Open Government License). Any new work added to this repository must conform to the conditions of these licenses. In particular this means that this project may not depend on GPL-licensed or AGPL-licensed libraries, as these would violate the terms of those libraries' licenses.
