@@ -30,7 +30,8 @@ import uk.nhs.adaptors.mockmhsservice.producer.InboundProducer;
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MockMhsService {
-    private static final String EXTRACT_CORE_INTERACTION_ID = "RCMR_IN030000UK06";
+    private static final String REDACTIONS_DISABLED_EXTRACT_CORE_INTERACTION_ID = "RCMR_IN030000UK06";
+    private static final String REDACTIONS_ENABLED_EXTRACT_CORE_INTERACTION_ID = "RCMR_IN030000UK07";
     private static final String ACKNOWLEDGEMENT_INTERACTION_ID = "MCCI_IN010000UK13";
     private static final String COMMON_INTERACTION_ID = "COPC_IN000001UK01";
     private static final String STUB_CONTINUE_REPLY_INBOUND_MESSAGE = ResourceReader.readAsString("COPC_IN000001UK01.json");
@@ -70,7 +71,7 @@ public class MockMhsService {
             return new ResponseEntity<>(INTERNAL_SERVER_ERROR_RESPONSE, headers, INTERNAL_SERVER_ERROR);
         }
 
-        if (interactionId.equals(EXTRACT_CORE_INTERACTION_ID)) {
+        if (interactionId.equals(REDACTIONS_DISABLED_EXTRACT_CORE_INTERACTION_ID) || interactionId.equals(REDACTIONS_ENABLED_EXTRACT_CORE_INTERACTION_ID)) {
             try {
                 EHR_EXTRACT_ID_MAP.put(correlationId, messageId);
                 var inboundMessage = STUB_CONTINUE_REPLY_INBOUND_MESSAGE.replace("%%ConversationId%%", correlationId);

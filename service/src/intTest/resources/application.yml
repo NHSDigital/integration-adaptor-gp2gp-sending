@@ -15,7 +15,7 @@ management:
 
 gp2gp:
   ehr-extract-sent-days-limit: 8
-  redactions-enabled: ${GP2GP_REDACTIONS_ENABLED:false}
+  redactions-enabled: ${GP2GP_REDACTIONS_ENABLED:true}
   largeAttachmentThreshold: ${GP2GP_LARGE_ATTACHMENT_THRESHOLD:4500000} # value in bytes. Default value for Spine is ~4.5MB
   largeEhrExtractThreshold: ${GP2GP_LARGE_ATTACHMENT_THRESHOLD:4500000}
   storage:
