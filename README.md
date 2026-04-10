@@ -18,8 +18,6 @@ GP2GP 2.2b producer, or those wishing to decommission their existing producer, m
 
 1. [Guidance for setting up the GP2GP adaptors in INT](https://github.com/NHSDigital/nia-patient-switching-standard-adaptor/blob/main/getting-started-instructions.md)
 1. [Guidance for operating the adaptor as a New Market Entrant](OPERATING.md)
-1. [AWS DocumentDB Configuration Guide](documentation/database/documentdb.md)
-1. [MongoDB 4.0 Compatibility Guide](documentation/database/mongodb-4.0-compatibility.md)
 1. [Guidance on integrating with the adaptor's APIs](#adaptor-api)
 1. [Documentation on how this adaptor maps GP Connect concepts to GP2GP concepts](https://github.com/NHSDigital/patient-switching-adaptors-mapping-documentation)
 

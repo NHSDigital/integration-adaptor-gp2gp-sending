@@ -24,8 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Update
 
 * [GP Connect 1.6.1] The GP2GP Adaptor is now able to identify e-referrals by using either `https://fhir.nhs.uk/Id/ubr-number` or `https://fhir.nhs.uk/Id/UBRN` when provided as an identifier system URL.
-* [GP Connect 1.6.2] In a `MedicationRequest` the `Medication` can be provided as a reference to a `Medication` (using `Medication.medicationReference`) or, in the case that only a single resource references this medication, a `Medication.medicationCodeableConcept` can be used instead.) 
-
+* [GP Connect 1.6.2] In a `MedicationRequest` the `Medication` can be provided as a reference to a `Medication` (using `Medication.medicationReference`) or, in the case that only a single resource references this medication, a `Medication.medicationCodeableConcept` can be used instead.)
 
 ## [2.4.0] - 2025-04-02
 
