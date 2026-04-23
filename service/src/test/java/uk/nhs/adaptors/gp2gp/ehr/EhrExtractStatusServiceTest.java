@@ -607,8 +607,38 @@ class EhrExtractStatusServiceTest {
                                           conversationId);
     }
 
+    @Test
+    void shouldSetSentAtFromTimestampServiceWhenUpdatingDocumentSentToMHS() {
+        String conversationId = generateRandomUppercaseUUID();
+        String taskId = generateRandomUppercaseUUID();
+        int documentPosition = 0;
+        Instant fixedTimestamp = Instant.parse("2026-04-23T10:00:00Z");
+
+        SendDocumentTaskDefinition taskDefinition = SendDocumentTaskDefinition.builder()
+            .conversationId(conversationId)
+            .taskId(taskId)
+            .documentPosition(documentPosition)
+            .build();
+
+        when(timestampService.now()).thenReturn(fixedTimestamp);
+
+        EhrExtractStatus ehrExtractStatus = EhrExtractStatus.builder().build();
+        when(mongoTemplate.findAndModify(any(Query.class), any(Update.class), any(FindAndModifyOptions.class), eq(EhrExtractStatus.class)))
+            .thenReturn(ehrExtractStatus);
+
+        ehrExtractStatusService.updateEhrExtractStatusCommonForDocuments(taskDefinition, List.of("msg-id-1"));
+
+        verify(mongoTemplate).findAndModify(queryCaptor.capture(), updateCaptor.capture(),
+            any(FindAndModifyOptions.class), eq(EhrExtractStatus.class));
+
+        Document setDocument = (Document) updateCaptor.getValue().getUpdateObject().get("$set");
+        String sentAtPath = "gpcAccessDocument.documents." + documentPosition + ".sentToMhs.sentAt";
+        assertEquals(fixedTimestamp, setDocument.get(sentAtPath));
+    }
+
     private String generateRandomUppercaseUUID() {
         return UUID.randomUUID().toString().toUpperCase();
     }
 
 }
+
