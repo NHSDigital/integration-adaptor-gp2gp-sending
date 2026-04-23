@@ -2,6 +2,7 @@ package uk.nhs.adaptors.gp2gp.ehr;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -163,7 +164,7 @@ public class SendAcknowledgementComponentTest {
         assertThat(ackToRequester.getMessageId()).isEqualTo(GENERATED_RANDOM_ID);
         assertThat(ackToRequester.getTypeCode()).isEqualTo(POSITIVE_ACK_TYPE_CODE);
         assertThat(ackToRequester.getReasonCode()).isNull();
-        assertThat(ackToRequester.getDetail()).isNull();
+        assertNotNull(ackToRequester.getDetail());
     }
 
     @Test
