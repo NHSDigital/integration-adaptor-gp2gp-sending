@@ -636,6 +636,45 @@ class EhrExtractStatusServiceTest {
         assertEquals(fixedTimestamp, setDocument.get(sentAtPath));
     }
 
+    @Test
+    void shouldSetSentAtFromTimestampServiceWhenUpdatingAttachmentSentToMhs() {
+        String conversationId = generateRandomUppercaseUUID();
+        String taskId = generateRandomUppercaseUUID();
+        Instant updatedAtTimestamp = Instant.parse("2026-04-23T11:00:00Z");
+        Instant sentAtTimestamp = Instant.parse("2026-04-23T12:00:00Z");
+
+        SendDocumentTaskDefinition taskDefinition = SendDocumentTaskDefinition.builder()
+            .conversationId(conversationId)
+            .taskId(taskId)
+            .documentPosition(0)
+            .build();
+
+        when(timestampService.now())
+            .thenReturn(updatedAtTimestamp)
+            .thenReturn(sentAtTimestamp);
+
+        EhrExtractStatus ehrExtractStatus = EhrExtractStatus.builder().build();
+        when(mongoTemplate.findAndModify(any(Query.class), any(Update.class), any(FindAndModifyOptions.class), eq(EhrExtractStatus.class)))
+            .thenReturn(ehrExtractStatus);
+
+        ehrExtractStatusService.updateEhrExtractStatusCommonForExternalEhrExtract(taskDefinition, List.of("msg-id-1"));
+
+        verify(mongoTemplate).findAndModify(queryCaptor.capture(), updateCaptor.capture(),
+            any(FindAndModifyOptions.class), eq(EhrExtractStatus.class));
+
+        Document setDocument = (Document) updateCaptor.getValue().getUpdateObject().get("$set");
+
+        String sentAtPath = "gpcAccessStructured.attachment.sentToMhs.sentAt";
+        assertTrue(setDocument.containsKey(sentAtPath), "Update should contain the sentAt field");
+        assertEquals(sentAtTimestamp, setDocument.get(sentAtPath));
+
+        String taskIdPath = "gpcAccessStructured.attachment.sentToMhs.taskId";
+        assertEquals(taskId, setDocument.get(taskIdPath));
+
+        String messageIdPath = "gpcAccessStructured.attachment.sentToMhs.messageId";
+        assertEquals(List.of("msg-id-1"), setDocument.get(messageIdPath));
+    }
+
     private String generateRandomUppercaseUUID() {
         return UUID.randomUUID().toString().toUpperCase();
     }
