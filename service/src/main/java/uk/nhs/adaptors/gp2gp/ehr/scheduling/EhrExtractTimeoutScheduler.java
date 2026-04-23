@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
 import uk.nhs.adaptors.gp2gp.ehr.EhrExtractStatusService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrExtractException;
 import uk.nhs.adaptors.gp2gp.ehr.model.EhrExtractStatus;
@@ -26,11 +27,12 @@ public class EhrExtractTimeoutScheduler {
     private static final String ERROR = "error";
     private final MongoTemplate mongoTemplate;
     private final EhrExtractStatusService ehrExtractStatusService;
+    private TimestampService timestampService;
 
     @Scheduled(cron = "${timeout.cronTime}")
     public void processEhrExtractAckTimeouts() {
         List<EhrExtractStatus> inProgressEhrExtractTransfers = findInProgressTransfers();
-        var now = Instant.now();
+        var now = timestampService.now();
         var ehrExtractStatusWithExceededUpdateLimit = inProgressEhrExtractTransfers
             .stream()
             .filter(ehrExtractStatus -> Objects.isNull(ehrExtractStatus.getEhrReceivedAcknowledgement())

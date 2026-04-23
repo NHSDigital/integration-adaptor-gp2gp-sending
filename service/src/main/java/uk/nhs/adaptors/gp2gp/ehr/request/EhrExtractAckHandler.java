@@ -13,6 +13,7 @@ import org.w3c.dom.NodeList;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
 import uk.nhs.adaptors.gp2gp.common.service.XPathService;
 import uk.nhs.adaptors.gp2gp.ehr.EhrExtractStatusService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrExtractException;
@@ -38,11 +39,12 @@ public class EhrExtractAckHandler {
 
     private final XPathService xPathService;
     private final EhrExtractStatusService ehrExtractStatusService;
+    private final TimestampService timestampService;
 
     @SneakyThrows
     public void handle(String conversationId, Document document) {
         String ackTypeCode = xPathService.getNodeValue(document, ACK_TYPE_CODE_XPATH);
-        Instant now = Instant.now();
+        Instant now = timestampService.now();
         String messageRef = xPathService.getNodeValue(document, MESSAGE_REF_XPATH);
         String rootId = xPathService.getNodeValue(document, MESSAGE_ID_ROOT_XPATH);
         EhrReceivedAcknowledgementBuilder ackBuilder = EhrReceivedAcknowledgement.builder()
