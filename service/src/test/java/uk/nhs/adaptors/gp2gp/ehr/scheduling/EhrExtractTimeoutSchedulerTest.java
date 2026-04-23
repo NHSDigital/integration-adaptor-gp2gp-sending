@@ -77,7 +77,7 @@ class EhrExtractTimeoutSchedulerTest {
     void setUp() {
         ehrExtractStatusService = new EhrExtractStatusService(mongoTemplate, ehrExtractStatusRepository, timestampService);
         ehrExtractStatusServiceSpy = spy(ehrExtractStatusService);
-        ehrExtractTimeoutScheduler = new EhrExtractTimeoutScheduler(mongoTemplate, ehrExtractStatusServiceSpy);
+        ehrExtractTimeoutScheduler = new EhrExtractTimeoutScheduler(mongoTemplate, ehrExtractStatusServiceSpy, timestampService);
     }
 
     @Test
