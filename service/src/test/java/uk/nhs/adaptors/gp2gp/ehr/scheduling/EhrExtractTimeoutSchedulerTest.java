@@ -285,6 +285,7 @@ class EhrExtractTimeoutSchedulerTest {
 
         doReturn(List.of(ehrExtractStatus)).when(ehrExtractTimeoutSchedulerSpy).findInProgressTransfers();
         when(ehrExtractTimeoutSchedulerSpy.logger()).thenReturn(logger);
+        when(timestampService.now()).thenReturn(Instant.now());
 
         var exception = assertThrows(EhrExtractException.class, ehrExtractTimeoutSchedulerSpy::processEhrExtractAckTimeouts);
 
@@ -313,6 +314,7 @@ class EhrExtractTimeoutSchedulerTest {
         var inProgressConversationId = generateRandomUppercaseUUID();
         EhrExtractStatus ehrExtractStatus = addInProgressTransfers(inProgressConversationId);
         doReturn(List.of(ehrExtractStatus)).when(ehrExtractTimeoutSchedulerSpy).findInProgressTransfers();
+        when(timestampService.now()).thenReturn(Instant.now());
 
         Exception exception = new RuntimeException("Logger failure");
         doThrow(exception).when(logger).info("Scheduler has started processing EhrExtract list with Ack timeouts");
@@ -338,6 +340,7 @@ class EhrExtractTimeoutSchedulerTest {
         doReturn(null).when(mongoTemplate).findAndModify(any(Query.class), any(UpdateDefinition.class),
                                                          any(FindAndModifyOptions.class), any());
         when(ehrExtractTimeoutSchedulerSpy.logger()).thenReturn(logger);
+        when(timestampService.now()).thenReturn(Instant.now());
 
         var exception = assertThrows(EhrExtractException.class, ehrExtractTimeoutSchedulerSpy::processEhrExtractAckTimeouts);
 

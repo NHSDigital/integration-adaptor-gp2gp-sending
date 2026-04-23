@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Optional;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -32,6 +33,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
 import uk.nhs.adaptors.gp2gp.common.service.XPathService;
 import uk.nhs.adaptors.gp2gp.ehr.EhrExtractStatusService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrExtractException;
@@ -65,6 +67,9 @@ class EhrExtractAckHandlerTest {
 
     @Mock
     private Document document;
+
+    @Mock
+    private TimestampService timestampService;
 
     @Captor
     private ArgumentCaptor<EhrExtractStatus.EhrReceivedAcknowledgement> receivedAckField;
@@ -141,6 +146,7 @@ class EhrExtractAckHandlerTest {
 
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_OK_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
+        when(timestampService.now()).thenReturn(Instant.now());
 
         when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.empty());
 
@@ -159,6 +165,7 @@ class EhrExtractAckHandlerTest {
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ERROR_CODE_XPATH))).thenReturn(codeNodeList);
         when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(EHR_MESSAGE_REF));
+        when(timestampService.now()).thenReturn(Instant.now());
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -196,6 +203,7 @@ class EhrExtractAckHandlerTest {
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ERROR_CODE_XPATH))).thenReturn(codeNodeList);
         when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(RANDOM_MESSAGE_REF));
+        when(timestampService.now()).thenReturn(Instant.now());
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -214,6 +222,7 @@ class EhrExtractAckHandlerTest {
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ERROR_CODE_XPATH))).thenReturn(codeNodeList);
         when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(RANDOM_MESSAGE_REF));
+        when(timestampService.now()).thenReturn(Instant.now());
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -286,6 +295,7 @@ class EhrExtractAckHandlerTest {
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ACK_DETAILS_XPATH))).thenReturn(codeNodeList);
         when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(RANDOM_MESSAGE_REF));
+        when(timestampService.now()).thenReturn(Instant.now());
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
