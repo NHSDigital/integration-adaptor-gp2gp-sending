@@ -14,8 +14,6 @@ import uk.nhs.adaptors.gp2gp.ehr.EhrExtractStatusService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrExtractException;
 import uk.nhs.adaptors.gp2gp.ehr.model.EhrExtractStatus;
 import uk.nhs.adaptors.gp2gp.ehr.utils.ErrorDetail;
-
-import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,7 +25,7 @@ public class EhrExtractTimeoutScheduler {
     private static final String ERROR = "error";
     private final MongoTemplate mongoTemplate;
     private final EhrExtractStatusService ehrExtractStatusService;
-    private TimestampService timestampService;
+    private final TimestampService timestampService;
 
     @Scheduled(cron = "${timeout.cronTime}")
     public void processEhrExtractAckTimeouts() {
