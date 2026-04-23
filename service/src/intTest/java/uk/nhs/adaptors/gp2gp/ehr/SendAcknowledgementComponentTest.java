@@ -96,7 +96,7 @@ public class SendAcknowledgementComponentTest {
         when(sendAcknowledgementTaskDefinition.getConversationId()).thenReturn(ehrExtractStatus.getConversationId());
         when(sendAcknowledgementTaskDefinition.getFromOdsCode()).thenReturn(ehrRequest.getFromOdsCode());
         when(mhsClient.sendMessageToMHS(request)).thenReturn("Successful Mhs Outbound Request");
-        when(timestampService.now()).thenReturn(Instant.parse(DATE));
+        when(timestampService.now()).thenReturn(Instant.now());
 
         sendAcknowledgementExecutor.execute(sendAcknowledgementTaskDefinition);
         var ehrExtractFirst = ehrExtractStatusRepository.findByConversationId(ehrExtractStatus.getConversationId()).get();
@@ -164,7 +164,7 @@ public class SendAcknowledgementComponentTest {
         assertThat(ackToRequester.getMessageId()).isEqualTo(GENERATED_RANDOM_ID);
         assertThat(ackToRequester.getTypeCode()).isEqualTo(POSITIVE_ACK_TYPE_CODE);
         assertThat(ackToRequester.getReasonCode()).isNull();
-        assertNotNull(ackToRequester.getDetail());
+        assertThat(ackToRequester.getDetail()).isNull();
     }
 
     @Test

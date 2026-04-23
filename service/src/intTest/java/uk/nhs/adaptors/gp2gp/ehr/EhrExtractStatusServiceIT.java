@@ -79,12 +79,13 @@ public class EhrExtractStatusServiceIT {
         var inProgressConversationId = generateRandomUppercaseUUID();
 
         var ehrExtractStatusServiceSpy = spy(ehrExtractStatusService);
+        when(timestampService.now()).thenReturn(NOW);
 
         addInProgressTransferWithExceededAckTimeout(inProgressConversationId, List.of());
 
         ehrExtractTimeoutScheduler.processEhrExtractAckTimeouts();
         when(ehrExtractStatusServiceSpy.logger()).thenReturn(logger);
-        when(timestampService.now()).thenReturn(NOW);
+
 
         var ehrReceivedAcknowledgement = getEhrReceivedAcknowledgement(inProgressConversationId);
         ehrReceivedAcknowledgement.setReceived(NOW);
