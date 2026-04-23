@@ -95,6 +95,7 @@ public class SendAcknowledgementComponentTest {
         when(sendAcknowledgementTaskDefinition.getConversationId()).thenReturn(ehrExtractStatus.getConversationId());
         when(sendAcknowledgementTaskDefinition.getFromOdsCode()).thenReturn(ehrRequest.getFromOdsCode());
         when(mhsClient.sendMessageToMHS(request)).thenReturn("Successful Mhs Outbound Request");
+        when(timestampService.now()).thenReturn(Instant.parse(DATE));
 
         sendAcknowledgementExecutor.execute(sendAcknowledgementTaskDefinition);
         var ehrExtractFirst = ehrExtractStatusRepository.findByConversationId(ehrExtractStatus.getConversationId()).get();
