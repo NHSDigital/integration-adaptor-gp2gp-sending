@@ -38,6 +38,7 @@ import uk.nhs.adaptors.gp2gp.testcontainers.MongoDBExtension;
 @SpringBootTest(properties = {"command.line.runner.enabled=false"})
 public class SendAcknowledgementComponentTest {
     private static final String GENERATED_RANDOM_ID = "GENERATED-RANDOM-ID";
+    private static final String GENERATED_RANDOM_ID_2 = "GENERATED-RANDOM-ID-2";
     private static final String FROM_ASID = "0000222-from-asid";
     private static final String TO_ASID = "0000333-to-asid";
     private static final String FROM_ODS_CODE = "0000222-from-ods-code";
@@ -95,6 +96,10 @@ public class SendAcknowledgementComponentTest {
         when(sendAcknowledgementTaskDefinition.getConversationId()).thenReturn(ehrExtractStatus.getConversationId());
         when(sendAcknowledgementTaskDefinition.getFromOdsCode()).thenReturn(ehrRequest.getFromOdsCode());
         when(mhsClient.sendMessageToMHS(request)).thenReturn("Successful Mhs Outbound Request");
+
+        when(randomIdGeneratorService.createNewId())
+            .thenReturn(GENERATED_RANDOM_ID)
+            .thenReturn(GENERATED_RANDOM_ID_2);
 
         sendAcknowledgementExecutor.execute(sendAcknowledgementTaskDefinition);
         var ehrExtractFirst = ehrExtractStatusRepository.findByConversationId(ehrExtractStatus.getConversationId()).get();
