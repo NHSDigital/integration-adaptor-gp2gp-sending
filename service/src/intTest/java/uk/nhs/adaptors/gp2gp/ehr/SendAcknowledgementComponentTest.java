@@ -2,7 +2,6 @@ package uk.nhs.adaptors.gp2gp.ehr;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -96,7 +95,6 @@ public class SendAcknowledgementComponentTest {
         when(sendAcknowledgementTaskDefinition.getConversationId()).thenReturn(ehrExtractStatus.getConversationId());
         when(sendAcknowledgementTaskDefinition.getFromOdsCode()).thenReturn(ehrRequest.getFromOdsCode());
         when(mhsClient.sendMessageToMHS(request)).thenReturn("Successful Mhs Outbound Request");
-        when(timestampService.now()).thenReturn(Instant.now());
 
         sendAcknowledgementExecutor.execute(sendAcknowledgementTaskDefinition);
         var ehrExtractFirst = ehrExtractStatusRepository.findByConversationId(ehrExtractStatus.getConversationId()).get();
