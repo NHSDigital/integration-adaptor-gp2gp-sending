@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The GP2GP Adaptor will no longer incorrectly fail schema validation.
 * The GP2GP Adaptor now sources the references correctly from within the service code rather than fetching them from the test folder.
 
+### Changed
+* Updated logging configuration to route application logs through async appender settings for improved runtime logging performance.
+
 ## [3.0.0] - 2025-11-06
 
 ### Added
