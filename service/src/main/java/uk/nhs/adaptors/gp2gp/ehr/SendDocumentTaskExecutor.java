@@ -57,7 +57,7 @@ public class SendDocumentTaskExecutor implements TaskExecutor<SendDocumentTaskDe
         }
 
         var binary = outboundMessage.getAttachments().get(0).getPayload();
-        LOGGER.debug("Attachment size=" + getBytesLengthOfString(binary) + " content-type=" + taskDefinition.getDocumentContentType());
+        LOGGER.debug("Attachment size={} content-type={}", getBytesLengthOfString(binary), taskDefinition.getDocumentContentType());
         if (isLargeAttachment(binary)) {
             outboundMessage.getAttachments().clear(); // since it's a large message, chunks will be sent as external attachments
             outboundMessage.setExternalAttachments(new ArrayList<>());
