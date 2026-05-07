@@ -17,7 +17,7 @@ Variables without a default value and not marked optional, *MUST* be defined for
 | GP2GP_ROOT_LOGGING_LEVEL  | WARN       | The logging level applied to the entire application (including third-party dependencies).                                      |
 | GP2GP_LOGGING_LEVEL             | INFO       | The logging level applied to GP2GP adaptor components.                                                                         |
 | GP2GP_LOGGING_FORMAT         | (*)        | Defines how to format log events on stdout                                                                                     |
-| GP2GP_REDACTIONS_ENABLED   | false    | Defines if RCMR_IN030000UK07 HL7 XML is produced when `NOPAT` `meta.security` fields are provided within the structured bundle |
+| GP2GP_REDACTIONS_ENABLED   | true    | Defines if RCMR_IN030000UK07 HL7 XML is produced when `NOPAT` `meta.security` fields are provided within the structured bundle |
 
 Logging levels are one of: DEBUG, INFO, WARN, ERROR
 
@@ -46,6 +46,7 @@ MongoDB provides [a table of compatible versions of their product against the Ja
 | GP2GP_MONGO_AUTO_INDEX_CREATION | true                      | (Optional) Should auto index for Mongo database be created.                                                                                                    |
 | GP2GP_MONGO_TTL                 | P84D                      | (Optional) Time-to-live value for inbound and outbound state collection documents as an [ISO 8601 Duration](https://en.wikipedia.org/wiki/ISO_8601#Durations). |
 | GP2GP_COSMOS_DB_ENABLED         | false                     | (Optional) If true the adaptor will enable features and workarounds to support Azure Cosmos DB.                                                                |
+| GP2GP_DOCUMENTDB_ENABLED        | false                     | (Optional) If true the adaptor will enable features and workarounds to support AWS DocumentDB.                                                                  |
 
 **Trust Store Configuration Options**
 
@@ -98,7 +99,12 @@ The adaptor fetches patient records and documents with the GP Connect Consumer A
 |--------------------------------|---------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
 | GP2GP_GPC_GET_URL              | http://localhost:8090/@ODS_CODE@/STU3/1/gpconnect | (*) The base URL of the GP Connect Consumer Adaptor. @ODS_CODE@ is a placeholder replaced in runtime with the actual ODS code of the losing practice. |
 | GP2GP_GPC_STRUCTURED_FHIR_BASE | /fhir                                             | The path segment for Get Access Structured FHIR server                                                                                                 |
-| GP2GP_GPC_MAX_REQUEST_SIZE     | 150000000 (150 MB)                                | Buffer size when downloading data from GPC                                                                                                             |                                                                                                             
+| GP2GP_GPC_OVERRIDE_NHS_NUMBER  |                                                   | (Optional) Overrides the NHS number used for GP Connect requests. Intended for testing only.                                                          |
+| GP2GP_GPC_MAX_REQUEST_SIZE     | 150000000 (150 MB)                                | Buffer size when downloading data from GPC                                                                                                             |
+| GP2GP_REQUESTING_PRACTITIONER_SDS_USER_ID | UNK                                               | SDS user ID used for the requesting practitioner details when constructing GP Connect requests.                                                        |
+| GP2GP_REQUESTING_PRACTITIONER_SDS_ROLE_PROFILE_ID | UNK                                        | SDS role profile ID used for the requesting practitioner details when constructing GP Connect requests.                                                |
+| GP2GP_REQUESTING_PRACTITIONER_FAMILY_NAME | ADAPTOR                                           | Family name used for the requesting practitioner details when constructing GP Connect requests.                                                        |
+| GP2GP_REQUESTING_PRACTITIONER_GIVEN_NAME  | GP2GP                                             | Given name used for the requesting practitioner details when constructing GP Connect requests.                                                         |
 
 (*) `GP2GP_GPC_GET_URL` could be set to the base URL of a GP Connect Producer for limited testing purposes
 
@@ -109,7 +115,7 @@ The GP2GP uses the [MHS Adaptor](https://github.com/nhsconnect/integration-adapt
 | Environment Variable                         | Default                                 | Description                                                                                                                                                                                                              |
 |----------------------------------------------|-----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | GP2GP_MHS_OUTBOUND_URL                       | http://localhost:8081/mock-mhs-endpoint | URL to the MHS adaptor's outbound endpoint                                                                                                                                                                               |
-| GP2GP_MHS_INBOUND_QUEUE                      | inbound                                 | Name of the queue for MHS inbound                                                                                                                                                                                        |
+| GP2GP_MHS_INBOUND_QUEUE                      | gp2gpInboundQueue                        | Name of the queue for MHS inbound                                                                                                                                                                                        |
 | GP2GP_MHS_INBOUND_QUEUE_CONSUMER_CONCURRENCY | 1                                       | Defines the number of concurrent mhs inbound queue consumers in a single application. https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/jms/annotation/JmsListener.html#concurrency-- |
 
 
@@ -118,6 +124,7 @@ The GP2GP uses the [MHS Adaptor](https://github.com/nhsconnect/integration-adapt
 | Environment Variable             | Default | Description                                                                                                                                                      |
 |----------------------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | GP2GP_LARGE_ATTACHMENT_THRESHOLD | 4500000 | Value in bytes. Defines the max size of a single attachment sent to MHS. If a document is larger than this value, it's content will be split and sent in chunks. | 
+| GP2GP_LARGE_EHR_EXTRACT_THRESHOLD | 4500000 | Value in bytes. Defines the max size of an EhrExtract before it is split into fragments for outbound messaging.                                           |
 
 ### MHS Adaptor and GP Connect Consumer Adaptor Client Options
 Options for configuring the web client making requests to the MHS Adaptor and the GP Connect Consumer Adaptor.
@@ -148,6 +155,12 @@ Timeout is measured as total time for the HTTP request and response to complete.
 | GP2GP_MHS_CLIENT_MAX_BACKOFF_ATTEMPTS | 6       | Max backoff attempts        |
 | GP2GP_MHS_CLIENT_MIN_BACKOFF_SECONDS  | 5       | Min backoff time (seconds)  |
 | GP2GP_MHS_CLIENT_TIMEOUT_SECONDS      | 120     | Request timeout (seconds)   |
+
+### Timeout Scheduler Configuration Options
+
+| Environment Variable | Default         | Description                                                                 |
+|----------------------|-----------------|-----------------------------------------------------------------------------|
+| TIMEOUT_CRON_TIME    | 0 0 */12 * * *  | Cron expression controlling how often timed-out transfers are reconciled. |
 
 ## Adaptor Process
 
