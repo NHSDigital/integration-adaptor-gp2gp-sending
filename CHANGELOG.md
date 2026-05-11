@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 * Updated logging configuration to route application logs through async appender settings for improved runtime logging performance.
+* The service Docker image now uses JVM percentage-based heap sizing (`-XX:MaxRAMPercentage=75.0`, `-XX:InitialRAMPercentage=50.0`) 
+* instead of a fixed `-Xmx` value, so the heap adapts automatically when the container memory limit is changed without requiring an image rebuild.
+* Enabled G1GC explicitly (`-XX:+UseG1GC`) in the service container entrypoint for consistent garbage collection behaviour across deployments.
 
 ## [3.0.0] - 2025-11-06
 
