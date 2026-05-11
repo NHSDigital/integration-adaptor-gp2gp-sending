@@ -79,7 +79,7 @@
 | messageId  | String   | UUID V4     |
 | taskId     | String   | UUID V4     |
 | typeCode   | String   | AA, AE      |
-| updatedAt  | String   | ISO-8601 format timestamp |
+| updatedAt  | String   | format timestamp |
 
 ## ACK To Requester
 
@@ -125,7 +125,7 @@
 | Field Name | Datatype       | Constraints |
 | ---------- | -------------- | ----------- |
 | messageId  | String (Array) | UUID V4's   |
-| sentAt     | String         | N/A (ISO-8601 format timestamp) |
+| sentAt     | String         | N/A (format timestamp) |
 | taskId     | String         | UUID V4     |
 
 ## Errors
