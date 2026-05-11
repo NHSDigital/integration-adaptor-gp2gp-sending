@@ -4,16 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-* The GP2GP_REDACTIONS_ENABLED environment variable now defaults to true if no value is provided.
-* The GP2GP Adaptor will no longer incorrectly fail schema validation.
-* The GP2GP Adaptor now sources the references correctly from within the service code rather than fetching them from the test folder.
+### Unreleased
 
-### Changed
-* Updated logging configuration to route application logs through async appender settings for improved runtime logging performance.
-* The service Docker image now uses JVM percentage-based heap sizing (`-XX:MaxRAMPercentage=75.0`, `-XX:InitialRAMPercentage=50.0`) 
+* The service Docker image now uses JVM percentage-based heap sizing (`-XX:MaxRAMPercentage=75.0`, `-XX:InitialRAMPercentage=50.0`)
 * instead of a fixed `-Xmx` value, so the heap adapts automatically when the container memory limit is changed without requiring an image rebuild.
 * Enabled G1GC explicitly (`-XX:+UseG1GC`) in the service container entrypoint for consistent garbage collection behaviour across deployments.
+* Updated logging configuration to route application logs through async appender settings for improved runtime logging performance.
+* The GP2GP Adaptor now runs validation on the complete outbound message rather than just the inner EhrExtract content.
+
+## [3.2.0] - 2026-04-20
+
+### Added
+* The GP2GP_REDACTIONS_ENABLED environment variable now defaults to true if no value is provided.
+
+### Fixed
+* The GP2GP Adaptor will no longer incorrectly fail schema validation.
+* The GP2GP Adaptor now sources the references correctly from within the service code rather than fetching them from the test folder.
 
 ## [3.0.0] - 2025-11-06
 
