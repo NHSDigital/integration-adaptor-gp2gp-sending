@@ -8,6 +8,28 @@
 * JDK 21 — we develop the adaptor in Java with Spring Boot
 * Docker — we release the adaptor using Docker images on [Dockerhub](https://hub.docker.com/repository/docker/nhsdev/nia-gp2gp-adaptor)
 
+## One-time local dev setup
+
+### Enable Testcontainers container reuse (saves ~15–30 s per integration test run)
+
+Copy the template to your home directory:
+
+**macOS / Linux:**
+```bash
+cp .testcontainers.properties.template ~/.testcontainers.properties
+```
+
+This keeps MongoDB and ActiveMQ containers alive between runs so subsequent `./gradlew integrationTest`
+invocations skip the container start-up overhead.
+The property has no effect in CI (ephemeral hosts never have the file).
+
+To verify the setup is correct:
+
+**macOS / Linux:**
+```bash
+grep 'testcontainers.reuse.enable' ~/.testcontainers.properties
+```
+
 ## How to operate the adaptor
 
 The following sections describe how to run the adaptor for development and testing.
