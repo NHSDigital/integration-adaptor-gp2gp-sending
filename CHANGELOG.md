@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-### Unreleased
+## [3.2.1] - 2026-05-12
 
 * The service Docker image now uses JVM percentage-based heap sizing (`-XX:MaxRAMPercentage=75.0`, `-XX:InitialRAMPercentage=50.0`) instead of a fixed `-Xmx` value, so the heap adapts automatically when the container memory limit is changed without requiring an image rebuild.
 * Enabled G1GC explicitly (`-XX:+UseG1GC`) in the service container entrypoint for consistent garbage collection behaviour across deployments.
