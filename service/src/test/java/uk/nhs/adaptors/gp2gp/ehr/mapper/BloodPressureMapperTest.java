@@ -93,7 +93,7 @@ public class BloodPressureMapperTest {
 
 
     @Test
-    public void When_MappingBloodPressureWithNopat_Expect_CompoundStatementWithConfidentialityCode() {
+    void When_MappingBloodPressureWithNopat_Expect_CompoundStatementWithConfidentialityCode() {
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(TEST_ID);
         when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         when(mockCodeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(any(CodeableConcept.class)))
@@ -112,7 +112,7 @@ public class BloodPressureMapperTest {
     }
 
     @Test
-    public void When_MappingEmptyObservation_Expect_CompoundStatementXmlReturned() {
+    void When_MappingEmptyObservation_Expect_CompoundStatementXmlReturned() {
         when(randomIdGeneratorService.createNewOrUseExistingUUID(any()))
                 .thenReturn("5E496953-065B-41F2-9577-BE8F2FBD0757");
         when(mockCodeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(any(CodeableConcept.class)))
@@ -128,7 +128,7 @@ public class BloodPressureMapperTest {
     }
 
     @Test
-    public void When_MappingBloodPressureWithNestedTrue_Expect_CompoundStatementXmlReturned() {
+    void When_MappingBloodPressureWithNestedTrue_Expect_CompoundStatementXmlReturned() {
         when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(any()))
                 .thenReturn("5E496953-065B-41F2-9577-BE8F2FBD0757");
@@ -146,7 +146,7 @@ public class BloodPressureMapperTest {
 
     @ParameterizedTest
     @MethodSource("testArguments")
-    public void When_MappingBloodPressure_Expect_CompoundStatementXmlReturned(String inputJson, String outputXml) {
+    void When_MappingBloodPressure_Expect_CompoundStatementXmlReturned(String inputJson, String outputXml) {
         when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(any()))
                 .thenReturn("5E496953-065B-41F2-9577-BE8F2FBD0757");
@@ -179,7 +179,7 @@ public class BloodPressureMapperTest {
     }
 
     @Test
-    public void When_MappingBloodPressureWithCodeableConcepts_Expect_CompoundStatementXmlReturned() {
+    void When_MappingBloodPressureWithCodeableConcepts_Expect_CompoundStatementXmlReturned() {
         when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(any()))
             .thenReturn("5E496953-065B-41F2-9577-BE8F2FBD0757");
@@ -200,7 +200,7 @@ public class BloodPressureMapperTest {
     }
 
     @Test
-    public void When_MappingBloodPressureWithNoCodeableConcepts_Expect_Exception() {
+    void When_MappingBloodPressureWithNoCodeableConcepts_Expect_Exception() {
         var jsonInput = ResourceTestFileUtils
                 .getFileContent(BLOOD_PRESSURE_FILE_LOCATION + INPUT_BLOOD_PRESSURE_WITH_NO_CODEABLE_CONCEPTS);
 

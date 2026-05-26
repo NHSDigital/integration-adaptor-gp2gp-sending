@@ -17,7 +17,6 @@ import jakarta.jms.Message;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -27,7 +26,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.FileCopyUtils;
 
 import lombok.SneakyThrows;
@@ -39,12 +37,12 @@ import uk.nhs.adaptors.gp2gp.mhs.InboundMessageHandler;
 import uk.nhs.adaptors.gp2gp.testcontainers.ActiveMQExtension;
 import uk.nhs.adaptors.gp2gp.testcontainers.MongoDBExtension;
 
-@RunWith(SpringRunner.class)
+
 @ExtendWith({SpringExtension.class, MongoDBExtension.class, ActiveMQExtension.class, MockitoExtension.class})
 @SpringBootTest
 @DirtiesContext
 public class IllogicalMessageComponentTest {
-    private static final XPathService SERVICE = new XPathService();
+    private static final XPathService XPathService = new XPathService();
 
     @Mock
     private TaskDispatcher taskDispatcher;
@@ -120,12 +118,15 @@ public class IllogicalMessageComponentTest {
         ehrExtractStatusRepository.save(ehrExtractStatus);
         inboundMessageHandler.handle(message);
 
-        var firstEhrStatus =
-                ehrExtractStatusRepository.findByConversationId(ehrExtractStatus.getConversationId()).get();
+        var firstEhrStatus = ehrExtractStatusRepository
+                .findByConversationId(ehrExtractStatus.getConversationId())
+                .orElseThrow();
+
         inboundMessageHandler.handle(message);
 
-        var secondEhrStatus =
-                ehrExtractStatusRepository.findByConversationId(ehrExtractStatus.getConversationId()).get();
+        var secondEhrStatus = ehrExtractStatusRepository
+                .findByConversationId(ehrExtractStatus.getConversationId())
+                .orElseThrow();
 
         assertThat(firstEhrStatus.getUpdatedAt()).isEqualTo(secondEhrStatus.getUpdatedAt());
         verify(taskDispatcher, never()).createTask(any());
@@ -138,14 +139,14 @@ public class IllogicalMessageComponentTest {
         ehrExtractStatus.setEhrContinue(EhrExtractStatus.EhrContinue.builder().build());
         ehrExtractStatusRepository.save(ehrExtractStatus);
 
-        String continueEbxml = asString(continueResponseEbxml);
+        String continueEbXml = asString(continueResponseEbxml);
 
-        mockIncomingMessage(continueEbxml);
+        mockIncomingMessage(continueEbXml);
 
         inboundMessageHandler.handle(message);
-        var firstEhrStatus = ehrExtractStatusRepository.findByConversationId(ehrExtractStatus.getConversationId()).get();
+        var firstEhrStatus = ehrExtractStatusRepository.findByConversationId(ehrExtractStatus.getConversationId()).orElseThrow();
         inboundMessageHandler.handle(message);
-        var secondEhrStatus = ehrExtractStatusRepository.findByConversationId(ehrExtractStatus.getConversationId()).get();
+        var secondEhrStatus = ehrExtractStatusRepository.findByConversationId(ehrExtractStatus.getConversationId()).orElseThrow();
 
         assertThat(firstEhrStatus.getUpdatedAt()).isEqualTo(secondEhrStatus.getUpdatedAt());
         verify(taskDispatcher, never()).createTask(any());
@@ -163,9 +164,9 @@ public class IllogicalMessageComponentTest {
         mockAcknowledgementMessage(acknowledgementEbxml);
 
         inboundMessageHandler.handle(message);
-        var firstEhrStatus = ehrExtractStatusRepository.findByConversationId(ehrExtractStatus.getConversationId()).get();
+        var firstEhrStatus = ehrExtractStatusRepository.findByConversationId(ehrExtractStatus.getConversationId()).orElseThrow();
         inboundMessageHandler.handle(message);
-        var secondEhrStatus = ehrExtractStatusRepository.findByConversationId(ehrExtractStatus.getConversationId()).get();
+        var secondEhrStatus = ehrExtractStatusRepository.findByConversationId(ehrExtractStatus.getConversationId()).orElseThrow();
 
         assertThat(firstEhrStatus.getUpdatedAt()).isEqualTo(secondEhrStatus.getUpdatedAt());
         verify(taskDispatcher, never()).createTask(any());
@@ -189,7 +190,7 @@ public class IllogicalMessageComponentTest {
 
     @SneakyThrows
     private void mockIncomingMessage(String ebxml) {
-        SERVICE.parseDocumentFromXml(ebxml);
+        XPathService.parseDocumentFromXml(ebxml);
     }
 
     @SneakyThrows

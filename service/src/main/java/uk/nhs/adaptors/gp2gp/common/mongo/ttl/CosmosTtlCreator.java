@@ -25,7 +25,7 @@ public class CosmosTtlCreator extends TtlCreator {
             String indexName = findTtlIndex().map(IndexInfo::getName).orElseThrow();
             getIndexOperations().dropIndex(indexName);
         }
-        getIndexOperations().createIndex(new Index()
+        getIndexOperations().ensureIndex(new Index()
             .expire(getDuration())
             .on(INDEX_FIELD_KEY, Sort.Direction.ASC)
         );

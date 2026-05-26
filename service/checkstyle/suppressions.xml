@@ -6,4 +6,5 @@
 
 <suppressions>
     <suppress files=".*\.java" checks="HideUtilityClassConstructorCheck"/>
+    <suppress files=".*Test\.java" checks="MethodLength"/>
 </suppressions>

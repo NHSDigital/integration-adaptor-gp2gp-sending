@@ -43,6 +43,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class EhrExtractRequestHandlerTest {
+
+    private static final String REQUEST_HEADER_XML = "/ehr/request/RCMR_IN010000UK05_header.xml";
+    private static final String REQUEST_BODY_XML = "/ehr/request/RCMR_IN010000UK05_body.xml";
     private static final String REQUEST_ID = "041CA2AE-3EC6-4AC9-942F-0F6621CC0BFC";
     private static final String CONVERSATION_ID = "DFF5321C-C6EA-468E-BBC2-B0E48000E071";
     private static final String NHS_NUMBER = "9692294935";
@@ -60,6 +63,7 @@ class EhrExtractRequestHandlerTest {
     @Spy
     private XPathService xPathService;
 
+
     @Mock
     private TimestampService timestampService;
 
@@ -74,14 +78,13 @@ class EhrExtractRequestHandlerTest {
 
     @Test
     void When_ValidEhrRequestReceived_Expect_EhrExtractStatusIsCreated() {
-        Document soapHeader = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
-        Document soapBody = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_body.xml");
+        Document soapHeader = loadRequestHeader();
+        Document soapBody = loadRequestBody();
         Instant now = Instant.now();
         when(timestampService.now()).thenReturn(now);
         when(randomIdGeneratorService.createNewId()).thenReturn(TASK_ID);
 
-        when(ehrExtractStatusRepository.save(any()))
-            .thenAnswer((Answer<EhrExtractStatus>) invocation -> (EhrExtractStatus) invocation.getArguments()[0]);
+        stubRepositorySaveReturnsInput();
 
         ehrExtractRequestHandler.handleStart(soapHeader, soapBody, MESSAGE_TIMESTAMP);
 
@@ -94,8 +97,8 @@ class EhrExtractRequestHandlerTest {
     @Test
     @SneakyThrows
     void When_DuplicateEhrExtractRequestReceived_Expect_NoTasksAreCreated() {
-        Document soapHeader = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
-        Document soapBody = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_body.xml");
+        Document soapHeader = loadRequestHeader();
+        Document soapBody = loadRequestBody();
         Instant now = Instant.now();
         when(timestampService.now()).thenReturn(now);
         when(ehrExtractStatusRepository.save(any())).thenThrow(mock(DuplicateKeyException.class));
@@ -156,53 +159,42 @@ class EhrExtractRequestHandlerTest {
     }
 
     @SneakyThrows
-    @ParameterizedTest
+    @ParameterizedTest(name = "[{index}] missing body element at {0}")
     @MethodSource("pathsToBodyValues")
     void When_RequiredElementMissingFromBody_Expect_HandlerThrowsException(String xpath) {
-        Document header = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
-        Document body = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_body.xml");
+        Document header = loadRequestHeader();
+        Document body = loadRequestBody();
 
-        when(ehrExtractStatusRepository.save(any()))
-            .thenAnswer((Answer<EhrExtractStatus>) invocation -> (EhrExtractStatus) invocation.getArguments()[0]);
+        stubRepositorySaveReturnsInput();
 
         removeAttributeElement(xpath, body);
 
-        assertThatExceptionOfType(MissingValueException.class)
-            .isThrownBy(() -> ehrExtractRequestHandler.handleStart(header, body, MESSAGE_TIMESTAMP))
-            .withMessageContaining(xpath)
-            .withMessageContaining(SpineInteraction.EHR_EXTRACT_REQUEST.getInteractionId());
+        assertMissingValueExceptionForPath(header, body, xpath);
     }
 
     @SneakyThrows
-    @ParameterizedTest
+    @ParameterizedTest(name = "[{index}] blank body value at {0}")
     @MethodSource("pathsToBodyValues")
     void When_RequiredValueIsBlankInBody_Expect_HandlerThrowsException(String xpath) {
-        Document header = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
-        Document body = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_body.xml");
-        when(ehrExtractStatusRepository.save(any()))
-            .thenAnswer((Answer<EhrExtractStatus>) invocation -> (EhrExtractStatus) invocation.getArguments()[0]);
+        Document header = loadRequestHeader();
+        Document body = loadRequestBody();
+        stubRepositorySaveReturnsInput();
 
         clearAttribute(xpath, body);
 
-        assertThatExceptionOfType(MissingValueException.class)
-            .isThrownBy(() -> ehrExtractRequestHandler.handleStart(header, body, MESSAGE_TIMESTAMP))
-            .withMessageContaining(xpath)
-            .withMessageContaining(SpineInteraction.EHR_EXTRACT_REQUEST.getInteractionId());
+        assertMissingValueExceptionForPath(header, body, xpath);
     }
 
     @SneakyThrows
-    @ParameterizedTest
+    @ParameterizedTest(name = "[{index}] blank body value (no ehr extract path) at {0}")
     @MethodSource("pathsToBodyValuesNoEhrExtract")
     void When_RequiredValueIsBlankInBodyAndNoNeedForEhrExtract_Expect_HandlerThrowsException(String xpath) {
-        Document header = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
-        Document body = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_body.xml");
+        Document header = loadRequestHeader();
+        Document body = loadRequestBody();
 
         clearAttribute(xpath, body);
 
-        assertThatExceptionOfType(MissingValueException.class)
-                .isThrownBy(() -> ehrExtractRequestHandler.handleStart(header, body, MESSAGE_TIMESTAMP))
-                .withMessageContaining(xpath)
-                .withMessageContaining(SpineInteraction.EHR_EXTRACT_REQUEST.getInteractionId());
+        assertMissingValueExceptionForPath(header, body, xpath);
     }
 
     private static List<String> pathsToHeaderValues() {
@@ -213,35 +205,47 @@ class EhrExtractRequestHandlerTest {
     }
 
     @SneakyThrows
-    @ParameterizedTest
+    @ParameterizedTest(name = "[{index}] missing header element at {0}")
     @MethodSource("pathsToHeaderValues")
     void When_RequiredElementMissingFromHeader_Expect_HandlerThrowsException(String xpath) {
-        Document header = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
-        Document body = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_body.xml");
+        Document header = loadRequestHeader();
+        Document body = loadRequestBody();
 
-        when(ehrExtractStatusRepository.save(any()))
-            .thenAnswer((Answer<EhrExtractStatus>) invocation -> (EhrExtractStatus) invocation.getArguments()[0]);
+        stubRepositorySaveReturnsInput();
 
         removeElement(xpath, header);
 
-        assertThatExceptionOfType(MissingValueException.class)
-            .isThrownBy(() -> ehrExtractRequestHandler.handleStart(header, body, MESSAGE_TIMESTAMP))
-            .withMessageContaining(xpath)
-            .withMessageContaining(SpineInteraction.EHR_EXTRACT_REQUEST.getInteractionId());
+        assertMissingValueExceptionForPath(header, body, xpath);
     }
 
     @SneakyThrows
-    @ParameterizedTest
+    @ParameterizedTest(name = "[{index}] blank header value at {0}")
     @MethodSource("pathsToHeaderValues")
     void When_RequiredValueIsBlankInHeader_Expect_HandlerThrowsException(String xpath) {
-        Document header = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
-        Document body = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_body.xml");
+        Document header = loadRequestHeader();
+        Document body = loadRequestBody();
 
         clearElement(xpath, header);
 
+        stubRepositorySaveReturnsInput();
+
+        assertMissingValueExceptionForPath(header, body, xpath);
+    }
+
+    private void stubRepositorySaveReturnsInput() {
         when(ehrExtractStatusRepository.save(any()))
             .thenAnswer((Answer<EhrExtractStatus>) invocation -> (EhrExtractStatus) invocation.getArguments()[0]);
+    }
 
+    private Document loadRequestHeader() {
+        return ResourceHelper.loadClasspathResourceAsXml(REQUEST_HEADER_XML);
+    }
+
+    private Document loadRequestBody() {
+        return ResourceHelper.loadClasspathResourceAsXml(REQUEST_BODY_XML);
+    }
+
+    private void assertMissingValueExceptionForPath(Document header, Document body, String xpath) {
         assertThatExceptionOfType(MissingValueException.class)
             .isThrownBy(() -> ehrExtractRequestHandler.handleStart(header, body, MESSAGE_TIMESTAMP))
             .withMessageContaining(xpath)
