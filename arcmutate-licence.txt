@@ -1,7 +1,7 @@
-#Licence file for pitest extensions
-#Tue Jul 16 09:22:03 BST 2024
-expires=16/07/2026
+#Licence file for arcmutate mutation testing https://www.arcmutate.com
+#Mon Mar 02 15:05:33 GMT 2026
+expires=02/03/2028
 keyVersion=1
 packages=uk.nhs.adaptors.*
-signature=LGGLekLoKiQ4JOPs2iLFzr9Xm62elcZHhKwOAtcxXlU5ofB+aoEpRkSuQt/VH0kYi44eqeAGnkcrZ2knY5OMwu2YYUxySXb+J1IXvxLpQwXNy0L7DZuTz85w6RecvyfKXIYXD/DrS3gfq+o3jwCrWGqYYajVuwl5Q3ZqFGVYk1w\=
+signature=gHD48A9cz8Eh2ZeppQYMkJAVXXYd1rS9/9E+KcipPuFilQSermPonHMcuRPZQUdURzHbfKLE7EOSeEfLAobQV9nkY5THe30apfWTImPXRpxi+IZsZUV7k5snC9EwmYVSFd92Ya/8Q3j+Th+5hharrN/gGKscsqzCo2hUoVDde0Q\=
 type=OSSS
