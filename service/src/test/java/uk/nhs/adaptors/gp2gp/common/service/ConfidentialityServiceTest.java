@@ -6,12 +6,10 @@ import org.hl7.fhir.dstu3.model.Meta;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.ReferralRequest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullSource;
-import org.mockito.junit.jupiter.MockitoExtension;
 import uk.nhs.adaptors.gp2gp.common.configuration.RedactionsContext;
 
 import java.util.stream.Stream;
@@ -22,7 +20,6 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static uk.nhs.adaptors.gp2gp.common.configuration.RedactionsContext.NON_REDACTION_INTERACTION_ID;
 import static uk.nhs.adaptors.gp2gp.common.configuration.RedactionsContext.REDACTION_INTERACTION_ID;
 
-@ExtendWith(MockitoExtension.class)
 class ConfidentialityServiceTest {
     private static final Meta META_WITH_NO_SECURITY = new Meta();
     private static final Meta META_WITH_NOPAT_SECURITY = new Meta()
@@ -98,8 +95,8 @@ class ConfidentialityServiceTest {
 
         assertThat(confidentialityCode).isPresent();
         assertThat(confidentialityCode.get())
-            .isEqualTo(new String("<confidentialityCode code=\"NOPAT\" "
-                      + "codeSystem=\"2.16.840.1.113883.4.642.3.47\" "
-                      + "displayName=\"no disclosure to patient, family or caregivers without attending provider's authorization\" />"));
+            .isEqualTo("<confidentialityCode code=\"NOPAT\" "
+                + "codeSystem=\"2.16.840.1.113883.4.642.3.47\" "
+                + "displayName=\"no disclosure to patient, family or caregivers without attending provider's authorization\" />");
     }
 }
