@@ -42,7 +42,7 @@ import uk.nhs.adaptors.gp2gp.testcontainers.MongoDBExtension;
 @SpringBootTest
 @DirtiesContext
 public class IllogicalMessageComponentTest {
-    private static final XPathService XPathService = new XPathService();
+    private static final XPathService X_PATH_SERVICE = new XPathService();
 
     @Mock
     private TaskDispatcher taskDispatcher;
@@ -190,7 +190,7 @@ public class IllogicalMessageComponentTest {
 
     @SneakyThrows
     private void mockIncomingMessage(String ebxml) {
-        XPathService.parseDocumentFromXml(ebxml);
+        X_PATH_SERVICE.parseDocumentFromXml(ebxml);
     }
 
     @SneakyThrows
