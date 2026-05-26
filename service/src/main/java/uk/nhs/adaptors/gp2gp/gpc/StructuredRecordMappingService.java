@@ -152,16 +152,18 @@ public class StructuredRecordMappingService {
                 .mapBundleToEhrFhirExtractParams(structuredTaskDefinition, bundle);
         String ehrExtractContent = ehrExtractMapper.mapEhrExtractToXml(ehrExtractTemplateParameters);
 
+        ehrExtractStatusService.saveEhrExtractMessageId(structuredTaskDefinition.getConversationId(),
+                ehrExtractTemplateParameters.getEhrExtractId());
+
+        String wrappedMessage = outputMessageWrapperMapper.map(structuredTaskDefinition, ehrExtractContent);
+
         try {
-            ehrExtractMapper.validateXmlAgainstSchema(ehrExtractContent);
+            ehrExtractMapper.validateXmlAgainstSchema(wrappedMessage);
         } catch (XmlSchemaValidationException e) {
             LOGGER.error("EHR Extract XML validation failed: {}", e.getMessage());
         }
 
-        ehrExtractStatusService.saveEhrExtractMessageId(structuredTaskDefinition.getConversationId(),
-                ehrExtractTemplateParameters.getEhrExtractId());
-
-        return outputMessageWrapperMapper.map(structuredTaskDefinition, ehrExtractContent);
+        return wrappedMessage;
     }
 
     @SneakyThrows

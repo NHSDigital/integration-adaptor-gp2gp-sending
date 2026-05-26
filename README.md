@@ -18,8 +18,26 @@ GP2GP 2.2b producer, or those wishing to decommission their existing producer, m
 
 1. [Guidance for setting up the GP2GP adaptors in INT](https://github.com/NHSDigital/nia-patient-switching-standard-adaptor/blob/main/getting-started-instructions.md)
 1. [Guidance for operating the adaptor as a New Market Entrant](OPERATING.md)
+1. [Configuration and environment defaults](#configuration-and-environment-defaults)
 1. [Guidance on integrating with the adaptor's APIs](#adaptor-api)
 1. [Documentation on how this adaptor maps GP Connect concepts to GP2GP concepts](https://github.com/NHSDigital/patient-switching-adaptors-mapping-documentation)
+
+## Configuration and environment defaults
+
+Runtime defaults are defined in `service/src/main/resources/application.yml`.
+Operational guidance and full environment variable tables are documented in `OPERATING.md` under the **Configuration** section.
+
+To avoid documentation drift, use `OPERATING.md` as the primary operator reference and `application.yml` as the runtime source of truth.
+
+### Key defaults
+
+- `GP2GP_REDACTIONS_ENABLED=true`
+- `GP2GP_MHS_INBOUND_QUEUE=gp2gpInboundQueue`
+- `GP2GP_LARGE_ATTACHMENT_THRESHOLD=4500000`
+- `GP2GP_LARGE_EHR_EXTRACT_THRESHOLD=4500000`
+- `GP2GP_GPC_CLIENT_TIMEOUT_SECONDS=1200`
+- `GP2GP_MHS_CLIENT_TIMEOUT_SECONDS=120`
+- `TIMEOUT_CRON_TIME=0 0 */12 * * *`
 
 ## Adaptor API
 
