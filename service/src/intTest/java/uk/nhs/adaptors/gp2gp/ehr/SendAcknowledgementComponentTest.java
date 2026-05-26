@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClient;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
@@ -35,8 +35,7 @@ import uk.nhs.adaptors.gp2gp.testcontainers.MongoDBExtension;
 
 @ExtendWith({SpringExtension.class, MongoDBExtension.class, ActiveMQExtension.class, MockitoExtension.class})
 @DirtiesContext
-@SpringBootTest(properties = {
-        "command.line.runner.enabled=false"})
+@SpringBootTest(properties = {"command.line.runner.enabled=false"})
 public class SendAcknowledgementComponentTest {
     private static final String GENERATED_RANDOM_ID = "GENERATED-RANDOM-ID";
     private static final String FROM_ASID = "0000222-from-asid";
@@ -51,21 +50,21 @@ public class SendAcknowledgementComponentTest {
     private static final String NEGATIVE_ACK_TYPE_CODE = "AE";
     private static final String POSITIVE_ACK_TYPE_CODE = "AA";
 
-    @MockitoBean
+    @MockBean
     private WebClient.RequestHeadersSpec<?> request;
-    @MockitoBean
+    @MockBean
     private MhsRequestBuilder mhsRequestBuilder;
-    @MockitoBean
+    @MockBean
     private MhsClient mhsClient;
-    @MockitoBean
+    @MockBean
     private SendAcknowledgementTaskDefinition sendAcknowledgementTaskDefinition;
     @Autowired
     private SendAcknowledgementExecutor sendAcknowledgementExecutor;
     @Autowired
     private EhrExtractStatusRepository ehrExtractStatusRepository;
-    @MockitoBean
+    @MockBean
     private TimestampService timestampService;
-    @MockitoBean
+    @MockBean
     private RandomIdGeneratorService randomIdGeneratorService;
 
     @Value("classpath:ehr/expected-nack-message.json")

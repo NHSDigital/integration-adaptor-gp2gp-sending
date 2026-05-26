@@ -121,7 +121,7 @@ public class ImmunizationObservationStatementMapper {
 
     private String buildReportOriginPertinentInformation(Immunization immunization) {
         if (immunization.hasReportOrigin() && immunization.getReportOrigin().hasCoding()) {
-            var code = CodeableConceptMappingUtils.extractTextOrCoding(immunization.getReportOrigin());
+            var code = CodeableConceptMappingUtils.extractUserSelectedTextOrCoding(immunization.getReportOrigin());
             if (code.isPresent()) {
                 return String.format(REPORT_ORIGIN_CODE, code.get());
             }
@@ -236,14 +236,14 @@ public class ImmunizationObservationStatementMapper {
 
         if (immunization.hasExplanation() && immunization.getExplanation().hasReason()) {
             String reasonGiven = immunization.getExplanation().getReason().stream()
-                .map(CodeableConceptMappingUtils::extractTextOrCoding)
+                .map(CodeableConceptMappingUtils::extractUserSelectedTextOrCoding)
                 .flatMap(Optional::stream)
                 .filter(StringUtils::isNotBlank)
                 .collect(Collectors.joining(StringUtils.SPACE));
             return StringUtils.isBlank(reasonGiven) ? StringUtils.EMPTY : (REASON + reasonGiven);
         } else if (immunization.hasExplanation() && immunization.getExplanation().hasReasonNotGiven()) {
             String reasonNotGiven = immunization.getExplanation().getReasonNotGiven().stream()
-                .map(CodeableConceptMappingUtils::extractTextOrCoding)
+                .map(CodeableConceptMappingUtils::extractUserSelectedTextOrCoding)
                 .flatMap(Optional::stream)
                 .filter(StringUtils::isNotBlank)
                 .collect(Collectors.joining(StringUtils.SPACE));
@@ -270,7 +270,7 @@ public class ImmunizationObservationStatementMapper {
 
         String targetDiseases = vaccinationProtocolComponent.getTargetDisease()
             .stream()
-            .map(CodeableConceptMappingUtils::extractTextOrCoding)
+            .map(CodeableConceptMappingUtils::extractUserSelectedTextOrCoding)
             .filter(Optional::isPresent)
             .map(Optional::get)
             .collect(Collectors.joining(COMMA));
@@ -289,7 +289,7 @@ public class ImmunizationObservationStatementMapper {
 
     private String buildVaccineCode(Immunization immunization) {
         if (immunization.hasVaccineCode() && !vaccineCodeUNK(immunization.getVaccineCode())) {
-            var code = CodeableConceptMappingUtils.extractTextOrCoding(immunization.getVaccineCode());
+            var code = CodeableConceptMappingUtils.extractUserSelectedTextOrCoding(immunization.getVaccineCode());
             if (code.isPresent()) {
                 return String.format(VACCINATION_CODE, code.get());
             }

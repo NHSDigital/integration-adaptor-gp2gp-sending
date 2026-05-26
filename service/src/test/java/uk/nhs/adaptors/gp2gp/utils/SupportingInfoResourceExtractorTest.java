@@ -373,6 +373,29 @@ public class SupportingInfoResourceExtractorTest {
         assertThat(supportingInfo).isEqualTo("{ Medication: 2010-01-01 DisplayText }");
     }
 
+    @Test
+    void When_ReferralRequestHasMultipleCodingsAndOneIsUserSelected_Expect_UserSelectedDisplayUsed() {
+        final var codeableConcept = new CodeableConcept()
+                .addCoding(new Coding()
+                        .setDisplay("SystemSelectedDisplay"))
+                .addCoding(new Coding()
+                        .setDisplay("UserSelectedDisplay")
+                        .setUserSelected(true));
+
+        final var resource = (Resource) new ReferralRequest()
+                .setAuthoredOn(getDate("2010-01-01"))
+                .addReasonCode(codeableConcept);
+
+        when(inputBundle.getResource(REFERENCE_ID)).thenReturn(Optional.of(resource));
+
+        final var supportingInfo =
+                SupportingInfoResourceExtractor.extractReferralRequest(messageContext, REFERENCE);
+
+        assertThat(supportingInfo)
+                .isEqualTo("{ Referral: 2010-01-01 UserSelectedDisplay }");
+    }
+
+
     @SneakyThrows
     private Date getDate(String dateString) {
         return new Date(simpleDateFormat.parse(dateString).getTime());
