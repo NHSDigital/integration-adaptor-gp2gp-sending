@@ -15,12 +15,12 @@ management:
 
 gp2gp:
   ehr-extract-sent-days-limit: 8
-  redactions-enabled: ${GP2GP_REDACTIONS_ENABLED:false}
+  redactions-enabled: ${GP2GP_REDACTIONS_ENABLED:true}
   largeAttachmentThreshold: ${GP2GP_LARGE_ATTACHMENT_THRESHOLD:4500000} # value in bytes. Default value for Spine is ~4.5MB
   largeEhrExtractThreshold: ${GP2GP_LARGE_ATTACHMENT_THRESHOLD:4500000}
   storage:
     type: ${GP2GP_STORAGE_TYPE:LocalMock}
-    containerName: ${GP2GP_STORAGE_CONTAINER_NAME:}
+    containerName: ${GP2GP_STORAGE_CONTAINER_NAME:LocalMock}
     azureConnectionString: ${GP2GP_AZURE_STORAGE_CONNECTION_STRING:}
     trustStoreUrl: ${GP2GP_SSL_TRUST_STORE_URL:}
     trustStorePassword: ${GP2GP_SSL_TRUST_STORE_PASSWORD:}

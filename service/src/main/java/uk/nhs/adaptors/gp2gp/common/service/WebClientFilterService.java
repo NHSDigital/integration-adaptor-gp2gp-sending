@@ -101,7 +101,7 @@ public class WebClientFilterService {
 
             var statusCode = clientResponse.statusCode();
             if (statusCode.equals(httpStatus)) {
-                LOGGER.info(requestType + " request successful status_code: {}", statusCode.value());
+                LOGGER.info("{} request successful status_code: {}", requestType, statusCode.value());
                 return Mono.just(clientResponse);
             }
             if (statusCode.is5xxServerError()) {
