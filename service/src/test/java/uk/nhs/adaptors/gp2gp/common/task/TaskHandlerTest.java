@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -68,6 +67,7 @@ class TaskHandlerTest {
     @Test
     @SneakyThrows
     void When_TaskHandled_Expect_TaskExecuted() {
+        when(taskExecutorFactory.getTaskExecutor(any())).thenReturn(taskExecutor);
         setUpContinueMessage();
 
         var result = taskHandler.handle(message);
@@ -129,6 +129,7 @@ class TaskHandlerTest {
     @Test
     @SneakyThrows
     void When_NackTaskFails_Expect_ProcessNotToBeFailed() {
+        when(taskExecutorFactory.getTaskExecutor(any())).thenReturn(taskExecutor);
         setupAckMessage(SendAcknowledgementTaskDefinition.NACK_TYPE_CODE);
         Exception exception = new RuntimeException(TEST_EXCEPTION_MESSAGE);
         doThrow(exception).when(taskExecutor).execute(any());
@@ -144,6 +145,7 @@ class TaskHandlerTest {
     @Test
     @SneakyThrows
     void When_NonNackTaskFails_Expect_ProcessToBeFailed() {
+        when(taskExecutorFactory.getTaskExecutor(any())).thenReturn(taskExecutor);
         setUpContinueMessage();
         Exception exception = new RuntimeException(TEST_EXCEPTION_MESSAGE);
         doThrow(exception).when(taskExecutor).execute(any());
@@ -157,6 +159,7 @@ class TaskHandlerTest {
     @Test
     @SneakyThrows
     void When_OtherTaskFails_Expect_ResultFromErrorHandlerToBeReturned() {
+        when(taskExecutorFactory.getTaskExecutor(any())).thenReturn(taskExecutor);
         setUpContinueMessage();
         Exception exception = new RuntimeException(TEST_EXCEPTION_MESSAGE);
         doThrow(exception).when(taskExecutor).execute(any());
@@ -171,6 +174,7 @@ class TaskHandlerTest {
     @Test
     @SneakyThrows
     void When_NonAckTaskFails_Expect_ResultFromErrorHandlerToBeReturned() {
+        when(taskExecutorFactory.getTaskExecutor(any())).thenReturn(taskExecutor);
         setupAckMessage(SendAcknowledgementTaskDefinition.ACK_TYPE_CODE);
         Exception exception = new RuntimeException(TEST_EXCEPTION_MESSAGE);
         doThrow(exception).when(taskExecutor).execute(any());
@@ -186,6 +190,7 @@ class TaskHandlerTest {
     @Test
     @SneakyThrows
     void When_ErrorHandlerThrowsException_Expect_ExceptionToBeRethrown() {
+        when(taskExecutorFactory.getTaskExecutor(any())).thenReturn(taskExecutor);
         setUpContinueMessage();
         Exception taskException = new RuntimeException("task executor exception");
         doThrow(taskException).when(taskExecutor).execute(any());
@@ -214,6 +219,7 @@ class TaskHandlerTest {
     @Test
     @SneakyThrows
     void When_ProcessHasAlreadyFailed_Expect_NackTaskToStillBeExecuted() {
+        when(taskExecutorFactory.getTaskExecutor(any())).thenReturn(taskExecutor);
         setupAckMessage(SendAcknowledgementTaskDefinition.NACK_TYPE_CODE);
         when(processFailureHandlingService.hasProcessFailed(any())).thenReturn(true);
 
@@ -227,6 +233,7 @@ class TaskHandlerTest {
     @Test
     @SneakyThrows
     void When_Handle_WithExecuteThrows_MhsConnectionException_Expect_ExceptionThrown() {
+        when(taskExecutorFactory.getTaskExecutor(any())).thenReturn(taskExecutor);
         setUpContinueMessage();
         doThrow(new MhsConnectionException("test exception")).when(taskExecutor).execute(any());
 
@@ -245,6 +252,7 @@ class TaskHandlerTest {
     @Test
     @SneakyThrows
     void When_Handle_WithOtherRuntimeException_Expect_ProcessFailed() {
+        when(taskExecutorFactory.getTaskExecutor(any())).thenReturn(taskExecutor);
         setUpContinueMessage();
         Exception exception = new RuntimeException(TEST_EXCEPTION_MESSAGE);
         doThrow(exception).when(taskExecutor).execute(any());
@@ -256,7 +264,7 @@ class TaskHandlerTest {
     }
 
     private void setupAckMessage(String typeCode) throws JMSException {
-        lenient().when(taskExecutorFactory.getTaskExecutor(any())).thenReturn(taskExecutor);
+        when(taskExecutorFactory.getTaskExecutor(any())).thenReturn(taskExecutor);
         when(message.getStringProperty(TASK_TYPE_HEADER_NAME)).thenReturn("taskType");
         when(message.getBody(String.class)).thenReturn("body");
         sendAcknowledgementTaskDefinition = SendAcknowledgementTaskDefinition.builder()
@@ -267,7 +275,6 @@ class TaskHandlerTest {
     }
 
     private void setUpContinueMessage() throws JMSException {
-        lenient().when(taskExecutorFactory.getTaskExecutor(any())).thenReturn(taskExecutor);
         when(message.getStringProperty(TASK_TYPE_HEADER_NAME)).thenReturn("taskType");
         when(message.getBody(String.class)).thenReturn("body");
         taskDefinition = SendDocumentTaskDefinition.builder().conversationId(CONVERSATION_ID).build();

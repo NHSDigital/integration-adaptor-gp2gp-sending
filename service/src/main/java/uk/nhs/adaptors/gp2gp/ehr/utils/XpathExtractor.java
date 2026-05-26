@@ -17,7 +17,6 @@ import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.EncounterTemplateParameters.E
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class XpathExtractor {
 
-    private static final String EHR_COMPOSITION = "/ehrComposition";
     private static final String COMPONENT = "/component";
     private static final String COMPOUND_STATEMENT = "/CompoundStatement";
     private static final String OBSERVATION_STATEMENT = "/ObservationStatement";

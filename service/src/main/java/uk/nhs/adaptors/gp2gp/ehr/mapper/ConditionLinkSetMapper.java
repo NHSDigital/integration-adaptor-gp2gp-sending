@@ -115,7 +115,7 @@ public class ConditionLinkSetMapper {
             try {
                 messageContext.getInputBundleHolder().getResource(idType);
             } catch (Exception e) {
-                LOGGER.warn("Bundle mapping aborted. Reason: " + e.getMessage());
+                LOGGER.warn("Bundle mapping aborted. Reason: {}", e.getMessage());
                 throw e;
             }
         }

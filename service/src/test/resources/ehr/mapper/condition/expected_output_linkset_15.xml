@@ -15,17 +15,17 @@
         <availabilityTime value="20200907101202" />
             <component typeCode="COMP">
                 <statementRef classCode="OBS" moodCode="EVN">
-                    <id root="82A9E6C8-20CE-48DA-B6B3-15C39E5ABB5E-Condition-new-ID"/>
+                    <id root="82A9E6C8-20CE-48DA-B6B3-15C39E5ABB5E"/>
                 </statementRef>
             </component>
         <conditionNamed typeCode="NAME" inversionInd="true">
             <namedStatementRef classCode="OBS" moodCode="EVN">
-                <id root="7E277DF1-6F1C-47CD-84F7-E9B7BF4105DB-Condition-new-ID"/>
+                <id root="CDF96FF9-267A-41F7-93A1-BEBDCDEC2B98"/>
             </namedStatementRef>
         </conditionNamed>
         <Participant typeCode="PRF" contextControlCode="OP">
     <agentRef classCode="AGNT">
-        <id root="C8FD0E2C-3124-4C72-AC8D-ABEA65537D1B-Practitioner-new-ID"/>
+        <id root="C8FD0E2C-3124-4C72-AC8D-ABEA65537D1B"/>
     </agentRef>
 </Participant>
     </LinkSet>

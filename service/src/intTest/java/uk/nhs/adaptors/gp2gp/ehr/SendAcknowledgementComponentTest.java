@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,16 +14,14 @@ import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClient;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
@@ -36,11 +33,9 @@ import uk.nhs.adaptors.gp2gp.mhs.exception.MhsServerErrorException;
 import uk.nhs.adaptors.gp2gp.testcontainers.ActiveMQExtension;
 import uk.nhs.adaptors.gp2gp.testcontainers.MongoDBExtension;
 
-@RunWith(SpringRunner.class)
 @ExtendWith({SpringExtension.class, MongoDBExtension.class, ActiveMQExtension.class, MockitoExtension.class})
 @DirtiesContext
-@SpringBootTest(properties = {
-    "command.line.runner.enabled=false"})
+@SpringBootTest(properties = {"command.line.runner.enabled=false"})
 public class SendAcknowledgementComponentTest {
     private static final String GENERATED_RANDOM_ID = "GENERATED-RANDOM-ID";
     private static final String FROM_ASID = "0000222-from-asid";
@@ -55,21 +50,21 @@ public class SendAcknowledgementComponentTest {
     private static final String NEGATIVE_ACK_TYPE_CODE = "AE";
     private static final String POSITIVE_ACK_TYPE_CODE = "AA";
 
-    @MockitoBean
+    @MockBean
     private WebClient.RequestHeadersSpec<?> request;
-    @MockitoBean
+    @MockBean
     private MhsRequestBuilder mhsRequestBuilder;
-    @MockitoBean
+    @MockBean
     private MhsClient mhsClient;
-    @MockitoBean
+    @MockBean
     private SendAcknowledgementTaskDefinition sendAcknowledgementTaskDefinition;
     @Autowired
     private SendAcknowledgementExecutor sendAcknowledgementExecutor;
     @Autowired
     private EhrExtractStatusRepository ehrExtractStatusRepository;
-    @MockitoBean
+    @MockBean
     private TimestampService timestampService;
-    @MockitoBean
+    @MockBean
     private RandomIdGeneratorService randomIdGeneratorService;
 
     @Value("classpath:ehr/expected-nack-message.json")
@@ -83,7 +78,7 @@ public class SendAcknowledgementComponentTest {
     @BeforeEach
     public void setUp() {
         when(randomIdGeneratorService.createNewId()).thenReturn(GENERATED_RANDOM_ID);
-        lenient().when(timestampService.now()).thenReturn(Instant.parse(DATE));
+        when(timestampService.now()).thenReturn(Instant.parse(DATE));
 
         ehrExtractStatus = EhrExtractStatusTestUtils.prepareEhrExtractStatus();
         ehrExtractStatusRepository.save(ehrExtractStatus);
@@ -113,26 +108,26 @@ public class SendAcknowledgementComponentTest {
     @Test
     public void When_NegativeAcknowledgementTaskExecuted_Expect_ValidRequestSentToMhs() {
         var taskDefinition =
-            SendAcknowledgementTaskDefinition.builder()
-                .fromAsid(FROM_ASID)
-                .toAsid(TO_ASID)
-                .fromOdsCode(FROM_ODS_CODE)
-                .toOdsCode(TO_ODS_CODE)
-                .ehrRequestMessageId(EHR_REQUEST_MESSAGE_ID)
-                .reasonCode(REASON_CODE)
-                .detail(REASON_MESSAGE)
-                .conversationId(EhrStatusConstants.CONVERSATION_ID)
-                .taskId(TASK_ID)
-                .typeCode(NEGATIVE_ACK_TYPE_CODE)
-                .build();
+                SendAcknowledgementTaskDefinition.builder()
+                        .fromAsid(FROM_ASID)
+                        .toAsid(TO_ASID)
+                        .fromOdsCode(FROM_ODS_CODE)
+                        .toOdsCode(TO_ODS_CODE)
+                        .ehrRequestMessageId(EHR_REQUEST_MESSAGE_ID)
+                        .reasonCode(REASON_CODE)
+                        .detail(REASON_MESSAGE)
+                        .conversationId(EhrStatusConstants.CONVERSATION_ID)
+                        .taskId(TASK_ID)
+                        .typeCode(NEGATIVE_ACK_TYPE_CODE)
+                        .build();
 
         sendAcknowledgementExecutor.execute(taskDefinition);
 
         verify(mhsRequestBuilder).buildSendAcknowledgementRequest(
-            asString(expectedNackMessage), FROM_ODS_CODE, EhrStatusConstants.CONVERSATION_ID, GENERATED_RANDOM_ID);
+                asString(expectedNackMessage), FROM_ODS_CODE, EhrStatusConstants.CONVERSATION_ID, GENERATED_RANDOM_ID);
 
         EhrExtractStatus updatedEhrExtractStatus =
-            ehrExtractStatusRepository.findByConversationId(EhrStatusConstants.CONVERSATION_ID).get();
+                ehrExtractStatusRepository.findByConversationId(EhrStatusConstants.CONVERSATION_ID).get();
         EhrExtractStatus.AckToRequester ackToRequester = updatedEhrExtractStatus.getAckToRequester();
         assertThat(ackToRequester.getTaskId()).isEqualTo(TASK_ID);
         assertThat(ackToRequester.getMessageId()).isEqualTo(GENERATED_RANDOM_ID);
@@ -144,24 +139,24 @@ public class SendAcknowledgementComponentTest {
     @Test
     public void When_PositiveAcknowledgementTaskExecuted_Expect_ValidRequestSentToMhs() {
         var taskDefinition =
-            SendAcknowledgementTaskDefinition.builder()
-                .fromAsid(FROM_ASID)
-                .toAsid(TO_ASID)
-                .fromOdsCode(FROM_ODS_CODE)
-                .toOdsCode(TO_ODS_CODE)
-                .ehrRequestMessageId(EHR_REQUEST_MESSAGE_ID)
-                .conversationId(EhrStatusConstants.CONVERSATION_ID)
-                .taskId(TASK_ID)
-                .typeCode(POSITIVE_ACK_TYPE_CODE)
-                .build();
+                SendAcknowledgementTaskDefinition.builder()
+                        .fromAsid(FROM_ASID)
+                        .toAsid(TO_ASID)
+                        .fromOdsCode(FROM_ODS_CODE)
+                        .toOdsCode(TO_ODS_CODE)
+                        .ehrRequestMessageId(EHR_REQUEST_MESSAGE_ID)
+                        .conversationId(EhrStatusConstants.CONVERSATION_ID)
+                        .taskId(TASK_ID)
+                        .typeCode(POSITIVE_ACK_TYPE_CODE)
+                        .build();
 
         sendAcknowledgementExecutor.execute(taskDefinition);
 
         verify(mhsRequestBuilder).buildSendAcknowledgementRequest(
-            asString(expectedAckMessage), FROM_ODS_CODE, EhrStatusConstants.CONVERSATION_ID, GENERATED_RANDOM_ID);
+                asString(expectedAckMessage), FROM_ODS_CODE, EhrStatusConstants.CONVERSATION_ID, GENERATED_RANDOM_ID);
 
         EhrExtractStatus updatedEhrExtractStatus =
-            ehrExtractStatusRepository.findByConversationId(EhrStatusConstants.CONVERSATION_ID).get();
+                ehrExtractStatusRepository.findByConversationId(EhrStatusConstants.CONVERSATION_ID).get();
         EhrExtractStatus.AckToRequester ackToRequester = updatedEhrExtractStatus.getAckToRequester();
         assertThat(ackToRequester.getTaskId()).isEqualTo(TASK_ID);
         assertThat(ackToRequester.getMessageId()).isEqualTo(GENERATED_RANDOM_ID);
@@ -173,25 +168,25 @@ public class SendAcknowledgementComponentTest {
     @Test
     public void When_SendAckTaskExecuted_WithMhsConnectionException_Expect_ExceptionThrownAndDbNotUpdated() {
         var taskDefinition =
-            SendAcknowledgementTaskDefinition.builder()
-                .fromAsid(FROM_ASID)
-                .toAsid(TO_ASID)
-                .fromOdsCode(FROM_ODS_CODE)
-                .toOdsCode(TO_ODS_CODE)
-                .ehrRequestMessageId(EHR_REQUEST_MESSAGE_ID)
-                .conversationId(EhrStatusConstants.CONVERSATION_ID)
-                .taskId(TASK_ID)
-                .typeCode(POSITIVE_ACK_TYPE_CODE)
-                .build();
+                SendAcknowledgementTaskDefinition.builder()
+                        .fromAsid(FROM_ASID)
+                        .toAsid(TO_ASID)
+                        .fromOdsCode(FROM_ODS_CODE)
+                        .toOdsCode(TO_ODS_CODE)
+                        .ehrRequestMessageId(EHR_REQUEST_MESSAGE_ID)
+                        .conversationId(EhrStatusConstants.CONVERSATION_ID)
+                        .taskId(TASK_ID)
+                        .typeCode(POSITIVE_ACK_TYPE_CODE)
+                        .build();
 
         doThrow(MhsConnectionException.class).when(mhsClient).sendMessageToMHS(any());
 
         assertThatExceptionOfType(MhsConnectionException.class)
-            .isThrownBy(() -> sendAcknowledgementExecutor.execute(taskDefinition));
+                .isThrownBy(() -> sendAcknowledgementExecutor.execute(taskDefinition));
 
         var updatedEhrExtractStatus = ehrExtractStatusRepository
-            .findByConversationId(EhrStatusConstants.CONVERSATION_ID)
-            .orElseThrow();
+                .findByConversationId(EhrStatusConstants.CONVERSATION_ID)
+                .orElseThrow();
 
         assertThat(updatedEhrExtractStatus.getAckToRequester()).isNull();
     }
@@ -199,25 +194,25 @@ public class SendAcknowledgementComponentTest {
     @Test
     public void When_SendAckTaskExecuted_WithMhsServerErrorException_Expect_ExceptionThrownAndDbNotUpdated() {
         var taskDefinition =
-            SendAcknowledgementTaskDefinition.builder()
-                .fromAsid(FROM_ASID)
-                .toAsid(TO_ASID)
-                .fromOdsCode(FROM_ODS_CODE)
-                .toOdsCode(TO_ODS_CODE)
-                .ehrRequestMessageId(EHR_REQUEST_MESSAGE_ID)
-                .conversationId(EhrStatusConstants.CONVERSATION_ID)
-                .taskId(TASK_ID)
-                .typeCode(POSITIVE_ACK_TYPE_CODE)
-                .build();
+                SendAcknowledgementTaskDefinition.builder()
+                        .fromAsid(FROM_ASID)
+                        .toAsid(TO_ASID)
+                        .fromOdsCode(FROM_ODS_CODE)
+                        .toOdsCode(TO_ODS_CODE)
+                        .ehrRequestMessageId(EHR_REQUEST_MESSAGE_ID)
+                        .conversationId(EhrStatusConstants.CONVERSATION_ID)
+                        .taskId(TASK_ID)
+                        .typeCode(POSITIVE_ACK_TYPE_CODE)
+                        .build();
 
         doThrow(MhsServerErrorException.class).when(mhsClient).sendMessageToMHS(any());
 
         assertThatExceptionOfType(MhsServerErrorException.class)
-            .isThrownBy(() -> sendAcknowledgementExecutor.execute(taskDefinition));
+                .isThrownBy(() -> sendAcknowledgementExecutor.execute(taskDefinition));
 
         var updatedEhrExtractStatus = ehrExtractStatusRepository
-            .findByConversationId(EhrStatusConstants.CONVERSATION_ID)
-            .orElseThrow();
+                .findByConversationId(EhrStatusConstants.CONVERSATION_ID)
+                .orElseThrow();
 
         assertThat(updatedEhrExtractStatus.getAckToRequester()).isNull();
     }
