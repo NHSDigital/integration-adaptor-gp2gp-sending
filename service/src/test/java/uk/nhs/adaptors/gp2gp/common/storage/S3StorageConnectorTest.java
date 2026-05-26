@@ -38,7 +38,7 @@ class S3StorageConnectorTest {
     private static S3StorageConnector s3StorageConnector;
 
     @Container
-    private static final S3MockContainer S3_MOCK = new S3MockContainer("4.7.0");
+    private static final S3MockContainer S3_MOCK = new S3MockContainer("4.7.0").withReuse(true);
 
     private static S3Client s3Client;
 
