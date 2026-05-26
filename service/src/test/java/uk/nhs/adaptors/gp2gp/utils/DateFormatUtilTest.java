@@ -14,17 +14,15 @@ import org.hl7.fhir.dstu3.model.Immunization;
 import org.hl7.fhir.dstu3.model.Observation;
 import org.hl7.fhir.dstu3.model.Specimen;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 
-@ExtendWith(MockitoExtension.class)
 class DateFormatUtilTest {
+
     private static final FhirParseService FHIR_PARSER = new FhirParseService();
     private static final String INSTANT_OBSERVATION_TEMPLATE = "{\"resourceType\": \"Observation\", \"issued\": \"%s\"}";
     private static final String DATETYPE_IMMUNIZATION_TEMPLATE = "{\"resourceType\": \"Immunization\", \"expirationDate\": \"%s\"}";
