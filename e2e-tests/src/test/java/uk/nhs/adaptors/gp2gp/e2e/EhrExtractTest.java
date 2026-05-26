@@ -109,8 +109,8 @@ class EhrExtractTest {
     private static final String NACK_MESSAGE_NOT_FOUND = "Patient not at surgery.";
 
     private static final CharSequence XML_NAMESPACE = "/urn:hl7-org:v3:";
-    private static final String DOCUMENT_REFERENCE_XPATH_TEMPLATE = "/RCMR_IN030000UK06/ControlActEvent/subject/EhrExtract/component/ehrFolder/component/ehrComposition/component/NarrativeStatement/reference/referredToExternalDocument/text/reference[@value='cid:%s']";
-    private static final String BODY_SITE_REFERENCE_XPATH_TEMPLATE = "/RCMR_IN030000UK06/ControlActEvent/subject/EhrExtract/component/ehrFolder/component/ehrComposition/component/ObservationStatement/pertinentInformation/pertinentAnnotation/text[contains(text(), 'BodySite: Rib cage')]";
+    private static final String DOCUMENT_REFERENCE_XPATH_TEMPLATE = "/RCMR_IN030000UK07/ControlActEvent/subject/EhrExtract/component/ehrFolder/component/ehrComposition/component/NarrativeStatement/reference/referredToExternalDocument/text/reference[@value='cid:%s']";
+    private static final String BODY_SITE_REFERENCE_XPATH_TEMPLATE = "/RCMR_IN030000UK07/ControlActEvent/subject/EhrExtract/component/ehrFolder/component/ehrComposition/component/ObservationStatement/pertinentInformation/pertinentAnnotation/text[contains(text(), 'BodySite: Rib cage')]";
 
     private final MhsMockRequestsJournal mhsMockRequestsJournal =
         new MhsMockRequestsJournal(getEnvVar("GP2GP_MHS_MOCK_BASE_URL", "http://localhost:8081"));

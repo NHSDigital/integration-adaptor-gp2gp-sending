@@ -9,6 +9,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
 import static uk.nhs.adaptors.gp2gp.common.task.TaskType.GET_GPC_STRUCTURED;
 
@@ -20,8 +21,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
 import lombok.SneakyThrows;
 import uk.nhs.adaptors.gp2gp.common.exception.FhirValidationException;
@@ -50,8 +49,9 @@ class TaskErrorHandlerTest {
     @InjectMocks
     private TaskErrorHandler taskErrorHandler;
 
+
     @BeforeEach
-    void setup() {
+    void setUp() {
         when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
     }
 
@@ -251,8 +251,8 @@ class TaskErrorHandlerTest {
     }
 
     @Test
-    @MockitoSettings(strictness = Strictness.LENIENT)
     void When_HandleGeneralProcessingError_WithNullParameter_Expect_ProcessIsNotFailed() {
+        lenient().when(taskDefinition.getTaskType()).thenReturn(GET_GPC_STRUCTURED);
         taskErrorHandler.handleProcessingError(new RuntimeException(), null);
 
         verifyNoInteractions(processFailureHandlingService);
