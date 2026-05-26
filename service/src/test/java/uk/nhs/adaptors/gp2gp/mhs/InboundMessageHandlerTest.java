@@ -2,7 +2,6 @@ package uk.nhs.adaptors.gp2gp.mhs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -10,7 +9,9 @@ import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -104,7 +105,7 @@ class InboundMessageHandlerTest {
     @SneakyThrows
     void When_MessageIsEhrExtractRequest_Expect_RequestHandlerCalled() {
         setUpEhrExtract(EBXML_CONTENT);
-        Document header = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
+        Document header = loadHeader("/ehr/request/RCMR_IN010000UK05_header.xml");
         Document payload = mock(Document.class);
         doReturn(header).when(xPathService).parseDocumentFromXml(EBXML_CONTENT);
         doReturn(payload).when(xPathService).parseDocumentFromXml(PAYLOAD_CONTENT);
@@ -112,6 +113,8 @@ class InboundMessageHandlerTest {
         var result = inboundMessageHandler.handle(message);
 
         assertThat(result).isTrue();
+        verify(processFailureHandlingService).hasProcessFailed(CONVERSATION_ID);
+        verify(mdcService).applyConversationId(CONVERSATION_ID);
         verify(ehrExtractRequestHandler).handleStart(eq(header), eq(payload), any());
     }
 
@@ -119,7 +122,7 @@ class InboundMessageHandlerTest {
     @SneakyThrows
     void When_MessageIsEhrExtractRequestAck_Expect_RequestAckHandlerCalled() {
         setUpEhrExtract(EBXML_CONTENT);
-        Document header = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/MCCI_IN010000UK13_header.xml");
+        Document header = loadHeader("/ehr/request/MCCI_IN010000UK13_header.xml");
         Document payload = mock(Document.class);
         doReturn(header).when(xPathService).parseDocumentFromXml(EBXML_CONTENT);
         doReturn(payload).when(xPathService).parseDocumentFromXml(PAYLOAD_CONTENT);
@@ -127,6 +130,8 @@ class InboundMessageHandlerTest {
         var result = inboundMessageHandler.handle(message);
 
         assertThat(result).isTrue();
+        verify(processFailureHandlingService).hasProcessFailed("75049C80-5271-11EA-9384-E83935108FD5");
+        verify(mdcService).applyConversationId("75049C80-5271-11EA-9384-E83935108FD5");
         verify(ehrExtractRequestHandler).handleAcknowledgement("75049C80-5271-11EA-9384-E83935108FD5", payload);
     }
 
@@ -140,8 +145,10 @@ class InboundMessageHandlerTest {
         doReturn(payload).when(xPathService).parseDocumentFromXml(PAYLOAD_CONTENT);
         doReturn(UNKNOWN_INTERACTION_ID).when(xPathService).getNodeValue(eq(header), anyString());
 
-        assertFalse(inboundMessageHandler.handle(message));
+        assertThat(inboundMessageHandler.handle(message)).isFalse();
 
+        verify(processFailureHandlingService).hasProcessFailed(any());
+        verify(mdcService).applyConversationId(any());
         verifyNoInteractions(ehrExtractRequestHandler);
     }
 
@@ -153,6 +160,7 @@ class InboundMessageHandlerTest {
 
         var result = inboundMessageHandler.handle(message);
         assertThat(result).isFalse();
+        verifyNoInteractions(ehrExtractRequestHandler, processFailureHandlingService, mdcService);
     }
 
     @Test
@@ -165,6 +173,7 @@ class InboundMessageHandlerTest {
 
         var result = inboundMessageHandler.handle(message);
         assertThat(result).isFalse();
+        verifyNoInteractions(ehrExtractRequestHandler, processFailureHandlingService, mdcService);
     }
 
     @Test
@@ -197,6 +206,13 @@ class InboundMessageHandlerTest {
 
         assertThat(inboundMessageHandler.handle(message)).isTrue();
         assertThat(inboundMessageHandler.handle(message)).isFalse();
+
+        verify(processFailureHandlingService, times(2)).failProcess(
+            CONVERSATION_ID,
+            NACK_ERROR_CODE,
+            "There has been an error when processing the message",
+            "InboundMessageHandler"
+        );
     }
 
     @Test
@@ -222,6 +238,7 @@ class InboundMessageHandlerTest {
         doThrow(testException).when(processFailureHandlingService).hasProcessFailed(any());
 
         assertThatThrownBy(() -> inboundMessageHandler.handle(message)).isSameAs(testException);
+        verifyNoInteractions(ehrExtractRequestHandler, mdcService);
     }
 
 
@@ -236,14 +253,19 @@ class InboundMessageHandlerTest {
         assertThat(result).isTrue();
 
         verify(processFailureHandlingService).hasProcessFailed(CONVERSATION_ID);
-        verifyNoInteractions(ehrExtractRequestHandler);
+        verifyNoInteractions(ehrExtractRequestHandler, mdcService);
+        verifyNoMoreInteractions(processFailureHandlingService);
     }
 
     private void setupValidMessage() throws JMSException, JsonProcessingException, SAXException {
         setUpEhrExtract(EBXML_CONTENT);
-        Document header = ResourceHelper.loadClasspathResourceAsXml("/ehr/request/RCMR_IN010000UK05_header.xml");
+        Document header = loadHeader("/ehr/request/RCMR_IN010000UK05_header.xml");
         doReturn(header).when(xPathService).parseDocumentFromXml(EBXML_CONTENT);
         doReturn(mock(Document.class)).when(xPathService).parseDocumentFromXml(PAYLOAD_CONTENT);
+    }
+
+    private Document loadHeader(String resourcePath) {
+        return ResourceHelper.loadClasspathResourceAsXml(resourcePath);
     }
 
     private void setUpEhrExtract(String ebxmlContent) throws JMSException, JsonProcessingException {
