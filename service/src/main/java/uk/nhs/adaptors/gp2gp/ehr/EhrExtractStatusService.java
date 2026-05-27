@@ -202,7 +202,7 @@ public class EhrExtractStatusService {
                                                                    String structuredRecordJsonFilename) {
 
         Query query = createQueryForConversationId(structuredTaskDefinition.getConversationId());
-        Instant now = Instant.now();
+        Instant now = timestampService.now();
 
         Update update = createUpdateWithUpdatedAt();
         update.set(STRUCTURE_ACCESSED_AT_PATH, now);
@@ -301,7 +301,7 @@ public class EhrExtractStatusService {
             Query query = createQueryForConversationId(conversationId);
 
             Update update = createUpdateWithUpdatedAt();
-            Instant now = Instant.now();
+            Instant now = timestampService.now();
             update.set(CONTINUE_RECEIVED_PATH, now);
 
             FindAndModifyOptions returningUpdatedRecordOption = getReturningUpdatedRecordOption();
@@ -485,7 +485,7 @@ public class EhrExtractStatusService {
         String taskType) {
 
         Update update = createUpdateWithUpdatedAt();
-        Instant now = Instant.now();
+        Instant now = timestampService.now();
         update.set(ERROR_OCCURRED_AT_PATH, now);
         update.set(ERROR_CODE_PATH, errorCode);
         update.set(ERROR_MESSAGE_PATH, errorMessage);
@@ -535,7 +535,7 @@ public class EhrExtractStatusService {
         var commonMessageId = GPC_DOCUMENTS + DOT + taskDefinition.getDocumentPosition() + DOT + SENT_TO_MHS + DOT + MESSAGE_ID;
 
         Update update = createUpdateWithUpdatedAt();
-        update.set(commonSentAt, Instant.now());
+        update.set(commonSentAt, timestampService.now());
         update.set(commonTaskId, taskDefinition.getTaskId());
         update.set(commonMessageId, messageIds);
 
@@ -561,7 +561,7 @@ public class EhrExtractStatusService {
         var commonMessageId = STRUCTURE_OBJECT_AS_ATTACHMENT + DOT + SENT_TO_MHS + DOT + MESSAGE_ID;
 
         Update update = createUpdateWithUpdatedAt();
-        update.set(commonSentAt, Instant.now());
+        update.set(commonSentAt, timestampService.now());
         update.set(commonTaskId, taskDefinition.getTaskId());
         update.set(commonMessageId, messageIds);
 
@@ -594,7 +594,7 @@ public class EhrExtractStatusService {
     }
 
     public Update createUpdateWithUpdatedAt() {
-        Instant now = Instant.now();
+        Instant now = timestampService.now();
         Update update = new Update();
 
         update.set(UPDATED_AT, now);
