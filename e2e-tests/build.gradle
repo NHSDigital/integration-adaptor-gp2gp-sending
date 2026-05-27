@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id "io.freefair.lombok" version "9.1.0"
+    id "io.freefair.lombok" version "9.2.0"
 }
 
 group = 'uk.nhs.adaptors'
@@ -14,7 +14,7 @@ dependencies {
     implementation 'org.apache.qpid:qpid-jms-client:2.9.0'
     implementation "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.1.1"
     implementation 'org.mongodb:mongo-java-driver:3.12.14'
-    testImplementation(platform('org.junit:junit-bom:6.0.0'))
+    testImplementation(platform('org.junit:junit-bom:6.0.1'))
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.20.0'
@@ -22,9 +22,9 @@ dependencies {
     testImplementation 'commons-io:commons-io:2.21.0'
     testImplementation 'org.awaitility:awaitility:4.3.0'
     testImplementation "org.assertj:assertj-core:3.27.6"
-    testImplementation 'ch.qos.logback:logback-classic:1.5.21'
+    testImplementation 'ch.qos.logback:logback-classic:1.5.32'
     testImplementation 'org.xmlunit:xmlunit-assertj3:2.11.0'
-    testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.5.1'
+    testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.6'
 }
 
 tasks.withType(Test) {
