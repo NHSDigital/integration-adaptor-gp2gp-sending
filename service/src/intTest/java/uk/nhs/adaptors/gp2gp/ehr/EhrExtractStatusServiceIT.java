@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrExtractException;
 import uk.nhs.adaptors.gp2gp.ehr.model.EhrExtractStatus;
@@ -63,10 +63,10 @@ public class EhrExtractStatusServiceIT {
     @Autowired
     private EhrExtractTimeoutScheduler ehrExtractTimeoutScheduler;
 
-    @MockitoBean
+    @MockBean
     private TimestampService timestampService;
 
-    @MockitoBean
+    @MockBean
     private Logger logger;
 
     @BeforeEach
@@ -79,11 +79,13 @@ public class EhrExtractStatusServiceIT {
         var inProgressConversationId = generateRandomUppercaseUUID();
 
         var ehrExtractStatusServiceSpy = spy(ehrExtractStatusService);
+        when(timestampService.now()).thenReturn(NOW);
 
         addInProgressTransferWithExceededAckTimeout(inProgressConversationId, List.of());
 
         ehrExtractTimeoutScheduler.processEhrExtractAckTimeouts();
         when(ehrExtractStatusServiceSpy.logger()).thenReturn(logger);
+
 
         var ehrReceivedAcknowledgement = getEhrReceivedAcknowledgement(inProgressConversationId);
         ehrReceivedAcknowledgement.setReceived(NOW);

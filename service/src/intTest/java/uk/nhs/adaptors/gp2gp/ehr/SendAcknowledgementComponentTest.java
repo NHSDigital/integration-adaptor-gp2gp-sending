@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClient;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
@@ -35,37 +35,38 @@ import uk.nhs.adaptors.gp2gp.testcontainers.MongoDBExtension;
 
 @ExtendWith({SpringExtension.class, MongoDBExtension.class, ActiveMQExtension.class, MockitoExtension.class})
 @DirtiesContext
-@SpringBootTest(properties = {
-        "command.line.runner.enabled=false"})
+@SpringBootTest(properties = {"command.line.runner.enabled=false"})
 public class SendAcknowledgementComponentTest {
     private static final String GENERATED_RANDOM_ID = "GENERATED-RANDOM-ID";
+    private static final String GENERATED_RANDOM_ID_2 = "GENERATED-RANDOM-ID-2";
     private static final String FROM_ASID = "0000222-from-asid";
     private static final String TO_ASID = "0000333-to-asid";
     private static final String FROM_ODS_CODE = "0000222-from-ods-code";
     private static final String TO_ODS_CODE = "0000333-to-ods-code";
     private static final String EHR_REQUEST_MESSAGE_ID = "000-333-444-ehr-request-message-id";
-    private static final String DATE = "2018-03-04T03:10:41.01Z";
+    private static final String DATE_1 = "2018-03-04T03:10:41.01Z";
+    private static final String DATE_2 = "2018-03-04T03:10:42.01Z";
     private static final String REASON_CODE = "06";
     private static final String REASON_MESSAGE = "Patient not at surgery.";
     private static final String TASK_ID = "999-000-task-id";
     private static final String NEGATIVE_ACK_TYPE_CODE = "AE";
     private static final String POSITIVE_ACK_TYPE_CODE = "AA";
 
-    @MockitoBean
+    @MockBean
     private WebClient.RequestHeadersSpec<?> request;
-    @MockitoBean
+    @MockBean
     private MhsRequestBuilder mhsRequestBuilder;
-    @MockitoBean
+    @MockBean
     private MhsClient mhsClient;
-    @MockitoBean
+    @MockBean
     private SendAcknowledgementTaskDefinition sendAcknowledgementTaskDefinition;
     @Autowired
     private SendAcknowledgementExecutor sendAcknowledgementExecutor;
     @Autowired
     private EhrExtractStatusRepository ehrExtractStatusRepository;
-    @MockitoBean
+    @MockBean
     private TimestampService timestampService;
-    @MockitoBean
+    @MockBean
     private RandomIdGeneratorService randomIdGeneratorService;
 
     @Value("classpath:ehr/expected-nack-message.json")
@@ -79,7 +80,7 @@ public class SendAcknowledgementComponentTest {
     @BeforeEach
     public void setUp() {
         when(randomIdGeneratorService.createNewId()).thenReturn(GENERATED_RANDOM_ID);
-        when(timestampService.now()).thenReturn(Instant.parse(DATE));
+        when(timestampService.now()).thenReturn(Instant.parse(DATE_1));
 
         ehrExtractStatus = EhrExtractStatusTestUtils.prepareEhrExtractStatus();
         ehrExtractStatusRepository.save(ehrExtractStatus);
@@ -96,6 +97,20 @@ public class SendAcknowledgementComponentTest {
         when(sendAcknowledgementTaskDefinition.getConversationId()).thenReturn(ehrExtractStatus.getConversationId());
         when(sendAcknowledgementTaskDefinition.getFromOdsCode()).thenReturn(ehrRequest.getFromOdsCode());
         when(mhsClient.sendMessageToMHS(request)).thenReturn("Successful Mhs Outbound Request");
+
+        when(randomIdGeneratorService.createNewId())
+                .thenReturn(GENERATED_RANDOM_ID)
+                .thenReturn(GENERATED_RANDOM_ID_2);
+
+        when(timestampService.now())
+                .thenReturn(Instant.parse(DATE_1))
+                .thenReturn(Instant.parse(DATE_1))
+                .thenReturn(Instant.parse(DATE_1))
+                .thenReturn(Instant.parse(DATE_1))
+                .thenReturn(Instant.parse(DATE_2))
+                .thenReturn(Instant.parse(DATE_2))
+                .thenReturn(Instant.parse(DATE_2))
+                .thenReturn(Instant.parse(DATE_2));
 
         sendAcknowledgementExecutor.execute(sendAcknowledgementTaskDefinition);
         var ehrExtractFirst = ehrExtractStatusRepository.findByConversationId(ehrExtractStatus.getConversationId()).get();

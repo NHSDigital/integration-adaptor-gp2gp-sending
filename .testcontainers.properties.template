@@ -1,0 +1,26 @@
+# Testcontainers reuse configuration
+# ------------------------------------
+# Place this file at: ~/.testcontainers.properties
+# (i.e., in your home directory, NOT the project directory)
+#
+# With reuse enabled, Testcontainers will leave containers running between
+# test runs rather than stopping and removing them when the JVM exits.
+# On the next run it detects that a matching container already exists and
+# connects to it instead of starting a new one.
+#
+# Effect on local dev:
+#   - Integration test startup drops from ~15-30 s (container start + Spring init)
+#     to ~2-3 s (Spring context only) after the first run.
+#   - MongoDB and ActiveMQ data persists between runs; run a clean start
+#     (`./gradlew integrationTest --rerun`) when you want a truly fresh state.
+#
+# This setting has NO effect in CI (containers always start fresh there because
+# the host is ephemeral). To explicitly disable reuse in CI, set the env var:
+#   TESTCONTAINERS_REUSE_ENABLE=false
+#
+# IMPORTANT: This file must also be created on each developer's machine.
+# Commit this template to the repo (e.g., as .testcontainers.properties.template)
+# so new developers know to copy it to ~/
+
+testcontainers.reuse.enable=true
+

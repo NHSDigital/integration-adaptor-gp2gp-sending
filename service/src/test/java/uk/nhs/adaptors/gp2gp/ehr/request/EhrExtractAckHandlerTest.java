@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Optional;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -32,6 +33,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
 import uk.nhs.adaptors.gp2gp.common.service.XPathService;
 import uk.nhs.adaptors.gp2gp.ehr.EhrExtractStatusService;
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrExtractException;
@@ -66,6 +68,9 @@ class EhrExtractAckHandlerTest {
     @Mock
     private Document document;
 
+    @Mock
+    private TimestampService timestampService;
+
     @Captor
     private ArgumentCaptor<EhrExtractStatus.EhrReceivedAcknowledgement> receivedAckField;
 
@@ -87,9 +92,8 @@ class EhrExtractAckHandlerTest {
     @Test
     void When_Handle_WithAckAndMessageRefEqualsEhrExtractMessageId_Expect_ConversationIsClosed() {
 
-        when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_OK_CODE);
-        when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(EHR_MESSAGE_REF));
+        when(timestampService.now()).thenReturn(Instant.now());
+        stubAckAndMessageReference(ACK_OK_CODE, EHR_MESSAGE_REF, EHR_MESSAGE_REF);
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -102,10 +106,7 @@ class EhrExtractAckHandlerTest {
 
     @Test
     void When_Handle_WithAckAndMessageRefEqualsEhrExtractMessageId_Expect_AckSaved() {
-
-        when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_OK_CODE);
-        when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(EHR_MESSAGE_REF));
+        stubAckAndMessageReference(ACK_OK_CODE, EHR_MESSAGE_REF, EHR_MESSAGE_REF);
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -114,10 +115,7 @@ class EhrExtractAckHandlerTest {
 
     @Test
     void When_Handle_WithAckDoesNotReferenceEhrExtract_Expect_ReceivedAckFieldNotUpdated() {
-
-        when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_OK_CODE);
-        when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(RANDOM_MESSAGE_REF);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(EHR_MESSAGE_REF));
+        stubAckAndMessageReference(ACK_OK_CODE, RANDOM_MESSAGE_REF, EHR_MESSAGE_REF);
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -126,10 +124,7 @@ class EhrExtractAckHandlerTest {
 
     @Test
     void When_Handle_WithAckDoesNotReferenceEhrExtract_Expect_AckSaved() {
-
-        when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_OK_CODE);
-        when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(RANDOM_MESSAGE_REF);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(EHR_MESSAGE_REF));
+        stubAckAndMessageReference(ACK_OK_CODE, RANDOM_MESSAGE_REF, EHR_MESSAGE_REF);
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -138,10 +133,9 @@ class EhrExtractAckHandlerTest {
 
     @Test
     void When_Handle_WithAckAndNoEhrExtractMessageIdForConversation_Expect_EhrExtractException() {
-
         when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_OK_CODE);
         when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
-
+        when(timestampService.now()).thenReturn(Instant.now());
         when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(EhrExtractException.class)
@@ -151,14 +145,10 @@ class EhrExtractAckHandlerTest {
     @Test
     void When_Handle_WithNackReferencesEhrExtract_Expect_ConversationClosed() throws XPathExpressionException,
         ParserConfigurationException, IOException, SAXException {
-
         NodeList codeNodeList = codeElementToNodeList(ERROR_CODE_ELEMENT_99);
-        var document = mock(Document.class);
-
-        when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_BUSINESS_ERROR_CODE);
-        when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
+        stubAckAndMessageReference(ACK_BUSINESS_ERROR_CODE, EHR_MESSAGE_REF, EHR_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ERROR_CODE_XPATH))).thenReturn(codeNodeList);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(EHR_MESSAGE_REF));
+        when(timestampService.now()).thenReturn(Instant.now());
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -170,14 +160,9 @@ class EhrExtractAckHandlerTest {
     @Test
     void When_Handle_WithNackReferencesEhrExtract_Expect_AckSaved() throws XPathExpressionException,
         ParserConfigurationException, IOException, SAXException {
-
         NodeList codeNodeList = codeElementToNodeList(ERROR_CODE_ELEMENT_99);
-        var document = mock(Document.class);
-
-        when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_BUSINESS_ERROR_CODE);
-        when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
+        stubAckAndMessageReference(ACK_BUSINESS_ERROR_CODE, EHR_MESSAGE_REF, EHR_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ERROR_CODE_XPATH))).thenReturn(codeNodeList);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(EHR_MESSAGE_REF));
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -187,15 +172,10 @@ class EhrExtractAckHandlerTest {
     @Test
     void When_Handle_WithNackDoesNotReferenceExtract_Expect_ReceivedAckFieldNotUpdated() throws XPathExpressionException,
         ParserConfigurationException, IOException, SAXException {
-
         NodeList codeNodeList = codeElementToNodeList(ERROR_CODE_ELEMENT_99);
-
-        var document = mock(Document.class);
-
-        when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_BUSINESS_ERROR_CODE);
-        when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
+        stubAckAndMessageReference(ACK_BUSINESS_ERROR_CODE, EHR_MESSAGE_REF, RANDOM_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ERROR_CODE_XPATH))).thenReturn(codeNodeList);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(RANDOM_MESSAGE_REF));
+        when(timestampService.now()).thenReturn(Instant.now());
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -205,15 +185,10 @@ class EhrExtractAckHandlerTest {
     @Test
     void When_Handle_WithNackDoesNotReferenceExtract_Expect_AckSaved() throws XPathExpressionException,
         ParserConfigurationException, IOException, SAXException {
-
         NodeList codeNodeList = codeElementToNodeList(ERROR_CODE_ELEMENT_99);
-
-        var document = mock(Document.class);
-
-        when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_BUSINESS_ERROR_CODE);
-        when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
+        stubAckAndMessageReference(ACK_BUSINESS_ERROR_CODE, EHR_MESSAGE_REF, RANDOM_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ERROR_CODE_XPATH))).thenReturn(codeNodeList);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(RANDOM_MESSAGE_REF));
+        when(timestampService.now()).thenReturn(Instant.now());
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -223,15 +198,10 @@ class EhrExtractAckHandlerTest {
     @Test
     void When_Handle_WithRejectedReferencesEhrExtract_Expect_ConversationClosed() throws XPathExpressionException,
         ParserConfigurationException, IOException, SAXException {
-
         NodeList codeNodeList = codeElementToNodeList(ERROR_CODE_ELEMENT_18);
-
-        var document = mock(Document.class);
-
-        when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_REJECTED_CODE);
-        when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
+        stubAckAndMessageReference(ACK_REJECTED_CODE, EHR_MESSAGE_REF, EHR_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ACK_DETAILS_XPATH))).thenReturn(codeNodeList);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(EHR_MESSAGE_REF));
+        when(timestampService.now()).thenReturn(Instant.now());
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -243,14 +213,9 @@ class EhrExtractAckHandlerTest {
     @Test
     void When_Handle_WithRejectedDoesNotReferenceExtract_Expect_ReceivedAckFieldNotUpdated() throws XPathExpressionException,
         ParserConfigurationException, IOException, SAXException {
-
         NodeList codeNodeList = codeElementToNodeList(ERROR_CODE_ELEMENT_18);
-        var document = mock(Document.class);
-
-        when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_REJECTED_CODE);
-        when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
+        stubAckAndMessageReference(ACK_REJECTED_CODE, EHR_MESSAGE_REF, RANDOM_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ACK_DETAILS_XPATH))).thenReturn(codeNodeList);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(RANDOM_MESSAGE_REF));
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -260,15 +225,9 @@ class EhrExtractAckHandlerTest {
     @Test
     void When_Handle_WithRejectedReferencesEhrExtract_Expect_AckSaved() throws XPathExpressionException,
         ParserConfigurationException, IOException, SAXException {
-
         NodeList codeNodeList = codeElementToNodeList(ERROR_CODE_ELEMENT_18);
-
-        var document = mock(Document.class);
-
-        when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_REJECTED_CODE);
-        when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
+        stubAckAndMessageReference(ACK_REJECTED_CODE, EHR_MESSAGE_REF, EHR_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ACK_DETAILS_XPATH))).thenReturn(codeNodeList);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(EHR_MESSAGE_REF));
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -278,14 +237,10 @@ class EhrExtractAckHandlerTest {
     @Test
     void When_Handle_WithRejectedDoesNotReferenceExtract_Expect_AckSaved() throws XPathExpressionException,
         ParserConfigurationException, IOException, SAXException {
-
         NodeList codeNodeList = codeElementToNodeList(ERROR_CODE_ELEMENT_18);
-        var document = mock(Document.class);
-
-        when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ACK_REJECTED_CODE);
-        when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(EHR_MESSAGE_REF);
+        stubAckAndMessageReference(ACK_REJECTED_CODE, EHR_MESSAGE_REF, RANDOM_MESSAGE_REF);
         when(xPathService.getNodes(any(), eq(ACK_DETAILS_XPATH))).thenReturn(codeNodeList);
-        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(RANDOM_MESSAGE_REF));
+        when(timestampService.now()).thenReturn(Instant.now());
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
 
@@ -304,5 +259,11 @@ class EhrExtractAckHandlerTest {
             .compile("//code");
 
         return (NodeList) xPathExpression.evaluate(document, NODESET);
+    }
+
+    private void stubAckAndMessageReference(String ackTypeCode, String messageRef, String storedEhrMessageRef) {
+        when(xPathService.getNodeValue(any(), eq(ACK_TYPE_CODE_XPATH))).thenReturn(ackTypeCode);
+        when(xPathService.getNodeValue(any(), eq(MESSAGE_REF_XPATH))).thenReturn(messageRef);
+        when(ehrExtractStatusService.fetchEhrExtractMessageId(CONVERSATION_ID)).thenReturn(Optional.of(storedEhrMessageRef));
     }
 }
