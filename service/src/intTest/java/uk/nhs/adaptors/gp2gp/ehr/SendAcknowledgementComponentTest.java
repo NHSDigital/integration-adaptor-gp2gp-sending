@@ -38,12 +38,14 @@ import uk.nhs.adaptors.gp2gp.testcontainers.MongoDBExtension;
 @SpringBootTest(properties = {"command.line.runner.enabled=false"})
 public class SendAcknowledgementComponentTest {
     private static final String GENERATED_RANDOM_ID = "GENERATED-RANDOM-ID";
+    private static final String GENERATED_RANDOM_ID_2 = "GENERATED-RANDOM-ID-2";
     private static final String FROM_ASID = "0000222-from-asid";
     private static final String TO_ASID = "0000333-to-asid";
     private static final String FROM_ODS_CODE = "0000222-from-ods-code";
     private static final String TO_ODS_CODE = "0000333-to-ods-code";
     private static final String EHR_REQUEST_MESSAGE_ID = "000-333-444-ehr-request-message-id";
-    private static final String DATE = "2018-03-04T03:10:41.01Z";
+    private static final String DATE_1 = "2018-03-04T03:10:41.01Z";
+    private static final String DATE_2 = "2018-03-04T03:10:42.01Z";
     private static final String REASON_CODE = "06";
     private static final String REASON_MESSAGE = "Patient not at surgery.";
     private static final String TASK_ID = "999-000-task-id";
@@ -78,7 +80,7 @@ public class SendAcknowledgementComponentTest {
     @BeforeEach
     public void setUp() {
         when(randomIdGeneratorService.createNewId()).thenReturn(GENERATED_RANDOM_ID);
-        when(timestampService.now()).thenReturn(Instant.parse(DATE));
+        when(timestampService.now()).thenReturn(Instant.parse(DATE_1));
 
         ehrExtractStatus = EhrExtractStatusTestUtils.prepareEhrExtractStatus();
         ehrExtractStatusRepository.save(ehrExtractStatus);
@@ -95,6 +97,20 @@ public class SendAcknowledgementComponentTest {
         when(sendAcknowledgementTaskDefinition.getConversationId()).thenReturn(ehrExtractStatus.getConversationId());
         when(sendAcknowledgementTaskDefinition.getFromOdsCode()).thenReturn(ehrRequest.getFromOdsCode());
         when(mhsClient.sendMessageToMHS(request)).thenReturn("Successful Mhs Outbound Request");
+
+        when(randomIdGeneratorService.createNewId())
+                .thenReturn(GENERATED_RANDOM_ID)
+                .thenReturn(GENERATED_RANDOM_ID_2);
+
+        when(timestampService.now())
+                .thenReturn(Instant.parse(DATE_1))
+                .thenReturn(Instant.parse(DATE_1))
+                .thenReturn(Instant.parse(DATE_1))
+                .thenReturn(Instant.parse(DATE_1))
+                .thenReturn(Instant.parse(DATE_2))
+                .thenReturn(Instant.parse(DATE_2))
+                .thenReturn(Instant.parse(DATE_2))
+                .thenReturn(Instant.parse(DATE_2));
 
         sendAcknowledgementExecutor.execute(sendAcknowledgementTaskDefinition);
         var ehrExtractFirst = ehrExtractStatusRepository.findByConversationId(ehrExtractStatus.getConversationId()).get();
