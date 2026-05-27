@@ -174,7 +174,7 @@ class EhrExtractAckHandlerTest {
         ParserConfigurationException, IOException, SAXException {
         NodeList codeNodeList = codeElementToNodeList(ERROR_CODE_ELEMENT_99);
         stubAckAndMessageReference(ACK_BUSINESS_ERROR_CODE, EHR_MESSAGE_REF, RANDOM_MESSAGE_REF);
-        when(xPathService.getNodes(any(), eq(ERROR_CODE_XPATH))).thenReturn(codeNodeList);       
+        when(xPathService.getNodes(any(), eq(ERROR_CODE_XPATH))).thenReturn(codeNodeList);
         when(timestampService.now()).thenReturn(Instant.now());
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
@@ -239,7 +239,7 @@ class EhrExtractAckHandlerTest {
         ParserConfigurationException, IOException, SAXException {
         NodeList codeNodeList = codeElementToNodeList(ERROR_CODE_ELEMENT_18);
         stubAckAndMessageReference(ACK_REJECTED_CODE, EHR_MESSAGE_REF, RANDOM_MESSAGE_REF);
-        when(xPathService.getNodes(any(), eq(ACK_DETAILS_XPATH))).thenReturn(codeNodeList);        
+        when(xPathService.getNodes(any(), eq(ACK_DETAILS_XPATH))).thenReturn(codeNodeList);
         when(timestampService.now()).thenReturn(Instant.now());
 
         ehrExtractAckHandler.handle(CONVERSATION_ID, document);
