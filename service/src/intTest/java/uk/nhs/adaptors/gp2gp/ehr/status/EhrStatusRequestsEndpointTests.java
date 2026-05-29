@@ -1,17 +1,12 @@
 package uk.nhs.adaptors.gp2gp.ehr.status;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,45 +16,31 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.SneakyThrows;
-import uk.nhs.adaptors.gp2gp.common.service.ProcessFailureHandlingService;
-import uk.nhs.adaptors.gp2gp.ehr.InboundMessageHandlingTest;
+import uk.nhs.adaptors.gp2gp.ehr.EhrExtractStatusRepository;
+import uk.nhs.adaptors.gp2gp.ehr.EhrExtractStatusTestUtils;
+import uk.nhs.adaptors.gp2gp.ehr.model.EhrExtractStatus;
 import uk.nhs.adaptors.gp2gp.ehr.status.model.EhrStatusRequest;
 import uk.nhs.adaptors.gp2gp.ehr.status.model.EhrStatusRequestQuery;
-import uk.nhs.adaptors.gp2gp.mhs.InboundMessage;
-import uk.nhs.adaptors.gp2gp.testcontainers.ActiveMQExtension;
 import uk.nhs.adaptors.gp2gp.testcontainers.MongoDBExtension;
-import uk.nhs.adaptors.gp2gp.util.ProcessDetectionService;
 
-@ExtendWith({SpringExtension.class, MongoDBExtension.class, ActiveMQExtension.class})
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ExtendWith(MongoDBExtension.class)
+@SpringBootTest(classes = EhrStatusEndpointsTestApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class EhrStatusRequestsEndpointTests {
 
-    private static final String INBOUND_QUEUE_NAME = "gp2gpInboundQueue";
-    private static final String EBXML_PATH_REQUEST_MESSAGE = "/requestmessage/RCMR_IN010000UK05_ebxml.txt";
-    private static final String PAYLOAD_PATH_REQUEST_MESSAGE = "/requestmessage/RCMR_IN010000UK05_payload.txt";
-
-    private static final int JMS_RECEIVE_TIMEOUT = 60000;
-    private static final Duration ONE_MINUTE = Duration.ofMinutes(1);
-
     private static final int NUMBER_OF_REQUESTS = 5;
+    private static final Instant BASE_TIME = Instant.parse("2024-01-01T10:00:00Z");
 
     @LocalServerPort
     private int port;
-    @Autowired
-    private ObjectMapper objectMapper;
+
     @Autowired
     private TestRestTemplate restTemplate;
 
     @Autowired
-    private ProcessFailureHandlingService processFailureHandlingService;
+    private EhrExtractStatusRepository ehrExtractStatusRepository;
 
     private String ehrStatusRequestsEndpoint;
 
@@ -71,54 +52,23 @@ public class EhrStatusRequestsEndpointTests {
     private static final String[] FROM_ODSS = new String[NUMBER_OF_REQUESTS];
     private static final String[] CONVERSATION_IDS = new String[NUMBER_OF_REQUESTS];
 
-    private static final String CONVERSATION_ID_PLACEHOLDER = "{{conversationId}}";
-    private static final String TO_ASID_PLACEHOLDER = "{{toAsid}}";
-    private static final String FROM_ASID_PLACEHOLDER = "{{fromAsid}}";
-    private static final String FROM_ODS_PLACEHOLDER = "{{fromOds}}";
-    private static final String TO_ODS_PLACEHOLDER = "{{toOds}}";
-
     @BeforeEach
     public void setUp() {
-
-        inboundJmsTemplate.setDefaultDestinationName(INBOUND_QUEUE_NAME);
         ehrStatusRequestsEndpoint = "http://localhost:" + port + "/requests";
-        inboundJmsTemplate.setReceiveTimeout(JMS_RECEIVE_TIMEOUT);
+        ehrExtractStatusRepository.deleteAll();
 
         for (var i = 0; i < NUMBER_OF_REQUESTS; i++) {
-
-            FROM_DATE_TIMES[i] = Instant.now();
-            var inboundMessage = new InboundMessage();
-
             var conversationId = UUID.randomUUID().toString();
             var fromAsid = UUID.randomUUID().toString();
             var toAsid = UUID.randomUUID().toString();
             var fromOds = UUID.randomUUID().toString();
             var toOds = UUID.randomUUID().toString();
+            var updatedAt = BASE_TIME.plusSeconds(i * 60L);
 
-            var payload = readResourceAsString(PAYLOAD_PATH_REQUEST_MESSAGE);
-            payload = payload
-                .replace(FROM_ASID_PLACEHOLDER, fromAsid)
-                .replace(TO_ASID_PLACEHOLDER, toAsid)
-                .replace(FROM_ODS_PLACEHOLDER, fromOds)
-                .replace(TO_ODS_PLACEHOLDER, toOds);
+            ehrExtractStatusRepository.save(createFailedStatus(conversationId, fromAsid, toAsid, fromOds, toOds, updatedAt));
 
-            var ebxml = readResourceAsString(EBXML_PATH_REQUEST_MESSAGE).replace(CONVERSATION_ID_PLACEHOLDER, conversationId);
-
-            inboundMessage.setEbXML(ebxml);
-            inboundMessage.setPayload(payload);
-
-            inboundJmsTemplate.send(session -> session.createTextMessage(parseMessageToString(inboundMessage)));
-
-            await()
-                .atMost(ONE_MINUTE)
-                .until(() -> processDetectionService.awaitingContinue(conversationId));
-
-            processFailureHandlingService.failProcess(conversationId, "test error code", "test error message", "test task type");
-
-            await()
-                .until(() -> processDetectionService.processFailed(conversationId));
-
-            TO_DATE_TIMES[i] = Instant.now();
+            FROM_DATE_TIMES[i] = updatedAt;
+            TO_DATE_TIMES[i] = updatedAt;
             FROM_ASIDS[i] = fromAsid;
             TO_ASIDS[i] = toAsid;
             FROM_ODSS[i] = fromOds;
@@ -126,12 +76,6 @@ public class EhrStatusRequestsEndpointTests {
             CONVERSATION_IDS[i] = conversationId;
         }
     }
-
-    @Autowired
-    private JmsTemplate inboundJmsTemplate;
-
-    @Autowired
-    private ProcessDetectionService processDetectionService;
 
     @Test
     public void When_EhrStatusEndpointHasContentAndNoFiltersAreApplied_Expect_StatusEndpointReturnsAllExpectedResponses() {
@@ -282,21 +226,6 @@ public class EhrStatusRequestsEndpointTests {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 
-    @SneakyThrows
-    private String parseMessageToString(InboundMessage inboundMessage) {
-        return objectMapper.writeValueAsString(inboundMessage);
-    }
-
-    @SneakyThrows
-    private static String readResourceAsString(String path) {
-        try (InputStream is = InboundMessageHandlingTest.class.getResourceAsStream(path)) {
-            if (is == null) {
-                throw new FileNotFoundException(path);
-            }
-            return IOUtils.toString(is, UTF_8);
-        }
-    }
-
     private void assertOneResponseWithConversationId(String conversationId, ResponseEntity<EhrStatusRequest[]> responseEntity) {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
@@ -304,5 +233,26 @@ public class EhrStatusRequestsEndpointTests {
         assertThat(statusRequests).isNotNull();
         assertThat(statusRequests.length).isEqualTo(1);
         assertThat(statusRequests[0].getConversationId()).isEqualTo(conversationId);
+    }
+
+    private static EhrExtractStatus createFailedStatus(String conversationId, String fromAsid, String toAsid,
+        String fromOds, String toOds, Instant updatedAt) {
+        var ehrExtractStatus = EhrExtractStatusTestUtils.prepareEhrExtractStatus(conversationId, "document-" + conversationId);
+        ehrExtractStatus.setCreated(updatedAt.minusSeconds(1));
+        ehrExtractStatus.setUpdatedAt(updatedAt);
+        ehrExtractStatus.getEhrRequest().setFromAsid(fromAsid);
+        ehrExtractStatus.getEhrRequest().setToAsid(toAsid);
+        ehrExtractStatus.getEhrRequest().setFromOdsCode(fromOds);
+        ehrExtractStatus.getEhrRequest().setToOdsCode(toOds);
+        ehrExtractStatus.setEhrReceivedAcknowledgement(EhrExtractStatus.EhrReceivedAcknowledgement.builder()
+            .received(updatedAt)
+            .conversationClosed(updatedAt)
+            .errors(List.of(EhrExtractStatus.EhrReceivedAcknowledgement.ErrorDetails.builder()
+                .code("test-error-code")
+                .display("test error display")
+                .build()))
+            .messageRef("message-ref-" + conversationId)
+            .build());
+        return ehrExtractStatus;
     }
 }

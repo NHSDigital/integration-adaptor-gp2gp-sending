@@ -5,17 +5,18 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import uk.nhs.adaptors.gp2gp.testcontainers.ActiveMQExtension;
 import uk.nhs.adaptors.gp2gp.testcontainers.MongoDBExtension;
 
-@ExtendWith({SpringExtension.class, MongoDBExtension.class, ActiveMQExtension.class})
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@ExtendWith({MongoDBExtension.class, ActiveMQExtension.class})
+@SpringBootTest(classes = HealthCheckTest.TestApplication.class, webEnvironment = RANDOM_PORT)
 @DirtiesContext
 public class HealthCheckTest {
     private static final String HEALTHCHECK_ENDPOINT = "/healthcheck";
@@ -35,5 +36,10 @@ public class HealthCheckTest {
             .block();
 
         assertThat(response).contains("UP");
+    }
+
+    @SpringBootConfiguration(proxyBeanMethods = false)
+    @EnableAutoConfiguration
+    static class TestApplication {
     }
 }
