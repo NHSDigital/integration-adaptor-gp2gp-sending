@@ -4,16 +4,24 @@ updates:
     directory: "/service"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
   - package-ecosystem: "gradle"
     directory: "/e2e-tests"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
   - package-ecosystem: "gradle"
     directory: "/mock-mhs-adaptor"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
   - package-ecosystem: "gradle"
     directory: "/wiremock"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
 

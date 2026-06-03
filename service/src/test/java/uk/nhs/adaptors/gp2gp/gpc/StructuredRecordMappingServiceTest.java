@@ -299,13 +299,13 @@ class StructuredRecordMappingServiceTest {
                 .thenReturn(expectedHL7);
 
         doThrow(new XmlSchemaValidationException("Invalid XML", new RuntimeException("Invalid XML")))
-                .when(ehrExtractMapper).validateXmlAgainstSchema(ehrExtractContent);
+                .when(ehrExtractMapper).validateXmlAgainstSchema(expectedHL7);
 
         var actualHL7 = structuredRecordMappingService.mapStructuredRecordToEhrExtractXml(structuredTaskDefinition, bundle);
 
         verify(ehrExtractMapper).mapBundleToEhrFhirExtractParams(structuredTaskDefinition, bundle);
         verify(ehrExtractMapper).mapEhrExtractToXml(ehrExtractTemplateParameters);
-        verify(ehrExtractMapper).validateXmlAgainstSchema(ehrExtractContent);
+        verify(ehrExtractMapper).validateXmlAgainstSchema(expectedHL7);
         verify(outputMessageWrapperMapper).map(structuredTaskDefinition, ehrExtractContent);
         verify(ehrExtractStatusService).saveEhrExtractMessageId(conversationId, ehrExtractId);
 

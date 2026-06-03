@@ -23,9 +23,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,17 +47,17 @@ public class TaskHandlingTest {
     private static final String TASK_TYPE_HEADER_NAME = "TaskType";
     private static final String NACK_TYPE_CODE = "AE";
 
-    @MockitoSpyBean
+    @SpyBean
     private ObjectMapper objectMapper;
     @Autowired
     private TaskConsumer taskConsumer;
     @Autowired
     private EhrExtractStatusRepository ehrExtractStatusRepository;
-    @MockitoSpyBean
+    @SpyBean
     private EhrExtractStatusService ehrExtractStatusService;
-    @MockitoSpyBean
+    @SpyBean
     private TaskExecutorFactory taskExecutorFactory;
-    @MockitoBean
+    @MockBean
     private TaskDispatcher taskDispatcher;
     @Mock
     private Message message;

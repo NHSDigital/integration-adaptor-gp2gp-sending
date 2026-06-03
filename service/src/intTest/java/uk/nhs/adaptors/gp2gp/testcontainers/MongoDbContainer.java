@@ -13,6 +13,12 @@ public final class MongoDbContainer extends GenericContainer<MongoDbContainer> {
     private MongoDbContainer() {
         super(DEFAULT_IMAGE_AND_TAG);
         addExposedPort(MONGODB_PORT);
+        // withReuse(true) keeps the container alive after the JVM exits so the next
+        // test run can reconnect to it instead of starting a new one (~15 s saving).
+        // Reuse is only activated when testcontainers.reuse.enable=true in
+        // ~/.testcontainers.properties (see .testcontainers.properties.template).
+        // In CI that property is absent so containers always start fresh.
+        withReuse(true);
     }
 
     public static MongoDbContainer getInstance() {
