@@ -40,6 +40,7 @@ import uk.nhs.adaptors.gp2gp.ehr.mapper.ObservationStatementMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.ObservationToNarrativeStatementMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.OutputMessageWrapperMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.ParticipantMapper;
+import uk.nhs.adaptors.gp2gp.ehr.mapper.PertinentInformationAllergyMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.PertinentInformationObservationValueMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.RequestStatementMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.StructuredObservationValueMapper;
@@ -177,7 +178,8 @@ class EhrExtractUATTest {
 
         return new EncounterComponentsMapper(
             messageContext,
-            new AllergyStructureMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService),
+            new AllergyStructureMapper(messageContext, codeableConceptCdMapper, participantMapper, confidentialityService,
+                new PertinentInformationAllergyMapper(messageContext)),
             new BloodPressureMapper(
                 messageContext, randomIdGeneratorService, new StructuredObservationValueMapper(),
                 codeableConceptCdMapper, new ParticipantMapper(), confidentialityService),
