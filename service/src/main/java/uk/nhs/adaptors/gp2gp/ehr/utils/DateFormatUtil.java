@@ -18,7 +18,6 @@ import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 public class DateFormatUtil {
     private static final int MONTH_PADDING = 1;
     private static final ZoneId UK_ZONE_ID = ZoneId.of("Europe/London");
-    private static final ZoneId UTC_ZONE_ID = ZoneId.of("UTC");
     private static final String COULD_NOT_FORMAT_DATE = "Could not format date";
     private static final String HL7_DATETIME_FORMAT = "yyyyMMddHHmmss";
     private static final String HL7_DATE_FORMAT = "yyyyMMdd";
@@ -79,7 +78,7 @@ public class DateFormatUtil {
     }
 
     public static String toTextFormatStraight(Date date) {
-        return date.toInstant().atZone(UTC_ZONE_ID).format(HL7_WITH_TIME_HUMAN_READABLE);
+        return date.toInstant().atZone(UK_ZONE_ID).format(HL7_WITH_TIME_HUMAN_READABLE);
     }
 
     public static DateTimeType toDateTypeTime(String effectiveTimeHl7Format) {

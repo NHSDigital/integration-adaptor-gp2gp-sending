@@ -190,6 +190,29 @@ class SpecimenMapperTest {
         );
     }
 
+    @Test
+    void When_MappingSpecimenWithReceivedTimeInBST_Expect_TimestampShowsUKTime() {
+        final Specimen specimen = getSpecimenResourceFromJson("input-specimen-with-bst-received-time.json");
+        final String expectedXml = ResourceTestFileUtils.getFileContent(
+                SPECIMEN_TEST_FILES_DIRECTORY + "expected-specimen-with-bst-received-time.xml"
+        );
+
+        when(messageContext.getInputBundleHolder()).thenReturn(new InputBundle(
+                new FhirParseService().parseResource(
+                        ResourceTestFileUtils.getFileContent(FHIR_INPUT_BUNDLE), Bundle.class
+                )
+        ));
+        when(idMapper.getOrNew(any(ResourceType.class), any(IdType.class))).thenAnswer(mockId());
+        when(observationMapper.mapObservationToCompoundStatement(any(Observation.class)))
+                .thenAnswer(mockObservationMapping());
+
+        final String actualXml = specimenMapper.mapSpecimenToCompoundStatement(
+                specimen, observations, DIAGNOSTIC_REPORT
+        );
+
+        assertThat(actualXml).isEqualTo(expectedXml);
+    }
+
     private Specimen getDefaultSpecimen() {
         return getSpecimenResourceFromJson("input_default_specimen.json");
     }
