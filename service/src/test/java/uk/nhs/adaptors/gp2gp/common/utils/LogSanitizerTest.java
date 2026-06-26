@@ -6,6 +6,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class LogSanitizerTest {
 
+    public static final int COUNT_2000 = 2000;
+    public static final int EXPECTED_1700 = 1700;
+
     @Test
     void shouldRedactPemBlocks() {
         var value = "payload -----BEGIN PRIVATE KEY-----abc123-----END PRIVATE KEY----- payload";
@@ -18,10 +21,10 @@ class LogSanitizerTest {
 
     @Test
     void shouldTruncateLongValues() {
-        var value = "a".repeat(2000);
+        var value = "a".repeat(COUNT_2000);
 
         assertThat(LogSanitizer.sanitize(value))
             .contains("truncated")
-            .hasSizeLessThan(1700);
+            .hasSizeLessThan(EXPECTED_1700);
     }
 }
