@@ -58,6 +58,12 @@ class LogSanitizerTest {
         assertThat(LogSanitizer.summarizeLocation("s3://bucket/path/to/truststore.p12"))
             .isEqualTo("truststore.p12");
 
+        assertThat(LogSanitizer.summarizeLocation("/truststore.p12"))
+            .isEqualTo("truststore.p12");
+
+        assertThat(LogSanitizer.summarizeLocation("?version=1"))
+            .isEqualTo("");
+
         assertThat(LogSanitizer.summarizeLocation("C:\\config\\certs\\client-key.pem"))
             .isEqualTo("client-key.pem")
             .doesNotContain("\\");
