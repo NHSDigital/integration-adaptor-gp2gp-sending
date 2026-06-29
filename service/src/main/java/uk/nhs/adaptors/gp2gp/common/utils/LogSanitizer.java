@@ -38,10 +38,7 @@ public final class LogSanitizer {
             normalized = normalized.substring(0, queryIndex);
         }
 
-        int lastSlash = normalized.lastIndexOf('/');
-        if (lastSlash == -1) {
-            return normalized;
-        }
-        return normalized.substring(lastSlash + 1);
+        String withoutTrailingSlashes = normalized.replaceAll("/+$", "");
+        return withoutTrailingSlashes.substring(withoutTrailingSlashes.lastIndexOf('/') + 1);
     }
 }

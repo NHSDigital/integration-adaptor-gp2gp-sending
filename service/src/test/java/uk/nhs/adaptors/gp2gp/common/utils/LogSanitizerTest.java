@@ -73,6 +73,12 @@ class LogSanitizerTest {
     }
 
     @Test
+    void shouldSummarizeWindowsStyleLocationToFileName2() {
+        assertThat(LogSanitizer.summarizeLocation("s3://bucket/path/to/truststore.p12"))
+                .isEqualTo("truststore.p12");
+    }
+
+    @Test
     void shouldReturnOriginalValueForBlankOrSimpleLocation() {
         assertEquals("", LogSanitizer.summarizeLocation(""));
         assertEquals(" ", LogSanitizer.summarizeLocation(" "));
@@ -81,4 +87,5 @@ class LogSanitizerTest {
 
         assertEquals("truststore.p12", LogSanitizer.summarizeLocation("truststore.p12"));
     }
+
 }
