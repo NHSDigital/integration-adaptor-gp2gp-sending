@@ -38,7 +38,6 @@ public final class LogSanitizer {
             normalized = normalized.substring(0, queryIndex);
         }
 
-        String withoutTrailingSlashes = normalized.replaceAll("/+$", "");
-        return withoutTrailingSlashes.substring(withoutTrailingSlashes.lastIndexOf('/') + 1);
+        return normalized.substring(normalized.lastIndexOf('/') + 1);
     }
 }
