@@ -39,6 +39,9 @@ public final class LogSanitizer {
         }
 
         int lastSlash = normalized.lastIndexOf('/');
-        return lastSlash >= 0 ? normalized.substring(lastSlash + 1) : normalized;
+        if (lastSlash == -1) {
+            return normalized;
+        }
+        return normalized.substring(lastSlash + 1);
     }
 }
