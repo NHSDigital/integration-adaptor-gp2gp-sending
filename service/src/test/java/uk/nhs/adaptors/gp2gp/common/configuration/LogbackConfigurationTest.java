@@ -63,7 +63,7 @@ class LogbackConfigurationTest {
         gp2gpLogger.setLevel(Level.INFO);
 
         MDC.put("ConversationId", "test-conv-123");
-        MDC.put("CorrelationId", "test-conv-123");
+        MDC.put("CorrelationId", "test-cor-123");
         MDC.put("TaskId", "test-task-456");
 
         gp2gpLogger.info("Test message with MDC");
@@ -78,8 +78,8 @@ class LogbackConfigurationTest {
 
         ILoggingEvent event = listAppender.list.getFirst();
         assertThat(event.getMDCPropertyMap())
-            .containsEntry("CorrelationId", "test-conv-123")
             .containsEntry("ConversationId", "test-conv-123")
+            .containsEntry("CorrelationId", "test-cor-123")
             .containsEntry("TaskId", "test-task-456");
 
         MDC.clear();
