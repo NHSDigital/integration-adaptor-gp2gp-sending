@@ -1,7 +1,7 @@
 package uk.nhs.adaptors.gp2gp.common.utils;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -9,9 +9,14 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class LogSanitizerTest {
 
     public static final int COUNT_2000 = 2000;
-    public static final int MAX_LENGTH_1500 = 1500;
-    public static final int COUNT_1501 = 1501;
-    public static final int EXPECTED_1700 = 1700;
+    public static final int COUNT_2001 = 2001;
+    public static final int COUNT_3000 = 3000;
+    public static final int MAX_LENGTH_2000 = 2000;
+
+    @BeforeEach
+    void setUp() {
+        LogSanitizer.setMaxLogLength(MAX_LENGTH_2000);
+    }
 
     @Test
     void shouldRedactPemBlocks() {
@@ -30,26 +35,28 @@ class LogSanitizerTest {
 
     @Test
     void shouldTruncateLongValues() {
-        var value = "a".repeat(COUNT_2000);
+        var value = "b".repeat(COUNT_3000);
+
+        int charLimit = COUNT_2000 + "... [truncated 2000 chars]".length() + 1;
 
         assertThat(LogSanitizer.sanitize(value))
             .contains("truncated")
-            .hasSizeLessThan(EXPECTED_1700);
+            .hasSizeLessThan(charLimit);
     }
 
     @Test
     void shouldNotTruncateValuesAtBoundaryLength() {
-        var value = "a".repeat(MAX_LENGTH_1500);
+        var value = "a".repeat(COUNT_2000);
 
         assertEquals(value, LogSanitizer.sanitize(value));
     }
 
     @Test
     void shouldTruncateValuesAboveBoundaryLength() {
-        var value = "a".repeat(COUNT_1501);
+        var value = "a".repeat(COUNT_2001);
 
         assertThat(LogSanitizer.sanitize(value))
-            .startsWith("a".repeat(MAX_LENGTH_1500))
+            .startsWith("a".repeat(COUNT_2000))
             .contains("truncated");
     }
 

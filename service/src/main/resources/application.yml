@@ -64,3 +64,7 @@ gp2gp:
 timeout:
   cronTime: ${TIMEOUT_CRON_TIME:0 0 */12 * * *}
 
+logging:
+  sanitizer:
+    max-message-length: 2000
+

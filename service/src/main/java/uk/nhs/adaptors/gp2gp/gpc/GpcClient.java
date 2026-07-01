@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import uk.nhs.adaptors.gp2gp.common.task.TaskDefinition;
+import uk.nhs.adaptors.gp2gp.common.utils.LogSanitizer;
 import uk.nhs.adaptors.gp2gp.gpc.builder.GpcRequestBuilder;
 import uk.nhs.adaptors.gp2gp.gpc.configuration.GpcConfiguration;
 
@@ -31,7 +32,7 @@ public class GpcClient {
 
         if (LOGGER.isDebugEnabled()) {
             var responseBody = performRequest(request);
-            LOGGER.debug("Get StructuredRecord full response body: {}", responseBody);
+            LOGGER.debug("Get StructuredRecord response body: {}", LogSanitizer.sanitize(responseBody));
             return responseBody;
         }
         return performRequest(request);
@@ -45,7 +46,7 @@ public class GpcClient {
 
         if (LOGGER.isDebugEnabled()) {
             var responseBody = performRequest(request);
-            LOGGER.debug("Get Document full response body: {}", responseBody);
+            LOGGER.debug("Get Document response body: {}", LogSanitizer.sanitize(responseBody));
             return responseBody;
         }
         return performRequest(request);
@@ -67,4 +68,3 @@ public class GpcClient {
         return gpcConfiguration.getUrl().replace(ODS_CODE_PLACEHOLDER, taskDefinition.getToOdsCode());
     }
 }
-
