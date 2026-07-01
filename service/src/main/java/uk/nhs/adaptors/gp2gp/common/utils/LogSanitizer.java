@@ -1,15 +1,22 @@
 package uk.nhs.adaptors.gp2gp.common.utils;
 
 import java.util.regex.Pattern;
+import org.springframework.beans.factory.annotation.Value;
 
 public final class LogSanitizer {
-    private static final int MAX_LOG_LENGTH = 1500;
+
+    private static int maxLogLength;
     private static final Pattern PEM_BLOCK_PATTERN = Pattern.compile("-----BEGIN [^-]+-----.*?-----END [^-]+-----", Pattern.DOTALL);
     private static final Pattern SENSITIVE_KEY_VALUE_PATTERN = Pattern.compile(
         "(?i)((?:authorization|password|secret|token|clientkey|clientcert|rootca|subca)\\s*[:=]\\s*)(\"[^\"]*\"|[^\\s,;>]+)"
     );
 
     private LogSanitizer() {
+    }
+
+    @Value("${logging.sanitizer.max-message-length}")
+    public static void setMaxLogLength(int maxLength) {
+        maxLogLength = maxLength;
     }
 
     public static String sanitize(String value) {
@@ -20,11 +27,11 @@ public final class LogSanitizer {
         String sanitized = PEM_BLOCK_PATTERN.matcher(value).replaceAll("[REDACTED_PEM]");
         sanitized = SENSITIVE_KEY_VALUE_PATTERN.matcher(sanitized).replaceAll("$1[REDACTED]");
 
-        if (sanitized.length() <= MAX_LOG_LENGTH) {
+        if (sanitized.length() <= maxLogLength) {
             return sanitized;
         }
 
-        return sanitized.substring(0, MAX_LOG_LENGTH) + "... [truncated " + sanitized.length() + " chars]";
+        return sanitized.substring(0, maxLogLength) + "... [truncated " + sanitized.length() + " chars]";
     }
 
     public static String summarizeLocation(String value) {
