@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import uk.nhs.adaptors.gp2gp.ehr.status.model.EhrStatus;
 import uk.nhs.adaptors.gp2gp.ehr.status.service.EhrStatusService;
 
 @RestController
+@Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 @RequestMapping(path = "/ehr-status")
 public class EhrStatusController {
@@ -22,9 +24,21 @@ public class EhrStatusController {
 
     @GetMapping("/{conversationId}")
     public ResponseEntity<EhrStatus> getEhrStatus(@PathVariable String conversationId) {
-        Optional<EhrStatus> ehrStatusOptional = ehrStatusService.getEhrStatus(conversationId);
+        LOGGER.info("Received request to get EHR status: conversationId={}", conversationId);
+        try {
+            Optional<EhrStatus> ehrStatusOptional = ehrStatusService.getEhrStatus(conversationId);
 
-        return ehrStatusOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
+            if (ehrStatusOptional.isPresent()) {
+                LOGGER.info("EHR status found: conversationId={}", conversationId);
+                return ResponseEntity.ok(ehrStatusOptional.get());
+            } else {
+                LOGGER.warn("EHR status not found: conversationId={}", conversationId);
+                return ResponseEntity.noContent().build();
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error retrieving EHR status: conversationId={}", conversationId, e);
+            throw e;
+        }
     }
 
 }
