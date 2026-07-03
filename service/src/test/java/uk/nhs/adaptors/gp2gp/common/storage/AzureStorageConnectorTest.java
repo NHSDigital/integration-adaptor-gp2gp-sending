@@ -1,5 +1,6 @@
 package uk.nhs.adaptors.gp2gp.common.storage;
 
+import com.azure.storage.blob.specialized.BlobInputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,9 +18,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class AzureStorageConnectorTest {
@@ -78,6 +80,17 @@ class AzureStorageConnectorTest {
 
         assertEquals("Error occurred downloading from Azure Storage", exception.getMessage());
 
+    }
+
+    @Test
+    void When_DownloadSucceeds_Expect_ReturnsNonNullInputStream() {
+
+        BlobInputStream blobInputStream = mock(BlobInputStream.class);
+        when(blobClient.openInputStream()).thenReturn(blobInputStream);
+
+        InputStream resultStream = azureStorageConnector.downloadFromStorage(FILENAME);
+
+        assertEquals(blobInputStream, resultStream, "downloadFromStorage must return the InputStream, not null");
     }
 }
 
