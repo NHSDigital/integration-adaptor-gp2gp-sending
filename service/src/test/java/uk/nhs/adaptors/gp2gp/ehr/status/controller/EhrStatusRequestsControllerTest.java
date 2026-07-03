@@ -77,6 +77,17 @@ class EhrStatusRequestsControllerTest {
     }
 
     @Test
+    void When_EhrRequestsNotFoundFormEncoded_Expect_NoContentResponse() {
+        EhrStatusRequestQuery query = new EhrStatusRequestQuery();
+        when(ehrRequestsService.getEhrStatusRequests(query)).thenReturn(Optional.empty());
+
+        ResponseEntity<List<EhrStatusRequest>> response = controller.getEhrRequestsEncodedForm(query);
+
+        assertEquals(SUCCESS_NO_CONTENT_204, response.getStatusCode().value());
+        verify(ehrRequestsService).getEhrStatusRequests(query);
+    }
+
+    @Test
     void When_ServiceThrowsException_Expect_ExceptionPropagated() {
         EhrStatusRequestQuery query = new EhrStatusRequestQuery();
         when(ehrRequestsService.getEhrStatusRequests(query)).thenThrow(new RuntimeException("Service error"));
