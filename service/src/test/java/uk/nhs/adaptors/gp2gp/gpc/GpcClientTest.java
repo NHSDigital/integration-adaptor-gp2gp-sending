@@ -36,8 +36,18 @@ class GpcClientTest {
     private static final String TO_ASID = "to-asid-123";
     private static final String FROM_ASID = "from-asid-456";
     private static final String GPC_URL_TEMPLATE = "https://gpc.example.com/@ODS_CODE@/fhir";
+    private static final String GPC_BASE_URL = "https://gpc.example.com/B82051/fhir";
+    private static final String STRUCTURED_REQUEST_LOG =
+        "Gpc Access Structured Request, toASID: " + TO_ASID
+            + ", fromASID: " + FROM_ASID
+            + ", Gpc Url: https://gpc.example.com/@ODS_CODE@/fhir/Appointment";
+    private static final String DOCUMENT_REQUEST_LOG =
+        "Gpc Access Document Request, toASID: " + TO_ASID
+            + ", fromASID: " + FROM_ASID
+            + ", Gpc Url: " + GPC_BASE_URL;
     private static final String STRUCTURED_RESPONSE = "{\"resourceType\": \"Bundle\"}";
     private static final String DOCUMENT_RESPONSE = "{\"resourceType\": \"Binary\"}";
+    public static final long MAX_DURATION_MS = 1_000L;
 
     @Mock
     private GpcConfiguration gpcConfiguration;
@@ -86,10 +96,12 @@ class GpcClientTest {
 
         assertEquals(STRUCTURED_RESPONSE, result);
         assertContains(Level.INFO, "Getting structured record for conversation " + CONVERSATION_ID);
+        assertContains(Level.DEBUG, STRUCTURED_REQUEST_LOG);
         assertContains(Level.DEBUG, "Built GPC base URL for ODS code: " + ODS_CODE);
         assertContains(Level.DEBUG, "Executing GPC HTTP request");
         assertContains(Level.DEBUG, "Get StructuredRecord response body:");
         assertContains(Level.DEBUG, "Structured record retrieved, duration:");
+        assertDurationWithin(Level.DEBUG, "Structured record retrieved, duration:", MAX_DURATION_MS);
     }
 
     @Test
@@ -127,10 +139,12 @@ class GpcClientTest {
 
         assertEquals(DOCUMENT_RESPONSE, result);
         assertContains(Level.INFO, "Getting document record for conversation " + CONVERSATION_ID);
+        assertContains(Level.DEBUG, DOCUMENT_REQUEST_LOG);
         assertContains(Level.DEBUG, "Built GPC base URL for ODS code: " + ODS_CODE);
         assertContains(Level.DEBUG, "Executing GPC HTTP request");
         assertContains(Level.DEBUG, "Get Document response body:");
         assertContains(Level.DEBUG, "Document record retrieved, duration:");
+        assertDurationWithin(Level.DEBUG, "Document record retrieved, duration:", MAX_DURATION_MS);
     }
 
     @Test
@@ -222,6 +236,26 @@ class GpcClientTest {
     private void assertContains(Level level, String expectedMessagePart) {
         Assertions.assertThat(messages(level))
             .anyMatch(message -> message.contains(expectedMessagePart));
+    }
+
+    private void assertDurationWithin(Level level, String expectedMessagePart, long maxDurationMs) {
+        String matchingMessage = messages(level).stream()
+            .filter(message -> message.contains(expectedMessagePart))
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("Missing log containing: " + expectedMessagePart));
+
+        long durationMs = extractDurationMillis(matchingMessage, expectedMessagePart);
+        Assertions.assertThat(durationMs)
+            .as("duration log should stay within expected bounds")
+            .isBetween(0L, maxDurationMs);
+    }
+
+    private long extractDurationMillis(String message, String expectedMessagePart) {
+        int startIndex = message.indexOf(expectedMessagePart);
+        int durationStartIndex = message.indexOf(':', startIndex) + 1;
+        int durationEndIndex = message.indexOf("ms", durationStartIndex);
+        String durationText = message.substring(durationStartIndex, durationEndIndex).trim();
+        return Long.parseLong(durationText);
     }
 
     private List<String> messages(Level level) {
