@@ -100,7 +100,9 @@ class GpcClientTest {
         assertContains(Level.DEBUG, "Built GPC base URL for ODS code: " + ODS_CODE);
         assertContains(Level.DEBUG, "Executing GPC HTTP request");
         assertContains(Level.DEBUG, "Get StructuredRecord response body:");
+        assertContains(Level.DEBUG, "GPC HTTP request completed, duration:");
         assertContains(Level.DEBUG, "Structured record retrieved, duration:");
+        assertDurationWithin(Level.DEBUG, "GPC HTTP request completed, duration:", MAX_DURATION_MS);
         assertDurationWithin(Level.DEBUG, "Structured record retrieved, duration:", MAX_DURATION_MS);
         assertResponseSize(Level.DEBUG, "Structured record retrieved, duration:", STRUCTURED_RESPONSE.length());
         assertDoesNotContain(Level.INFO, "Structured record retrieved successfully for conversation " + CONVERSATION_ID);
@@ -124,6 +126,7 @@ class GpcClientTest {
 
         assertEquals(STRUCTURED_RESPONSE, result);
         assertContains(Level.INFO, "Structured record retrieved successfully for conversation " + CONVERSATION_ID);
+        assertDurationWithin(Level.INFO, "Structured record retrieved successfully for conversation " + CONVERSATION_ID, MAX_DURATION_MS);
         assertDoesNotContain(Level.DEBUG, "Get StructuredRecord response body:");
         assertDoesNotContain(Level.DEBUG, "Structured record retrieved, duration:");
     }
@@ -166,9 +169,29 @@ class GpcClientTest {
         assertContains(Level.DEBUG, "Built GPC base URL for ODS code: " + ODS_CODE);
         assertContains(Level.DEBUG, "Executing GPC HTTP request");
         assertContains(Level.DEBUG, "Get Document response body:");
+        assertContains(Level.DEBUG, "GPC HTTP request completed, duration:");
         assertContains(Level.DEBUG, "Document record retrieved, duration:");
+        assertDurationWithin(Level.DEBUG, "GPC HTTP request completed, duration:", MAX_DURATION_MS);
         assertDurationWithin(Level.DEBUG, "Document record retrieved, duration:", MAX_DURATION_MS);
         assertResponseSize(Level.DEBUG, "Document record retrieved, duration:", DOCUMENT_RESPONSE.length());
+        assertDoesNotContain(Level.INFO, "Document record retrieved successfully for conversation " + CONVERSATION_ID);
+    }
+
+    @Test
+    void When_GetDocumentRecordReturnsNull_WithDebugLogging_Expect_ResponseSizeZero() {
+        GetGpcDocumentTaskDefinition documentTaskDefinition = createDocumentTaskDefinition();
+        WebClient.RequestHeadersSpec<?> mockRequest = mock(WebClient.RequestHeadersSpec.class);
+
+        when(gpcConfiguration.getUrl()).thenReturn(GPC_URL_TEMPLATE);
+        doReturn(mockRequest).when(gpcRequestBuilder).buildGetDocumentRecordRequest(
+            any(GetGpcDocumentTaskDefinition.class), any(String.class));
+        mockRequestResponse(mockRequest, null);
+
+        String result = gpcClient.getDocumentRecord(documentTaskDefinition);
+
+        assertEquals(null, result);
+        assertContains(Level.DEBUG, "Get Document response body: null");
+        assertResponseSize(Level.DEBUG, "Document record retrieved, duration:", 0);
         assertDoesNotContain(Level.INFO, "Document record retrieved successfully for conversation " + CONVERSATION_ID);
     }
 
@@ -188,6 +211,7 @@ class GpcClientTest {
 
         assertEquals(DOCUMENT_RESPONSE, result);
         assertContains(Level.INFO, "Document record retrieved successfully for conversation " + CONVERSATION_ID);
+        assertDurationWithin(Level.INFO, "Document record retrieved successfully for conversation " + CONVERSATION_ID, MAX_DURATION_MS);
         assertDoesNotContain(Level.DEBUG, "Get Document response body:");
         assertDoesNotContain(Level.DEBUG, "Document record retrieved, duration:");
     }
