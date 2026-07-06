@@ -102,6 +102,8 @@ class GpcClientTest {
         assertContains(Level.DEBUG, "Get StructuredRecord response body:");
         assertContains(Level.DEBUG, "Structured record retrieved, duration:");
         assertDurationWithin(Level.DEBUG, "Structured record retrieved, duration:", MAX_DURATION_MS);
+        assertResponseSize(Level.DEBUG, "Structured record retrieved, duration:", STRUCTURED_RESPONSE.length());
+        assertDoesNotContain(Level.INFO, "Structured record retrieved successfully for conversation " + CONVERSATION_ID);
     }
 
     @Test
@@ -122,6 +124,27 @@ class GpcClientTest {
 
         assertEquals(STRUCTURED_RESPONSE, result);
         assertContains(Level.INFO, "Structured record retrieved successfully for conversation " + CONVERSATION_ID);
+        assertDoesNotContain(Level.DEBUG, "Get StructuredRecord response body:");
+        assertDoesNotContain(Level.DEBUG, "Structured record retrieved, duration:");
+    }
+
+    @Test
+    void When_GetStructuredRecordReturnsNull_WithDebugLogging_Expect_ResponseSizeZero() {
+        GetGpcStructuredTaskDefinition structuredTaskDefinition = createStructuredTaskDefinition();
+        WebClient.RequestHeadersSpec<?> mockRequest = mock(WebClient.RequestHeadersSpec.class);
+
+        when(gpcConfiguration.getUrl()).thenReturn(GPC_URL_TEMPLATE);
+        when(gpcConfiguration.getMigrateStructuredEndpoint()).thenReturn("/Appointment");
+        when(gpcRequestBuilder.buildGetStructuredRecordRequestBody(structuredTaskDefinition)).thenReturn(null);
+        doReturn(mockRequest).when(gpcRequestBuilder).buildGetStructuredRecordRequest(
+            any(), any(GetGpcStructuredTaskDefinition.class), any(String.class));
+        mockRequestResponse(mockRequest, null);
+
+        String result = gpcClient.getStructuredRecord(structuredTaskDefinition);
+
+        assertEquals(null, result);
+        assertContains(Level.DEBUG, "Get StructuredRecord response body: null");
+        assertResponseSize(Level.DEBUG, "Structured record retrieved, duration:", 0);
     }
 
     @Test
@@ -145,6 +168,8 @@ class GpcClientTest {
         assertContains(Level.DEBUG, "Get Document response body:");
         assertContains(Level.DEBUG, "Document record retrieved, duration:");
         assertDurationWithin(Level.DEBUG, "Document record retrieved, duration:", MAX_DURATION_MS);
+        assertResponseSize(Level.DEBUG, "Document record retrieved, duration:", DOCUMENT_RESPONSE.length());
+        assertDoesNotContain(Level.INFO, "Document record retrieved successfully for conversation " + CONVERSATION_ID);
     }
 
     @Test
@@ -163,6 +188,8 @@ class GpcClientTest {
 
         assertEquals(DOCUMENT_RESPONSE, result);
         assertContains(Level.INFO, "Document record retrieved successfully for conversation " + CONVERSATION_ID);
+        assertDoesNotContain(Level.DEBUG, "Get Document response body:");
+        assertDoesNotContain(Level.DEBUG, "Document record retrieved, duration:");
     }
 
     @Test
@@ -224,7 +251,11 @@ class GpcClientTest {
     private void mockRequestResponse(WebClient.RequestHeadersSpec<?> mockRequest, String responseBody) {
         WebClient.ResponseSpec mockResponseSpec = mock(WebClient.ResponseSpec.class);
         when(mockRequest.retrieve()).thenReturn(mockResponseSpec);
-        when(mockResponseSpec.bodyToMono(String.class)).thenReturn(Mono.just(responseBody));
+        if (responseBody == null) {
+            when(mockResponseSpec.bodyToMono(String.class)).thenReturn(Mono.empty());
+        } else {
+            when(mockResponseSpec.bodyToMono(String.class)).thenReturn(Mono.just(responseBody));
+        }
     }
 
     private void mockRequestFailure(WebClient.RequestHeadersSpec<?> mockRequest) {
@@ -236,6 +267,11 @@ class GpcClientTest {
     private void assertContains(Level level, String expectedMessagePart) {
         Assertions.assertThat(messages(level))
             .anyMatch(message -> message.contains(expectedMessagePart));
+    }
+
+    private void assertDoesNotContain(Level level, String expectedMessagePart) {
+        Assertions.assertThat(messages(level))
+            .noneMatch(message -> message.contains(expectedMessagePart));
     }
 
     private void assertDurationWithin(Level level, String expectedMessagePart, long maxDurationMs) {
@@ -250,12 +286,31 @@ class GpcClientTest {
             .isBetween(0L, maxDurationMs);
     }
 
+    private void assertResponseSize(Level level, String expectedMessagePart, int expectedSize) {
+        String matchingMessage = messages(level).stream()
+            .filter(message -> message.contains(expectedMessagePart))
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("Missing log containing: " + expectedMessagePart));
+
+        int size = extractResponseSize(matchingMessage);
+        Assertions.assertThat(size)
+            .as("response size log should match expected size")
+            .isEqualTo(expectedSize);
+    }
+
     private long extractDurationMillis(String message, String expectedMessagePart) {
         int startIndex = message.indexOf(expectedMessagePart);
         int durationStartIndex = message.indexOf(':', startIndex) + 1;
         int durationEndIndex = message.indexOf("ms", durationStartIndex);
         String durationText = message.substring(durationStartIndex, durationEndIndex).trim();
         return Long.parseLong(durationText);
+    }
+
+    private int extractResponseSize(String message) {
+        int sizeStartIndex = message.indexOf("response size:") + "response size:".length();
+        int sizeEndIndex = message.indexOf("bytes", sizeStartIndex);
+        String sizeText = message.substring(sizeStartIndex, sizeEndIndex).trim();
+        return Integer.parseInt(sizeText);
     }
 
     private List<String> messages(Level level) {
