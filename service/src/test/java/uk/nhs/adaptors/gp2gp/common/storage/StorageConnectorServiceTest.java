@@ -2,7 +2,6 @@ package uk.nhs.adaptors.gp2gp.common.storage;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
