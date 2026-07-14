@@ -30,27 +30,34 @@ public class GpcTokenBuilder {
     private final TimestampService timestampService;
 
     public String buildToken(String odsFromCode) {
-        var creationTime = timestampService.now().getEpochSecond();
-        var expiryTime = creationTime + EXPIRY_TIME_ADDITION;
+        LOGGER.debug("Building GPC bearer token for source ODS code {}", odsFromCode);
+        try {
+            var creationTime = timestampService.now().getEpochSecond();
+            var expiryTime = creationTime + EXPIRY_TIME_ADDITION;
 
-        var jwtData = JwtPayloadData.builder()
-            .targetURI(gpcConfiguration.getUrl())
-            .jwtCreationTime(creationTime)
-            .jwtExpiryTime(expiryTime)
-            .jwtRequestingOrganizationODSCode(odsFromCode)
-            .jwtRequestingPractitionerSDSUserId(gpcConfiguration.getRequestingPractitionerSDSUserId())
-            .jwtRequestingPractitionerSDSRoleProfileId(gpcConfiguration.getRequestingPractitionerSDSRoleProfileId())
-            .jwtRequestingPractitionerFamilyName(gpcConfiguration.getRequestingPractitionerFamilyName())
-            .jwtRequestingPractitionerGivenName(gpcConfiguration.getRequestingPractitionerGivenName())
-            .build();
+            var jwtData = JwtPayloadData.builder()
+                .targetURI(gpcConfiguration.getUrl())
+                .jwtCreationTime(creationTime)
+                .jwtExpiryTime(expiryTime)
+                .jwtRequestingOrganizationODSCode(odsFromCode)
+                .jwtRequestingPractitionerSDSUserId(gpcConfiguration.getRequestingPractitionerSDSUserId())
+                .jwtRequestingPractitionerSDSRoleProfileId(gpcConfiguration.getRequestingPractitionerSDSRoleProfileId())
+                .jwtRequestingPractitionerFamilyName(gpcConfiguration.getRequestingPractitionerFamilyName())
+                .jwtRequestingPractitionerGivenName(gpcConfiguration.getRequestingPractitionerGivenName())
+                .build();
 
-        String jwtHeader = GpcTemplateUtils.fillTemplate(JWT_HEADER_TEMPLATE, new JwtHeaderData());
-        String jwtPayload = GpcTemplateUtils.fillTemplate(JWT_PAYLOAD_TEMPLATE, jwtData);
+            String jwtHeader = GpcTemplateUtils.fillTemplate(JWT_HEADER_TEMPLATE, new JwtHeaderData());
+            String jwtPayload = GpcTemplateUtils.fillTemplate(JWT_PAYLOAD_TEMPLATE, jwtData);
 
-        String encodedJwtHeader = encode(jwtHeader);
-        String encodedJwtPayload = encode(jwtPayload);
+            String encodedJwtHeader = encode(jwtHeader);
+            String encodedJwtPayload = encode(jwtPayload);
 
-        return String.format("%s.%s.", encodedJwtHeader, encodedJwtPayload);
+            LOGGER.debug("Built GPC bearer token payload for source ODS code {}", odsFromCode);
+            return String.format("%s.%s.", encodedJwtHeader, encodedJwtPayload);
+        } catch (RuntimeException e) {
+            LOGGER.error("Failed to build GPC bearer token for source ODS code {}", odsFromCode, e);
+            throw e;
+        }
     }
 
     private static String encode(String data) {
@@ -83,4 +90,3 @@ public class GpcTokenBuilder {
         private String jwtRequestingPractitionerGivenName;
     }
 }
-
