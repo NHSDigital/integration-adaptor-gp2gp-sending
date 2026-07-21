@@ -113,7 +113,11 @@ public class OrganizationToAgentMapper {
     }
 
     private static boolean checkIfWorkPhone(ContactPoint contactPoint) {
-        return  (contactPoint.getSystem().getDisplay().equalsIgnoreCase("phone")
-            && contactPoint.getUse().getDisplay().equalsIgnoreCase("work"));
+        return contactPoint != null
+            && contactPoint.hasSystem()
+            && "phone".equalsIgnoreCase(contactPoint.getSystem().getDisplay())
+            && contactPoint.hasUse()
+            && "work".equalsIgnoreCase(contactPoint.getUse().getDisplay());
     }
+
 }

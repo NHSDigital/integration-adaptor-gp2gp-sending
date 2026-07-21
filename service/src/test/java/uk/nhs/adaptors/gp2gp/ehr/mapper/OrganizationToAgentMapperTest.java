@@ -1,6 +1,11 @@
 package uk.nhs.adaptors.gp2gp.ehr.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import org.hl7.fhir.dstu3.model.ContactPoint;
 import org.hl7.fhir.dstu3.model.Organization;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,5 +36,26 @@ class OrganizationToAgentMapperTest {
         assertThat(outputMessage)
             .describedAs(TestArgumentsLoaderUtil.FAIL_MESSAGE, INPUT_ORGANIZATION_JSON, OUTPUT_ORGANIZATION_AS_AGENT_PERSON_JSON)
             .isEqualTo(expectedOutput);
+    }
+
+    @Test
+    void When_TelecomSystemDisplayIsNull_Expect_NoExceptionAndWorkPhoneMappedFromNextEntry() {
+        var organization = new Organization();
+        var telecomWithNullDisplay = mock(ContactPoint.class);
+        var systemWithNullDisplay = mock(ContactPoint.ContactPointSystem.class);
+
+        when(telecomWithNullDisplay.hasSystem()).thenReturn(true);
+        when(telecomWithNullDisplay.getSystem()).thenReturn(systemWithNullDisplay);
+        when(systemWithNullDisplay.getDisplay()).thenReturn(null);
+
+        organization.getTelecom().add(telecomWithNullDisplay);
+        organization.addTelecom(new ContactPoint()
+            .setSystem(ContactPoint.ContactPointSystem.PHONE)
+            .setUse(ContactPoint.ContactPointUse.WORK)
+            .setValue("07700900000"));
+
+        var outputMessage = assertDoesNotThrow(() -> OrganizationToAgentMapper.mapOrganizationToAgentInner(organization));
+
+        assertThat(outputMessage).contains("<telecom value=\"tel:07700900000\" use=\"WP\"/>");
     }
 }
