@@ -2,6 +2,7 @@ package uk.nhs.adaptors.gp2gp.ehr.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
+import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 import uk.nhs.adaptors.gp2gp.utils.TestArgumentsLoaderUtil;
 
@@ -36,6 +38,39 @@ class OrganizationToAgentMapperTest {
         assertThat(outputMessage)
             .describedAs(TestArgumentsLoaderUtil.FAIL_MESSAGE, INPUT_ORGANIZATION_JSON, OUTPUT_ORGANIZATION_AS_AGENT_PERSON_JSON)
             .isEqualTo(expectedOutput);
+    }
+
+    @Test
+    void When_MappingOrganizationInnerWithWorkPhone_Expect_TelecomMapped() {
+        var organization = new Organization();
+        organization.addTelecom(new ContactPoint()
+                .setSystem(ContactPoint.ContactPointSystem.PHONE)
+                .setUse(ContactPoint.ContactPointUse.WORK)
+                .setValue("0123456789"));
+
+        var outputMessage = OrganizationToAgentMapper.mapOrganizationToAgentInner(organization);
+
+        assertThat(outputMessage).contains("<telecom value=\"tel:0123456789\" use=\"WP\"/>");
+    }
+
+    @Test
+    void When_MappingOrganizationInnerWithTelecomWithoutSystem_Expect_EhrMapperExceptionThrown() {
+        var organization = new Organization();
+        organization.addTelecom(new ContactPoint().setValue("missing-system-phone"));
+
+        assertThrows(EhrMapperException.class, () -> OrganizationToAgentMapper.mapOrganizationToAgentInner(organization));
+    }
+
+    @Test
+    void When_MappingOrganizationInnerWithMultipleTelecomsAndFirstMissingSystem_Expect_EhrMapperExceptionThrown() {
+        var organization = new Organization();
+        organization.addTelecom(new ContactPoint().setValue("first-missing-system"));
+        organization.addTelecom(new ContactPoint()
+            .setSystem(ContactPoint.ContactPointSystem.PHONE)
+            .setUse(ContactPoint.ContactPointUse.WORK)
+            .setValue("0123456789"));
+
+        assertThrows(EhrMapperException.class, () -> OrganizationToAgentMapper.mapOrganizationToAgentInner(organization));
     }
 
     @Test
