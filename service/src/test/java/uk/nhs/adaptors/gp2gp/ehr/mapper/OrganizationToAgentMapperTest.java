@@ -93,4 +93,42 @@ class OrganizationToAgentMapperTest {
 
         assertThat(outputMessage).contains("<telecom value=\"tel:07700900000\" use=\"WP\"/>");
     }
+
+    @Test
+    void When_MappingOrganizationInnerWithNonPhoneSystem_Expect_NoTelecomMapped() {
+        var organization = new Organization();
+        organization.addTelecom(new ContactPoint()
+            .setSystem(ContactPoint.ContactPointSystem.EMAIL)
+            .setUse(ContactPoint.ContactPointUse.WORK)
+            .setValue("test@example.com"));
+
+        var outputMessage = OrganizationToAgentMapper.mapOrganizationToAgentInner(organization);
+
+        assertThat(outputMessage).doesNotContain("<telecom");
+    }
+
+    @Test
+    void When_MappingOrganizationInnerWithPhoneButNoUse_Expect_NoTelecomMapped() {
+        var organization = new Organization();
+        organization.addTelecom(new ContactPoint()
+            .setSystem(ContactPoint.ContactPointSystem.PHONE)
+            .setValue("0123456789"));
+
+        var outputMessage = OrganizationToAgentMapper.mapOrganizationToAgentInner(organization);
+
+        assertThat(outputMessage).doesNotContain("<telecom");
+    }
+
+    @Test
+    void When_MappingOrganizationInnerWithPhoneButNonWorkUse_Expect_NoTelecomMapped() {
+        var organization = new Organization();
+        organization.addTelecom(new ContactPoint()
+            .setSystem(ContactPoint.ContactPointSystem.PHONE)
+            .setUse(ContactPoint.ContactPointUse.HOME)
+            .setValue("0123456789"));
+
+        var outputMessage = OrganizationToAgentMapper.mapOrganizationToAgentInner(organization);
+
+        assertThat(outputMessage).doesNotContain("<telecom");
+    }
 }
