@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+### Fixed
+* OrganizationToAgentMapper.checkIfWorkPhone now safely handles missing contactPoint system field by throwing EhrMapperException instead of causing NullPointerException.
+
 * Improved log granularity: Enhanced detail in existing logs, capturing more contextual information 
 for easier debugging and error analysis.
 
