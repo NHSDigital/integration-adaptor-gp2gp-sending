@@ -3,6 +3,7 @@ package uk.nhs.adaptors.gp2gp.ehr.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -130,5 +131,18 @@ class OrganizationToAgentMapperTest {
         var outputMessage = OrganizationToAgentMapper.mapOrganizationToAgentInner(organization);
 
         assertThat(outputMessage).doesNotContain("<telecom");
+    }
+
+    @Test
+    void When_MappingOrganizationInnerWithTelecomWithoutSystemAndUse_Expect_ExceptionWithCorrectMessage() {
+        var organization = new Organization();
+        organization.addTelecom(new ContactPoint()
+            .setUse(ContactPoint.ContactPointUse.WORK)
+            .setValue("test-value"));
+
+        EhrMapperException exception = assertThrows(EhrMapperException.class,
+                () -> OrganizationToAgentMapper.mapOrganizationToAgentInner(organization));
+
+        assertEquals("ContactPoint has no system specified", exception.getMessage());
     }
 }
