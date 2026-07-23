@@ -3,6 +3,7 @@ package uk.nhs.adaptors.gp2gp.gpc;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.tika.mime.MimeTypes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import uk.nhs.adaptors.gp2gp.mhs.model.OutboundMessage;
 import java.util.Collections;
 
 @Component
+@Slf4j
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 public class DocumentToMHSTranslator {
 
@@ -25,10 +27,14 @@ public class DocumentToMHSTranslator {
     public String translateGpcResponseToMhsOutboundRequestData(
         DocumentTaskDefinition taskDefinition, String base64Content, String contentType
     ) {
+        LOGGER.info("Translating GPC response to MHS outbound payload for conversation {} and document {}",
+            taskDefinition.getConversationId(), taskDefinition.getDocumentId());
         return createOutboundMessage(taskDefinition, base64Content, contentType);
     }
 
     public String translateFileContentToMhsOutboundRequestData(DocumentTaskDefinition taskDefinition, String base64Content) {
+        LOGGER.info("Translating file content to MHS outbound payload for conversation {} and document {}",
+            taskDefinition.getConversationId(), taskDefinition.getDocumentId());
         return createOutboundMessage(taskDefinition, base64Content, MediaType.TEXT_PLAIN_VALUE);
     }
 
@@ -46,6 +52,8 @@ public class DocumentToMHSTranslator {
                 )
             );
         } catch (JsonProcessingException e) {
+            LOGGER.error("Unable to create outbound MHS message for conversation {} and document {}",
+                taskDefinition.getConversationId(), taskDefinition.getDocumentId(), e);
             throw new IllegalArgumentException(e);
         }
     }

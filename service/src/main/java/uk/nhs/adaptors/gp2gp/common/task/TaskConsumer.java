@@ -27,6 +27,7 @@ public class TaskConsumer {
     @SneakyThrows
     public void receive(Message message, Session session) {
         var messageID = message.getJMSMessageID();
+        mdcService.applyMessageId(messageID);
         LOGGER.info("Received taskQueue message_id: {}", messageID);
 
         try {
