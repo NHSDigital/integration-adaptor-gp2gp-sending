@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import com.github.mustachejava.Mustache;
 
 import lombok.RequiredArgsConstructor;
+import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.AgentMapperTemplateParametersInner;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.AgentMapperTemplateParametersManagingOrganization;
 import uk.nhs.adaptors.gp2gp.ehr.utils.TemplateUtils;
@@ -113,7 +114,15 @@ public class OrganizationToAgentMapper {
     }
 
     private static boolean checkIfWorkPhone(ContactPoint contactPoint) {
-        return  (contactPoint.getSystem().getDisplay().equalsIgnoreCase("phone")
-            && contactPoint.getUse().getDisplay().equalsIgnoreCase("work"));
+
+        if (contactPoint != null && !contactPoint.hasSystem()) {
+            throw new EhrMapperException("ContactPoint has no system specified");
+        }
+
+        return contactPoint != null
+            && "phone".equalsIgnoreCase(contactPoint.getSystem().getDisplay())
+            && contactPoint.hasUse()
+            && "work".equalsIgnoreCase(contactPoint.getUse().getDisplay());
     }
+
 }

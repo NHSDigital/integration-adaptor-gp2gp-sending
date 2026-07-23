@@ -52,6 +52,7 @@ public class GpcRequestBuilder {
     private static final String GPC_STRUCTURED_INTERACTION_ID =
         "urn:nhs:names:services:gpconnect:fhir:operation:gpc.migratestructuredrecord-1";
     private static final String GPC_DOCUMENT_INTERACTION_ID = "urn:nhs:names:services:gpconnect:documents:fhir:rest:migrate:binary-1";
+    public static final int THREE = 3;
 
     private final IParser fhirParser;
     private final GpcTokenBuilder gpcTokenBuilder;
@@ -63,10 +64,13 @@ public class GpcRequestBuilder {
     private String overrideNhsNumber;
 
     public Parameters buildGetStructuredRecordRequestBody(GetGpcStructuredTaskDefinition structuredTaskDefinition) {
+        String nhsNumber = ((overrideNhsNumber.isBlank()) ? structuredTaskDefinition.getNhsNumber() : overrideNhsNumber);
+        LOGGER.info("Building structured record request body for conversation {} from ODS code {}",
+            structuredTaskDefinition.getConversationId(), structuredTaskDefinition.getFromOdsCode());
+        LOGGER.debug("Using NHS number (masked): {}***", nhsNumber.substring(0, Math.min(THREE, nhsNumber.length())));
         return new Parameters()
             .addParameter(buildParameterComponent("patientNHSNumber")
-                .setValue(new Identifier().setSystem(NHS_NUMBER_SYSTEM).setValue(
-                    ((overrideNhsNumber.isBlank()) ? structuredTaskDefinition.getNhsNumber() : overrideNhsNumber))))
+                .setValue(new Identifier().setSystem(NHS_NUMBER_SYSTEM).setValue(nhsNumber)))
             .addParameter(buildParameterComponent("includeFullRecord")
                 .addPart(buildParameterComponent("includeSensitiveInformation")
                     .setValue(new BooleanType(true))));
@@ -80,7 +84,11 @@ public class GpcRequestBuilder {
     public RequestHeadersSpec<?> buildGetStructuredRecordRequest(
         Parameters requestBodyParameters,
         GetGpcStructuredTaskDefinition structuredTaskDefinition, String gpcBaseUrl) {
+        LOGGER.info("Building GET structured record HTTP request for conversation {} to {}",
+            structuredTaskDefinition.getConversationId(), gpcBaseUrl);
         SslContext sslContext = requestBuilderService.buildSSLContext();
+        LOGGER.debug("SSL context built for GPC structured record request");
+
         HttpClient httpClient = buildHttpClient(sslContext);
         WebClient client = buildWebClient(httpClient, gpcBaseUrl, structuredTaskDefinition);
 
@@ -89,6 +97,8 @@ public class GpcRequestBuilder {
             .uri(gpcConfiguration.getMigrateStructuredEndpoint());
 
         var requestBody = fhirParser.encodeResourceToString(requestBodyParameters);
+        LOGGER.debug("Request body encoded for structured record, size: {} bytes", requestBody.length());
+
         BodyInserter<Object, ReactiveHttpOutputMessage> bodyInserter
             = BodyInserters.fromValue(requestBody);
 
@@ -96,7 +106,13 @@ public class GpcRequestBuilder {
     }
 
     public RequestHeadersSpec<?> buildGetDocumentRecordRequest(GetGpcDocumentTaskDefinition documentTaskDefinition, String gpcBaseUrl) {
+        LOGGER.info("Building GET document record HTTP request for conversation {} to {}",
+            documentTaskDefinition.getConversationId(), gpcBaseUrl);
+        LOGGER.debug("Document access URL: {}", documentTaskDefinition.getAccessDocumentUrl());
+
         SslContext sslContext = requestBuilderService.buildSSLContext();
+        LOGGER.debug("SSL context built for GPC document request");
+
         HttpClient httpClient = buildHttpClient(sslContext);
         WebClient client = buildWebClient(httpClient, gpcBaseUrl, documentTaskDefinition);
 
@@ -108,11 +124,13 @@ public class GpcRequestBuilder {
     }
 
     private HttpClient buildHttpClient(SslContext sslContext) {
+        LOGGER.debug("Configuring HTTP client with SSL context");
         return HttpClient.create()
             .secure(t -> t.sslContext(sslContext));
     }
 
     private WebClient buildWebClient(HttpClient httpClient, String baseUrl, TaskDefinition taskDefinition) {
+        LOGGER.debug("Building WebClient for base URL: {}, conversation ID: {}", baseUrl, taskDefinition.getConversationId());
         return WebClient
             .builder()
             .codecs(cfg -> cfg.defaultCodecs().maxInMemorySize(gpcConfiguration.getMaxRequestSize()))
@@ -122,6 +140,7 @@ public class GpcRequestBuilder {
                 .addWebClientFilters(filters, WebClientFilterService.RequestType.GPC, HttpStatus.OK, gpcClientConfig))
             .filter(ExchangeFilterFunction.ofRequestProcessor(clientRequest -> Mono.defer(
                 () -> {
+                    LOGGER.debug("Adding authorization header for ODS code: {}", taskDefinition.getFromOdsCode());
                     final ClientRequest filteredRequest = ClientRequest
                             .from(clientRequest)
                             .header(AUTHORIZATION, AUTHORIZATION_BEARER + gpcTokenBuilder.buildToken(taskDefinition.getFromOdsCode()))
