@@ -20,16 +20,14 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,7 +47,6 @@ import uk.nhs.adaptors.gp2gp.testcontainers.ActiveMQExtension;
 import uk.nhs.adaptors.gp2gp.testcontainers.MongoDBExtension;
 import uk.nhs.adaptors.gp2gp.util.ProcessDetectionService;
 
-@RunWith(SpringRunner.class)
 @ExtendWith({SpringExtension.class, MongoDBExtension.class, ActiveMQExtension.class, MockitoExtension.class})
 @SpringBootTest
 @DirtiesContext
@@ -79,9 +76,9 @@ public class AmqpServiceFailureTest {
     private JmsTemplate inboundJmsTemplate;
     @Autowired
     private ProcessDetectionService processDetectionService;
-    @MockitoSpyBean
+    @SpyBean
     private ProcessFailureHandlingService processFailureHandlingService;
-    @MockitoSpyBean
+    @SpyBean
     private SendEhrExtractCoreTaskExecutor sendEhrExtractCoreTaskExecutor;
     private String conversationId;
 

@@ -3,6 +3,7 @@ package uk.nhs.adaptors.gp2gp.common.task;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -10,6 +11,7 @@ import static org.mockito.Mockito.when;
 import jakarta.jms.Message;
 import jakarta.jms.Session;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,82 +41,126 @@ class TaskConsumerTest {
     @Mock
     private Session session;
 
+    private static final String MESSAGE_ID = "test-message-id";
+
+    @BeforeEach
+    @SneakyThrows
+    void setUp() {
+        when(message.getJMSMessageID()).thenReturn(MESSAGE_ID);
+    }
+
     @Test
     @SneakyThrows
     void When_TaskHandlerReturnsTrue_Expect_MessageAcknowledged() {
-        when(taskHandler.handle(any())).thenReturn(true);
+        stubHandleResult(true);
 
-        taskConsumer.receive(message, session);
+        callReceive();
 
-        verify(taskHandler).handle(message);
-        verify(message).acknowledge();
+        verifyTaskHandled();
+        verify(message, times(1)).acknowledge();
+        verifyMdcReset();
     }
 
     @Test
     @SneakyThrows
     void When_TaskHandlerReturnsFalse_Expect_MessageNotAcknowledged() {
-        when(taskHandler.handle(any())).thenReturn(false);
+        stubHandleResult(false);
 
-        taskConsumer.receive(message, session);
+        callReceive();
 
-        verify(taskHandler).handle(message);
-        verify(message, times(0)).acknowledge();
+        verifyTaskHandled();
+        verify(message, never()).acknowledge();
+        verifyMdcReset();
     }
 
     @Test
     @SneakyThrows
     void When_TaskHandlerReturnsFalse_Expect_SessionRolledBack() {
-        when(taskHandler.handle(any())).thenReturn(false);
+        stubHandleResult(false);
 
-        taskConsumer.receive(message, session);
+        callReceive();
 
-        verify(taskHandler).handle(message);
+        verifyTaskHandled();
         verify(session, times(1)).rollback();
+        verifyMdcReset();
     }
 
     @Test
     @SneakyThrows
     void When_TaskHandlerThrowsException_Expect_MessageNotAcknowledged() {
-        doThrow(RuntimeException.class).when(taskHandler).handle(message);
+        stubHandleThrows(RuntimeException.class);
 
-        taskConsumer.receive(message, session);
+        callReceive();
 
-        verify(taskHandler).handle(message);
-        verify(message, times(0)).acknowledge();
+        verifyTaskHandled();
+        verify(message, never()).acknowledge();
+        verifyMdcReset();
     }
 
     @Test
     @SneakyThrows
     void When_TaskHandlerThrowsException_Expect_SessionRolledBack() {
-        doThrow(RuntimeException.class).when(taskHandler).handle(message);
+        stubHandleThrows(RuntimeException.class);
 
-        taskConsumer.receive(message, session);
+        callReceive();
 
-        verify(taskHandler).handle(message);
+        verifyTaskHandled();
         verify(session, times(1)).rollback();
+        verifyMdcReset();
     }
 
     @Test
     @SneakyThrows
     void When_TaskHandlerThrowsDataResourceAccessFailureException_Expect_ExceptionIsThrown() {
-        doThrow(DataAccessResourceFailureException.class).when(taskHandler).handle(message);
+        stubHandleThrows(DataAccessResourceFailureException.class);
 
         assertThatExceptionOfType(DataAccessResourceFailureException.class)
-            .isThrownBy(() -> taskConsumer.receive(message, session));
+            .isThrownBy(this::callReceive);
 
-        verify(session, times(0)).rollback();
-        verify(message, times(0)).acknowledge();
+        verify(session, never()).rollback();
+        verify(message, never()).acknowledge();
+        verifyMdcReset();
     }
 
     @Test
     @SneakyThrows
     void When_TaskHandlerThrowsMhsConnectionException_Expect_ExceptionIsThrown() {
-        doThrow(MhsConnectionException.class).when(taskHandler).handle(message);
+        stubHandleThrows(MhsConnectionException.class);
 
         assertThatExceptionOfType(MhsConnectionException.class)
-            .isThrownBy(() -> taskConsumer.receive(message, session));
+            .isThrownBy(this::callReceive);
 
-        verify(session, times(0)).rollback();
-        verify(message, times(0)).acknowledge();
+        verify(session, never()).rollback();
+        verify(message, never()).acknowledge();
+        verifyMdcReset();
+    }
+
+    @SneakyThrows
+    private void callReceive() {
+        taskConsumer.receive(message, session);
+    }
+
+    @SneakyThrows
+    private void stubHandleResult(boolean result) {
+        when(taskHandler.handle(any())).thenReturn(result);
+    }
+
+    @SneakyThrows
+    private void stubHandleThrows(Class<? extends RuntimeException> exceptionType) {
+        doThrow(exceptionType).when(taskHandler).handle(message);
+    }
+
+    @SneakyThrows
+    private void verifyTaskHandled() {
+        verify(taskHandler).handle(message);
+    }
+
+    private void verifyMdcReset() {
+        verifyMdcMessageIdApplied();
+        verify(mdcService).resetAllMdcKeys();
+    }
+
+    private void verifyMdcMessageIdApplied() {
+        verify(mdcService).applyMessageId(MESSAGE_ID);
     }
 }

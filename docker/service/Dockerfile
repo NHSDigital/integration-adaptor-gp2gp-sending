@@ -20,5 +20,14 @@ COPY --from=package /home/gradle/service/build/libs/gp2gp-fhir-send-adaptor.jar 
 
 USER 65534
 
-ENTRYPOINT ["java", "-XX:+PrintCommandLineFlags", "-cp", "/app/gp2gp-fhir-send-adaptor.jar", "-Dloader.main=uk.nhs.adaptors.gp2gp.Gp2gpApplication", "org.springframework.boot.loader.launch.PropertiesLauncher"]
+ENTRYPOINT ["java", \
+  "-XX:MaxRAMPercentage=75.0", \
+  "-XX:InitialRAMPercentage=50.0", \
+  "-XX:+UseG1GC", \
+  "-XX:+PrintCommandLineFlags", \
+  "-cp", "/app/gp2gp-fhir-send-adaptor.jar", \
+  "-Dloader.main=uk.nhs.adaptors.gp2gp.Gp2gpApplication", \
+  "org.springframework.boot.loader.launch.PropertiesLauncher"]
+
+
 

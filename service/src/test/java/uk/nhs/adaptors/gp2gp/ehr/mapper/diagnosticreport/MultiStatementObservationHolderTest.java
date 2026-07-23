@@ -4,7 +4,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import org.hl7.fhir.dstu3.model.IdType;
@@ -41,8 +40,7 @@ class MultiStatementObservationHolderTest {
         when(messageContext.getIdMapper()).thenReturn(idMapper);
         when(idMapper.getOrNew(eq(ResourceType.Observation), any(IdType.class)))
             .thenReturn(MAPPED_ID);
-        lenient().when(randomIdGeneratorService.createNewId()).thenReturn(RANDOM_ID);
-        lenient().when(observation.getResourceType()).thenReturn(ResourceType.Observation);
+        when(observation.getResourceType()).thenReturn(ResourceType.Observation);
         when(observation.getIdElement()).thenReturn(new IdType());
         multiStatementObservationHolder = new MultiStatementObservationHolder(
             observation, messageContext, randomIdGeneratorService
@@ -51,6 +49,8 @@ class MultiStatementObservationHolderTest {
 
     @Test
     void When_NextHl7InstanceIdentifier_Expect_FirstIsMappedSecondIsRandomAndVerifies() {
+        when(randomIdGeneratorService.createNewId()).thenReturn(RANDOM_ID);
+
         assertThat(multiStatementObservationHolder.nextHl7InstanceIdentifier())
             .isEqualTo(MAPPED_ID);
         assertThatCode(() -> multiStatementObservationHolder.verifyObservationWasMapped())

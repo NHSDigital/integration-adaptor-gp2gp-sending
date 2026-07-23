@@ -18,9 +18,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
-
+import org.mockito.MockitoAnnotations;
 import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
@@ -28,7 +26,6 @@ import uk.nhs.adaptors.gp2gp.ehr.exception.EhrMapperException;
 import uk.nhs.adaptors.gp2gp.utils.CodeableConceptMapperMockUtil;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 
-@MockitoSettings(strictness = Strictness.LENIENT)
 public class DiaryPlanStatementMapperTest {
 
     private static final String TEST_ID = "394559384658936";
@@ -74,6 +71,7 @@ public class DiaryPlanStatementMapperTest {
 
     @BeforeEach
     public void setUp() {
+        MockitoAnnotations.openMocks(this);
         String inputJson = ResourceTestFileUtils.getFileContent(INPUT_BUNDLE);
         Bundle bundle = new FhirParseService().parseResource(inputJson, Bundle.class);
 

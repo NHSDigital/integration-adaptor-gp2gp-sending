@@ -9,7 +9,9 @@
             <center value="20190601113000"/>
         </effectiveTime>
         <availabilityTime value="20190601113000"/>
-            <value xsi:type="IVL_PQ"><low value="37.1" unit="Cel" inclusive="true"/></value>
+            <value xsi:type="IVL_PQ">
+    <low value="37.1" unit="Cel" inclusive="true" />
+</value>
             <referenceRange typeCode="REFV">
     <referenceInterpretationRange classCode="OBS" moodCode="EVN.CRT">
         <value><low value="20"/><high value="30"/></value>

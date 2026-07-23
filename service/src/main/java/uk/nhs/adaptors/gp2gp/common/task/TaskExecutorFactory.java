@@ -9,7 +9,10 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class TaskExecutorFactory {
 
@@ -23,7 +26,10 @@ public class TaskExecutorFactory {
 
     public TaskExecutor getTaskExecutor(Class<? extends TaskDefinition> taskDefinitionClass) throws TaskHandlerException  {
         return Optional.ofNullable(taskExecutorMap.get(taskDefinitionClass))
-            .orElseThrow(() ->
-                new TaskHandlerException("No task executor class for task definition class '" + taskDefinitionClass + "'"));
+            .orElseThrow(() -> {
+                LOGGER.error("No task executor registered for task definition class '{}'", taskDefinitionClass.getName());
+                return new TaskHandlerException(
+                    "No task executor class for task definition class '" + taskDefinitionClass + "'");
+            });
     }
 }

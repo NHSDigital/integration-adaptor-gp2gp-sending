@@ -10,6 +10,7 @@ import org.hl7.fhir.dstu3.model.Observation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -19,6 +20,7 @@ import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
 import uk.nhs.adaptors.gp2gp.utils.TestArgumentsLoaderUtil;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CodeableConceptCdMapperTest {
     private static final String TEST_FILE_DIRECTORY = "/ehr/mapper/codeableconcept/";
     private static final String TEST_FILE_DIRECTORY_ACTUAL_PROBLEM = "/ehr/mapper/codeableconcept/actualProblem/";
@@ -237,349 +239,292 @@ class CodeableConceptCdMapperTest {
 
     @Nested
     class WhenMappingStubbedCodeableConceptForBloodPressure {
-        @Test
-        void When_WithoutCoding_Expect_NullFlavorCdXmlWithoutOriginalText() {
-            var inputJson = """
-                {
-                    "resourceType": "Observation"
-                }""";
-            var expectedOutput = """
-            <code nullFlavor="UNK">
-            </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
 
-            var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
+        @ParameterizedTest(name = "{index} => {0}")
+        @MethodSource("codeableConceptCases")
+        void testMapping(String description, String inputJson, String expectedOutput) {
+            var codeableConcept = fhirParseService
+                .parseResource(inputJson, Observation.class)
+                .getCode();
+
+            var outputMessage =
+                codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
 
             assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
-        @Test
-        void When_WithSnomedCodingWithDisplay_Expect_SnomedCdXmlWithOriginalText() {
-            var inputJson = """
-                {
-                     "resourceType": "Observation",
-                     "code": {
-                         "coding": [
-                             {
-                                 "system": "http://snomed.info/sct",
-                                 "display": "Prothrombin time",
-                                 "code": "852471000000107"
-                             }
-                         ]
-                     }
-                }""";
-            var expectedOutput = """
-                <code code="852471000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Prothrombin time">
-                    <originalText>Prothrombin time</originalText>
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
+        private static Stream<Arguments> codeableConceptCases() {
+            return Stream.of(
 
-            var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
+                Arguments.of(
+                    "WithoutCoding → nullFlavor UNK without originalText",
+                    """
+                        {
+                            "resourceType": "Observation"
+                        }
+                    """,
+                    """
+                    <code nullFlavor="UNK">
+                    </code>"""
+                ),
 
-            assertThat(outputMessage).isEqualTo(expectedOutput);
-        }
+                Arguments.of(
+                    "SNOMED with display → code, system, display & originalText",
+                    """
+                    {
+                         "resourceType": "Observation",
+                         "code": {
+                             "coding": [
+                                 {
+                                     "system": "http://snomed.info/sct",
+                                     "display": "Prothrombin time",
+                                     "code": "852471000000107"
+                                 }
+                             ]
+                         }
+                    }""",
+                    """
+                    <code code="852471000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Prothrombin time">
+                        <originalText>Prothrombin time</originalText>
+                    </code>"""
+                ),
 
-        @Test
-        void When_WithSnomedCodingWithoutDisplayWithDescriptionExtensionWithoutDisplay_Expect_SnomedCdXml() {
-            var inputJson = """
-                {
-                    "resourceType": "Observation",
-                    "code": {
-                        "coding": [
-                            {
-                                "system": "http://snomed.info/sct",
-                                "code": "852471000000107",
-                                "extension": [
-                                    {
-                                        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
-                                        "extension": [
-                                            {
-                                                "url": "descriptionId",
-                                                "valueId": "12345789"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                }""";
-            var expectedOutput = """
-                <code code="852471000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="">
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
+                Arguments.of(
+                    "SNOMED no display, with descriptionId extension → displayName empty",
+                    """
+                    {
+                        "resourceType": "Observation",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://snomed.info/sct",
+                                    "code": "852471000000107",
+                                    "extension": [
+                                        {
+                                            "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
+                                            "extension": [
+                                                {
+                                                    "url": "descriptionId",
+                                                    "valueId": "12345789"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }""",
+                    """
+                    <code code="852471000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="">
+                    </code>"""
+                ),
 
-            var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
+                Arguments.of(
+                    "SNOMED no display, descriptionDisplay extension → originalText from extension",
+                    """
+                    {
+                         "resourceType": "Observation",
+                         "code": {
+                             "coding": [
+                                 {
+                                     "system": "http://snomed.info/sct",
+                                     "code": "852471000000107",
+                                     "extension": [
+                                         {
+                                             "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
+                                             "extension": [
+                                                 {
+                                                     "url": "descriptionDisplay",
+                                                     "valueString": "Prothrombin time (observed)"
+                                                 }
+                                             ]
+                                         }
+                                     ]
+                                 }
+                             ]
+                         }
+                    }""",
+                    """
+                    <code code="852471000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="">
+                        <originalText>Prothrombin time (observed)</originalText>
+                    </code>"""
+                ),
 
-            assertThat(outputMessage).isEqualTo(expectedOutput);
-        }
+                Arguments.of(
+                    "SNOMED + legacy coding → translations generated",
+                    """
+                    {
+                         "resourceType": "Observation",
+                         "code": {
+                             "coding": [
+                                 {
+                                     "system": "http://snomed.info/sct",
+                                     "display": "Prothrombin time",
+                                     "code": "852471000000107"
+                                 },
+                                 {
+                                     "system": "http://read.info/readv2",
+                                     "code": "42Q5.00",
+                                     "display": "Observed Prothrombin time"
+                                 },
+                                 {
+                                     "system": "http://read.info/ctv3",
+                                     "code": "123456",
+                                     "display": "Prothrombin time (observed)"
+                                 }
+                             ]
+                         }
+                    }""",
+                    """
+                    <code code="852471000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Prothrombin time">
+                        <originalText>Prothrombin time</originalText>
+                        <translation code="42Q5.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="Observed Prothrombin time" />
+                        <translation code="123456" codeSystem="2.16.840.1.113883.2.1.3.2.4.14" displayName="Prothrombin time (observed)" />
+                    </code>"""
+                ),
 
-        @Test
-        void When_WithSnomedCodingNoDisplayWithDescriptionExtensionWithDisplay_Expect_SnomedCdXmlWithOriginalTextFromExtensionDisplay() {
-            var inputJson = """
-                {
-                     "resourceType": "Observation",
-                     "code": {
-                         "coding": [
-                             {
-                                 "system": "http://snomed.info/sct",
-                                 "code": "852471000000107",
-                                 "extension": [
-                                     {
-                                         "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
-                                         "extension": [
-                                             {
-                                                 "url": "descriptionDisplay",
-                                                 "valueString": "Prothrombin time (observed)"
-                                             }
-                                         ]
-                                     }
-                                 ]
-                             }
-                         ]
-                     }
-                }""";
-            var expectedOutput = """
-                <code code="852471000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="">
-                    <originalText>Prothrombin time (observed)</originalText>
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
+                Arguments.of(
+                    "Non-SNOMED, text present → nullFlavor=UNK originalText from text",
+                    """
+                    {
+                         "resourceType": "Observation",
+                         "code": {
+                             "coding": [
+                                 {
+                                     "system": "http://read.info/readv2",
+                                     "code": "42Q5.00",
+                                     "display": "Prothrombin time"
+                                 }
+                             ],
+                             "text": "Prothrombin time (observed)"
+                         }
+                    }""",
+                    """
+                    <code nullFlavor="UNK">
+                        <originalText>Prothrombin time (observed)</originalText>
+                    </code>"""
+                ),
 
-            var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
+                Arguments.of(
+                    "Non-SNOMED no text, display present → originalText from display",
+                    """
+                    {
+                         "resourceType": "Observation",
+                         "code": {
+                             "coding": [
+                                 {
+                                     "system": "http://read.info/readv2",
+                                     "code": "42Q5.00",
+                                     "display": "Prothrombin time"
+                                 }
+                             ]
+                         }
+                    }""",
+                    """
+                    <code nullFlavor="UNK">
+                        <originalText>Prothrombin time</originalText>
+                    </code>"""
+                ),
 
-            assertThat(outputMessage).isEqualTo(expectedOutput);
-        }
+                Arguments.of(
+                    "Non-SNOMED with descriptionId extension → originalText from display",
+                    """
+                    {
+                         "resourceType": "Observation",
+                         "code": {
+                             "coding": [
+                                 {
+                                     "system": "http://read.info/readv2",
+                                     "code": "42Q5.00",
+                                     "display": "Prothrombin time",
+                                     "extension": [
+                                         {
+                                             "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
+                                             "extension": [
+                                                 {
+                                                     "url": "descriptioÍnId",
+                                                     "valueId": "12345789"
+                                                 }
+                                             ]
+                                         }
+                                     ]
+                                 }
+                             ]
+                         }
+                    }""",
+                    """
+                    <code nullFlavor="UNK">
+                        <originalText>Prothrombin time</originalText>
+                    </code>"""
+                ),
 
-        @Test
-        void When_WithSnomedCodingAndLegacyCodings_Expect_SnomedCdXmlWithTranslations() {
-            var inputJson = """
-                {
-                     "resourceType": "Observation",
-                     "code": {
-                         "coding": [
-                             {
-                                 "system": "http://snomed.info/sct",
-                                 "display": "Prothrombin time",
-                                 "code": "852471000000107"
-                             },
-                             {
-                                 "system": "http://read.info/readv2",
-                                 "code": "42Q5.00",
-                                 "display": "Observed Prothrombin time"
-                             },
-                             {
-                                 "system": "http://read.info/ctv3",
-                                 "code": "123456",
-                                 "display": "Prothrombin time (observed)"
-                             }
-                         ]
-                     }
-                }""";
-            var expectedOutput = """
-                <code code="852471000000107" codeSystem="2.16.840.1.113883.2.1.3.2.4.15" displayName="Prothrombin time">
-                    <originalText>Prothrombin time</originalText>
-                    <translation code="42Q5.00" codeSystem="2.16.840.1.113883.2.1.6.2" displayName="Observed Prothrombin time" />
-                    <translation code="123456" codeSystem="2.16.840.1.113883.2.1.3.2.4.14" displayName="Prothrombin time (observed)" />
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
+                Arguments.of(
+                    "Non-SNOMED descriptionDisplay extension → originalText from extension",
+                    """
+                    {
+                         "resourceType": "Observation",
+                         "code": {
+                             "coding": [
+                                 {
+                                     "system": "http://read.info/readv2",
+                                     "code": "42Q5.00",
+                                     "display": "Prothrombin time",
+                                     "extension": [
+                                         {
+                                             "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
+                                             "extension": [
+                                                 {
+                                                     "url": "descriptionDisplay",
+                                                     "valueString": "Prothrombin time (observed)"
+                                                 }
+                                             ]
+                                         }
+                                     ]
+                                 }
+                             ]
+                         }
+                    }""",
+                    """
+                    <code nullFlavor="UNK">
+                        <originalText>Prothrombin time (observed)</originalText>
+                    </code>"""
+                ),
 
-            var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
-
-            assertThat(outputMessage).isEqualTo(expectedOutput);
-        }
-
-        @Test
-        void When_WithNonSnomedCodingWithText_Expect_NullFlavorUnkCDWithOriginalTextFromText() {
-            var inputJson = """
-                {
-                     "resourceType": "Observation",
-                     "code": {
-                         "coding": [
-                             {
-                                 "system": "http://read.info/readv2",
-                                 "code": "42Q5.00",
-                                 "display": "Prothrombin time"
-                             }
-                         ],
-                         "text": "Prothrombin time (observed)"
-                     }
-                }""";
-            var expectedOutput = """
-                <code nullFlavor="UNK">
-                    <originalText>Prothrombin time (observed)</originalText>
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
-
-            var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
-
-            assertThat(outputMessage).isEqualTo(expectedOutput);
-        }
-
-        @Test
-        void When_WithNonSnomedCodingNoTextWithDisplay_Expect_NullFlavorCdXmlWithOriginalTextFromDisplay() {
-            var inputJson = """
-                {
-                     "resourceType": "Observation",
-                     "code": {
-                         "coding": [
-                             {
-                                 "system": "http://read.info/readv2",
-                                 "code": "42Q5.00",
-                                 "display": "Prothrombin time"
-                             }
-                         ]
-                     }
-                }""";
-
-            var expectedOutput = """
-                <code nullFlavor="UNK">
-                    <originalText>Prothrombin time</originalText>
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
-
-            var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
-
-            assertThat(outputMessage).isEqualTo(expectedOutput);
-        }
-
-        @Test
-        void When_WithNonSnomedCodingWithDescriptionExtensionWithoutDisplay_Expect_SnomedCdXmlWithOriginalTextFromDisplay() {
-            var inputJson = """
-                {
-                     "resourceType": "Observation",
-                     "code": {
-                         "coding": [
-                             {
-                                 "system": "http://read.info/readv2",
-                                 "code": "42Q5.00",
-                                 "display": "Prothrombin time",
-                                 "extension": [
-                                     {
-                                         "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
-                                         "extension": [
-                                             {
-                                                 "url": "descriptioÍnId",
-                                                 "valueId": "12345789"
-                                             }
-                                         ]
-                                     }
-                                 ]
-                             }
-                         ]
-                     }
-                }""";
-            var expectedOutput = """
-                <code nullFlavor="UNK">
-                    <originalText>Prothrombin time</originalText>
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
-
-            var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
-
-            assertThat(outputMessage).isEqualTo(expectedOutput);
-        }
-
-        @Test
-        void When_WithNonSnomedCodingWithDescriptionExtensionWithDisplayExtension_Expect_SnomedCdXmlWithOriginalTextFromDisplayExtension() {
-            var inputJson = """
-                {
-                     "resourceType": "Observation",
-                     "code": {
-                         "coding": [
-                             {
-                                 "system": "http://read.info/readv2",
-                                 "code": "42Q5.00",
-                                 "display": "Prothrombin time",
-                                 "extension": [
-                                     {
-                                         "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
-                                         "extension": [
-                                             {
-                                                 "url": "descriptionDisplay",
-                                                 "valueString": "Prothrombin time (observed)"
-                                             }
-                                         ]
-                                     }
-                                 ]
-                             }
-                         ]
-                     }
-                }""";
-            var expectedOutput = """
-                <code nullFlavor="UNK">
-                    <originalText>Prothrombin time (observed)</originalText>
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
-
-            var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
-
-            assertThat(outputMessage).isEqualTo(expectedOutput);
-        }
-
-        @Test
-        void When_WithoutSnomedCodingAndWithLegacyCodings_Expect_NullFlavorSnomedCdXmlWithoutTranslations() {
-            var inputJson = """
-                {
-                     "resourceType": "Observation",
-                     "code": {
-                         "coding": [
-                             {
-                                 "system": "http://read.info/readv2",
-                                 "code": "42Q5.00",
-                                 "display": "Observed Prothrombin time"
-                             },
-                             {
-                                 "system": "http://read.info/ctv3",
-                                 "code": "123456",
-                                 "display": "Prothrombin time (observed)"
-                             }
-                         ]
-                     }
-                }""";
-            var expectedOutput = """
-                <code nullFlavor="UNK">
-                    <originalText>Observed Prothrombin time</originalText>
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
-
-            var outputMessage = codeableConceptCdMapper.mapCodeableConceptToCdForBloodPressure(codeableConcept);
-
-            assertThat(outputMessage).isEqualTo(expectedOutput);
+                Arguments.of(
+                    "No SNOMED but multiple legacy → nullFlavor=UNK, originalText from first",
+                    """
+                    {
+                         "resourceType": "Observation",
+                         "code": {
+                             "coding": [
+                                 {
+                                     "system": "http://read.info/readv2",
+                                     "code": "42Q5.00",
+                                     "display": "Observed Prothrombin time"
+                                 },
+                                 {
+                                     "system": "http://read.info/ctv3",
+                                     "code": "123456",
+                                     "display": "Prothrombin time (observed)"
+                                 }
+                             ]
+                         }
+                    }""",
+                    """
+                    <code nullFlavor="UNK">
+                        <originalText>Observed Prothrombin time</originalText>
+                    </code>"""
+                )
+            );
         }
     }
 
     @Nested
     class WhenMappingToNullFlavorCodeableConcept {
-        @Test
-        void When_WithSnomedCodingNoTextNoDisplayWithDescriptionExtensionWithDisplayExtension_Expect_SnomedCdXmlWithoutOriginalText() {
-            var inputJson = """
-                {
-                    "resourceType": "Observation",
-                    "code": {
-                        "coding": [
-                            {
-                                "system": "http://snomed.info/sct",
-                                "code": "852471000000107",
-                                "extension": [
-                                    {
-                                        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
-                                        "extension": [
-                                            {
-                                                "url": "descriptionDisplay",
-                                                "valueString": "Prothrombin time (observed)"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                }""";
 
-            var expectedOutput = """
-                <code nullFlavor="UNK">
-                    <originalText>Prothrombin time (observed)</originalText>
-                </code>""";
+        @ParameterizedTest(name = "{index} → {0}")
+        @MethodSource("nullFlavorCases")
+        void mapToNullFlavorCodeableConcept(String description, String inputJson, String expectedOutput) {
             var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
 
             var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
@@ -587,270 +532,262 @@ class CodeableConceptCdMapperTest {
             assertThat(outputMessage).isEqualTo(expectedOutput);
         }
 
-        @Test
-        void When_WithSnomedCodingNoTextNoDisplayWithNonDescriptionExtension_Expect_SnomedCdXmlWithoutOriginalText() {
-            var inputJson = """
-                {
-                    "resourceType": "Observation",
-                    "code": {
-                        "coding": [
-                            {
-                                "system": "http://snomed.info/sct",
-                                "code": "852471000000107",
-                                "extension": [
-                                    {
-                                        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-some-other",
-                                        "extension": [
-                                            {
-                                                "url": "descriptionDisplay",
-                                                "valueString": "Prothrombin time (observed)"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                }""";
+        private static Stream<Arguments> nullFlavorCases() {
+            return Stream.of(
 
-            var expectedOutput = """
-                <code nullFlavor="UNK">
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
+                Arguments.of(
+                    "When WithSnomedCodingNoTextNoDisplayWithDescriptionExtensionWithDisplayExtension "
+                    + "expect SnomedCdXmlWithoutOriginalText",
+                    """
+                    {
+                        "resourceType": "Observation",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://snomed.info/sct",
+                                    "code": "852471000000107",
+                                    "extension": [
+                                        {
+                                            "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
+                                            "extension": [
+                                                {
+                                                    "url": "descriptionDisplay",
+                                                    "valueString": "Prothrombin time (observed)"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }""",
+                    """
+                    <code nullFlavor="UNK">
+                        <originalText>Prothrombin time (observed)</originalText>
+                    </code>"""
+                ),
 
-            var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
+                Arguments.of(
+                    "When WithSnomedCodingNoTextNoDisplayWithNonDescriptionExtension expect SnomedCdXmlWithoutOriginalText",
+                    """
+                    {
+                        "resourceType": "Observation",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://snomed.info/sct",
+                                    "code": "852471000000107",
+                                    "extension": [
+                                        {
+                                            "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-some-other",
+                                            "extension": [
+                                                {
+                                                    "url": "descriptionDisplay",
+                                                    "valueString": "Prothrombin time (observed)"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }""",
+                    """
+                    <code nullFlavor="UNK">
+                    </code>"""
+                ),
 
-            assertThat(outputMessage).isEqualTo(expectedOutput);
-        }
+                Arguments.of(
+                    "When WithNonSnomedCodingWithText expect SnomedCdXmlWithOriginalTextFromText",
+                    """
+                    {
+                        "resourceType": "Observation",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://read.info/readv2",
+                                    "code": "42Q5.00",
+                                    "display": "Observed Prothrombin time"
+                                }
+                            ],
+                            "text": "Prothrombin time (observed)"
+                        }
+                    }""",
+                    """
+                    <code nullFlavor="UNK">
+                        <originalText>Prothrombin time (observed)</originalText>
+                    </code>"""
+                ),
 
-        @Test
-        void When_WithNonSnomedCodingWithText_Expect_SnomedCdXmlWithOriginalTextFromText() {
-            var inputJson = """
-                {
-                    "resourceType": "Observation",
-                    "code": {
-                        "coding": [
-                            {
-                                "system": "http://read.info/readv2",
-                                "code": "42Q5.00",
-                                "display": "Observed Prothrombin time"
-                            }
-                        ],
-                        "text": "Prothrombin time (observed)"
-                    }
-                }""";
+                Arguments.of(
+                    "When WithNoSnomedCodingWithNoTextWithNonDescriptionExtension Expect SnomedCdXmlWithOriginalTextFromDisplay",
+                    """
+                    {
+                        "resourceType": "Observation",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://read.info/readv2",
+                                    "code": "42Q5.00",
+                                    "display": "Observed Prothrombin time",
+                                    "extension": [
+                                        {
+                                            "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-some-otherUrl",
+                                            "extension": [
+                                                {
+                                                    "url": "descriptionDisplay",
+                                                    "valueString": "Prothrombin time"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }""",
+                    """
+                    <code nullFlavor="UNK">
+                        <originalText>Observed Prothrombin time</originalText>
+                    </code>"""
+                ),
 
-            var expectedOutput = """
-                <code nullFlavor="UNK">
-                    <originalText>Prothrombin time (observed)</originalText>
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
+                Arguments.of(
+                    "When WithNonSnomedCodingWithNoDisplayNoTextWithDescriptionExtNoDisplayExt "
+                    + "expect SnomedCdXmlWithoutOriginalText",
+                    """
+                    {
+                        "resourceType": "Observation",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://read.info/readv2",
+                                    "code": "42Q5.00",
+                                    "extension": [
+                                        {
+                                            "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
+                                            "extension": [
+                                                {
+                                                    "url": "descriptionId",
+                                                    "valueString": "123456789"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }""",
+                    """
+                    <code nullFlavor="UNK">
+                    </code>"""
+                ),
 
-            var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
+                Arguments.of(
+                    "When WithNonSnomedCodingWithDisplayNoTextWithDescriptionExtNoDisplayExt "
+                    + "expect SnomedCdXmlWithOriginalTextFromDisplay",
+                    """
+                    {
+                        "resourceType": "Observation",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://read.info/readv2",
+                                    "code": "42Q5.00",
+                                    "display": "Observed Prothrombin time",
+                                    "extension": [
+                                        {
+                                            "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
+                                            "extension": [
+                                                {
+                                                    "url": "descriptionId",
+                                                    "valueString": "123456789"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }""",
+                    """
+                    <code nullFlavor="UNK">
+                        <originalText>Observed Prothrombin time</originalText>
+                    </code>"""
+                ),
 
-            assertThat(outputMessage).isEqualTo(expectedOutput);
-        }
+                Arguments.of(
+                    "When WithNonSnomedCodingNoTextWithDescriptionExtWithDisplayExt "
+                    + "expect SnomedCdXmlWithOriginalTextFromDisplayExtension",
+                    """
+                    {
+                        "resourceType": "Observation",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://read.info/readv2",
+                                    "code": "42Q5.00",
+                                    "display": "Observed Prothrombin time",
+                                    "extension": [
+                                        {
+                                            "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
+                                            "extension": [
+                                                {
+                                                    "url": "descriptionDisplay",
+                                                    "valueString": "Prothrombin time"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }""",
+                    """
+                    <code nullFlavor="UNK">
+                        <originalText>Prothrombin time</originalText>
+                    </code>"""
+                ),
 
-        @Test
-        void When_WithNonSnomedCodingWithNoTextWithNonDescriptionExtension_Expect_SnomedCdXmlWithOriginalTextFromDisplay() {
-            var inputJson = """
-                {
-                    "resourceType": "Observation",
-                    "code": {
-                        "coding": [
-                            {
-                                "system": "http://read.info/readv2",
-                                "code": "42Q5.00",
-                                "display": "Observed Prothrombin time",
-                                "extension": [
-                                    {
-                                        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-some-otherUrl",
-                                        "extension": [
-                                            {
-                                                "url": "descriptionDisplay",
-                                                "valueString": "Prothrombin time"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                }""";
+                Arguments.of(
+                    "When WithNonSnomedCodingNoTextNoDescriptionExtension expect SnomedCdXmlWithOriginalTextFromDisplay",
+                    """
+                    {
+                        "resourceType": "Observation",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://read.info/readv2",
+                                    "code": "42Q5.00",
+                                    "display": "Observed Prothrombin time"
+                                }
+                            ]
+                        }
+                    }""",
+                    """
+                    <code nullFlavor="UNK">
+                        <originalText>Observed Prothrombin time</originalText>
+                    </code>"""
+                ),
 
-            var expectedOutput = """
-                <code nullFlavor="UNK">
-                    <originalText>Observed Prothrombin time</originalText>
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
-
-            var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
-
-            assertThat(outputMessage).isEqualTo(expectedOutput);
-        }
-
-        @Test
-        void When_WithNonSnomedCodingWithNoDisplayNoTextWithDescriptionExtNoDisplayExt_Expect_SnomedCdXmlWithoutOriginalText() {
-            var inputJson = """
-                {
-                    "resourceType": "Observation",
-                    "code": {
-                        "coding": [
-                            {
-                                "system": "http://read.info/readv2",
-                                "code": "42Q5.00",
-                                "extension": [
-                                    {
-                                        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
-                                        "extension": [
-                                            {
-                                                "url": "descriptionId",
-                                                "valueString": "123456789"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                }""";
-
-            var expectedOutput = """
-                <code nullFlavor="UNK">
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
-
-            var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
-
-            assertThat(outputMessage).isEqualTo(expectedOutput);
-        }
-
-        @Test
-        void When_WithNonSnomedCodingWithDisplayNoTextWithDescriptionExtNoDisplayExt_Expect_SnomedCdXmlWithOriginalTextFromDisplay() {
-            var inputJson = """
-                {
-                    "resourceType": "Observation",
-                    "code": {
-                        "coding": [
-                            {
-                                "system": "http://read.info/readv2",
-                                "code": "42Q5.00",
-                                "display": "Observed Prothrombin time",
-                                "extension": [
-                                    {
-                                        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
-                                        "extension": [
-                                            {
-                                                "url": "descriptionId",
-                                                "valueString": "123456789"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                }""";
-
-            var expectedOutput = """
-                <code nullFlavor="UNK">
-                    <originalText>Observed Prothrombin time</originalText>
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
-
-            var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
-
-            assertThat(outputMessage).isEqualTo(expectedOutput);
-        }
-
-        @Test
-        void When_WithNonSnomedCodingNoTextWithDescriptionExtWithDisplayExt_Expect_SnomedCdXmlWithOriginalTextFromDisplayExtension() {
-            var inputJson = """
-                {
-                    "resourceType": "Observation",
-                    "code": {
-                        "coding": [
-                            {
-                                "system": "http://read.info/readv2",
-                                "code": "42Q5.00",
-                                "display": "Observed Prothrombin time",
-                                "extension": [
-                                    {
-                                        "url": "https://fhir.nhs.uk/STU3/StructureDefinition/Extension-coding-sctdescid",
-                                        "extension": [
-                                            {
-                                                "url": "descriptionDisplay",
-                                                "valueString": "Prothrombin time"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                }""";
-
-            var expectedOutput = """
-                <code nullFlavor="UNK">
-                    <originalText>Prothrombin time</originalText>
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
-
-            var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
-
-            assertThat(outputMessage).isEqualTo(expectedOutput);
-        }
-
-        @Test
-        void When_WithNonSnomedCodingNoTextNoDescriptionExtension_Expect_SnomedCdXmlWithOriginalTextFromDisplay() {
-            var inputJson = """
-                {
-                    "resourceType": "Observation",
-                    "code": {
-                        "coding": [
-                            {
-                                "system": "http://read.info/readv2",
-                                "code": "42Q5.00",
-                                "display": "Observed Prothrombin time"
-                            }
-                        ]
-                    }
-                }""";
-
-            var expectedOutput = """
-                <code nullFlavor="UNK">
-                    <originalText>Observed Prothrombin time</originalText>
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
-
-            var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
-
-            assertThat(outputMessage).isEqualTo(expectedOutput);
-        }
-
-        @Test
-        void When_WithNonSnomedCodingNoDisplayNoTextNoDescriptionExtension_Expect_SnomedCdXmlWithNoOriginalText() {
-            var inputJson = """
-                {
-                    "resourceType": "Observation",
-                    "code": {
-                        "coding": [
-                            {
-                                "system": "http://read.info/readv2",
-                                "code": "42Q5.00"
-                            }
-                        ]
-                    }
-                }""";
-
-            var expectedOutput = """
-                <code nullFlavor="UNK">
-                </code>""";
-            var codeableConcept = fhirParseService.parseResource(inputJson, Observation.class).getCode();
-
-            var outputMessage = codeableConceptCdMapper.mapToNullFlavorCodeableConcept(codeableConcept);
-
-            assertThat(outputMessage).isEqualTo(expectedOutput);
+                Arguments.of(
+                    "When WithNonSnomedCodingNoDisplayNoTextNoDescriptionExtension expect SnomedCdXmlWithNoOriginalText",
+                    """
+                    {
+                        "resourceType": "Observation",
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://read.info/readv2",
+                                    "code": "42Q5.00"
+                                }
+                            ]
+                        }
+                    }""",
+                    """
+                    <code nullFlavor="UNK">
+                    </code>"""
+                )
+            );
         }
     }
 
@@ -930,14 +867,4 @@ class CodeableConceptCdMapperTest {
         assertThat(outputString).isEqualTo(expectedOutput);
     }
 
-    @Test
-    @SneakyThrows
-    void When_MapToCdForMedication_With_RelatedProblemAndTitle_Expect_ConceptIdAndTitle() {
-        var relatedProblem = ResourceTestFileUtils.getFileContent(TEST_FILE_TOPIC_RELATED_CONDITION);
-        var codeableConcept = fhirParseService.parseResource(relatedProblem, Condition.class).getCode();
-        var expectedOutput = ResourceTestFileUtils.getFileContent(CD_FOR_TOPIC_RELATED_PROBLEM_AND_TITLE);
-        var outputString = codeableConceptCdMapper.mapToCdForTopic(codeableConcept, TEST_TITLE);
-
-        assertThat(outputString).isEqualTo(expectedOutput);
-    }
 }

@@ -85,7 +85,7 @@ public class TransformJsonToXml implements CommandLineRunner {
             throw new NoJsonFileFound("No json files found");
         }
 
-        LOGGER.info("Processing " + files.length + " files from location: " + JSON_FILE_INPUT_PATH);
+        LOGGER.info("Processing {} files from location: {}", files.length, JSON_FILE_INPUT_PATH);
 
         Arrays.stream(files)
             .peek(file -> LOGGER.info("Parsing file: {}", file.getName()))

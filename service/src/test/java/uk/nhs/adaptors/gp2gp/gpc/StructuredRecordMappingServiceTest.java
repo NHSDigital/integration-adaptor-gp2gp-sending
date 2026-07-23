@@ -1,13 +1,17 @@
 package uk.nhs.adaptors.gp2gp.gpc;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static uk.nhs.adaptors.gp2gp.utils.IdUtil.buildIdType;
 
 import java.util.Arrays;
@@ -20,16 +24,19 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.DocumentReference;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.ResourceType;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 
 import uk.nhs.adaptors.gp2gp.common.configuration.Gp2gpConfiguration;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.ehr.EhrExtractStatusService;
+import uk.nhs.adaptors.gp2gp.ehr.exception.XmlSchemaValidationException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.EhrExtractMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.IdMapper;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.MessageContext;
@@ -53,6 +60,8 @@ class StructuredRecordMappingServiceTest {
     private static final String NEW_DOC_REF_ID_2 = "222_new_doc_ref_id";
     private static final String NEW_DOC_MANIFEST_ID_2 = "222_new_doc_manifest_id";
     private static final String UNSUPPORTED_CONTENT_TYPE = "application/text";
+    private ListAppender<ILoggingEvent> logAppender;
+    private Logger logger;
 
     @Mock
     private OutputMessageWrapperMapper outputMessageWrapperMapper;
@@ -73,76 +82,94 @@ class StructuredRecordMappingServiceTest {
     private StructuredRecordMappingService structuredRecordMappingService;
 
     @BeforeEach
-    void setup() {
-        lenient().when(messageContext.getIdMapper()).thenReturn(new IdMapper(randomIdGeneratorService));
+    void setUpLogCapture() {
+        logger = (Logger) LoggerFactory.getLogger(StructuredRecordMappingService.class);
+        logAppender = new ListAppender<>();
+        logAppender.start();
+        logger.addAppender(logAppender);
+    }
+
+    @AfterEach
+    void tearDownLogCapture() {
+        logger.detachAppender(logAppender);
+        logAppender.stop();
     }
 
     @Test
     void When_GettingExternalAttachments_Expect_AllDocumentReferenceResourcesAreMapped() {
+        when(messageContext.getIdMapper()).thenReturn(new IdMapper(randomIdGeneratorService));
         when(randomIdGeneratorService.createNewId()).thenReturn(
-            NEW_DOC_MANIFEST_ID_1,
-            NEW_DOC_MANIFEST_ID_2
+                NEW_DOC_MANIFEST_ID_1,
+                NEW_DOC_MANIFEST_ID_2
         );
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(
-            NEW_DOC_MANIFEST_ID_1,
-            NEW_DOC_MANIFEST_ID_2
+                NEW_DOC_MANIFEST_ID_1,
+                NEW_DOC_MANIFEST_ID_2
         );
         when(gp2gpConfiguration.getLargeAttachmentThreshold()).thenReturn(LARGE_MESSAGE_THRESHOLD);
         when(supportedContentTypes.isContentTypeSupported(any())).thenReturn(true);
 
         var mappedExternalAttachments = getMappedExternalAttachments(
-            buildDocumentReference(ID_1, "/" + NEW_DOC_REF_ID_1, null, ATTACHMENT_1_SIZE, "text/plain"),
-            buildDocumentReference(ID_2, "/" + NEW_DOC_REF_ID_2, null, ATTACHMENT_2_SIZE, "text/html")
+                buildDocumentReference(ID_1, "/" + NEW_DOC_REF_ID_1, null, ATTACHMENT_1_SIZE, "text/plain"),
+                buildDocumentReference(ID_2, "/" + NEW_DOC_REF_ID_2, null, ATTACHMENT_2_SIZE, "text/html")
         );
 
         assertThat(mappedExternalAttachments).usingRecursiveComparison().isEqualTo(
-            List.of(
-                buildExternalAttachment(
-                    NEW_DOC_MANIFEST_ID_1, NEW_DOC_MANIFEST_ID_1, "/" + NEW_DOC_REF_ID_1, null,
-                    "111_new_doc_manifest_id.txt", "text/plain",
-                    buildAttachmentDescription(NEW_DOC_MANIFEST_ID_1)
-                ),
-                buildExternalAttachment(
-                    NEW_DOC_MANIFEST_ID_2, NEW_DOC_MANIFEST_ID_2, "/" + NEW_DOC_REF_ID_2, null,
-                    "222_new_doc_manifest_id.html", "text/html",
-                    buildAttachmentDescription(NEW_DOC_MANIFEST_ID_2)
+                List.of(
+                        buildExternalAttachment(
+                                NEW_DOC_MANIFEST_ID_1, NEW_DOC_MANIFEST_ID_1, "/" + NEW_DOC_REF_ID_1, null,
+                                "111_new_doc_manifest_id.txt", "text/plain",
+                                buildAttachmentDescription(NEW_DOC_MANIFEST_ID_1)
+                        ),
+                        buildExternalAttachment(
+                                NEW_DOC_MANIFEST_ID_2, NEW_DOC_MANIFEST_ID_2, "/" + NEW_DOC_REF_ID_2, null,
+                                "222_new_doc_manifest_id.html", "text/html",
+                                buildAttachmentDescription(NEW_DOC_MANIFEST_ID_2)
+                        )
                 )
-            )
         );
     }
 
     @Test
     void When_GettingExternalAttachment_WithWrongContentType_Expect_AbsentAttachmentMapped() {
+        when(messageContext.getIdMapper()).thenReturn(new IdMapper(randomIdGeneratorService));
         when(randomIdGeneratorService.createNewId()).thenReturn(NEW_DOC_MANIFEST_ID_1);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(NEW_DOC_MANIFEST_ID_1);
         when(gp2gpConfiguration.getLargeAttachmentThreshold()).thenReturn(LARGE_MESSAGE_THRESHOLD);
 
         var mappedExternalAttachments = getMappedAbsentAttachments(
-            buildDocumentReference(ID_1, "/" + NEW_DOC_REF_ID_1, null, ATTACHMENT_1_SIZE, UNSUPPORTED_CONTENT_TYPE)
+                buildDocumentReference(ID_1, "/" + NEW_DOC_REF_ID_1, null, ATTACHMENT_1_SIZE, UNSUPPORTED_CONTENT_TYPE)
         );
 
         assertThat(mappedExternalAttachments).usingRecursiveComparison().isEqualTo(List.of(buildExternalAttachment(
-            NEW_DOC_MANIFEST_ID_1, NEW_DOC_MANIFEST_ID_1, "/" + NEW_DOC_REF_ID_1, null,
-            "AbsentAttachment111_new_doc_manifest_id.txt", "text/plain",
-            buildAttachmentDescription(NEW_DOC_MANIFEST_ID_1)
+                NEW_DOC_MANIFEST_ID_1, NEW_DOC_MANIFEST_ID_1, "/" + NEW_DOC_REF_ID_1, null,
+                "AbsentAttachment111_new_doc_manifest_id.txt", "text/plain",
+                buildAttachmentDescription(NEW_DOC_MANIFEST_ID_1)
         )));
     }
 
     @Test
     void When_GettingExternalAttachment_WithTitleAndNoUrl_Expect_AbsentAttachmentMapped() {
+        when(messageContext.getIdMapper()).thenReturn(new IdMapper(randomIdGeneratorService));
         when(randomIdGeneratorService.createNewId()).thenReturn(NEW_DOC_MANIFEST_ID_1);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(NEW_DOC_MANIFEST_ID_1);
         when(gp2gpConfiguration.getLargeAttachmentThreshold()).thenReturn(LARGE_MESSAGE_THRESHOLD);
 
         var mappedExternalAttachments = getMappedAbsentAttachments(
-            buildDocumentReference(ID_1, null, "some title", ATTACHMENT_1_SIZE, "text/plain")
+                buildDocumentReference(ID_1, null, "some title", ATTACHMENT_1_SIZE, "text/plain")
         );
 
         assertThat(mappedExternalAttachments).usingRecursiveComparison().isEqualTo(List.of(buildExternalAttachment(
-            NEW_DOC_MANIFEST_ID_1, NEW_DOC_MANIFEST_ID_1, null, "some title",
-            "AbsentAttachment111_new_doc_manifest_id.txt", "text/plain",
-            buildAttachmentDescription(NEW_DOC_MANIFEST_ID_1)
+                NEW_DOC_MANIFEST_ID_1, NEW_DOC_MANIFEST_ID_1, null, "some title",
+                "AbsentAttachment111_new_doc_manifest_id.txt", "text/plain",
+                buildAttachmentDescription(NEW_DOC_MANIFEST_ID_1)
         )));
+
+        assertThat(logAppender.list.stream()
+            .filter(event -> event.getLevel() == Level.WARN)
+            .map(ILoggingEvent::getFormattedMessage)
+            .toList())
+            .anyMatch(message -> message.contains("Empty URL on DocumentReference") && message.contains(ID_1));
     }
 
     @Test
@@ -154,14 +181,15 @@ class StructuredRecordMappingServiceTest {
         var ehrExtractTemplateParameters = mock(EhrExtractTemplateParameters.class);
 
         when(ehrExtractMapper.mapBundleToEhrFhirExtractParams(structuredTaskDefinition, bundle))
-            .thenReturn(ehrExtractTemplateParameters);
+                .thenReturn(ehrExtractTemplateParameters);
         when(ehrExtractMapper.mapEhrExtractToXml(ehrExtractTemplateParameters)).thenReturn(ehrExtractContent);
         when(outputMessageWrapperMapper.map(structuredTaskDefinition, ehrExtractContent))
-            .thenReturn(expectedHL7);
+                .thenReturn(expectedHL7);
 
         var actualHL7 = structuredRecordMappingService.mapStructuredRecordToEhrExtractXml(structuredTaskDefinition, bundle);
 
         verify(ehrExtractMapper).mapBundleToEhrFhirExtractParams(structuredTaskDefinition, bundle);
+        verify(ehrExtractMapper).mapEhrExtractToXml(ehrExtractTemplateParameters);
         verify(ehrExtractMapper).mapEhrExtractToXml(ehrExtractTemplateParameters);
         verify(outputMessageWrapperMapper).map(structuredTaskDefinition, ehrExtractContent);
 
@@ -196,7 +224,7 @@ class StructuredRecordMappingServiceTest {
         var bundle = new Bundle().addEntry(new Bundle.BundleEntryComponent().setResource(new Patient()));
 
         Arrays.stream(documentReferences).forEach(
-            documentReference -> bundle.addEntry(new Bundle.BundleEntryComponent().setResource(documentReference))
+                documentReference -> bundle.addEntry(new Bundle.BundleEntryComponent().setResource(documentReference))
         );
         return bundle;
     }
@@ -280,6 +308,46 @@ class StructuredRecordMappingServiceTest {
         assertXMLEquals(skeletonEhrExtract, expectedSkeletonEhrExtract);
     }
 
+    @Test
+    void When_XmlSchemaValidationFails_Expect_ErrorLoggedAndProcessingContinues() {
+        var structuredTaskDefinition = mock(GetGpcStructuredTaskDefinition.class);
+        var bundle = mock(Bundle.class);
+        var ehrExtractTemplateParameters = mock(EhrExtractTemplateParameters.class);
+
+        var ehrExtractContent = "<EhrExtract>some invalid content</EhrExtract>";
+        var expectedHL7 = "some wrapped hl7 message";
+        var conversationId = "conversation-id";
+        var ehrExtractId = "ehr-extract-id";
+
+        when(ehrExtractMapper.mapBundleToEhrFhirExtractParams(structuredTaskDefinition, bundle))
+                .thenReturn(ehrExtractTemplateParameters);
+        when(ehrExtractMapper.mapEhrExtractToXml(ehrExtractTemplateParameters)).thenReturn(ehrExtractContent);
+        when(ehrExtractTemplateParameters.getEhrExtractId()).thenReturn(ehrExtractId);
+        when(structuredTaskDefinition.getConversationId()).thenReturn(conversationId);
+        when(outputMessageWrapperMapper.map(structuredTaskDefinition, ehrExtractContent))
+                .thenReturn(expectedHL7);
+
+        doThrow(new XmlSchemaValidationException("Invalid XML", new RuntimeException("Invalid XML")))
+                .when(ehrExtractMapper).validateXmlAgainstSchema(expectedHL7);
+
+        var actualHL7 = structuredRecordMappingService.mapStructuredRecordToEhrExtractXml(structuredTaskDefinition, bundle);
+
+        verify(ehrExtractMapper).mapBundleToEhrFhirExtractParams(structuredTaskDefinition, bundle);
+        verify(ehrExtractMapper).mapEhrExtractToXml(ehrExtractTemplateParameters);
+        verify(ehrExtractMapper).validateXmlAgainstSchema(expectedHL7);
+        verify(outputMessageWrapperMapper).map(structuredTaskDefinition, ehrExtractContent);
+        verify(ehrExtractStatusService).saveEhrExtractMessageId(conversationId, ehrExtractId);
+
+        assertThat(actualHL7).isEqualTo(expectedHL7);
+
+        assertThat(logAppender.list.stream()
+            .filter(event -> event.getLevel() == Level.ERROR)
+            .map(ILoggingEvent::getFormattedMessage)
+            .toList())
+            .anyMatch(message -> message.contains("EHR Extract XML validation failed") && message.contains("Invalid XML"));
+    }
+
+
     public static void assertXMLEquals(String actualXML, String expectedXML) throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
 
@@ -293,37 +361,37 @@ class StructuredRecordMappingServiceTest {
                                                                               String filename, String contentType,
                                                                               OutboundMessage.AttachmentDescription description) {
         return OutboundMessage.ExternalAttachment.builder()
-            .title(title)
-            .documentId(documentID)
-            .messageId(messageID)
-            .description(description.toString())
-            .url(url)
-            .filename(filename)
-            .identifier(List.of())
-            .contentType(contentType)
-            .build();
+                .title(title)
+                .documentId(documentID)
+                .messageId(messageID)
+                .description(description.toString())
+                .url(url)
+                .filename(filename)
+                .identifier(List.of())
+                .contentType(contentType)
+                .build();
     }
 
     private static OutboundMessage.AttachmentDescription buildAttachmentDescription(String documentId) {
         return OutboundMessage.AttachmentDescription.builder()
-            .fileName(null)
-            .contentType(null)
-            .compressed(false)
-            .largeAttachment(false)
-            .originalBase64(false)
-            .documentId(documentId)
-            .build();
+                .fileName(null)
+                .contentType(null)
+                .compressed(false)
+                .largeAttachment(false)
+                .originalBase64(false)
+                .documentId(documentId)
+                .build();
     }
 
     private static DocumentReference buildDocumentReference(String id, String attachmentURL, String attachmentTitle,
-        int size, String contentType) {
+                                                            int size, String contentType) {
         var documentReference = new DocumentReference();
         documentReference.setId(buildIdType(ResourceType.DocumentReference, id));
         documentReference.getContentFirstRep().setAttachment(new Attachment()
-            .setUrl(attachmentURL)
-            .setTitle(attachmentTitle)
-            .setSize(size)
-            .setContentType(contentType));
+                .setUrl(attachmentURL)
+                .setTitle(attachmentTitle)
+                .setSize(size)
+                .setContentType(contentType));
         return documentReference;
     }
 }

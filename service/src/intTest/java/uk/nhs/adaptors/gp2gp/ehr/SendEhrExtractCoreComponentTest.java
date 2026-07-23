@@ -24,16 +24,14 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
 
@@ -60,7 +58,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
-@RunWith(SpringRunner.class)
 @ExtendWith({SpringExtension.class, MongoDBExtension.class, ActiveMQExtension.class, MockitoExtension.class})
 @SpringBootTest
 @DirtiesContext
@@ -81,30 +78,30 @@ public class SendEhrExtractCoreComponentTest extends BaseTaskTest {
     public static final Instant NOW = Instant.parse("2024-01-01T10:00:00Z");
     public static final String COMPRESSED_LARGE_PAYLOAD = "H4sIAAAAAAAA/wtydfTxiVQIglBOnocWAwA3VEfTEgAAAA==";
 
-    @MockitoBean
+    @MockBean
     private EhrDocumentMapper ehrDocumentMapper;
 
-    @MockitoBean
+    @MockBean
     private TimestampService timestampService;
 
-    @MockitoBean
+    @MockBean
     private RandomIdGeneratorService randomIdGeneratorService;
 
     @Mock
     private StorageDataWrapper storageDataWrapper;
 
-    @MockitoBean
+    @MockBean
     private WebClient.RequestHeadersSpec<?> request;
 
-    @MockitoBean
+    @MockBean
     private MhsRequestBuilder mhsRequestBuilder;
 
-    @MockitoBean
+    @MockBean
     private MhsClient mhsClient;
 
     private SendEhrExtractCoreTaskDefinition sendEhrExtractCoreTaskDefinition;
 
-    @MockitoBean
+    @MockBean
     private StorageConnectorService storageConnectorService;
 
     @Autowired
@@ -114,13 +111,13 @@ public class SendEhrExtractCoreComponentTest extends BaseTaskTest {
     private EhrExtractStatusRepository ehrExtractStatusRepository;
     private EhrExtractStatus ehrExtractStatus;
 
-    @MockitoBean
+    @MockBean
     private SendAcknowledgementTaskDispatcher sendAcknowledgementTaskDispatcher;
 
-    @MockitoBean
+    @MockBean
     private StructuredRecordMappingService structuredRecordMappingService;
 
-    @MockitoBean
+    @MockBean
     private Gp2gpConfiguration gp2gpConfiguration;
 
     @Test

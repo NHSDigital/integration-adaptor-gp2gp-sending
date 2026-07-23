@@ -4,18 +4,23 @@
 
 | Field Name                 | Datatype | Constraints                                                  |
 | -------------------------- | -------- | ------------------------------------------------------------ |
+| id                         | String   | MongoDB ObjectId                                             |
 | created                    | Date     | N/A                                                          |
 | updatedAt                  | Date     | N/A                                                          |
-| conversationId             | String   | UUID V4                                                      |
+| conversationId             | String   | UUID V4, Unique                                              |
 | ehrRequest                 | Object   | [EHR Request](database.md#ehr-request)                       |
 | gpcAccessDocument          | Object   | [GPC Access Document](database.md#gpc-access-document)       |
 | gpcAccessStructured        | Object   | [GPC Access Structured](database.md#gpc-access-structured)   |
 | ehrExtractCorePending      | Object   | [EHR Extract Core Pending](database.md#ehr-extract-core-pending) |
-| ehrContrinue               | Object   | [EHR Continue](database.md#ehr-continue)                     |
+| ehrContinue                | Object   | [EHR Continue](database.md#ehr-continue)                     |
 | ehrExtractCore             | Object   | [EHR Extract Core](database.md#ehr-extract-core)             |
 | ackPending                 | Object   | [ACK Pending](database.md#ack-pending)                       |
 | ackToRequester             | Object   | [ACK To Requester](database.md#ack-to-requester)             |
-| ehrReceivedAcknowledgement | Object   | [EHR Receieved Acknowledgement](database.md#ehr-received-acknowledgement) |
+| ehrReceivedAcknowledgement | Object   | [EHR Received Acknowledgement](database.md#ehr-received-acknowledgement) |
+| error                      | Object   | [Error](database.md#error)                                   |
+| messageTimestamp           | Date     | N/A                                                          |
+| ehrExtractMessageId        | String   | UUID V4                                                      |
+| ackHistory                 | Object   | [ACK History](database.md#ack-history)                       |
 
 ## EHR Request
 
@@ -74,13 +79,13 @@
 | messageId  | String   | UUID V4     |
 | taskId     | String   | UUID V4     |
 | typeCode   | String   | AA, AE      |
-| updatedAt  | Date     | N/A         |
+| updatedAt  | String   | format timestamp |
 
 ## ACK To Requester
 
 | Field Name | Datatype | Constraints |
 | ---------- | -------- | ----------- |
-| details    | String   | N/A         |
+| detail     | String   | N/A         |
 | messageId  | String   | UUID V4     |
 | reasonCode | String   | N/A         |
 | taskId     | String   | UUID V4     |
@@ -98,22 +103,29 @@
 
 ## GPC Document
 
-| Field Name        | Datatype | Constraints                             |
-| ----------------- | -------- | --------------------------------------- |
-| documentId        | String   | UUID V4                                 |
-| accessDocumentUrl | String   | URL                                     |
-| accessedDate      | Date     | N/A                                     |
-| taskId            | String   | UUID V4                                 |
-| messageId         | String   | UUID V4                                 |
-| objectName        | String   | N/A                                     |
-| sentToMhs         | Object   | [EHR Continue](database.md#sent-to-mhs) |
+| Field Name           | Datatype       | Constraints                             |
+| -------------------- | -------------- | --------------------------------------- |
+| documentId           | String         | UUID V4                                 |
+| accessDocumentUrl    | String         | URL                                     |
+| accessedAt           | Date           | N/A                                     |
+| contentLength        | Integer        | N/A                                     |
+| fileName             | String         | N/A                                     |
+| contentType          | String         | N/A                                     |
+| objectName           | String         | N/A                                     |
+| taskId               | String         | UUID V4                                 |
+| messageId            | String         | UUID V4                                 |
+| isSkeleton           | Boolean        | N/A                                     |
+| identifier           | Object (Array) | List of Identifiers                     |
+| originalDescription  | String         | N/A                                     |
+| gpConnectErrorMessage| String         | N/A (Error message from GP Connect)     |
+| sentToMhs            | Object         | [Sent To MHS](database.md#sent-to-mhs) |
 
 ## Sent To MHS
 
 | Field Name | Datatype       | Constraints |
 | ---------- | -------------- | ----------- |
 | messageId  | String (Array) | UUID V4's   |
-| sentAt     | Date           | N/A         |
+| sentAt     | String         | N/A (format timestamp) |
 | taskId     | String         | UUID V4     |
 
 ## Errors
@@ -122,6 +134,21 @@
 |------------|----------|-------------|
 | code       | String   | N/A         |
 | display    | String   | N/A         |
+
+## Error
+
+| Field Name | Datatype | Constraints |
+|------------|----------|-------------|
+| occurredAt | Date     | N/A         |
+| code       | String   | N/A         |
+| message    | String   | N/A         |
+| taskType   | String   | N/A         |
+
+## ACK History
+
+| Field Name | Datatype       | Constraints                                                  |
+|------------|----------------|--------------------------------------------------------------|
+| acks       | Object (Array) | [EHR Received Acknowledgement](database.md#ehr-received-acknowledgement) |
 
 ## Database entities
 

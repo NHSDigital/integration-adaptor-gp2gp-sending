@@ -11,8 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import uk.nhs.adaptors.gp2gp.common.configuration.RedactionsContext;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
 import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
+import uk.nhs.adaptors.gp2gp.ehr.exception.XmlSchemaValidationException;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.EhrExtractTemplateParameters;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.parameters.SkeletonComponentTemplateParameters;
 import uk.nhs.adaptors.gp2gp.ehr.utils.DateFormatUtil;
@@ -23,6 +25,13 @@ import uk.nhs.adaptors.gp2gp.gpc.GetGpcStructuredTaskDefinition;
 
 import uk.nhs.adaptors.gp2gp.ehr.exception.EhrValidationException;
 
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.transform.stream.StreamSource;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,6 +40,7 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class EhrExtractMapper {
+    private final RedactionsContext redactionsContext;
     private static final Mustache EHR_EXTRACT_TEMPLATE = TemplateUtils.loadTemplate("ehr_extract_template.mustache");
     private static final Mustache SKELETON_COMPONENT_TEMPLATE = TemplateUtils.loadTemplate("ehr_skeleton_component_template.mustache");
     private static final String CONSULTATION_LIST_CODE = "325851000000107";
@@ -47,6 +57,31 @@ public class EhrExtractMapper {
 
     public String mapEhrExtractToXml(EhrExtractTemplateParameters ehrExtractTemplateParameters) {
         return TemplateUtils.fillTemplate(EHR_EXTRACT_TEMPLATE, ehrExtractTemplateParameters);
+    }
+
+    public void validateXmlAgainstSchema(String xml) {
+        String interactionId = redactionsContext.ehrExtractInteractionId();
+        boolean isRedaction = RedactionsContext.REDACTION_INTERACTION_ID.equals(interactionId);
+
+        String schemaId = isRedaction
+                ? RedactionsContext.REDACTION_INTERACTION_ID
+                : RedactionsContext.NON_REDACTION_INTERACTION_ID;
+
+        String schemaFile = "mim/Schemas/" + schemaId + ".xsd";
+
+        try {
+            var resource = getClass().getClassLoader().getResource(schemaFile);
+
+            SchemaFactory factory = SchemaFactory.newDefaultInstance();
+            Schema schema = factory.newSchema(new StreamSource(resource.openStream(), resource.toExternalForm()));
+            schema.newValidator().validate(new StreamSource(new StringReader(xml)));
+
+            LOGGER.info("XML successfully validated against schema: {}", schemaFile);
+
+        } catch (SAXException | IOException e) {
+            LOGGER.error("XML validation failed against schema {}: {}", schemaFile, e.getMessage(), e);
+            throw new XmlSchemaValidationException("XML schema validation failed", e);
+        }
     }
 
     public EhrExtractTemplateParameters mapBundleToEhrFhirExtractParams(

@@ -7,12 +7,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class MongoDbContainer extends GenericContainer<MongoDbContainer> {
     public static final int MONGODB_PORT = 27017;
-    public static final String DEFAULT_IMAGE_AND_TAG = "mongo:8.0.15";
+    public static final String DEFAULT_IMAGE_AND_TAG = "mongo:4.4";
     private static MongoDbContainer container;
 
     private MongoDbContainer() {
         super(DEFAULT_IMAGE_AND_TAG);
         addExposedPort(MONGODB_PORT);
+        // withReuse(true) keeps the container alive after the JVM exits so the next
+        // test run can reconnect to it instead of starting a new one (~15 s saving).
+        // Reuse is only activated when testcontainers.reuse.enable=true in
+        // ~/.testcontainers.properties (see .testcontainers.properties.template).
+        // In CI that property is absent so containers always start fresh.
+        withReuse(true);
     }
 
     public static MongoDbContainer getInstance() {

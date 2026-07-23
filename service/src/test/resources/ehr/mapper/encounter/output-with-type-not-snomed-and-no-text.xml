@@ -25,7 +25,7 @@
         </location>
         <Participant2 typeCode="PRF" contextControlCode="OP">
             <agentRef classCode="AGNT">
-                <id root="test-id" />
+                <id root="test-id"/>
             </agentRef>
         </Participant2>
         <component typeCode="COMP" >
@@ -55,6 +55,5 @@
         </Participant>
     </ObservationStatement>
 </component>
-
     </ehrComposition>
 </component>

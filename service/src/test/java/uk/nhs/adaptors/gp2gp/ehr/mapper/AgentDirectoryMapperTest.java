@@ -3,9 +3,8 @@ package uk.nhs.adaptors.gp2gp.ehr.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
-
+import static org.mockito.Mockito.reset;
 import static uk.nhs.adaptors.gp2gp.utils.IdUtil.buildReference;
 
 import org.hl7.fhir.dstu3.model.Bundle;
@@ -31,12 +30,12 @@ class AgentDirectoryMapperTest {
     private static final String AGENT_DIRECTORY_FOLDER = "/ehr/mapper/agent-directory/";
     private static final String INPUT_AGENT_DIRECTORY = AGENT_DIRECTORY_FOLDER + "input-agent-directory-bundle.json";
     private static final String INPUT_AGENT_DIRECTORY_WITHOUT_MANAGING_ORGANIZATION_REFERENCE =
-        AGENT_DIRECTORY_FOLDER + "without-patient-managing-organization-reference.json";
+            AGENT_DIRECTORY_FOLDER + "without-patient-managing-organization-reference.json";
     private static final String INPUT_AGENT_DIRECTORY_WITHOUT_MANAGING_ORGANIZATION_RESOURCE =
-        AGENT_DIRECTORY_FOLDER + "without-patient-managing-organization-resource.json";
+            AGENT_DIRECTORY_FOLDER + "without-patient-managing-organization-resource.json";
     private static final String EXPECTED_AGENT_DIRECTORY = AGENT_DIRECTORY_FOLDER + "expected-agent-directory.xml";
     private static final String EXPECTED_AGENT_DIRECTORY_AGENT_PERSON_AS_ORGANIZATION =
-        AGENT_DIRECTORY_FOLDER + "expected-with-agent-person-as-organization.xml";
+            AGENT_DIRECTORY_FOLDER + "expected-with-agent-person-as-organization.xml";
 
     @Mock
     private RandomIdGeneratorService randomIdGeneratorService;
@@ -48,31 +47,60 @@ class AgentDirectoryMapperTest {
     private MessageContext messageContext;
 
     @BeforeEach
-    public void setUp() {
-        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+    void setUp() {
         messageContext = new MessageContext(randomIdGeneratorService);
-        lenient().when(agentPersonMapper.mapAgentPerson(any(), any())).thenAnswer(answerWithObjectId());
-
         agentDirectoryMapper = new AgentDirectoryMapper(messageContext, agentPersonMapper);
         fhirParseService = new FhirParseService();
+        when(randomIdGeneratorService.createNewId()).thenReturn(TEST_ID);
+    }
+
+    @AfterEach
+    void tearDown() {
+        messageContext.resetMessageContext();
+        messageContext = null;
+        agentDirectoryMapper = null;
+        fhirParseService = null;
+        reset(randomIdGeneratorService, agentPersonMapper);
     }
 
     private Answer<String> answerWithObjectId() {
         return invocation -> {
-            AgentDirectory.AgentKey agentKey = invocation.getArgument(0);
+            var agentKey = invocation.getArgument(0, AgentDirectory.AgentKey.class);
             return String.format("<!--Mocked agentPerson for: %s %s -->",
-                agentKey.getPractitionerReference(),
-                agentKey.getOrganizationReference());
+                    agentKey.getPractitionerReference(),
+                    agentKey.getOrganizationReference());
         };
+    }
+
+    private Bundle parseBundle(String path) {
+        var jsonInput = ResourceTestFileUtils.getFileContent(path);
+        return fhirParseService.parseResource(jsonInput, Bundle.class);
+    }
+
+    private String readExpectedOutput(String path) {
+        return ResourceTestFileUtils.getFileContent(path);
+    }
+
+    private void initializeMessageContextWithAgentKeys(Bundle bundle) {
+        messageContext.initialize(bundle);
+        messageContext.getAgentDirectory().getAgentRef(
+                buildReference(ResourceType.Practitioner, "11112222"),
+                buildReference(ResourceType.Organization, "33334444")
+        );
+        messageContext.getAgentDirectory().getAgentRef(
+                buildReference(ResourceType.Practitioner, "55556666"),
+                buildReference(ResourceType.Organization, "77778888")
+        );
     }
 
     @Test
     void When_MappingAgentDirectory_Expect_CorrectOutputFromMapper() {
-        var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_AGENT_DIRECTORY);
-        Bundle bundle = fhirParseService.parseResource(jsonInput, Bundle.class);
-        initializeMessageContextWithAgentKeys(bundle);
-        var expectedOutput = ResourceTestFileUtils.getFileContent(EXPECTED_AGENT_DIRECTORY);
+        when(agentPersonMapper.mapAgentPerson(any(), any())).thenAnswer(answerWithObjectId());
 
+        var bundle = parseBundle(INPUT_AGENT_DIRECTORY);
+        initializeMessageContextWithAgentKeys(bundle);
+
+        var expectedOutput = readExpectedOutput(EXPECTED_AGENT_DIRECTORY);
         var mapperOutput = agentDirectoryMapper.mapEHRFolderToAgentDirectory(bundle, NHS_NUMBER);
 
         assertThat(mapperOutput).isEqualTo(expectedOutput);
@@ -80,35 +108,35 @@ class AgentDirectoryMapperTest {
 
     @Test
     void When_MappingAgentDirectoryWithoutPatientManagingOrganizationReference_Expect_Exception() {
-        var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_AGENT_DIRECTORY_WITHOUT_MANAGING_ORGANIZATION_REFERENCE);
-        Bundle bundle = fhirParseService.parseResource(jsonInput, Bundle.class);
+        var bundle = parseBundle(INPUT_AGENT_DIRECTORY_WITHOUT_MANAGING_ORGANIZATION_REFERENCE);
         initializeMessageContextWithAgentKeys(bundle);
 
         assertThatThrownBy(() -> agentDirectoryMapper.mapEHRFolderToAgentDirectory(bundle, NHS_NUMBER))
-            .isExactlyInstanceOf(EhrMapperException.class)
-            .hasMessage("The ASR bundle does not contain a Patient resource with the correct identifier and managingOrganization");
+                .isInstanceOf(EhrMapperException.class)
+                .hasMessage("The ASR bundle does not contain a Patient resource with the correct identifier and managingOrganization");
     }
 
     @Test
     void When_MappingAgentDirectoryWithoutPatientManagingOrganizationResource_Expect_Exception() {
-        var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_AGENT_DIRECTORY_WITHOUT_MANAGING_ORGANIZATION_RESOURCE);
-        Bundle bundle = fhirParseService.parseResource(jsonInput, Bundle.class);
+        var bundle = parseBundle(INPUT_AGENT_DIRECTORY_WITHOUT_MANAGING_ORGANIZATION_RESOURCE);
         initializeMessageContextWithAgentKeys(bundle);
 
         assertThatThrownBy(() -> agentDirectoryMapper.mapEHRFolderToAgentDirectory(bundle, NHS_NUMBER))
-            .isExactlyInstanceOf(EhrMapperException.class)
-            .hasMessage("The ASR bundle does not contain a Patient resource with the correct identifier and managingOrganization");
+                .isInstanceOf(EhrMapperException.class)
+                .hasMessage("The ASR bundle does not contain a Patient resource with the correct identifier and managingOrganization");
     }
 
     @Test
     void When_MappingAgentDirectoryWithPatientManagingOrganizationInAgentKeys_Expect_AgentPersonNotDuplicated() {
-        var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_AGENT_DIRECTORY);
-        Bundle bundle = fhirParseService.parseResource(jsonInput, Bundle.class);
+        when(agentPersonMapper.mapAgentPerson(any(), any())).thenAnswer(answerWithObjectId());
+
+        var bundle = parseBundle(INPUT_AGENT_DIRECTORY);
         initializeMessageContextWithAgentKeys(bundle);
-        messageContext.getAgentDirectory().getAgentId(buildReference(ResourceType.Organization, "5E496953-065B-41F2-9577-BE8F2FBD0757"));
+        messageContext.getAgentDirectory().getAgentId(
+                buildReference(ResourceType.Organization, TEST_ID)
+        );
 
-        var expectedOutput = ResourceTestFileUtils.getFileContent(EXPECTED_AGENT_DIRECTORY);
-
+        var expectedOutput = readExpectedOutput(EXPECTED_AGENT_DIRECTORY);
         var mapperOutput = agentDirectoryMapper.mapEHRFolderToAgentDirectory(bundle, NHS_NUMBER);
 
         assertThat(mapperOutput).isEqualTo(expectedOutput);
@@ -116,31 +144,12 @@ class AgentDirectoryMapperTest {
 
     @Test
     void When_MappingAgentKeysWithoutAgentKeys_Expect_CorrectOutputFromMapper() {
-        var jsonInput = ResourceTestFileUtils.getFileContent(INPUT_AGENT_DIRECTORY);
-        Bundle bundle = fhirParseService.parseResource(jsonInput, Bundle.class);
+        var bundle = parseBundle(INPUT_AGENT_DIRECTORY);
         messageContext.initialize(bundle);
 
-        var expectedOutput = ResourceTestFileUtils.getFileContent(EXPECTED_AGENT_DIRECTORY_AGENT_PERSON_AS_ORGANIZATION);
-
+        var expectedOutput = readExpectedOutput(EXPECTED_AGENT_DIRECTORY_AGENT_PERSON_AS_ORGANIZATION);
         var mapperOutput = agentDirectoryMapper.mapEHRFolderToAgentDirectory(bundle, NHS_NUMBER);
 
         assertThat(mapperOutput).isEqualTo(expectedOutput);
-    }
-
-    private void initializeMessageContextWithAgentKeys(Bundle bundle) {
-        messageContext.initialize(bundle);
-        messageContext.getAgentDirectory().getAgentRef(
-            buildReference(ResourceType.Practitioner, "11112222"),
-            buildReference(ResourceType.Organization, "33334444")
-        );
-        messageContext.getAgentDirectory().getAgentRef(
-            buildReference(ResourceType.Practitioner, "55556666"),
-            buildReference(ResourceType.Organization, "77778888")
-        );
-    }
-
-    @AfterEach
-    public void tearDown() {
-        messageContext.resetMessageContext();
     }
 }
