@@ -23,6 +23,7 @@ import reactor.netty.http.client.HttpClient;
 import uk.nhs.adaptors.gp2gp.common.configuration.RedactionsContext;
 import uk.nhs.adaptors.gp2gp.common.service.RequestBuilderService;
 import uk.nhs.adaptors.gp2gp.common.service.WebClientFilterService;
+import uk.nhs.adaptors.gp2gp.common.utils.LogSanitizer;
 import uk.nhs.adaptors.gp2gp.mhs.configuration.MhsClientConfiguration;
 import uk.nhs.adaptors.gp2gp.mhs.configuration.MhsConfiguration;
 
@@ -82,7 +83,7 @@ public class MhsRequestBuilder {
 
         LOGGER.debug("Request: {} {}", requestMethod, mhsConfiguration.getUrl());
         headers.forEach((k, v) -> LOGGER.debug("Header: {}={}", k, v));
-        LOGGER.debug("Body: {}", requestBody);
+        LOGGER.debug("Body: {}", LogSanitizer.sanitize(requestBody));
 
         return client
             .method(requestMethod)
