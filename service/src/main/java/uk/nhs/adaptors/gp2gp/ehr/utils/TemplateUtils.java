@@ -5,11 +5,13 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import com.github.mustachejava.DefaultMustacheFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 
+@Slf4j
 public class TemplateUtils {
     private static final String TEMPLATES_DIRECTORY = "templates";
 
@@ -26,6 +28,7 @@ public class TemplateUtils {
             template.execute(writer, content).flush();
             data += writer.toString();
         } catch (IOException e) {
+            LOGGER.error("Failed to render Mustache template for content type {}", content.getClass().getSimpleName(), e);
             throw new IllegalArgumentException(e);
         }
 

@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import jakarta.jms.Message;
 import jakarta.jms.Session;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,6 +40,14 @@ class TaskConsumerTest {
 
     @Mock
     private Session session;
+
+    private static final String MESSAGE_ID = "test-message-id";
+
+    @BeforeEach
+    @SneakyThrows
+    void setUp() {
+        when(message.getJMSMessageID()).thenReturn(MESSAGE_ID);
+    }
 
     @Test
     @SneakyThrows
@@ -147,6 +156,11 @@ class TaskConsumerTest {
     }
 
     private void verifyMdcReset() {
+        verifyMdcMessageIdApplied();
         verify(mdcService).resetAllMdcKeys();
+    }
+
+    private void verifyMdcMessageIdApplied() {
+        verify(mdcService).applyMessageId(MESSAGE_ID);
     }
 }
