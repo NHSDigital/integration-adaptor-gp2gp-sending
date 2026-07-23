@@ -63,13 +63,14 @@ public class TaskHandler {
     }
     @SneakyThrows
     private void logError(Exception e, Message message) {
-        LOGGER.error("An error occurred while handing a task message_id: {}", message.getJMSMessageID(), e);
+        LOGGER.error("An error occurred while handling a task message_id: {}", message.getJMSMessageID(), e);
     }
 
     private TaskDefinition readTaskDefinition(Message message) {
         try {
             String taskType = message.getStringProperty(TASK_TYPE_HEADER_NAME);
             String body = JmsReader.readMessage(message);
+            mdcService.applyTaskType(taskType);
 
             LOGGER.info("Message taskType: {}", taskType);
             return taskDefinitionFactory.getTaskDefinition(taskType, body);
