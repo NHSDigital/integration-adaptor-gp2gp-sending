@@ -24,6 +24,7 @@ import java.time.Duration;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -51,6 +52,9 @@ class EhrExtractStatusServiceTest {
     public static final String ERROR_CODE = "99";
     public static final String ERROR_MESSAGE = "No acknowledgement has been received within ACK timeout limit";
     public static final int EHR_EXTRACT_SENT_DAYS_LIMIT = 8;
+    private static final int DEFAULT_CONTENT_LENGTH = 244;
+    private static final String CONTENT_TYPE_MSWORD = "application/msword";
+    public static final int FOUR = 4;
 
     private ArgumentCaptor<Query> queryCaptor = ArgumentCaptor.forClass(Query.class);
     private ArgumentCaptor<Update> updateCaptor = ArgumentCaptor.forClass(Update.class);
@@ -81,6 +85,32 @@ class EhrExtractStatusServiceTest {
         Field field = EhrExtractStatusService.class.getDeclaredField("ehrExtractSentDaysLimit");
         field.setAccessible(true);
         field.set(ehrExtractStatusService, EHR_EXTRACT_SENT_DAYS_LIMIT);
+    }
+
+    @Test
+    void fetchDocumentObjectNameAndSizeTest() {
+        String conversationId = generateRandomUppercaseUUID();
+        Optional<EhrExtractStatus> ehrExtractStatus
+            = Optional.of(EhrExtractStatus
+                              .builder()
+                              .gpcAccessDocument(
+                                  EhrExtractStatus.
+                                      GpcAccessDocument
+                                      .builder()
+                                      .documents(List.of(EhrExtractStatus.GpcDocument.builder()
+                                                             .fileName("AbsentAttachment4E0C8345-A9AB-48EA-8882-DC9E9F3F5F60.rtx")
+                                                             .documentId("4E0C8345-A9AB-48EA-8882-DC9E9F3F5F60")
+                                                             .contentLength(DEFAULT_CONTENT_LENGTH)
+                                                             .gpConnectErrorMessage("404 Not Found")
+                                                             .contentType(CONTENT_TYPE_MSWORD)
+                                                             .build())).build())
+                              .ehrExtractCorePending(null).build());
+
+        doReturn(ehrExtractStatus).when(ehrExtractStatusRepository).findByConversationId(conversationId);
+
+        Map<String, String> replacementMap = ehrExtractStatusService.fetchDocumentObjectNameAndSize(conversationId);
+
+        assertEquals(FOUR, replacementMap.size());
     }
 
     @Test
@@ -577,8 +607,77 @@ class EhrExtractStatusServiceTest {
                                           conversationId);
     }
 
+    @Test
+    void shouldSetSentAtFromTimestampServiceWhenUpdatingDocumentSentToMHS() {
+        String conversationId = generateRandomUppercaseUUID();
+        String taskId = generateRandomUppercaseUUID();
+        int documentPosition = 0;
+        Instant fixedTimestamp = Instant.parse("2026-04-23T10:00:00Z");
+
+        SendDocumentTaskDefinition taskDefinition = SendDocumentTaskDefinition.builder()
+            .conversationId(conversationId)
+            .taskId(taskId)
+            .documentPosition(documentPosition)
+            .build();
+
+        when(timestampService.now()).thenReturn(fixedTimestamp);
+
+        EhrExtractStatus ehrExtractStatus = EhrExtractStatus.builder().build();
+        when(mongoTemplate.findAndModify(any(Query.class), any(Update.class), any(FindAndModifyOptions.class), eq(EhrExtractStatus.class)))
+            .thenReturn(ehrExtractStatus);
+
+        ehrExtractStatusService.updateEhrExtractStatusCommonForDocuments(taskDefinition, List.of("msg-id-1"));
+
+        verify(mongoTemplate).findAndModify(queryCaptor.capture(), updateCaptor.capture(),
+            any(FindAndModifyOptions.class), eq(EhrExtractStatus.class));
+
+        Document setDocument = (Document) updateCaptor.getValue().getUpdateObject().get("$set");
+        String sentAtPath = "gpcAccessDocument.documents." + documentPosition + ".sentToMhs.sentAt";
+        assertEquals(fixedTimestamp, setDocument.get(sentAtPath));
+    }
+
+    @Test
+    void shouldSetSentAtFromTimestampServiceWhenUpdatingAttachmentSentToMhs() {
+        String conversationId = generateRandomUppercaseUUID();
+        String taskId = generateRandomUppercaseUUID();
+        Instant updatedAtTimestamp = Instant.parse("2026-04-23T11:00:00Z");
+        Instant sentAtTimestamp = Instant.parse("2026-04-23T12:00:00Z");
+
+        SendDocumentTaskDefinition taskDefinition = SendDocumentTaskDefinition.builder()
+            .conversationId(conversationId)
+            .taskId(taskId)
+            .documentPosition(0)
+            .build();
+
+        when(timestampService.now())
+            .thenReturn(updatedAtTimestamp)
+            .thenReturn(sentAtTimestamp);
+
+        EhrExtractStatus ehrExtractStatus = EhrExtractStatus.builder().build();
+        when(mongoTemplate.findAndModify(any(Query.class), any(Update.class), any(FindAndModifyOptions.class), eq(EhrExtractStatus.class)))
+            .thenReturn(ehrExtractStatus);
+
+        ehrExtractStatusService.updateEhrExtractStatusCommonForExternalEhrExtract(taskDefinition, List.of("msg-id-1"));
+
+        verify(mongoTemplate).findAndModify(queryCaptor.capture(), updateCaptor.capture(),
+            any(FindAndModifyOptions.class), eq(EhrExtractStatus.class));
+
+        Document setDocument = (Document) updateCaptor.getValue().getUpdateObject().get("$set");
+
+        String sentAtPath = "gpcAccessStructured.attachment.sentToMhs.sentAt";
+        assertTrue(setDocument.containsKey(sentAtPath), "Update should contain the sentAt field");
+        assertEquals(sentAtTimestamp, setDocument.get(sentAtPath));
+
+        String taskIdPath = "gpcAccessStructured.attachment.sentToMhs.taskId";
+        assertEquals(taskId, setDocument.get(taskIdPath));
+
+        String messageIdPath = "gpcAccessStructured.attachment.sentToMhs.messageId";
+        assertEquals(List.of("msg-id-1"), setDocument.get(messageIdPath));
+    }
+
     private String generateRandomUppercaseUUID() {
         return UUID.randomUUID().toString().toUpperCase();
     }
 
 }
+

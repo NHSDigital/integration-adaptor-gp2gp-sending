@@ -130,7 +130,7 @@ public class EhrExtractRequestHandler {
             ehrExtractStatusService.updateEhrExtractStatusContinue(conversationId)
                 .ifPresent(ehrExtractStatus -> {
                     var documents = ehrExtractStatus.getGpcAccessDocument().getDocuments();
-                    LOGGER.info("Sending documents for: ConversationId: " + conversationId);
+                    LOGGER.info("Sending documents for: ConversationId: {}", conversationId);
                     for (int documentPosition = 0; documentPosition < documents.size(); documentPosition++) {
                         var document = documents.get(documentPosition);
                         createSendDocumentTasks(

@@ -3,6 +3,7 @@ package uk.nhs.adaptors.gp2gp.ehr.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.DiagnosticReport;
@@ -14,6 +15,9 @@ import org.hl7.fhir.dstu3.model.ResourceType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
@@ -133,14 +137,6 @@ class InputBundleTest {
     }
 
     @Test
-    void When_GettingPractitionerRoleForPractitionerAndOrganizationThatDoesNotMatch_Expect_EmptyReturned() {
-        InputBundle inputBundle = new InputBundle(bundle);
-        Optional<PractitionerRole> practitionerRoleFor = inputBundle.getPractitionerRoleFor(
-            "Practitioner/not-match", "Organization/not-match");
-        assertThat(practitionerRoleFor).isEmpty();
-    }
-
-    @Test
     void When_GettingPractitionerRoleWithoutPractitionerAndOrganization_Expect_EmptyReturned() {
         Bundle bundle = new Bundle();
         bundle.addEntry().setResource(new PractitionerRole());
@@ -150,19 +146,22 @@ class InputBundleTest {
         assertThat(practitionerRoleFor).isEmpty();
     }
 
-    @Test
-    void When_GettingPractitionerRoleWhereOnlyOrganizationMatch_Expect_EmptyReturned() {
+    @ParameterizedTest(name = "{index} => practitioner={0}, organization={1} → empty")
+    @MethodSource("practitionerRoleNoMatchCases")
+    void When_GettingPractitionerRole_WithNoMatchingCombinations_Expect_EmptyReturned(String practitionerRef,
+                                                                                      String organizationRef) {
+
         InputBundle inputBundle = new InputBundle(bundle);
-        Optional<PractitionerRole> practitionerRoleFor = inputBundle.getPractitionerRoleFor(
-            "Practitioner/not-match", "Organization/2");
+
+        Optional<PractitionerRole> practitionerRoleFor = inputBundle.getPractitionerRoleFor(practitionerRef, organizationRef);
+
         assertThat(practitionerRoleFor).isEmpty();
     }
 
-    @Test
-    void When_GettingPractitionerRoleWhereOnlyPractitionerMatch_Expect_EmptyReturned() {
-        InputBundle inputBundle = new InputBundle(bundle);
-        Optional<PractitionerRole> practitionerRoleFor = inputBundle.getPractitionerRoleFor(
-            "Practitioner/1", "Organization/not-match");
-        assertThat(practitionerRoleFor).isEmpty();
+    private static Stream<Arguments> practitionerRoleNoMatchCases() {
+        return Stream.of(
+            Arguments.of("Practitioner/not-match", "Organization/not-match"),
+            Arguments.of("Practitioner/not-match", "Organization/2"),
+            Arguments.of("Practitioner/1", "Organization/not-match"));
     }
 }

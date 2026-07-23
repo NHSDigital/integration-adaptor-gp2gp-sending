@@ -1,10 +1,13 @@
 package uk.nhs.adaptors.gp2gp.gpc;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.doThrow;
@@ -21,12 +24,14 @@ import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.DocumentReference;
 import org.hl7.fhir.dstu3.model.Patient;
 import org.hl7.fhir.dstu3.model.ResourceType;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 
 import uk.nhs.adaptors.gp2gp.common.configuration.Gp2gpConfiguration;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
@@ -55,6 +60,8 @@ class StructuredRecordMappingServiceTest {
     private static final String NEW_DOC_REF_ID_2 = "222_new_doc_ref_id";
     private static final String NEW_DOC_MANIFEST_ID_2 = "222_new_doc_manifest_id";
     private static final String UNSUPPORTED_CONTENT_TYPE = "application/text";
+    private ListAppender<ILoggingEvent> logAppender;
+    private Logger logger;
 
     @Mock
     private OutputMessageWrapperMapper outputMessageWrapperMapper;
@@ -75,12 +82,22 @@ class StructuredRecordMappingServiceTest {
     private StructuredRecordMappingService structuredRecordMappingService;
 
     @BeforeEach
-    void setup() {
-        lenient().when(messageContext.getIdMapper()).thenReturn(new IdMapper(randomIdGeneratorService));
+    void setUpLogCapture() {
+        logger = (Logger) LoggerFactory.getLogger(StructuredRecordMappingService.class);
+        logAppender = new ListAppender<>();
+        logAppender.start();
+        logger.addAppender(logAppender);
+    }
+
+    @AfterEach
+    void tearDownLogCapture() {
+        logger.detachAppender(logAppender);
+        logAppender.stop();
     }
 
     @Test
     void When_GettingExternalAttachments_Expect_AllDocumentReferenceResourcesAreMapped() {
+        when(messageContext.getIdMapper()).thenReturn(new IdMapper(randomIdGeneratorService));
         when(randomIdGeneratorService.createNewId()).thenReturn(
                 NEW_DOC_MANIFEST_ID_1,
                 NEW_DOC_MANIFEST_ID_2
@@ -115,6 +132,7 @@ class StructuredRecordMappingServiceTest {
 
     @Test
     void When_GettingExternalAttachment_WithWrongContentType_Expect_AbsentAttachmentMapped() {
+        when(messageContext.getIdMapper()).thenReturn(new IdMapper(randomIdGeneratorService));
         when(randomIdGeneratorService.createNewId()).thenReturn(NEW_DOC_MANIFEST_ID_1);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(NEW_DOC_MANIFEST_ID_1);
         when(gp2gpConfiguration.getLargeAttachmentThreshold()).thenReturn(LARGE_MESSAGE_THRESHOLD);
@@ -132,6 +150,7 @@ class StructuredRecordMappingServiceTest {
 
     @Test
     void When_GettingExternalAttachment_WithTitleAndNoUrl_Expect_AbsentAttachmentMapped() {
+        when(messageContext.getIdMapper()).thenReturn(new IdMapper(randomIdGeneratorService));
         when(randomIdGeneratorService.createNewId()).thenReturn(NEW_DOC_MANIFEST_ID_1);
         when(randomIdGeneratorService.createNewOrUseExistingUUID(anyString())).thenReturn(NEW_DOC_MANIFEST_ID_1);
         when(gp2gpConfiguration.getLargeAttachmentThreshold()).thenReturn(LARGE_MESSAGE_THRESHOLD);
@@ -145,6 +164,12 @@ class StructuredRecordMappingServiceTest {
                 "AbsentAttachment111_new_doc_manifest_id.txt", "text/plain",
                 buildAttachmentDescription(NEW_DOC_MANIFEST_ID_1)
         )));
+
+        assertThat(logAppender.list.stream()
+            .filter(event -> event.getLevel() == Level.WARN)
+            .map(ILoggingEvent::getFormattedMessage)
+            .toList())
+            .anyMatch(message -> message.contains("Empty URL on DocumentReference") && message.contains(ID_1));
     }
 
     @Test
@@ -303,17 +328,23 @@ class StructuredRecordMappingServiceTest {
                 .thenReturn(expectedHL7);
 
         doThrow(new XmlSchemaValidationException("Invalid XML", new RuntimeException("Invalid XML")))
-                .when(ehrExtractMapper).validateXmlAgainstSchema(ehrExtractContent);
+                .when(ehrExtractMapper).validateXmlAgainstSchema(expectedHL7);
 
         var actualHL7 = structuredRecordMappingService.mapStructuredRecordToEhrExtractXml(structuredTaskDefinition, bundle);
 
         verify(ehrExtractMapper).mapBundleToEhrFhirExtractParams(structuredTaskDefinition, bundle);
         verify(ehrExtractMapper).mapEhrExtractToXml(ehrExtractTemplateParameters);
-        verify(ehrExtractMapper).validateXmlAgainstSchema(ehrExtractContent);
+        verify(ehrExtractMapper).validateXmlAgainstSchema(expectedHL7);
         verify(outputMessageWrapperMapper).map(structuredTaskDefinition, ehrExtractContent);
         verify(ehrExtractStatusService).saveEhrExtractMessageId(conversationId, ehrExtractId);
 
         assertThat(actualHL7).isEqualTo(expectedHL7);
+
+        assertThat(logAppender.list.stream()
+            .filter(event -> event.getLevel() == Level.ERROR)
+            .map(ILoggingEvent::getFormattedMessage)
+            .toList())
+            .anyMatch(message -> message.contains("EHR Extract XML validation failed") && message.contains("Invalid XML"));
     }
 
 

@@ -28,9 +28,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.w3c.dom.Document;
@@ -56,7 +56,7 @@ public class GetGpcStructuredComponentTest extends BaseTaskTest {
     private static final String PATIENT_NOT_FOUND = "PATIENT_NOT_FOUND";
     private static final String INVALID_NHS_NUMBER = "INVALID_NHS_NUMBER";
     private static final String TEST_EXCEPTION_MESSAGE = "The following error occurred during GPC request: ";
-    private static final String EXPECTED_PAYLOAD_TYPE = "RCMR_IN030000UK06";
+    private static final String EXPECTED_PAYLOAD_TYPE = "RCMR_IN030000UK07";
     private static final String EXPECTED_NHS_NUMBER = "9876543210";
     private static final String EHR_COMPOSITION_ELEMENT = "<ehrComposition classCode=\"COMPOSITION\" moodCode=\"EVN\">";
     private static final List<String> VALID_ERRORS = Arrays.asList(INVALID_NHS_NUMBER, PATIENT_NOT_FOUND);
@@ -73,13 +73,13 @@ public class GetGpcStructuredComponentTest extends BaseTaskTest {
     @Autowired
     private StorageConnector storageConnector;
 
-    @MockitoSpyBean
+    @SpyBean
     private MessageContext messageContext;
 
-    @MockitoSpyBean
+    @SpyBean
     private StorageConnectorService storageConnectorService;
 
-    @MockitoBean
+    @MockBean
     private DetectTranslationCompleteService detectTranslationCompleteService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();

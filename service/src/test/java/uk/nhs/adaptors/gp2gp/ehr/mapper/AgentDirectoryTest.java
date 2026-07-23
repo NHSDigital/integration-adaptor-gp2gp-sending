@@ -1,8 +1,8 @@
 package uk.nhs.adaptors.gp2gp.ehr.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.lenient;
 
+import static org.mockito.Mockito.when;
 import static uk.nhs.adaptors.gp2gp.utils.IdUtil.buildReference;
 
 import java.util.Map;
@@ -40,7 +40,7 @@ class AgentDirectoryTest {
 
     @BeforeEach
     public void setUp() {
-        lenient().when(randomIdGeneratorService.createNewId()).thenReturn(GENERATED_ID_1, GENERATED_ID_2);
+        when(randomIdGeneratorService.createNewId()).thenReturn(GENERATED_ID_1, GENERATED_ID_2);
 
         String jsonInput = ResourceTestFileUtils.getFileContent(INPUT_BUNDLE);
         inputBundle = new FhirParseService().parseResource(jsonInput, Bundle.class);

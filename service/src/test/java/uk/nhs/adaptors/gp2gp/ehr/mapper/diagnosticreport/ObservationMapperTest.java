@@ -17,7 +17,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
 import uk.nhs.adaptors.gp2gp.common.service.ConfidentialityService;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
 import uk.nhs.adaptors.gp2gp.common.service.RandomIdGeneratorService;
@@ -40,7 +39,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static uk.nhs.adaptors.gp2gp.utils.ConfidentialityCodeUtility.NOPAT_HL7_CONFIDENTIALITY_CODE;
 import static uk.nhs.adaptors.gp2gp.utils.XmlAssertion.assertThatXml;
@@ -158,11 +156,7 @@ class ObservationMapperTest {
         ));
 
         InputBundle inputBundle = new InputBundle(bundle);
-        lenient().when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
-        lenient().when(messageContext.getAgentDirectory()).thenReturn(agentDirectory);
-        lenient().when(agentDirectory.getAgentId(any(Reference.class))).thenAnswer(mockReference());
-        lenient().when(agentDirectory.getAgentRef(any(Reference.class), any(Reference.class))).thenAnswer(mockReferences());
-
+        when(messageContext.getInputBundleHolder()).thenReturn(inputBundle);
         when(messageContext.getIdMapper()).thenReturn(idMapper);
         when(idMapper.getOrNew(any(ResourceType.class), any(IdType.class)))
             .thenAnswer(params -> "Mapped-From-" + ((IdType) params.getArgument(1)).getValue());
@@ -185,12 +179,10 @@ class ObservationMapperTest {
     @ParameterizedTest
     @MethodSource("resourceFileParams")
     void When_MappingObservationJson_Expect_CompoundStatementXmlOutput(String inputJson, String outputXml) {
+        when(randomIdGeneratorService.createNewId()).thenReturn("random-unmapped-id");
+
         final Observation observationAssociatedWithSpecimen = getObservationResourceFromJson(inputJson);
         final String expectedXml = getXmlStringFromFile(outputXml);
-
-        lenient().when(randomIdGeneratorService.createNewId())
-            .thenReturn("random-unmapped-id");
-
         final String actualXml = observationMapper.mapObservationToCompoundStatement(
             observationAssociatedWithSpecimen);
 
@@ -392,20 +384,5 @@ class ObservationMapperTest {
                 OBSERVATION_COMPOUND_STATEMENT_WITH_BATTERY_TEST_RESULT_XML
             )
         );
-    }
-
-    private Answer<String> mockReference() {
-        return invocation -> {
-            Reference reference = invocation.getArgument(0);
-            return String.format("REFERENCE-to-%s", reference.getReference());
-        };
-    }
-
-    private Answer<String> mockReferences() {
-        return invocation -> {
-            Reference practitionerReference = invocation.getArgument(0);
-            Reference organizationReference = invocation.getArgument(1);
-            return String.format("REFERENCE-to-%s-%s", practitionerReference.getReference(), organizationReference.getReference());
-        };
     }
 }

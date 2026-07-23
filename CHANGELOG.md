@@ -4,11 +4,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## Unreleased
 
 ### Fixed
+* OrganizationToAgentMapper.checkIfWorkPhone now safely handles missing contactPoint system field by throwing EhrMapperException instead of causing NullPointerException.
 
-* Prevent duplicate processing: after a medication request is processed, the system no longer pulls a subsequent non‑consultation item based on the same request.
+* Improved log granularity: Enhanced detail in existing logs, capturing more contextual information 
+for easier debugging and error analysis.
+
+
+## [3.2.1] - 2026-05-12
+
+* The service Docker image now uses JVM percentage-based heap sizing (`-XX:MaxRAMPercentage=75.0`, `-XX:InitialRAMPercentage=50.0`) instead of a fixed `-Xmx` value, so the heap adapts automatically when the container memory limit is changed without requiring an image rebuild.
+* Enabled G1GC explicitly (`-XX:+UseG1GC`) in the service container entrypoint for consistent garbage collection behaviour across deployments.
+* Updated logging configuration to route application logs through async appender settings for improved runtime logging performance.
+* The GP2GP Adaptor now runs validation on the complete outbound message rather than just the inner EhrExtract content.
+
+## [3.2.0] - 2026-04-20
+
+### Added
+* The GP2GP_REDACTIONS_ENABLED environment variable now defaults to true if no value is provided.
+
+### Fixed
+* The GP2GP Adaptor will no longer incorrectly fail schema validation.
+* The GP2GP Adaptor now sources the references correctly from within the service code rather than fetching them from the test folder.
+
+## [3.0.0] - 2025-11-06
 
 ### Added
 * The GP2GP Adaptor now validates references inside condition objects to test whether they actually exist. Otherwise, the bundle is rejected.
@@ -16,16 +37,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The GP2GP Adaptor now populates the ObservationStatement / confidentialityCode field when the .meta.security field of an Uncategorized Data Observation contains NOPAT
 * When List.meta.security field contains NOPAT, the GP2GP Adaptor will now populate the CompoundStatement.confidentialityCode
 * The GP2GP Adaptor now throws an exception when the Access Structure Record is empty, thereby rejecting the transfer
-* The GP2GP Adaptor now throws an exception when the XML is not valid, thereby stopping the transfer from going forward
 
 ### Fixed
 * When DiagnosticReport doesn't contain a Specimen or Observation reference, instead of "DUMMY" "NOT-PRESENT" value is used
+* Prevent duplicate processing: after a medication request is processed, the system no longer pulls a subsequent non‑consultation item based on the same request.
 
 ### Update
 
 * [GP Connect 1.6.1] The GP2GP Adaptor is now able to identify e-referrals by using either `https://fhir.nhs.uk/Id/ubr-number` or `https://fhir.nhs.uk/Id/UBRN` when provided as an identifier system URL.
-* [GP Connect 1.6.2] In a `MedicationRequest` the `Medication` can be provided as a reference to a `Medication` (using `Medication.medicationReference`) or, in the case that only a single resource references this medication, a `Medication.medicationCodeableConcept` can be used instead.) 
-
+* [GP Connect 1.6.2] In a `MedicationRequest` the `Medication` can be provided as a reference to a `Medication` (using `Medication.medicationReference`) or, in the case that only a single resource references this medication, a `Medication.medicationCodeableConcept` can be used instead.)
 
 ## [2.4.0] - 2025-04-02
 

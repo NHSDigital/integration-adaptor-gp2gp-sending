@@ -25,7 +25,7 @@ import uk.nhs.adaptors.gp2gp.ehr.model.EhrExtractStatus;
 import uk.nhs.adaptors.gp2gp.ehr.status.model.EhrStatus;
 
 @ExtendWith(MockitoExtension.class)
-public class EhrStatusServiceTest {
+class EhrStatusServiceTest {
 
     private static final String TO_ASID_CODE = "test-to-asid";
     private static final String FROM_ASID_CODE = "test-from-asid";

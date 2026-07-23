@@ -68,13 +68,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static uk.nhs.adaptors.gp2gp.XsdValidator.validateFileContentAgainstSchema;
 
 @ExtendWith(MockitoExtension.class)
 @Disabled
-public class EhrExtractUATTest {
+class EhrExtractUATTest {
     private static final String INPUT_PATH = "/uat/input/";
     private static final String OUTPUT_PATH = "/uat/output/";
     private static final boolean OVERWRITE_XML = false;
@@ -159,7 +158,7 @@ public class EhrExtractUATTest {
                 new BloodPressureValidator());
         ehrExtractMapper = new EhrExtractMapper(redactionsContext, randomIdGeneratorService, timestampService, encounterMapper,
             nonConsultationResourceMapper, agentDirectoryMapper, messageContext);
-        lenient().when(confidentialityService.generateConfidentialityCode(any()))
+        when(confidentialityService.generateConfidentialityCode(any()))
             .thenReturn(Optional.empty());
     }
 
@@ -223,7 +222,7 @@ public class EhrExtractUATTest {
 
     @ParameterizedTest
     @MethodSource("testValueFilePathsTC4")
-    public void When_MappingValidJsonRequestBody_Expect_ValidXmlOutputTC4(String inputJson, String expectedOutputXml)
+    void When_MappingValidJsonRequestBody_Expect_ValidXmlOutputTC4(String inputJson, String expectedOutputXml)
         throws IOException, SAXException {
         final String expectedXmlResourcePath = OUTPUT_PATH + "TC4/" + expectedOutputXml;
         final String expectedJsonToXmlContent = ResourceTestFileUtils.getFileContent(expectedXmlResourcePath);
@@ -257,7 +256,7 @@ public class EhrExtractUATTest {
 
     @ParameterizedTest
     @MethodSource("testValueFilePathsTC7")
-    public void When_MappingValidJsonRequestBody_Expect_ValidXmlOutputTC7(String inputJson, String expectedOutputXml)
+    void When_MappingValidJsonRequestBody_Expect_ValidXmlOutputTC7(String inputJson, String expectedOutputXml)
         throws IOException, SAXException {
         final String expectedXmlResourcePath = OUTPUT_PATH + "TC7/" + expectedOutputXml;
         final String expectedJsonToXmlContent = ResourceTestFileUtils.getFileContent(expectedXmlResourcePath);

@@ -75,6 +75,7 @@ public class EhrExtractStatusTestUtils {
                 EhrExtractStatus.GpcDocument.builder()
                     .messageId(CONVERSATION_ID)
                     .documentId(documentId)
+                    .fileName(DOCUMENT_NAME)
                     .objectName(DOCUMENT_NAME)
                     .contentType(DOCUMENT_CONTENT_TYPE)
                     .contentLength(CONTENT_LENGTH)

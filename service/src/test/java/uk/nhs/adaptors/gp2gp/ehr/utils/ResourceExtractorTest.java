@@ -6,74 +6,71 @@ import org.hl7.fhir.dstu3.model.ListResource;
 import org.hl7.fhir.dstu3.model.Resource;
 import org.hl7.fhir.instance.model.api.IIdType;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import uk.nhs.adaptors.gp2gp.common.service.FhirParseService;
-import uk.nhs.adaptors.gp2gp.ehr.mapper.MessageContext;
 import uk.nhs.adaptors.gp2gp.utils.ResourceTestFileUtils;
+
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class ResourceExtractorTest {
 
     private static final String LIST_RESOURCE_TEST_FILE_DIRECTORY = "/ehr/mapper/listresource/";
+    private static final String BUNDLE_FILE = "fhir_bundle.json";
     private static final String LIST_REFERENCE_ID = "List/ended-allergies#eb306f14-31e9-11ee-b912-0a58a9feac02";
 
-    @Mock
-    private MessageContext messageContext;
+    private final FhirParseService fhirParseService = new FhirParseService();
 
-    @Test
-    void extractListWithContainedAllergiesResourceByReference() {
-
-        String bundleJsonInput = ResourceTestFileUtils.getFileContent(LIST_RESOURCE_TEST_FILE_DIRECTORY + "fhir_bundle.json");
-        Bundle allBundle = new FhirParseService().parseResource(bundleJsonInput, Bundle.class);
-
-        IIdType reference = createAllergyIntoleranceReference(LIST_REFERENCE_ID);
-        Optional<Resource> resources = ResourceExtractor.extractResourceByReference(allBundle, reference);
-
-        assertEquals(1, resources.stream().count());
-        assertEquals("List/ended-allergies", resources.get().getId());
-        assertEquals(2, ((ListResource) resources.get()).getContained().size());
-    }
-
-    @Test
-    void extractEmptyResourceWithValidContainedIdButNotValidResourceTypeReference() {
-
-        final String LIST_REFERENCE_ID_WITH_WRONG_RESOURCE_TYPE = "Organization/ended-allergies#eb306f14-31e9-11ee-b912-0a58a9feac02";
-        String bundleJsonInput = ResourceTestFileUtils.getFileContent(LIST_RESOURCE_TEST_FILE_DIRECTORY + "fhir_bundle.json");
-        Bundle allBundle = new FhirParseService().parseResource(bundleJsonInput, Bundle.class);
-
-        IIdType reference = createAllergyIntoleranceReference(LIST_REFERENCE_ID_WITH_WRONG_RESOURCE_TYPE);
-        Optional<Resource> resources = ResourceExtractor.extractResourceByReference(allBundle, reference);
-
-        assertEquals(Optional.empty(), resources);
-    }
-
-    @Test
-    void extractEmptyResourceByNonExistedReference() {
-
-        final String NON_EXISTED_LIST_REFERENCE_ID = "List/ended-allergies#eb306f14-31e9-11ee-b912-0a58a9feac04";
-        String bundleJsonInput = ResourceTestFileUtils.getFileContent(LIST_RESOURCE_TEST_FILE_DIRECTORY + "fhir_bundle.json");
-        Bundle allBundle = new FhirParseService().parseResource(bundleJsonInput, Bundle.class);
-
-        IIdType reference = createAllergyIntoleranceReference(NON_EXISTED_LIST_REFERENCE_ID);
-        Optional<Resource> resources = ResourceExtractor.extractResourceByReference(allBundle, reference);
-
-        assertEquals(Optional.empty(), resources);
+    private Bundle parseBundle() {
+        var jsonInput = ResourceTestFileUtils.getFileContent(LIST_RESOURCE_TEST_FILE_DIRECTORY + BUNDLE_FILE);
+        return fhirParseService.parseResource(jsonInput, Bundle.class);
     }
 
     private IIdType createAllergyIntoleranceReference(String refId) {
-        AllergyIntolerance allergyIntolerance = new AllergyIntolerance();
+        var allergyIntolerance = new AllergyIntolerance();
         allergyIntolerance.getAsserter().setReference(refId);
-
         return allergyIntolerance.getAsserter().getReferenceElement();
     }
 
+    private Optional<Resource> extractByReference(Bundle bundle, String referenceId) {
+        return ResourceExtractor.extractResourceByReference(bundle, createAllergyIntoleranceReference(referenceId));
+    }
 
+    @Test
+    void When_ExtractingListWithContainedAllergiesResourceByReference_Expect_ResourceFound() {
+        var allBundle = parseBundle();
+        Optional<Resource> resource = extractByReference(allBundle, LIST_REFERENCE_ID);
+
+        assertTrue(resource.isPresent());
+        Resource extracted = resource.get();
+        ListResource listResource = assertInstanceOf(ListResource.class, extracted);
+        assertAll(
+            () -> assertEquals("List/ended-allergies", extracted.getId()),
+            () -> assertEquals(2, listResource.getContained().size())
+        );
+    }
+
+    @Test
+    void When_ExtractingResourceWithValidContainedIdButInvalidResourceTypeReference_Expect_EmptyResult() {
+        final String WRONG_TYPE_REFERENCE_ID = "Organization/ended-allergies#eb306f14-31e9-11ee-b912-0a58a9feac02";
+
+        var allBundle = parseBundle();
+        Optional<Resource> resources = extractByReference(allBundle, WRONG_TYPE_REFERENCE_ID);
+
+        assertFalse(resources.isPresent());
+    }
+
+    @Test
+    void When_ExtractingResourceByNonExistentReference_Expect_EmptyResult() {
+        final String NON_EXISTENT_REFERENCE_ID = "List/ended-allergies#eb306f14-31e9-11ee-b912-0a58a9feac04";
+
+        var allBundle = parseBundle();
+        Optional<Resource> resources = extractByReference(allBundle, NON_EXISTENT_REFERENCE_ID);
+
+        assertFalse(resources.isPresent());
+    }
 }

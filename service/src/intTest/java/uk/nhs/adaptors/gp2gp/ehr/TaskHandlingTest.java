@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -18,18 +17,16 @@ import jakarta.jms.Session;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -42,7 +39,6 @@ import uk.nhs.adaptors.gp2gp.ehr.model.EhrExtractStatus;
 import uk.nhs.adaptors.gp2gp.testcontainers.ActiveMQExtension;
 import uk.nhs.adaptors.gp2gp.testcontainers.MongoDBExtension;
 
-@RunWith(SpringRunner.class)
 @ExtendWith({SpringExtension.class, MongoDBExtension.class, ActiveMQExtension.class, MockitoExtension.class})
 @SpringBootTest
 @DirtiesContext
@@ -51,17 +47,17 @@ public class TaskHandlingTest {
     private static final String TASK_TYPE_HEADER_NAME = "TaskType";
     private static final String NACK_TYPE_CODE = "AE";
 
-    @MockitoSpyBean
+    @SpyBean
     private ObjectMapper objectMapper;
     @Autowired
     private TaskConsumer taskConsumer;
     @Autowired
     private EhrExtractStatusRepository ehrExtractStatusRepository;
-    @MockitoSpyBean
+    @SpyBean
     private EhrExtractStatusService ehrExtractStatusService;
-    @MockitoSpyBean
+    @SpyBean
     private TaskExecutorFactory taskExecutorFactory;
-    @MockitoBean
+    @MockBean
     private TaskDispatcher taskDispatcher;
     @Mock
     private Message message;
@@ -73,7 +69,7 @@ public class TaskHandlingTest {
 
     @BeforeEach
     public void setup() {
-        lenient().doReturn(taskExecutor).when(taskExecutorFactory).getTaskExecutor(any());
+        doReturn(taskExecutor).when(taskExecutorFactory).getTaskExecutor(any());
     }
 
     @Test
