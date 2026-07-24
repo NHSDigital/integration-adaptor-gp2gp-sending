@@ -9,7 +9,7 @@ plugins {
 	id 'org.sonarqube' version '7.1.0.6387'
 
 	// Mutation testing
-	id 'info.solidsoft.pitest' version '1.15.0'
+	id 'info.solidsoft.pitest' version '1.19.0'
 	id 'com.arcmutate.github' version '2.2.4'
 }
 
