@@ -22,7 +22,7 @@ dependencies {
     testImplementation 'commons-io:commons-io:2.22.0'
     testImplementation 'org.awaitility:awaitility:4.3.0'
     testImplementation "org.assertj:assertj-core:3.27.7"
-    testImplementation 'ch.qos.logback:logback-classic:1.5.34'
+    testImplementation 'ch.qos.logback:logback-classic:1.5.38'
     testImplementation 'org.xmlunit:xmlunit-assertj3:2.12.0'
     testImplementation 'org.apache.httpcomponents.client5:httpclient5:5.6.1'
 }
