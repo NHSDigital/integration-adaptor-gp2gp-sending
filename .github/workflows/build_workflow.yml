@@ -27,7 +27,7 @@ jobs:
 
       - name: Checkstyle
         run: |
-          ./gradlew checkStyleMain --parallel
+          ./gradlew checkstyleMain --parallel
           ./gradlew checkstyleTest --parallel
         working-directory: ./service
 
