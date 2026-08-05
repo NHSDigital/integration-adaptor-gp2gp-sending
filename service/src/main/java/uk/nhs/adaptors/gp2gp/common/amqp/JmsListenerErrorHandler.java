@@ -2,6 +2,7 @@ package uk.nhs.adaptors.gp2gp.common.amqp;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ErrorHandler;
@@ -26,7 +27,12 @@ public class JmsListenerErrorHandler implements ErrorHandler {
     @Override
     public void handleError(Throwable t) {
 
-        LOGGER.error("Handling JMS message error due to [{}] with message [{}]", t.getClass(), t.getMessage(), t);
+        LOGGER.error(
+            "Handling JMS message error due to [{}] with message [{}]\n{}",
+            t.getClass().getName(),
+            t.getMessage(),
+            ExceptionUtils.getStackTrace(t)
+        );
 
         Throwable cause = t.getCause();
         if (cause == null) {
