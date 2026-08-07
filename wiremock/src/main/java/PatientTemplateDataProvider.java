@@ -1,10 +1,14 @@
 import com.github.tomakehurst.wiremock.extension.TemplateModelDataProviderExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 class PatientTemplateDataProvider implements TemplateModelDataProviderExtension {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PatientTemplateDataProvider.class);
+
     final PatientDemographicsServiceClient pds;
 
     PatientTemplateDataProvider(PatientDemographicsServiceClient pds) {
@@ -16,11 +20,11 @@ class PatientTemplateDataProvider implements TemplateModelDataProviderExtension 
         try {
             var nhsNumber = getNhsNumber(serveEvent);
             if (nhsNumber != null) {
-                System.out.println("Fetching patient details for " + nhsNumber);
+                LOGGER.debug("Fetching patient details for {}", nhsNumber);
                 return Map.of("patient", pds.patient(nhsNumber));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.warn("Unable to fetch patient details from PDS", e);
         }
         return Map.of();
     }
