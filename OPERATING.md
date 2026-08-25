@@ -164,7 +164,20 @@ Timeout is measured as total time for the HTTP request and response to complete.
 
 ## Adaptor Process
 
-TODO: Sequence diagram "user journey" of Spine messages, tasks, and GPCC requests
+The end-to-end transfer flow is documented in:
+
+- [Sequence diagram (SVG)](documentation/sequence/sequence.svg)
+- [Sequence source (PlantUML)](documentation/sequence/sequence.puml)
+
+At operator level, the workflow is:
+
+1. MHS inbound queue receives the initial EHR request (`RCMR_IN010000UK05`) and the adaptor creates a transfer record.
+2. A `GET_GPC_STRUCTURED` task is queued and executed to fetch and translate the structured record from GPC.
+3. The adaptor queues document-related tasks (`GET_GPC_DOCUMENT` and `SEND_ABSENT_ATTACHMENT`) as needed.
+4. When prerequisites are complete, the adaptor sends the core extract (`SEND_EHR_EXTRACT_CORE`) to MHS.
+5. After Continue messages are received (`COPC_IN000001UK01`), document send tasks (`SEND_EHR_CONTINUE`) are processed.
+6. Once transfer completion criteria are met, an acknowledgement task (`SEND_ACKNOWLEDGEMENT`) is queued and sent (`MCCI_IN010000UK13`).
+7. Final ACK/NACK responses from Spine are consumed from the inbound queue and persisted to transfer status.
 
 Adaptor document tasks are defined and documented in Java source code:
 
@@ -226,7 +239,51 @@ The adaptor subscribes to the [MHS Adaptor](https://github.com/nhsconnect/integr
 inbound queue to receive messages from Spine. Refer to the MHS Adaptor documentation to 
 learn about these messages. 
 
-TODO: Document task queue payloads
+The adaptor also uses an internal task queue for orchestration between processing stages.
+
+### Queue names
+
+- Inbound queue env var: `GP2GP_MHS_INBOUND_QUEUE` (default `gp2gpInboundQueue`)
+- Task queue env var: `GP2GP_TASK_QUEUE` (default `gp2gpTaskQueue`)
+
+### Task queue message format
+
+Each task queue message contains:
+
+- A JSON payload representing a task definition object
+- JMS string property `TaskType` (set to the Java class name of the task definition)
+
+Task type mappings are defined in [TaskType.java](service/src/main/java/uk/nhs/adaptors/gp2gp/common/task/TaskType.java).
+
+### Common task payload fields
+
+All task payloads include the base fields from [TaskDefinition.java](service/src/main/java/uk/nhs/adaptors/gp2gp/common/task/TaskDefinition.java):
+
+- `taskId`
+- `requestId`
+- `conversationId`
+- `toAsid`
+- `fromAsid`
+- `fromOdsCode`
+- `toOdsCode`
+
+Document-related tasks also include fields from [DocumentTaskDefinition.java](service/src/main/java/uk/nhs/adaptors/gp2gp/ehr/DocumentTaskDefinition.java):
+
+- `documentId`
+- `messageId`
+- `title`
+- `originalDescription`
+
+### Task payload catalogue
+
+| TaskType enum | Purpose | Payload definition | Example payload |
+|---|---|---|---|
+| `GET_GPC_STRUCTURED` | Fetch structured record from GPC | [GetGpcStructuredTaskDefinition.java](service/src/main/java/uk/nhs/adaptors/gp2gp/gpc/GetGpcStructuredTaskDefinition.java) | [GetGpcStructuredTaskDefinition.md](/documentation/examples/Task_queue_payloads/GetGpcStructuredTaskDefinition.md) |
+| `GET_GPC_DOCUMENT` | Fetch document binary from GPC | [GetGpcDocumentTaskDefinition.java](service/src/main/java/uk/nhs/adaptors/gp2gp/gpc/GetGpcDocumentTaskDefinition.java) | [GetGpcDocumentTaskDefinition.md](/documentation/examples/Task_queue_payloads/GetGpcDocumentTaskDefinition.md) |
+| `SEND_ABSENT_ATTACHMENT` | Build/upload absent-attachment placeholder | [GetAbsentAttachmentTaskDefinition.java](service/src/main/java/uk/nhs/adaptors/gp2gp/ehr/GetAbsentAttachmentTaskDefinition.java) | Uses `DocumentTaskDefinition` fields (no standalone example file) |
+| `SEND_EHR_EXTRACT_CORE` | Send EHR core extract to MHS | [SendEhrExtractCoreTaskDefinition.java](service/src/main/java/uk/nhs/adaptors/gp2gp/ehr/SendEhrExtractCoreTaskDefinition.java) | [SendEhrExtractCoreTaskDefinition.md](/documentation/examples/Task_queue_payloads/SendEhrExtractCoreTaskDefinition.md) |
+| `SEND_EHR_CONTINUE` | Send document/chunk to MHS after Continue | [SendDocumentTaskDefinition.java](service/src/main/java/uk/nhs/adaptors/gp2gp/ehr/SendDocumentTaskDefinition.java) | Definition includes `documentName`, `documentPosition`, `documentContentType` in addition to document/base fields |
+| `SEND_ACKNOWLEDGEMENT` | Send ACK/NACK to MHS | [SendAcknowledgementTaskDefinition.java](service/src/main/java/uk/nhs/adaptors/gp2gp/ehr/SendAcknowledgementTaskDefinition.java) | [sendAcknowledgementTaskDefinition.md](/documentation/examples/Task_queue_payloads/sendAcknowledgementTaskDefinition.md) |
 
 ## Database Requirements
 
