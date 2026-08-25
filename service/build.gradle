@@ -84,8 +84,8 @@ dependencies {
 	testImplementation 'org.apache.commons:commons-compress:1.28.0'
 	testImplementation(platform('org.testcontainers:testcontainers-bom:2.0.2'))
 	testImplementation 'commons-io:commons-io:2.21.0'
-	testImplementation 'org.testcontainers:testcontainers'
-	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.testcontainers:testcontainers:2.0.1'
+	testImplementation 'org.testcontainers:junit-jupiter:2.0.1'
 	testImplementation 'org.awaitility:awaitility:4.3.0'
 	testImplementation 'org.wiremock:wiremock-standalone:3.13.1'
 	testImplementation 'com.squareup.okhttp3:okhttp:5.3.2'
