@@ -147,7 +147,8 @@ class EncounterComponentsMapperTest {
             messageContext,
             codeableConceptCdMapper,
             participantMapper,
-            confidentialityService
+            confidentialityService,
+            new PertinentInformationAllergyMapper(messageContext)
         );
         BloodPressureMapper bloodPressureMapper = new BloodPressureMapper(
             messageContext,
