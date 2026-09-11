@@ -2,13 +2,11 @@ package uk.nhs.adaptors.gp2gp.common.storage;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 import java.io.InputStream;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -16,10 +14,9 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.SneakyThrows;
+
 
 @ExtendWith(MockitoExtension.class)
 class StorageConnectorServiceTest {
@@ -54,6 +51,21 @@ class StorageConnectorServiceTest {
         );
 
         var actualContent = new String(inputStreamArgumentCaptor.getValue().readAllBytes(), UTF_8);
-        assertThat(actualContent).isEqualTo("response");
+        assertEquals("response", actualContent);
+    }
+
+    @Test
+    @SneakyThrows
+    void When_DownloadFileSucceeds_Expect_CorrectDeserialization() {
+        String jsonContent = "{\"id\": \"test\"}";
+        InputStream mockInputStream = new java.io.ByteArrayInputStream(jsonContent.getBytes(UTF_8));
+
+        when(storageConnector.downloadFromStorage("test-file.json")).thenReturn(mockInputStream);
+        when(objectMapper.readValue(jsonContent, StorageDataWrapper.class)).thenReturn(anyStorageDataWrapper);
+
+        StorageDataWrapper result = storageConnectorService.downloadFile("test-file.json");
+
+        assertEquals(anyStorageDataWrapper, result);
+        verify(storageConnector).downloadFromStorage("test-file.json");
     }
 }

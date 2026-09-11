@@ -25,9 +25,7 @@ public class JmsListenerErrorHandler implements ErrorHandler {
      */
     @Override
     public void handleError(Throwable t) {
-
-        LOGGER.error("Handling JMS message error due to [{}] with message [{}]", t.getClass(), t.getMessage());
-        t.printStackTrace();
+        LOGGER.error("Handling JMS message error due to [{}] with message [{}]", t.getClass().getName(), t.getMessage());
 
         Throwable cause = t.getCause();
         if (cause == null) {

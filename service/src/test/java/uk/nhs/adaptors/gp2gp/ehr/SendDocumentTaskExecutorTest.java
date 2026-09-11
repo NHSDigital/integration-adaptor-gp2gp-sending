@@ -1,5 +1,9 @@
 package uk.nhs.adaptors.gp2gp.ehr;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -9,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -16,6 +21,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 import uk.nhs.adaptors.gp2gp.RandomIdGeneratorServiceStub;
 import uk.nhs.adaptors.gp2gp.common.configuration.Gp2gpConfiguration;
 import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
@@ -60,6 +66,36 @@ class SendDocumentTaskExecutorTest {
     private SendDocumentTaskExecutor sendDocumentTaskExecutor;
     private StorageConnector storageConnector;
     private Gp2gpConfiguration gp2gpConfiguration;
+    private ListAppender<ILoggingEvent> logAppender;
+    private Logger logger;
+
+    @BeforeEach
+    void setup() {
+        logger = (Logger) LoggerFactory.getLogger(SendDocumentTaskExecutor.class);
+        logAppender = new ListAppender<>();
+        logAppender.start();
+        logger.addAppender(logAppender);
+
+        this.storageConnector = createLocalStorageConnector();
+        gp2gpConfiguration = new Gp2gpConfiguration();
+        this.sendDocumentTaskExecutor = new SendDocumentTaskExecutor(
+                new StorageConnectorService(storageConnector, new ObjectMapper()),
+                this.mhsRequestBuilder,
+                this.mhsClient,
+                new RandomIdGeneratorServiceStub(),
+                this.ehrExtractStatusService,
+                new ObjectMapper(),
+                this.detectDocumentsSentService,
+                gp2gpConfiguration,
+                new EhrDocumentMapper(new TimestampService(), new RandomIdGeneratorServiceStub())
+        );
+    }
+
+    @AfterEach
+    void tearDown() {
+        logger.detachAppender(logAppender);
+        logAppender.stop();
+    }
 
     @ParameterizedTest
     @MethodSource("chunkTestData")
@@ -71,14 +107,12 @@ class SendDocumentTaskExecutorTest {
     @SneakyThrows
     @Test
     void When_DocumentNeedsToBeSplitIntoFiveChunks_Expect_FiveMhsRequestsWithAttachmentsOfContentTypeOctetStream() {
-        // Arrange
+
         this.gp2gpConfiguration.setLargeAttachmentThreshold(SIZE_OF_EACH_CHUNK);
         uploadFiveChunkDocumentToStorage();
 
-        // Act
         this.sendDocumentTaskExecutor.execute(createTaskDefinition());
 
-        // Assert
         verify(mhsRequestBuilder, times(NUMBER_OF_CHUNKS)).buildSendEhrExtractCommonRequest(
             argThat(mhsRequestBodyContainsOctetStreamAttachment()),
             eq(RANDOM_ID),
@@ -92,14 +126,12 @@ class SendDocumentTaskExecutorTest {
             + "MhsMessageWith5ExternalAttachmentWithDescriptionContentTypeHeaderFromTaskDefinition")
     @Test
     void When_DocumentNeedsToBeSplitInto5Chunks_Expect_MhsMessageWith5ExternalAttachmentCorrectlySet() {
-        // Arrange
+
         this.gp2gpConfiguration.setLargeAttachmentThreshold(SIZE_OF_EACH_CHUNK);
         uploadFiveChunkDocumentToStorage();
 
-        // Act
         this.sendDocumentTaskExecutor.execute(createTaskDefinition());
 
-        // Assert
         verify(mhsRequestBuilder, times(1)).buildSendEhrExtractCommonRequest(
                 argThat(mhsRequestBodyHasExternalAttachmentForEachChunkWithTaskContentType()),
                 eq(RANDOM_ID),
@@ -107,6 +139,20 @@ class SendDocumentTaskExecutorTest {
                 any()
         );
         verify(mhsClient, times(NUMBER_OF_CHUNKS + 1)).sendMessageToMHS(any());
+    }
+
+    @Test
+    void When_ExecutingSendDocumentTask_Expect_InfoLogForPositiveAcknowledgementFlow() {
+        this.gp2gpConfiguration.setLargeAttachmentThreshold(SIZE_OF_EACH_CHUNK);
+        uploadFiveChunkDocumentToStorage();
+
+        this.sendDocumentTaskExecutor.execute(createTaskDefinition());
+
+        assertThat(logAppender.list.stream()
+            .filter(event -> event.getLevel() == Level.INFO)
+            .map(ILoggingEvent::getFormattedMessage)
+            .toList())
+            .anyMatch(message -> message.contains("Executing beginSendingPositiveAcknowledgement"));
     }
 
     private SendDocumentTaskDefinition createTaskDefinition() {
@@ -183,23 +229,6 @@ class SendDocumentTaskExecutorTest {
             Arguments.of("QWER", SIZE_THRESHOLD_FOUR, List.of("QWER")),
             Arguments.of("QWE", SIZE_THRESHOLD_FOUR, List.of("QWE")),
             Arguments.of("QWER12", SIZE_THRESHOLD_FOUR, List.of("QWER", "12"))
-        );
-    }
-
-    @BeforeEach
-    void setup() {
-        this.storageConnector = createLocalStorageConnector();
-        gp2gpConfiguration = new Gp2gpConfiguration();
-        this.sendDocumentTaskExecutor = new SendDocumentTaskExecutor(
-                new StorageConnectorService(storageConnector, new ObjectMapper()),
-                this.mhsRequestBuilder,
-                this.mhsClient,
-                new RandomIdGeneratorServiceStub(),
-                this.ehrExtractStatusService,
-                new ObjectMapper(),
-                this.detectDocumentsSentService,
-                gp2gpConfiguration,
-                new EhrDocumentMapper(new TimestampService(), new RandomIdGeneratorServiceStub())
         );
     }
 

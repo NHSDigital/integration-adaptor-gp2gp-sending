@@ -14,6 +14,7 @@ import uk.nhs.adaptors.gp2gp.common.amqp.JmsReader;
 import uk.nhs.adaptors.gp2gp.common.service.MDCService;
 import uk.nhs.adaptors.gp2gp.common.service.ProcessFailureHandlingService;
 import uk.nhs.adaptors.gp2gp.common.service.XPathService;
+import uk.nhs.adaptors.gp2gp.common.utils.LogSanitizer;
 import uk.nhs.adaptors.gp2gp.ehr.request.EhrExtractRequestHandler;
 import uk.nhs.adaptors.gp2gp.mhs.exception.MessageOutOfOrderException;
 import uk.nhs.adaptors.gp2gp.mhs.exception.UnrecognisedInteractionIdException;
@@ -50,7 +51,7 @@ public class InboundMessageHandler {
 
         try {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Inbound message: {}", JmsReader.readMessage(message));
+                LOGGER.debug("Inbound message: {}", LogSanitizer.sanitize(JmsReader.readMessage(message)));
             }
             parsedMessage = parseMessage(message);
             if (!processFailureHandlingService.hasProcessFailed(parsedMessage.getConversationId())) {

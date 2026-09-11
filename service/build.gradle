@@ -1,15 +1,15 @@
 plugins {
 	id 'org.springframework.boot' version '3.3.5'
-	id 'io.spring.dependency-management' version '1.1.6'
+	id 'io.spring.dependency-management' version '1.1.7'
 	id 'java'
 	id "checkstyle"
 	id "com.github.spotbugs" version "6.4.8"
 	id "io.freefair.lombok" version "9.1.0"
 	id 'jacoco'
-	id 'org.sonarqube' version '6.3.1.5724'
+	id 'org.sonarqube' version '7.1.0.6387'
 
 	// Mutation testing
-	id 'info.solidsoft.pitest' version '1.15.0'
+	id 'info.solidsoft.pitest' version '1.19.0'
 	id 'com.arcmutate.github' version '2.2.4'
 }
 
@@ -66,8 +66,8 @@ dependencies {
 
 	// Infrastructure
 	implementation 'software.amazon.awssdk:s3:2.38.2'
-	implementation ('com.azure:azure-storage-blob:12.32.0')
-	implementation 'org.apache.qpid:qpid-jms-client:2.9.0'
+	implementation ('com.azure:azure-storage-blob:12.34.0')
+	implementation 'org.apache.qpid:qpid-jms-client:2.10.0'
 
 	// Utils
 	implementation 'org.apache.commons:commons-lang3:3.19.0'
@@ -88,10 +88,11 @@ dependencies {
 	testImplementation 'org.testcontainers:junit-jupiter'
 	testImplementation 'org.awaitility:awaitility:4.3.0'
 	testImplementation 'org.wiremock:wiremock-standalone:3.13.1'
-	testImplementation 'com.squareup.okhttp3:okhttp:5.3.0'
-	testImplementation 'com.squareup.okhttp3:mockwebserver3:5.3.0'
-	testImplementation 'com.adobe.testing:s3mock-testcontainers:4.10.0'
+	testImplementation 'com.squareup.okhttp3:okhttp:5.3.2'
+	testImplementation 'com.squareup.okhttp3:mockwebserver3:5.3.2'
+	testImplementation 'com.adobe.testing:s3mock-testcontainers:5.0.0'
 	testImplementation "org.springframework.cloud:spring-cloud-gateway-server-webflux:4.3.2"
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	spotbugs 'com.github.spotbugs:spotbugs:4.9.8'
 	spotbugs 'com.github.spotbugs:spotbugs-annotations:4.9.8'

@@ -1,7 +1,7 @@
 <configuration>
     <appender name="TEXT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} Level=%-5level Logger=%logger{36} %msg%n
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} Level=%-5level Logger=%logger{36} CorrelationId=%X{CorrelationId} ConversationId=%X{ConversationId} TaskId=%X{TaskId} TaskType=%X{TaskType} MessageId=%X{MessageId} Thread="%thread" Message="%msg"%n
             </pattern>
         </encoder>
     </appender>
