@@ -23,12 +23,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.InputBundle;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.MessageContext;
 import uk.nhs.adaptors.gp2gp.ehr.utils.SupportingInfoResourceExtractor;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -401,4 +399,3 @@ public class SupportingInfoResourceExtractorTest {
         return new Date(simpleDateFormat.parse(dateString).getTime());
     }
 }
-
