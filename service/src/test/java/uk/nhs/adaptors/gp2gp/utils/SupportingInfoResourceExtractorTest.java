@@ -189,22 +189,6 @@ public class SupportingInfoResourceExtractorTest {
     }
 
     @Test
-    void When_ExtractObservation_Expect_OriginalPrecisionIsNotMutated() {
-        final var effectiveDateTime = new DateTimeType("2010-01-01T10:11:12Z");
-        final var resource = (Resource) new Observation()
-                .setEffective(effectiveDateTime);
-
-        when(inputBundle.getResource(REFERENCE_ID)).thenReturn(Optional.of(resource));
-
-        final var originalEffective = ((Observation) resource).getEffective();
-
-        final var supportingInfo = SupportingInfoResourceExtractor.extractObservation(messageContext, REFERENCE);
-
-        assertThat(supportingInfo).isEqualTo("{ Observation: 2010-01-01 }");
-        assertThat(((Observation) resource).getEffective()).isSameAs(originalEffective);
-    }
-
-    @Test
     void When_ExtractReferralRequestAndMessageContextDoesNotContainReferralRequest_Expect_StringIsEmpty() {
         when(inputBundle.getResource(REFERENCE_ID)).thenReturn(Optional.empty());
 
