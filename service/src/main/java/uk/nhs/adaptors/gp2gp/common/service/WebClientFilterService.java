@@ -157,7 +157,9 @@ public class WebClientFilterService {
                 var codes = jsonMapper.readTree(outcome).findValuesAsText("code");
 
                 var statusCode = clientResponse.statusCode();
-                var errorCode = getErrorCode(Objects.requireNonNullElse(HttpStatus.resolve(statusCode.value()), HttpStatus.INTERNAL_SERVER_ERROR), codes);
+                var errorCode = getErrorCode(Objects.requireNonNullElse(HttpStatus.resolve(statusCode.value()),
+                                                                        HttpStatus.INTERNAL_SERVER_ERROR),
+                                                                        codes);
 
                 return getMonoError(errorCode, exceptionMessage, operationOutcome);
             } catch (JsonProcessingException e) {
