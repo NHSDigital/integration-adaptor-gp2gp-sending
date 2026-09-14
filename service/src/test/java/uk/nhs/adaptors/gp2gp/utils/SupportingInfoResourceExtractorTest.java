@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -193,16 +194,16 @@ public class SupportingInfoResourceExtractorTest {
     @Test
     void When_ExtractObservation_Expect_OriginalPrecisionIsNotMutated() {
         final var effectiveDateTime = new DateTimeType("2010-01-01T10:11:12Z");
-        final var resource = (Resource) new Observation()
-            .setEffective(effectiveDateTime);
+        final var resource = (Resource) new Observation().setEffective(effectiveDateTime);
 
         when(inputBundle.getResource(REFERENCE_ID)).thenReturn(Optional.of(resource));
 
-        final var originalPrecision = effectiveDateTime.getPrecision();
+        final var originalValueAsString = effectiveDateTime.getValueAsString();
 
-        SupportingInfoResourceExtractor.extractObservation(messageContext, REFERENCE);
+        final var supportingInfo = SupportingInfoResourceExtractor.extractObservation(messageContext, REFERENCE);
 
-        assertThat(effectiveDateTime.getPrecision()).isEqualTo(originalPrecision);
+        assertEquals("{ Observation: 2010-01-01 }", supportingInfo);
+        assertEquals(originalValueAsString, effectiveDateTime.getValueAsString());
     }
 
     @Test
