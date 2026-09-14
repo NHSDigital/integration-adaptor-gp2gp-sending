@@ -35,7 +35,6 @@ public abstract class TaskDefinition {
      * Value from {@code /RCMR_IN010000UK05/ControlActEvent/subject/EhrRequest/author/AgentOrgSDS/
        agentOrganizationSDS/id/@extension} of SOAP message payload
      */
-    @SuppressWarnings("")
     private final String fromOdsCode;
     /**
      * Value from {@code /RCMR_IN010000UK05/ControlActEvent/subject/EhrRequest/destination/AgentOrgSDS/
