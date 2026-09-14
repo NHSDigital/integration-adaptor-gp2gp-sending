@@ -3,6 +3,7 @@ package uk.nhs.adaptors.gp2gp.mhs;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,6 +24,7 @@ import uk.nhs.adaptors.gp2gp.common.service.MDCService;
 
 @ExtendWith(MockitoExtension.class)
 class InboundMessageConsumerTest {
+
     @Mock
     private InboundMessageHandler inboundMessageHandler;
     @Mock
@@ -37,65 +39,97 @@ class InboundMessageConsumerTest {
     @Test
     @SneakyThrows
     void When_MessageHandlerReturnsTrue_Expect_MessageIsAcknowledged() {
-        when(inboundMessageHandler.handle(any())).thenReturn(true);
-        inboundMessageConsumer.receive(mockMessage, mockSession);
+        stubHandleResult(true);
 
-        verify(inboundMessageHandler).handle(mockMessage);
-        verify(mockMessage).acknowledge();
+        callReceive();
+
+        verifyMessageHandled();
+        verify(mockMessage, times(1)).acknowledge();
+        verifyMdcReset();
     }
 
     @Test
     @SneakyThrows
     void When_MessageHandlerReturnsFalse_Expect_MessageIsNotAcknowledged() {
-        when(inboundMessageHandler.handle(any())).thenReturn(false);
+        stubHandleResult(false);
 
-        inboundMessageConsumer.receive(mockMessage, mockSession);
+        callReceive();
 
-        verify(inboundMessageHandler).handle(mockMessage);
-        verify(mockMessage, times(0)).acknowledge();
+        verifyMessageHandled();
+        verify(mockMessage, never()).acknowledge();
+        verifyMdcReset();
     }
 
     @Test
     @SneakyThrows
     void When_MessageHandlerReturnsFalse_Expect_SessionToBeRolledBack() {
-        when(inboundMessageHandler.handle(any())).thenReturn(false);
+        stubHandleResult(false);
 
-        inboundMessageConsumer.receive(mockMessage, mockSession);
-        verify(inboundMessageHandler).handle(mockMessage);
+        callReceive();
+
+        verifyMessageHandled();
         verify(mockSession, times(1)).rollback();
+        verifyMdcReset();
     }
 
     @Test
     @SneakyThrows
     void When_MessageHandlerThrowsException_Expect_MessageIsNotAcknowledged() {
-        doThrow(new RuntimeException()).when(inboundMessageHandler).handle(mockMessage);
+        stubHandleThrows(new RuntimeException());
 
-        inboundMessageConsumer.receive(mockMessage, mockSession);
+        callReceive();
 
-        verify(inboundMessageHandler).handle(mockMessage);
-        verify(mockMessage, times(0)).acknowledge();
+        verifyMessageHandled();
+        verify(mockMessage, never()).acknowledge();
+        verifyMdcReset();
     }
 
     @Test
     @SneakyThrows
     void When_MessageHandlerThrowsJMSException_Expect_SessionIsRolledBack() {
-        doThrow(new JMSRuntimeException("Test")).when(inboundMessageHandler).handle(mockMessage);
+        stubHandleThrows(new JMSRuntimeException("Test"));
 
-        inboundMessageConsumer.receive(mockMessage, mockSession);
+        callReceive();
 
-        verify(inboundMessageHandler).handle(mockMessage);
+        verifyMessageHandled();
         verify(mockSession, times(1)).rollback();
+        verifyMdcReset();
     }
 
     @Test
     @SneakyThrows
     void When_MessageHandlerThrowsDataAccessResourceFailure_Expect_ExceptionIsThrown() {
-        doThrow(new DataAccessResourceFailureException("Test exception")).when(inboundMessageHandler).handle(mockMessage);
+        stubHandleThrows(new DataAccessResourceFailureException("Test exception"));
 
         assertThatExceptionOfType(DataAccessResourceFailureException.class)
-            .isThrownBy(() -> inboundMessageConsumer.receive(mockMessage, mockSession));
+            .isThrownBy(this::callReceive);
 
-        verify(mockSession, times(0)).rollback();
-        verify(mockMessage, times(0)).acknowledge();
+        verify(mockSession, never()).rollback();
+        verify(mockMessage, never()).acknowledge();
+        verifyMdcReset();
+    }
+
+    @SneakyThrows
+    private void callReceive() {
+        inboundMessageConsumer.receive(mockMessage, mockSession);
+    }
+
+    @SneakyThrows
+    private void stubHandleResult(boolean shouldAcknowledge) {
+        when(inboundMessageHandler.handle(any())).thenReturn(shouldAcknowledge);
+    }
+
+    @SneakyThrows
+    private void stubHandleThrows(RuntimeException exception) {
+        doThrow(exception).when(inboundMessageHandler).handle(mockMessage);
+    }
+
+    @SneakyThrows
+    private void verifyMessageHandled() {
+        verify(inboundMessageHandler).handle(mockMessage);
+    }
+
+    private void verifyMdcReset() {
+        verify(mdcService).resetAllMdcKeys();
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.client.WebClientRequestExceptio
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import uk.nhs.adaptors.gp2gp.mhs.exception.MhsConnectionException;
+import uk.nhs.adaptors.gp2gp.common.utils.LogSanitizer;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -24,7 +25,7 @@ public class MhsClient {
             var response = request.retrieve();
             var responseBody = response.bodyToMono(String.class).block();
 
-            LOGGER.debug("Body: {}", responseBody);
+            LOGGER.debug("Body: {}", LogSanitizer.sanitize(responseBody));
 
             return responseBody;
         } catch (WebClientRequestException e) {

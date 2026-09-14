@@ -2,9 +2,6 @@ package uk.nhs.adaptors.gp2gp.ehr.request;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -19,15 +16,12 @@ class EhrExtractStatusValidatorTest {
 
     @Test
     void When_AllPreparingDataStepsAreFinished_Expect_ReturnTrue() {
-        EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
+        var ehrExtractStatus = buildEhrExtractStatus(List.of(getFinishedGpcDocument(), getFinishedGpcDocument()),
+            getFinishedGpcAccessStructured());
 
-        EhrExtractStatus.GpcAccessDocument gpcAccessDocument = new EhrExtractStatus.GpcAccessDocument(
-            Arrays.asList(getFinishedGpcDocument(), getFinishedGpcDocument()), PATIENT_ID
-        );
-        ehrExtractStatus.setGpcAccessDocument(gpcAccessDocument);
-        ehrExtractStatus.setGpcAccessStructured(getFinishedGpcAccessStructured());
-
-        assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus)).isTrue();
+        assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus))
+            .as("all document and structured access steps are complete")
+            .isTrue();
     }
 
     private EhrExtractStatus.GpcDocument getFinishedGpcDocument() {
@@ -52,28 +46,21 @@ class EhrExtractStatusValidatorTest {
 
     @Test
     void When_AllPreparingDataStepsAreFinishedAndDocumentsListIsEmpty_Expect_ReturnTrue() {
-        EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
+        var ehrExtractStatus = buildEhrExtractStatus(List.of(), getFinishedGpcAccessStructured());
 
-        EhrExtractStatus.GpcAccessDocument gpcAccessDocument = new EhrExtractStatus.GpcAccessDocument(
-            Collections.emptyList(), PATIENT_ID
-        );
-        ehrExtractStatus.setGpcAccessDocument(gpcAccessDocument);
-        ehrExtractStatus.setGpcAccessStructured(getFinishedGpcAccessStructured());
-
-        assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus)).isTrue();
+        assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus))
+            .as("empty documents list is valid when structured access is complete")
+            .isTrue();
     }
 
     @Test
     void When_AllPreparingDataStepsNotFinished_Expect_ReturnFalse() {
-        EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
+        var ehrExtractStatus = buildEhrExtractStatus(List.of(getUnfinishedGpcDocument(), getUnfinishedGpcDocument()),
+            getUnfinishedGpcAccessStructured());
 
-        EhrExtractStatus.GpcAccessDocument gpcAccessDocument = new EhrExtractStatus.GpcAccessDocument(
-            Arrays.asList(getUnfinishedGpcDocument(), getUnfinishedGpcDocument()), PATIENT_ID
-        );
-        ehrExtractStatus.setGpcAccessDocument(gpcAccessDocument);
-        ehrExtractStatus.setGpcAccessStructured(getUnfinishedGpcAccessStructured());
-
-        assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus)).isFalse();
+        assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus))
+            .as("both document and structured access steps are incomplete")
+            .isFalse();
     }
 
     private EhrExtractStatus.GpcDocument getUnfinishedGpcDocument() {
@@ -86,77 +73,68 @@ class EhrExtractStatusValidatorTest {
 
     @Test
     void When_DocumentAccessStepIsNotFinished_Expect_ReturnFalse() {
-        EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
+        var ehrExtractStatus = buildEhrExtractStatus(List.of(getUnfinishedGpcDocument(), getUnfinishedGpcDocument()),
+            getFinishedGpcAccessStructured());
 
-        EhrExtractStatus.GpcAccessDocument gpcAccessDocument = new EhrExtractStatus.GpcAccessDocument(
-            Arrays.asList(getUnfinishedGpcDocument(), getUnfinishedGpcDocument()), PATIENT_ID
-        );
-        ehrExtractStatus.setGpcAccessDocument(gpcAccessDocument);
-        ehrExtractStatus.setGpcAccessStructured(getFinishedGpcAccessStructured());
-
-        assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus)).isFalse();
+        assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus))
+            .as("document access is incomplete")
+            .isFalse();
     }
 
     @Test
     void When_OnlyOneDocumentAccessStepIsFinished_Expect_ReturnFalse() {
-        EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
+        var ehrExtractStatus = buildEhrExtractStatus(List.of(getUnfinishedGpcDocument(), getFinishedGpcDocument()),
+            getFinishedGpcAccessStructured());
 
-        EhrExtractStatus.GpcAccessDocument gpcAccessDocument = new EhrExtractStatus.GpcAccessDocument(
-            Arrays.asList(getUnfinishedGpcDocument(), getFinishedGpcDocument()), PATIENT_ID
-        );
-        ehrExtractStatus.setGpcAccessDocument(gpcAccessDocument);
-        ehrExtractStatus.setGpcAccessStructured(getFinishedGpcAccessStructured());
-
-        assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus)).isFalse();
+        assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus))
+            .as("all documents must be ready")
+            .isFalse();
     }
 
     @Test
     void When_AccessStructuredStepIsNotFinished_Expect_ReturnFalse() {
-        EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
+        var ehrExtractStatus = buildEhrExtractStatus(List.of(getFinishedGpcDocument(), getFinishedGpcDocument()),
+            getUnfinishedGpcAccessStructured());
 
-        EhrExtractStatus.GpcAccessDocument gpcAccessDocument = new EhrExtractStatus.GpcAccessDocument(
-            Arrays.asList(getFinishedGpcDocument(), getFinishedGpcDocument()), PATIENT_ID
-        );
-        ehrExtractStatus.setGpcAccessDocument(gpcAccessDocument);
-        ehrExtractStatus.setGpcAccessStructured(getUnfinishedGpcAccessStructured());
-
-        assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus)).isFalse();
+        assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus))
+            .as("structured access is incomplete")
+            .isFalse();
     }
 
     @Test
     void When_AllPreparingDataStepsWereNotStarted_Expect_ReturnFalse() {
         EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
 
-        assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus)).isFalse();
+        assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus))
+            .as("no steps started")
+            .isFalse();
     }
 
     @Test
     void When_AccessStructuredStepIsNotStarted_Expect_ReturnFalse() {
-        EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
+        var ehrExtractStatus = buildEhrExtractStatusWithDocumentsOnly(List.of(getFinishedGpcDocument(), getFinishedGpcDocument()));
 
-        EhrExtractStatus.GpcAccessDocument gpcAccessDocument = new EhrExtractStatus.GpcAccessDocument(
-            Arrays.asList(getFinishedGpcDocument(), getFinishedGpcDocument()), PATIENT_ID
-        );
-        ehrExtractStatus.setGpcAccessDocument(gpcAccessDocument);
-
-        assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus)).isFalse();
+        assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus))
+            .as("structured step must be present")
+            .isFalse();
     }
 
     @Test
     void When_AccessDocumentStepIsNotStarted_Expect_ReturnFalse() {
-        EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
-        ehrExtractStatus.setGpcAccessStructured(getFinishedGpcAccessStructured());
+        var ehrExtractStatus = buildEhrExtractStatusWithStructuredOnly(getFinishedGpcAccessStructured());
 
-        assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus)).isFalse();
+        assertThat(EhrExtractStatusValidator.isPreparingDataFinished(ehrExtractStatus))
+            .as("document access step must be present")
+            .isFalse();
     }
 
     @Test
     void When_AllDocumentsInEhrExtractStatusAreSent_Expect_True() {
-        EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
-        List<EhrExtractStatus.GpcDocument> documentList = new ArrayList<>();
-        documentList.add(getFinishedGpcDocumentSent());
-        ehrExtractStatus.setGpcAccessDocument(new EhrExtractStatus.GpcAccessDocument(documentList, "123"));
-        assertThat(EhrExtractStatusValidator.areAllDocumentsSent(ehrExtractStatus)).isTrue();
+        var ehrExtractStatus = buildEhrExtractStatusWithDocumentsOnly(List.of(getFinishedGpcDocumentSent()));
+
+        assertThat(EhrExtractStatusValidator.areAllDocumentsSent(ehrExtractStatus))
+            .as("single document was sent to MHS")
+            .isTrue();
     }
 
     private EhrExtractStatus.GpcDocument getFinishedGpcDocumentSent() {
@@ -167,20 +145,40 @@ class EhrExtractStatusValidatorTest {
 
     @Test
     void When_OneDocumentIsSentAndOneDocumentNotSent_Expect_False() {
-        EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
-        List<EhrExtractStatus.GpcDocument> documentList = new ArrayList<>();
-        documentList.add(getFinishedGpcDocumentSent());
-        documentList.add(getFinishedGpcDocument());
-        ehrExtractStatus.setGpcAccessDocument(new EhrExtractStatus.GpcAccessDocument(documentList, "123"));
-        assertThat(EhrExtractStatusValidator.areAllDocumentsSent(ehrExtractStatus)).isFalse();
+        var ehrExtractStatus = buildEhrExtractStatusWithDocumentsOnly(
+            List.of(getFinishedGpcDocumentSent(), getFinishedGpcDocument()));
+
+        assertThat(EhrExtractStatusValidator.areAllDocumentsSent(ehrExtractStatus))
+            .as("all documents must be sent")
+            .isFalse();
     }
 
     @Test
-    void When_NoDocumentsInEhrExtractStatus_Expect_False() {
-        EhrExtractStatus ehrExtractStatus = new EhrExtractStatus();
-        List<EhrExtractStatus.GpcDocument> documentList = new ArrayList<>();
-        documentList.add(getFinishedGpcDocument());
-        ehrExtractStatus.setGpcAccessDocument(new EhrExtractStatus.GpcAccessDocument(documentList, "123"));
-        assertThat(EhrExtractStatusValidator.areAllDocumentsSent(ehrExtractStatus)).isFalse();
+    void When_DocumentsExistButNoneAreSent_Expect_False() {
+        var ehrExtractStatus = buildEhrExtractStatusWithDocumentsOnly(List.of(getFinishedGpcDocument()));
+
+        assertThat(EhrExtractStatusValidator.areAllDocumentsSent(ehrExtractStatus))
+            .as("documents without sent-to-MHS marker are not considered sent")
+            .isFalse();
+    }
+
+    private EhrExtractStatus buildEhrExtractStatus(List<EhrExtractStatus.GpcDocument> documents,
+                                                    EhrExtractStatus.GpcAccessStructured gpcAccessStructured) {
+        var ehrExtractStatus = new EhrExtractStatus();
+        ehrExtractStatus.setGpcAccessDocument(new EhrExtractStatus.GpcAccessDocument(documents, PATIENT_ID));
+        ehrExtractStatus.setGpcAccessStructured(gpcAccessStructured);
+        return ehrExtractStatus;
+    }
+
+    private EhrExtractStatus buildEhrExtractStatusWithDocumentsOnly(List<EhrExtractStatus.GpcDocument> documents) {
+        var ehrExtractStatus = new EhrExtractStatus();
+        ehrExtractStatus.setGpcAccessDocument(new EhrExtractStatus.GpcAccessDocument(documents, PATIENT_ID));
+        return ehrExtractStatus;
+    }
+
+    private EhrExtractStatus buildEhrExtractStatusWithStructuredOnly(EhrExtractStatus.GpcAccessStructured gpcAccessStructured) {
+        var ehrExtractStatus = new EhrExtractStatus();
+        ehrExtractStatus.setGpcAccessStructured(gpcAccessStructured);
+        return ehrExtractStatus;
     }
 }

@@ -9,8 +9,20 @@ import lombok.SneakyThrows;
 import uk.nhs.adaptors.gp2gp.common.service.XPathService;
 
 public class ResourceHelper {
+
     public static String loadClasspathResourceAsString(String path) {
-        return new Scanner(ResourceHelper.class.getResourceAsStream(path), StandardCharsets.UTF_8).useDelimiter("\\A").next();
+        if (path == null || path.isBlank()) {
+            throw new IllegalArgumentException("Classpath resource path must be provided");
+        }
+
+        var resourceStream = ResourceHelper.class.getResourceAsStream(path);
+        if (resourceStream == null) {
+            throw new IllegalArgumentException("Classpath resource not found: " + path);
+        }
+
+        try (var scanner = new Scanner(resourceStream, StandardCharsets.UTF_8).useDelimiter("\\A")) {
+            return scanner.hasNext() ? scanner.next() : "";
+        }
     }
 
     @SneakyThrows

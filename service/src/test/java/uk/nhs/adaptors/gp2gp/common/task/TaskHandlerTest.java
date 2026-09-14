@@ -72,6 +72,7 @@ class TaskHandlerTest {
 
         var result = taskHandler.handle(message);
 
+        verify(mdcService).applyTaskType("taskType");
         verify(taskExecutor).execute(taskDefinition);
         assertThat(result).isTrue();
     }

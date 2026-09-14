@@ -1,10 +1,14 @@
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
 
 class Wiremock {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Wiremock.class);
+
     public static void main(String[] args) {
         WireMockServer wireMockServer = new WireMockServer(getOptions());
         wireMockServer.start();
@@ -31,7 +35,7 @@ class Wiremock {
         if (apiKey != null && keyId != null && privateKey != null) {
             return new PatientDemographicsServiceClient(privateKey, apiKey, keyId);
         }
-        System.out.println("PDS lookups disabled, one or more of PDS_API_KEY PDS_KEY_ID PDS_PRIVATE_KEY are null");
+        LOGGER.info("PDS lookups disabled, one or more of PDS_API_KEY, PDS_KEY_ID, PDS_PRIVATE_KEY is not configured");
         return null;
     }
 }

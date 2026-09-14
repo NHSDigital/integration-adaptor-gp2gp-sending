@@ -2,7 +2,7 @@ package uk.nhs.adaptors.gp2gp.ehr.mapper.diagnosticreport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.Assert.assertFalse;
+
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -150,7 +150,7 @@ class DiagnosticReportMapperTest {
             .extracting(Reference::getReference)
             .isEqualTo("real-specimen");
 
-        assertFalse(filingCommentObs.hasSpecimen());
+        assertThat(filingCommentObs.hasSpecimen()).isFalse();
         assertThat(result).containsExactlyInAnyOrder(obsWithoutSpecimen, obsWithSpecimen, filingCommentObs);
     }
 

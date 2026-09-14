@@ -83,10 +83,10 @@ public class SendEhrExtractCoreTaskExecutor implements TaskExecutor<SendEhrExtra
 
         mhsClient.sendMessageToMHS(requestData);
 
-        Instant requestSentAtPending = Instant.now();
+        Instant requestSentAtPending = timestampService.now();
         ehrExtractStatusService.updateEhrExtractStatusCorePending(sendEhrExtractCoreTaskDefinition, requestSentAtPending);
 
-        Instant requestSentAt = Instant.now();
+        Instant requestSentAt = timestampService.now();
         var ehrExtractStatus = ehrExtractStatusService.updateEhrExtractStatusCore(sendEhrExtractCoreTaskDefinition, requestSentAt);
         if (ehrExtractStatus.getGpcAccessDocument().getDocuments().isEmpty()) {
             sendAcknowledgementTaskDispatcher.sendPositiveAcknowledgement(ehrExtractStatus);

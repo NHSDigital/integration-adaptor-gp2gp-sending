@@ -1,5 +1,9 @@
 package uk.nhs.adaptors.gp2gp.ehr;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -9,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -16,6 +21,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 import uk.nhs.adaptors.gp2gp.RandomIdGeneratorServiceStub;
 import uk.nhs.adaptors.gp2gp.common.configuration.Gp2gpConfiguration;
 import uk.nhs.adaptors.gp2gp.common.service.TimestampService;
@@ -43,7 +49,16 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class SendDocumentTaskExecutorTest {
+
     private static final int SIZE_THRESHOLD_FOUR = 4;
+    private static final int SIZE_OF_EACH_CHUNK = 1;
+    private static final int NUMBER_OF_CHUNKS = 5;
+    private static final String STORAGE_FILE_NAME = "large_file_which_will_be_split.txt";
+    private static final String STORAGE_CONTENT_TYPE_UNUSED = "should-not-be-used";
+    private static final String RANDOM_ID = "RANDOM-ID";
+    private static final String RANDOM_ODS = "RANDOM-ODS";
+    private static final String MESSAGE_ID = "88";
+    private static final String TASK_CONTENT_TYPE = "should-be-used";
     @Mock private EhrExtractStatusService ehrExtractStatusService;
     @Mock private DetectDocumentsSentService detectDocumentsSentService;
     @Mock private MhsClient mhsClient;
@@ -51,6 +66,36 @@ class SendDocumentTaskExecutorTest {
     private SendDocumentTaskExecutor sendDocumentTaskExecutor;
     private StorageConnector storageConnector;
     private Gp2gpConfiguration gp2gpConfiguration;
+    private ListAppender<ILoggingEvent> logAppender;
+    private Logger logger;
+
+    @BeforeEach
+    void setup() {
+        logger = (Logger) LoggerFactory.getLogger(SendDocumentTaskExecutor.class);
+        logAppender = new ListAppender<>();
+        logAppender.start();
+        logger.addAppender(logAppender);
+
+        this.storageConnector = createLocalStorageConnector();
+        gp2gpConfiguration = new Gp2gpConfiguration();
+        this.sendDocumentTaskExecutor = new SendDocumentTaskExecutor(
+                new StorageConnectorService(storageConnector, new ObjectMapper()),
+                this.mhsRequestBuilder,
+                this.mhsClient,
+                new RandomIdGeneratorServiceStub(),
+                this.ehrExtractStatusService,
+                new ObjectMapper(),
+                this.detectDocumentsSentService,
+                gp2gpConfiguration,
+                new EhrDocumentMapper(new TimestampService(), new RandomIdGeneratorServiceStub())
+        );
+    }
+
+    @AfterEach
+    void tearDown() {
+        logger.detachAppender(logAppender);
+        logAppender.stop();
+    }
 
     @ParameterizedTest
     @MethodSource("chunkTestData")
@@ -62,68 +107,66 @@ class SendDocumentTaskExecutorTest {
     @SneakyThrows
     @Test
     void When_DocumentNeedsToBeSplitIntoFiveChunks_Expect_FiveMhsRequestsWithAttachmentsOfContentTypeOctetStream() {
-        final int SIZE_OF_EACH_CHUNK = 1;
-        final int NUMBER_OF_CHUNKS = 5;
-        final String storageFileName = "large_file_which_will_be_split.txt";
 
-        // Arrange
         this.gp2gpConfiguration.setLargeAttachmentThreshold(SIZE_OF_EACH_CHUNK);
-        uploadDocumentToStorageWrapperWithPayloadSize(SIZE_OF_EACH_CHUNK * NUMBER_OF_CHUNKS, storageFileName, "should-not-be-used");
+        uploadFiveChunkDocumentToStorage();
 
-        // Act
-        this.sendDocumentTaskExecutor.execute(
-            SendDocumentTaskDefinition.builder()
-                .documentName(storageFileName)
-                .messageId("88")
-                .fromOdsCode("RANDOM-ODS")
-                .conversationId("RANDOM-ID")
-                .documentContentType("should-be-used")
-                .build()
-        );
+        this.sendDocumentTaskExecutor.execute(createTaskDefinition());
 
-        // Assert
         verify(mhsRequestBuilder, times(NUMBER_OF_CHUNKS)).buildSendEhrExtractCommonRequest(
-            argThat(mhsRequestBodyContainsAttachmentWithContentType(MimeTypes.OCTET_STREAM)),
-            eq("RANDOM-ID"),
-            eq("RANDOM-ODS"),
+            argThat(mhsRequestBodyContainsOctetStreamAttachment()),
+            eq(RANDOM_ID),
+            eq(RANDOM_ODS),
             any()
         );
+        verify(mhsClient, times(NUMBER_OF_CHUNKS + 1)).sendMessageToMHS(any());
     }
 
     @DisplayName("When_DocumentNeedsToBeSplitInto5Chunks_Expect_"
             + "MhsMessageWith5ExternalAttachmentWithDescriptionContentTypeHeaderFromTaskDefinition")
     @Test
     void When_DocumentNeedsToBeSplitInto5Chunks_Expect_MhsMessageWith5ExternalAttachmentCorrectlySet() {
-        final int SIZE_OF_EACH_CHUNK = 1;
-        final int NUMBER_OF_CHUNKS = 5;
-        final String storageFileName = "large_file_which_will_be_split.txt";
 
-        // Arrange
         this.gp2gpConfiguration.setLargeAttachmentThreshold(SIZE_OF_EACH_CHUNK);
-        uploadDocumentToStorageWrapperWithPayloadSize(SIZE_OF_EACH_CHUNK * NUMBER_OF_CHUNKS, storageFileName, "should-not-be-used");
+        uploadFiveChunkDocumentToStorage();
 
-        // Act
-        this.sendDocumentTaskExecutor.execute(
-                SendDocumentTaskDefinition.builder()
-                        .documentName(storageFileName)
-                        .messageId("88")
-                        .fromOdsCode("RANDOM-ODS")
-                        .conversationId("RANDOM-ID")
-                        .documentContentType("should-be-used")
-                        .build()
-        );
+        this.sendDocumentTaskExecutor.execute(createTaskDefinition());
 
-        // Assert
         verify(mhsRequestBuilder, times(1)).buildSendEhrExtractCommonRequest(
-                argThat(mhsRequestBodyWithAnExternalAttachmentForEachChunkWithContentType(NUMBER_OF_CHUNKS, "should-be-used")),
-                eq("RANDOM-ID"),
-                eq("RANDOM-ODS"),
+                argThat(mhsRequestBodyHasExternalAttachmentForEachChunkWithTaskContentType()),
+                eq(RANDOM_ID),
+                eq(RANDOM_ODS),
                 any()
         );
+        verify(mhsClient, times(NUMBER_OF_CHUNKS + 1)).sendMessageToMHS(any());
+    }
+
+    @Test
+    void When_ExecutingSendDocumentTask_Expect_InfoLogForPositiveAcknowledgementFlow() {
+        this.gp2gpConfiguration.setLargeAttachmentThreshold(SIZE_OF_EACH_CHUNK);
+        uploadFiveChunkDocumentToStorage();
+
+        this.sendDocumentTaskExecutor.execute(createTaskDefinition());
+
+        assertThat(logAppender.list.stream()
+            .filter(event -> event.getLevel() == Level.INFO)
+            .map(ILoggingEvent::getFormattedMessage)
+            .toList())
+            .anyMatch(message -> message.contains("Executing beginSendingPositiveAcknowledgement"));
+    }
+
+    private SendDocumentTaskDefinition createTaskDefinition() {
+        return SendDocumentTaskDefinition.builder()
+            .documentName(STORAGE_FILE_NAME)
+            .messageId(MESSAGE_ID)
+            .fromOdsCode(RANDOM_ODS)
+            .conversationId(RANDOM_ID)
+            .documentContentType(TASK_CONTENT_TYPE)
+            .build();
     }
 
     @NotNull
-    private static ArgumentMatcher<String> mhsRequestBodyContainsAttachmentWithContentType(String contentType) {
+    private static ArgumentMatcher<String> mhsRequestBodyContainsOctetStreamAttachment() {
         return mhsRequestBody -> {
             ObjectMapper objectMapper = new ObjectMapper();
             OutboundMessage outboundMessage;
@@ -135,13 +178,13 @@ class SendDocumentTaskExecutorTest {
             if (outboundMessage.getAttachments().isEmpty()) {
                 return false;
             }
-            return Objects.equals(outboundMessage.getAttachments().get(0).getContentType(), contentType);
+            return Objects.equals(outboundMessage.getAttachments().getFirst().getContentType(), MimeTypes.OCTET_STREAM);
         };
     }
 
     @NotNull
     private static ArgumentMatcher<String>
-        mhsRequestBodyWithAnExternalAttachmentForEachChunkWithContentType(int numberOfChunks, String contentType) {
+        mhsRequestBodyHasExternalAttachmentForEachChunkWithTaskContentType() {
 
         return mhsRequestBody -> {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -151,28 +194,28 @@ class SendDocumentTaskExecutorTest {
             } catch (JsonProcessingException e) {
                 return false;
             }
-            if (outboundMessage.getExternalAttachments() == null || outboundMessage.getExternalAttachments().size() != numberOfChunks) {
+            if (outboundMessage.getExternalAttachments() == null
+                || outboundMessage.getExternalAttachments().size() != NUMBER_OF_CHUNKS) {
                 return false;
             }
             return outboundMessage.getExternalAttachments().stream().allMatch(
-                    externalAttachment -> externalAttachment.getDescription().contains("ContentType=" + contentType)
+                    externalAttachment -> externalAttachment.getDescription().contains("ContentType=" + TASK_CONTENT_TYPE)
             );
         };
     }
 
-    private void uploadDocumentToStorageWrapperWithPayloadSize(int payloadSize, String storageFileName, String contentType) {
-        byte[] storageDataWrapper = generateStorageDataWrapper(payloadSize, contentType);
+    private void uploadFiveChunkDocumentToStorage() {
+        byte[] storageDataWrapper = generateStorageDataWrapper();
         this.storageConnector.uploadToStorage(
             new ByteArrayInputStream(storageDataWrapper),
             storageDataWrapper.length,
-                storageFileName
+                STORAGE_FILE_NAME
         );
     }
 
-    @NotNull
-    private static byte[] generateStorageDataWrapper(int sizeOfPayload, String contentType) {
-        String payload = "a".repeat(sizeOfPayload);
-        String attachment = "{\"content_type\":\"" + contentType + "\",\"is_base64\":false"
+    private static byte[] generateStorageDataWrapper() {
+        String payload = "a".repeat(SIZE_OF_EACH_CHUNK * NUMBER_OF_CHUNKS);
+        String attachment = "{\"content_type\":\"" + STORAGE_CONTENT_TYPE_UNUSED + "\",\"is_base64\":false"
                 + ",\"description\":\"\",\"payload\":\"" + payload + "\"}";
         String outboundMessage = "{\"payload\": \"\", \"attachments\": [" + attachment + "], \"external_attachments\": []}";
         String encodedData = outboundMessage.replace("\"", "\\\""); // Poor persons JSON encode
@@ -186,23 +229,6 @@ class SendDocumentTaskExecutorTest {
             Arguments.of("QWER", SIZE_THRESHOLD_FOUR, List.of("QWER")),
             Arguments.of("QWE", SIZE_THRESHOLD_FOUR, List.of("QWE")),
             Arguments.of("QWER12", SIZE_THRESHOLD_FOUR, List.of("QWER", "12"))
-        );
-    }
-
-    @BeforeEach
-    void setup() {
-        this.storageConnector = createLocalStorageConnector();
-        gp2gpConfiguration = new Gp2gpConfiguration();
-        this.sendDocumentTaskExecutor = new SendDocumentTaskExecutor(
-                new StorageConnectorService(storageConnector, new ObjectMapper()),
-                this.mhsRequestBuilder,
-                this.mhsClient,
-                new RandomIdGeneratorServiceStub(),
-                this.ehrExtractStatusService,
-                new ObjectMapper(),
-                this.detectDocumentsSentService,
-                gp2gpConfiguration,
-                new EhrDocumentMapper(new TimestampService(), new RandomIdGeneratorServiceStub())
         );
     }
 

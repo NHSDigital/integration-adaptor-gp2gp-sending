@@ -24,7 +24,10 @@ import org.xml.sax.SAXException;
 
 import lombok.SneakyThrows;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class XPathService {
 
     private static final Map<String, XPathExpression> CACHE = new ConcurrentHashMap<>();
@@ -49,8 +52,10 @@ public class XPathService {
             InputSource inputSource = new InputSource(new StringReader(xml));
             return documentBuilder.parse(inputSource);
         } catch (ParserConfigurationException e) {
+            LOGGER.error("XML parser configuration failure", e);
             throw new IllegalStateException("Unable to configure XML parser", e);
         } catch (IOException e) {
+            LOGGER.error("IO error parsing XML document", e);
             throw new RuntimeException("IO error while reading XML", e);
         }
     }
