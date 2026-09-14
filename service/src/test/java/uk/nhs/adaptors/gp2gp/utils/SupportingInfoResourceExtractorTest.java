@@ -23,14 +23,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.InputBundle;
 import uk.nhs.adaptors.gp2gp.ehr.mapper.MessageContext;
 import uk.nhs.adaptors.gp2gp.ehr.utils.SupportingInfoResourceExtractor;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -194,16 +191,17 @@ public class SupportingInfoResourceExtractorTest {
     @Test
     void When_ExtractObservation_Expect_OriginalPrecisionIsNotMutated() {
         final var effectiveDateTime = new DateTimeType("2010-01-01T10:11:12Z");
-        final var resource = (Resource) new Observation().setEffective(effectiveDateTime);
+        final var resource = (Resource) new Observation()
+                .setEffective(effectiveDateTime);
 
         when(inputBundle.getResource(REFERENCE_ID)).thenReturn(Optional.of(resource));
 
-        final var originalValueAsString = effectiveDateTime.getValueAsString();
+        final var originalEffective = ((Observation) resource).getEffective();
 
         final var supportingInfo = SupportingInfoResourceExtractor.extractObservation(messageContext, REFERENCE);
 
-        assertEquals("{ Observation: 2010-01-01 }", supportingInfo);
-        assertEquals(originalValueAsString, effectiveDateTime.getValueAsString());
+        assertThat(supportingInfo).isEqualTo("{ Observation: 2010-01-01 }");
+        assertThat(((Observation) resource).getEffective()).isSameAs(originalEffective);
     }
 
     @Test
