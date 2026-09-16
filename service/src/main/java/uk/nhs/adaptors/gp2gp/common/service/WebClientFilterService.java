@@ -6,6 +6,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -156,7 +157,9 @@ public class WebClientFilterService {
                 var codes = jsonMapper.readTree(outcome).findValuesAsText("code");
 
                 var statusCode = clientResponse.statusCode();
-                var errorCode = getErrorCode(HttpStatus.resolve(statusCode.value()), codes);
+                var errorCode = getErrorCode(Objects.requireNonNullElse(HttpStatus.resolve(statusCode.value()),
+                                                                        HttpStatus.INTERNAL_SERVER_ERROR),
+                                                                        codes);
 
                 return getMonoError(errorCode, exceptionMessage, operationOutcome);
             } catch (JsonProcessingException e) {
