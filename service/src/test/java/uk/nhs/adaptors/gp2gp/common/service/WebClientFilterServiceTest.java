@@ -13,13 +13,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
 import reactor.core.publisher.Mono;
 import uk.nhs.adaptors.gp2gp.common.configuration.WebClientConfiguration;
-
+import uk.nhs.adaptors.gp2gp.gpc.exception.GpConnectException;
 import java.net.URI;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -28,6 +29,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static uk.nhs.adaptors.gp2gp.common.service.WebClientFilterService.RequestType.GPC;
 
 class WebClientFilterServiceTest {
 
@@ -35,6 +38,7 @@ class WebClientFilterServiceTest {
     public static final int THREE_ATTEMPTS = 3;
     public static final int FIVE_SECONDS = 5;
     public static final int THIRTY_SECONDS = 30;
+    private static final HttpStatusCode UNRESOLVABLE_STATUS_CODE = HttpStatusCode.valueOf(499);
     private ListAppender<ILoggingEvent> logAppender;
     private Logger logger;
 
@@ -63,7 +67,7 @@ class WebClientFilterServiceTest {
 
             WebClientFilterService.addWebClientFilters(
                     filters,
-                    WebClientFilterService.RequestType.GPC,
+                    GPC,
                     HttpStatus.OK,
                     clientConfig
             );
@@ -272,6 +276,45 @@ class WebClientFilterServiceTest {
                         return msg.contains("Request to `GPC` failed")
                                 && msg.contains("retrying request");
                     });
+        }
+    }
+
+    @Nested
+    class ErrorHandling {
+
+        @Test
+        void shouldUseInternalServerErrorFallbackWhenStatusCannotBeResolved() {
+            var filters = new ArrayList<ExchangeFilterFunction>();
+            var clientConfig = mockWebClientConfiguration(1, 0);
+
+            WebClientFilterService.addWebClientFilters(
+                filters,
+                GPC,
+                HttpStatus.OK,
+                clientConfig
+            );
+
+            var composedFilter = filters.stream()
+                .reduce(ExchangeFilterFunction::andThen)
+                .orElseThrow();
+
+            var clientRequest = ClientRequest.create(HttpMethod.GET, URI.create("http://localhost/test"))
+                .build();
+
+            var clientResponse = ClientResponse.create(UNRESOLVABLE_STATUS_CODE)
+                .header(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                .body("{\"resourceType\":\"OperationOutcome\",\"issue\":[{\"severity\":\"error\",\"code\":\"UNKNOWN\"}]}")
+                .build();
+
+            ExchangeFunction exchangeFunction = Mockito.mock(ExchangeFunction.class);
+            when(exchangeFunction.exchange(any())).thenReturn(Mono.just(clientResponse));
+
+            var thrown = org.assertj.core.api.Assertions.catchThrowable(() ->
+                composedFilter.filter(clientRequest, exchangeFunction).block(Duration.ofSeconds(TEN_SECONDS))
+            );
+
+            assertThat(thrown).isInstanceOf(GpConnectException.class);
+            assertThat(thrown.getMessage()).contains("The following error occurred during GPC request");
         }
     }
 
