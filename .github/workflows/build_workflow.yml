@@ -35,7 +35,11 @@ jobs:
         if: always()
         run: |
           mkdir -p artifacts
-          cp -r ./service/build/reports ./artifacts
+          if [ -d ./service/build/reports ]; then
+            cp -r ./service/build/reports ./artifacts
+          else
+            echo "No ./service/build/reports directory found"
+          fi
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -74,7 +78,11 @@ jobs:
         if: always()
         run: |
           mkdir -p artifacts
-          cp -r ./service/build/reports ./artifacts
+          if [ -d ./service/build/reports ]; then
+            cp -r ./service/build/reports ./artifacts
+          else
+            echo "No ./service/build/reports directory found"
+          fi
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -118,7 +126,11 @@ jobs:
         if: always()
         run: |
           mkdir -p artifacts
-          cp -r ./service/build/reports ./artifacts
+          if [ -d ./service/build/reports ]; then
+            cp -r ./service/build/reports ./artifacts
+          else
+            echo "No ./service/build/reports directory found"
+          fi
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -189,8 +201,16 @@ jobs:
         if: always()
         run: |
           mkdir -p artifacts
-          cp -r ./service/build/reports ./artifacts
-          cp -r ./scripts/logs ./artifacts
+          if [ -d ./service/build/reports ]; then
+            cp -r ./service/build/reports ./artifacts
+          else
+            echo "No ./service/build/reports directory found"
+          fi
+          if [ -d ./scripts/logs ]; then
+            cp -r ./scripts/logs ./artifacts
+          else
+            echo "No ./scripts/logs directory found"
+          fi
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -259,8 +279,12 @@ jobs:
         if: always()
         run: |
           mkdir -p artifacts
-          docker cp e2e-tests:/home/gradle/e2e-tests/build/reports ./artifacts
-          cp -r ./scripts/logs ./artifacts
+          docker cp e2e-tests:/home/gradle/e2e-tests/build/reports ./artifacts || echo "No e2e reports found - skipping."
+          if [ -d ./scripts/logs ]; then
+            cp -r ./scripts/logs ./artifacts
+          else
+            echo "No ./scripts/logs directory found"
+          fi
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
