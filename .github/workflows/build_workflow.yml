@@ -189,6 +189,7 @@ jobs:
         if: always()
         run: |
           mkdir -p artifacts
+          cp -r ./service/build/reports ./artifacts
           cp -r ./scripts/logs ./artifacts
 
       - name: Upload Artifacts
