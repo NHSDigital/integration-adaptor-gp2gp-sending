@@ -20,7 +20,7 @@ apply plugin: "com.github.spotbugs"
 apply plugin: 'application'
 
 application {
-	mainClassName = 'uk.nhs.adaptors.gp2gp.Gp2gpApplication'
+	mainClass = 'uk.nhs.adaptors.gp2gp.Gp2gpApplication'
 }
 
 group = 'uk.nhs.adaptors'
@@ -137,7 +137,7 @@ tasks.register('interoperabilityTestingToolJsonToXml', JavaExec) {
 configurations {
 	integrationTestCompileOnly.extendsFrom testCompileOnly
 	integrationTestImplementation.extendsFrom testImplementation
-	integrationTestRuntime.extendsFrom testRuntimeOnly
+	integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
 	integrationTestAnnotationProcessor.extendsFrom testAnnotationProcessor
 }
 
