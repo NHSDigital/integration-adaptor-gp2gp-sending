@@ -35,11 +35,7 @@ jobs:
         if: always()
         run: |
           mkdir -p artifacts
-          if [ -d ./service/build/reports ]; then
-            cp -r ./service/build/reports ./artifacts
-          else
-            echo "No ./service/build/reports directory found"
-          fi
+          cp -r ./service/build/reports ./artifacts
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -78,11 +74,7 @@ jobs:
         if: always()
         run: |
           mkdir -p artifacts
-          if [ -d ./service/build/reports ]; then
-            cp -r ./service/build/reports ./artifacts
-          else
-            echo "No ./service/build/reports directory found"
-          fi
+          cp -r ./service/build/reports ./artifacts
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -126,11 +118,7 @@ jobs:
         if: always()
         run: |
           mkdir -p artifacts
-          if [ -d ./service/build/reports ]; then
-            cp -r ./service/build/reports ./artifacts
-          else
-            echo "No ./service/build/reports directory found"
-          fi
+          cp -r ./service/build/reports ./artifacts
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -201,11 +189,7 @@ jobs:
         if: always()
         run: |
           mkdir -p artifacts
-          if [ -d ./service/build/reports ]; then
-            cp -r ./service/build/reports ./artifacts
-          else
-            echo "No ./service/build/reports directory found"
-          fi
+          cp -r ./service/build/reports ./artifacts
           if [ -d ./scripts/logs ]; then
             cp -r ./scripts/logs ./artifacts
           else
