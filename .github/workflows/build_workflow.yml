@@ -189,12 +189,7 @@ jobs:
         if: always()
         run: |
           mkdir -p artifacts
-          cp -r ./service/build/reports ./artifacts
-          if [ -d ./scripts/logs ]; then
-            cp -r ./scripts/logs ./artifacts
-          else
-            echo "No ./scripts/logs directory found"
-          fi
+          cp -r ./scripts/logs ./artifacts
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -263,12 +258,8 @@ jobs:
         if: always()
         run: |
           mkdir -p artifacts
-          docker cp e2e-tests:/home/gradle/e2e-tests/build/reports ./artifacts || echo "No e2e reports found - skipping."
-          if [ -d ./scripts/logs ]; then
-            cp -r ./scripts/logs ./artifacts
-          else
-            echo "No ./scripts/logs directory found"
-          fi
+          docker cp e2e-tests:/home/gradle/e2e-tests/build/reports ./artifacts
+          cp -r ./scripts/logs ./artifacts
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
